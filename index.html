@@ -13,7 +13,7 @@ body{background:#fff;max-width:480px;margin:0 auto;padding-bottom:110px}
 .logo b{font-size:26px;letter-spacing:-0.5px}
 .pilih-lokasi{font-weight:700;font-size:15px;display:flex;align-items:center;gap:4px}
 h1{text-align:center;color:#0a4d24;margin:22px 14px 14px;font-size:32px;line-height:1.15}
-.wrap{padding:0 20px}
+.wrap{padding:0 20px;position:relative}
 label{font-weight:800;font-size:20px;display:block;margin:18px 0 8px;color:#222}
 .row-input{display:flex;align-items:flex-start;gap:12px}
 .pin{font-size:28px;color:#0a9e4e;margin-top:10px;flex-shrink:0}
@@ -23,7 +23,19 @@ label{font-weight:800;font-size:20px;display:block;margin:18px 0 8px;color:#222}
 .btn-peta{background:#0a9e4e;color:#fff;border:0;border-radius:10px;padding:11px 10px;font-weight:800;white-space:nowrap;cursor:pointer;font-size:13px;flex-shrink:0}
 .gps-info{font-size:12px;color:#0a7a3a;margin-top:6px;display:flex;align-items:center;gap:6px;line-height:1.4}
 .gps-info button{background:none;border:0;color:#0a7a3a;font-weight:800;font-size:12px;cursor:pointer;text-decoration:underline;padding:0;flex-shrink:0}
-.hint{font-size:12px;color:#888;margin-top:6px;line-height:1.4}
+.saran{position:absolute;left:20px;right:20px;top:100%;background:#fff;border-radius:16px;box-shadow:0 10px 25px rgba(0,0,0,0.15);z-index:20;display:none;padding:8px 0;margin-top:8px;max-height:360px;overflow-y:auto}
+.saran.show{display:block}
+.saran-item{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;cursor:pointer;border-bottom:1px solid #f0f0f0}
+.saran-item:active{background:#f5f5f5}
+.saran-item:last-child{border-bottom:0}
+.saran-item span{font-size:26px;color:#0a9e4e;flex-shrink:0}
+.saran-item b{font-size:16px;color:#222;font-weight:600;line-height:1.3;display:block}
+.saran-item small{font-size:12px;color:#777;line-height:1.4;display:block;margin-top:2px}
+.saran-item .kec{font-size:12px;color:#0a7a3a;font-weight:700;line-height:1.4;display:block;margin-top:2px}
+.saran-judul{padding:8px 16px;font-size:12px;color:#888;font-weight:700}
+.saran-loading{padding:14px 16px;text-align:center;color:#888;font-size:13px}
+.saran-kosong{padding:14px 16px;text-align:center;color:#888;font-size:13px;line-height:1.5}
+.saran-tips{padding:10px 16px;text-align:center;color:#0a7a3a;font-size:12px;line-height:1.5;background:#f0f9f1;border-top:1px solid #e0e0e0}
 .card{background:#d6ecd9;border-radius:16px;padding:16px;margin:20px 20px 0;display:flex;gap:12px;align-items:flex-start}
 .card-icon{width:52px;height:52px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
 .card-icon img{width:44px;height:44px;object-fit:contain}
@@ -52,22 +64,23 @@ label{font-weight:800;font-size:20px;display:block;margin:18px 0 8px;color:#222}
 
 <h1>Mau Pergi Kemana<br>Hari Ini?</h1>
 
-<div class="wrap">
+<div class="wrap" id="wrapDari">
   <label>Penjemputan</label>
   <div class="row-input">
     <div class="pin">📍</div>
     <div class="box"><input id="inputDari" placeholder="Mendeteksi lokasi kamu..." autocomplete="off"><button class="btn-peta" onclick="bukaPeta('dari')">Peta</button></div>
   </div>
   <div class="gps-info" id="gpsInfo">📡 Mendeteksi lokasi kamu dari GPS... <button onclick="isiDariGPS(true)">Coba Lagi</button></div>
+  <div class="saran" id="saranDari"></div>
 </div>
 
-<div class="wrap">
+<div class="wrap" id="wrapKe">
   <label>Tujuan</label>
   <div class="row-input">
     <div class="pin">📍</div>
-    <div class="box"><input id="inputKe" placeholder="Ketik tujuan... contoh: Cipager" autocomplete="off"><button class="btn-peta" onclick="bukaPeta('ke')">Peta</button></div>
+    <div class="box"><input id="inputKe" placeholder="Ketik tujuan... contoh: Kebontunggul Cimaung" autocomplete="off"><button class="btn-peta" onclick="bukaPeta('ke')">Peta</button></div>
   </div>
-  <div class="hint">Ketik bebas aja. Kalau mau pin-nya pas, klik tombol Peta, taruh pin di tempat tujuan.</div>
+  <div class="saran" id="saranKe"></div>
 </div>
 
 <div class="card">
@@ -93,7 +106,12 @@ label{font-weight:800;font-size:20px;display:block;margin:18px 0 8px;color:#222}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 var latDari=0,lngDari=0,latKe=0,lngKe=0;
+var timerDari=null,timerKe=null;
+// TIDAK ADA DATABASE! HANYA SARAN DARI MAPS ASLI! CUMA 4!
+var JUMLAH_SARAN = 4;
 function hitungJarakKm(a,b,c,d){var R=6371;var dLat=(c-a)*Math.PI/180;var dLon=(d-b)*Math.PI/180;var x=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
+function formatJarak(km){ if(km<1) return Math.round(km*1000)+' m'; return km.toFixed(1).replace('.',',')+' km'; }
+function titikAcuan(tipe){ if(tipe==='ke' && latDari && lngDari) return {lat:latDari,lon:lngDari}; if(tipe==='dari' && latKe && lngKe) return {lat:latKe,lon:lngKe}; return {lat:-6.9175,lon:107.6191}; }
 function formatAlamatLengkap(data, lat, lng){
   if(!data) return lat.toFixed(5)+', '+lng.toFixed(5);
   var a = data.address || {};
@@ -109,6 +127,94 @@ function formatAlamatLengkap(data, lat, lng){
   if(a.postcode) bagian.push(a.postcode);
   if(!bagian.length) return data.display_name || (lat.toFixed(5)+', '+lng.toFixed(5));
   return bagian.join(', ');
+}
+function cariSaranMapsAsli(teks, tipe, callback){
+  var acuan = titikAcuan(tipe);
+  fetch('https://photon.komoot.io/api/?q='+encodeURIComponent(teks)+'&limit=20&lat='+acuan.lat+'&lon='+acuan.lon+'&lang=id')
+    .then(function(r){ return r.json(); }).then(function(data){
+      if(data && data.features && data.features.length){
+        var list=[];
+        var seen={};
+        for(var i=0;i<data.features.length;i++){
+          var f=data.features[i]; var p=f.properties||{}; var c=f.geometry.coordinates;
+          var nama = p.name || p.street || 'Lokasi';
+          var kec = '';
+          if(p.district) kec+=p.district;
+          if(p.city) kec+=(kec?', ':'')+p.city;
+          if(p.county) kec+=(kec?', ':'')+p.county;
+          if(p.state) kec+=(kec?', ':'')+p.state;
+          var alamat = '';
+          if(p.street) alamat+=p.street;
+          if(p.housenumber) alamat+=' No. '+p.housenumber;
+          if(p.district) alamat+=(alamat?', ':'')+p.district;
+          if(p.city) alamat+=(alamat?', ':'')+p.city;
+          if(p.county) alamat+=(alamat?', ':'')+p.county;
+          if(p.state) alamat+=(alamat?', ':'')+p.state;
+          if(p.postcode) alamat+=(alamat?', ':'')+p.postcode;
+          if(!alamat) alamat = kec || (p.country || 'Indonesia');
+          var kunci = nama.toLowerCase()+'|'+kec.toLowerCase();
+          if(seen[kunci]) continue;
+          seen[kunci]=true;
+          list.push({nama:nama, alamat:alamat, kec:kec, lat:c[1], lon:c[0], _jarak:hitungJarakKm(acuan.lat, acuan.lon, c[1], c[0])});
+          if(list.length>=JUMLAH_SARAN) break;
+        }
+        callback(list);
+      } else {
+        return fetch('https://nominatim.openstreetmap.org/search?format=json&limit=10&countrycodes=id&q='+encodeURIComponent(teks))
+          .then(function(r){ return r.json(); }).then(function(d2){
+            var list2=[]; var seen2={};
+            for(var k=0;k<(d2||[]).length;k++){
+              var nf=d2[k].display_name||''; var bg=nf.split(',');
+              var nama2=(bg[0]||'').trim();
+              var kunci2=nf.toLowerCase();
+              if(seen2[kunci2]) continue; seen2[kunci2]=true;
+              list2.push({nama:nama2, alamat:nf, kec:bg.slice(1,4).join(',').trim(), lat:parseFloat(d2[k].lat), lon:parseFloat(d2[k].lon), _jarak:hitungJarakKm(acuan.lat, acuan.lon, parseFloat(d2[k].lat), parseFloat(d2[k].lon))});
+              if(list2.length>=JUMLAH_SARAN) break;
+            }
+            callback(list2);
+          });
+      }
+    }).catch(function(){
+      fetch('https://nominatim.openstreetmap.org/search?format=json&limit=10&countrycodes=id&q='+encodeURIComponent(teks))
+        .then(function(r){ return r.json(); }).then(function(d2){
+          var list2=[];
+          for(var k=0;k<(d2||[]).length;k++){
+            var nf=d2[k].display_name||''; var bg=nf.split(',');
+            list2.push({nama:(bg[0]||'').trim(), alamat:nf, kec:bg.slice(1,4).join(',').trim(), lat:parseFloat(d2[k].lat), lon:parseFloat(d2[k].lon), _jarak:hitungJarakKm(acuan.lat, acuan.lon, parseFloat(d2[k].lat), parseFloat(d2[k].lon))});
+            if(list2.length>=JUMLAH_SARAN) break;
+          }
+          callback(list2);
+        }).catch(function(){ callback([]); });
+    });
+}
+function tampilkanSaran(inputEl, saranEl, list, teks, tipe){
+  if(!list.length){
+    saranEl.innerHTML='<div class="saran-kosong">Tidak ketemu di Maps Asli.<br>Coba ketik lengkap: "'+teks+' Cimaung" atau "'+teks+' Campakamulya"</div><div class="saran-tips">💡 Tips: Kalau nama tempat kembar, tambahkan Kecamatan-nya! Contoh: <b>Kebontunggul Cimaung</b>, bukan cuma <b>Kebontunggul</b></div>';
+    saranEl.classList.add('show');
+    return;
+  }
+  var html='<div class="saran-judul">SARAN DARI MAPS ASLI - CEK KECAMATAN-NYA!</div>';
+  for(var i=0;i<list.length;i++){
+    html += '<div class="saran-item" data-idx="'+i+'"><span>📍</span><div><b>'+list[i].nama+'</b><span class="kec">📍 '+list[i].kec+'</span><small>'+list[i].alamat+'<br>📏 '+formatJarak(list[i]._jarak)+' dari kamu</small></div></div>';
+  }
+  html += '<div class="saran-tips">💡 Kalau ada 2 nama yang sama, cek Kecamatan / Kabupaten-nya!</div>';
+  saranEl.innerHTML=html;
+  saranEl.classList.add('show');
+  var items=saranEl.querySelectorAll('.saran-item');
+  for(var j=0;j<items.length;j++){
+    (function(item, idx){
+      item.addEventListener('mousedown', function(e){
+        e.preventDefault();
+        var p=list[idx];
+        var lengkap = p.nama + ' - ' + p.alamat;
+        inputEl.value=lengkap;
+        if(tipe==='dari'){ latDari=p.lat; lngDari=p.lon; }
+        else { latKe=p.lat; lngKe=p.lon; }
+        saranEl.classList.remove('show');
+        cekJarak();
+      });
+    })(items[j], j);
+  }
 }
 var sudahIsiGPS=false;
 function isiDariGPS(paksa){
@@ -139,19 +245,29 @@ function isiDariGPS(paksa){
     inputDari.placeholder='Ketik Lokasi Jemput...';
   }, {enableHighAccuracy:true, timeout:10000, maximumAge:60000});
 }
-// Tujuan: KETIK BEBAS, TIDAK ADA SARAN - kalau penumpang edit, koordinat direset sampai dia pilih di Peta
-document.getElementById('inputDari').addEventListener('input', function(){
-  latDari=0; lngDari=0; sudahIsiGPS=false;
-  document.getElementById('gpsInfo').innerHTML='✏️ Lokasi diedit manual • <button onclick="isiDariGPS(true)">Balik ke GPS Saya</button>';
-});
-document.getElementById('inputKe').addEventListener('input', function(){
-  latKe=0; lngKe=0;
-});
+function pasang(inputId, saranId, tipe){
+  var inputEl=document.getElementById(inputId); var saranEl=document.getElementById(saranId);
+  inputEl.addEventListener('input', function(){
+    var teks=inputEl.value.trim();
+    if(tipe==='dari'){ latDari=0; lngDari=0; sudahIsiGPS=false; document.getElementById('gpsInfo').innerHTML='✏️ Lokasi diedit manual • <button onclick="isiDariGPS(true)">Balik ke GPS Saya</button>'; }
+    else { latKe=0; lngKe=0; }
+    if(teks.length<2){ saranEl.classList.remove('show'); saranEl.innerHTML=''; return; }
+    saranEl.innerHTML='<div class="saran-loading">🔍 Mencari "'+teks+'" di Maps Asli...</div>'; saranEl.classList.add('show');
+    clearTimeout(tipe==='dari'?timerDari:timerKe);
+    var t=setTimeout(function(){ cariSaranMapsAsli(teks, tipe, function(list){ tampilkanSaran(inputEl, saranEl, list, teks, tipe); }); },400);
+    if(tipe==='dari') timerDari=t; else timerKe=t;
+  });
+  document.addEventListener('click', function(e){ if(e.target!==inputEl && !saranEl.contains(e.target)){ saranEl.classList.remove('show'); } });
+}
+pasang('inputDari','saranDari','dari');
+pasang('inputKe','saranKe','ke');
 var mapPicker=null, markerPicker=null, tipePeta='dari', latPeta=-6.9175, lngPeta=107.6191, alamatPetaText='';
 function bukaPeta(tipe){
   tipePeta=tipe;
   document.getElementById('judulPeta').innerText=tipe==='dari'?'Pilih Lokasi Penjemputan':'Pilih Lokasi Tujuan';
   document.getElementById('overlayPeta').classList.add('show');
+  document.getElementById('saranDari').classList.remove('show');
+  document.getElementById('saranKe').classList.remove('show');
   setTimeout(function(){
     var startLat=-6.9175, startLng=107.6191;
     if(tipe==='dari' && latDari){ startLat=latDari; startLng=lngDari; }
@@ -200,7 +316,7 @@ function lanjutKePembayaran(){
   var link='pembayaran.html?dari='+encodeURIComponent(dari)+'&ke='+encodeURIComponent(ke);
   if(latDari && lngDari) link+='&dari_lat='+latDari+'&dari_lng='+lngDari;
   if(latKe && lngKe) link+='&ke_lat='+latKe+'&ke_lng='+lngKe;
-  link+='&v=142'; window.location.href=link;
+  link+='&v=145'; window.location.href=link;
 }
 window.onload=function(){
   try{
