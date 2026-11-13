@@ -18,11 +18,13 @@ button{width:100%;padding:16px;background:#0a7a2e;color:#fff;border:0;border-rad
 @keyframes putar{to{transform:rotate(360deg)}}
 #popup{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;padding:20px;z-index:99}
 .popup-box{background:#fff;border-radius:20px;padding:22px;text-align:center;max-width:360px;width:100%}
+.btn-kembali{background:#fff;color:#333;border:2px solid #ddd}
 </style></head>
 <body>
 <h2 style="text-align:center">🚗 AMMO TRAVEL</h2>
 <div class="box">
-<h3 style="text-align:center">💳 Pembayaran</h3>
+<button type="button" class="btn-kembali" onclick="kembali()">⬅️ Kembali ke Beranda</button>
+<h3 style="text-align:center;margin-top:10px">💳 Pembayaran</h3>
 <div class="peringatan"><div style="font-size:28px">⚠️📸</div><b>⚠️ WAJIB SCREENSHOT! ⚠️</b><p style="font-size:13px;margin-top:4px">Setelah bayar, <b>WAJIB SCREENSHOT</b> bukti pembayaran!<br><b>Tunjukkan ke Driver</b> saat naik!</p></div>
 <p id="rute" style="text-align:center;color:#666;margin:8px"></p>
 <div class="harga" id="total">Rp 0</div>
@@ -41,7 +43,7 @@ button{width:100%;padding:16px;background:#0a7a2e;color:#fff;border:0;border-rad
 <div class="card" id="k3" onclick="pilih('tunai')"><b>💵 Tunai / Cash</b><div style="color:#666;font-size:13px">Langsung cari driver, bayar ke driver nanti</div>
 <div class="detail" id="d3"><div style="font-size:40px">💵</div><p>Siapkan uang pas ya!</p><button type="button" onclick="keCariDriver();event.stopPropagation()">✅ Lanjut Cari Driver →</button></div></div>
 <button type="button" id="btnBayar" onclick="bayar()">👇 Pilih dulu metode pembayaran di atas</button>
-<button type="button" style="background:#fff;color:#d00;border:2px solid #ffcccc" onclick="batalTotal()">❌ Batalkan Pesanan - Kembali ke Beranda</button>
+<button type="button" style="background:#fff;color:#d00;border:2px solid #ffcccc" onclick="batalTotal()">❌ Batalkan Pesanan</button>
 </div>
 <div id="popup"><div class="popup-box"><div style="font-size:50px">📸⚠️</div><h3>SUDAH SCREENSHOT BELUM?</h3><p id="popupText" style="margin:10px;color:#333"></p><p style="background:#fff3cd;padding:10px;border-radius:10px;font-size:13px"><b>WAJIB SCREENSHOT</b> bukti pembayaran ini sekarang!<br>Tunjukkan ke Driver saat naik!</p><button type="button" onclick="tutupPopup()">✅ SUDAH SAYA SCREENSHOT, LANJUT CARI DRIVER →</button><button type="button" style="background:#fff;color:#666;border:2px solid #ddd" onclick="document.getElementById('popup').style.display='none'">⬅️ Belum, Saya Screenshot Dulu</button><button type="button" style="background:#fff;color:#d00;border:2px solid #ffcccc" onclick="batalTotal()">❌ Batalkan Saja</button></div></div>
 <script>
@@ -50,13 +52,43 @@ const p=new URLSearchParams(location.search);
 let tipe=(p.get('tipe')||'bersama').toLowerCase();
 let dari=p.get('dari')||'Soreang';
 let ke=p.get('ke')||'Dago';
-let kursi=p.get('kursi')||'1';
-let harga=p.get('harga')||'Rp 0';
+let kursi=parseInt(p.get('kursi'))||1;
+let hargaParam=(p.get('harga')||'').replace(/[^0-9]/g,'');
+let hargaAngka=parseInt(hargaParam)||0;
+// DAFTAR HARGA - KALO HARGA DARI DEPAN 0, HITUNG SENDIRI DISINI! JADI GA AKAN 0 LAGI!
+let TARIF={
+ 'Soreang-Dago':{bersama:35000,private:120000},
+ 'Dago-Soreang':{bersama:35000,private:120000},
+ 'Soreang-Bandung':{bersama:30000,private:100000},
+ 'Bandung-Soreang':{bersama:30000,private:100000},
+ 'Soreang-Cimahi':{bersama:30000,private:100000},
+ 'Cimahi-Soreang':{bersama:30000,private:100000},
+ 'Bandung-Dago':{bersama:25000,private:90000},
+ 'Dago-Bandung':{bersama:25000,private:90000}
+};
+function hitungHarga(){
+  if(hargaAngka>0) return hargaAngka;
+  let kunci=dari+'-'+ke;
+  let t=TARIF[kunci];
+  if(t){
+    if(tipe=='private') return t.private;
+    return t.bersama*kursi;
+  }
+  // Kalau rute baru belum ada di daftar, jangan 0! Pakai harga aman:
+  if(tipe=='private') return 100000;
+  return 30000*kursi;
+}
+hargaAngka=hitungHarga();
+let harga='Rp '+hargaAngka.toLocaleString('id-ID');
 document.getElementById('rute').innerText=dari+' → '+ke+' • '+kursi+' Kursi • '+tipe.toUpperCase();
 document.getElementById('total').innerText=harga;
 let dipilih='';
 let timerBayar=null;
 let sudahBatal=false;
+function kembali(){
+  localStorage.removeItem('ammo_batal');
+  location.href='index.html';
+}
 function pilih(t){dipilih=t;
 document.getElementById('k1').classList.toggle('pilih',t=='ewallet');
 document.getElementById('k2').classList.toggle('pilih',t=='transfer');
@@ -78,14 +110,11 @@ function batalTotal(){
   localStorage.setItem('ammo_batal','1');
   if(timerBayar) clearTimeout(timerBayar);
   document.getElementById('popup').style.display='none';
-  document.getElementById('loadWallet').style.display='none';
-  document.getElementById('statusWallet').innerText='';
-  alert('Pesanan dibatalkan! Kembali ke beranda, TIDAK jadi cari driver!');
-  location.replace('index.html?batal=1&x='+Date.now());
+  alert('Pesanan dibatalkan! Kembali ke beranda!');
+  location.href='index.html';
 }
 function sudahBayar(metode){
   if(sudahBatal) return;
-  if(localStorage.getItem('ammo_batal')=='1') return;
   document.getElementById('popupText').innerText='Pembayaran '+metode+' sebesar '+harga+' Berhasil!';
   document.getElementById('popup').style.display='flex';
 }
@@ -104,7 +133,6 @@ function bayarWallet(wallet){
   if(timerBayar) clearTimeout(timerBayar);
   timerBayar=setTimeout(()=>{
     if(sudahBatal) return;
-    if(localStorage.getItem('ammo_batal')=='1') return;
     document.getElementById('statusWallet').innerText='✅ Pembayaran '+wallet+' Berhasil!';
     sudahBayar(wallet);
   }, 4000);
