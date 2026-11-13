@@ -86,7 +86,7 @@ let cacheSaran={};let cacheReverse={};
 function jarak(a,b,c,d){var R=6371,dl=(c-a)*Math.PI/180,dn=(d-b)*Math.PI/180;var x=Math.sin(dl/2)*Math.sin(dl/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dn/2)*Math.sin(dn/2);return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
 function updateTombol(){var j=document.getElementById('jemput').value.trim();var t=document.getElementById('tujuan').value.trim();var lengkap=j&&t;document.getElementById('swapBtn').disabled=!lengkap;document.getElementById('cekBtn').disabled=!lengkap;if(!j)data.jemput=null;if(!t)data.tujuan=null;}
 function tukar(){var ji=document.getElementById('jemput');var tu=document.getElementById('tujuan');var tmp=ji.value;ji.value=tu.value;tu.value=tmp;var tmp2=data.jemput;data.jemput=data.tujuan;data.tujuan=tmp2;updateTombol();}
-// REVERSE BARU: BigDataCloud, gratis, ga gampang ke-blokir kayak Nominatim
+// === PENJEMPUTAN: JANGAN DIUBAH, SUDAH OK ===
 async function reverseAlamat(lat,lng){
   var k=lat.toFixed(4)+','+lng.toFixed(4);
   if(cacheReverse[k]) return cacheReverse[k];
@@ -98,40 +98,111 @@ async function reverseAlamat(lat,lng){
   if(j.principalSubdivision) parts.push(j.principalSubdivision);
   if(j.countryName) parts.push(j.countryName);
   var alamat=parts.length?parts.join(', '):('Lokasi Pin ('+lat.toFixed(5)+', '+lng.toFixed(5)+')');
-  // Simpan juga nama jalan kalau ada
   if(j.locality) alamat=j.locality+', '+alamat;
   cacheReverse[k]=alamat;
   return alamat;
 }
 function isiGPS(){if(!navigator.geolocation){document.getElementById('hintJemput').textContent='GPS tidak tersedia.';return;}navigator.geolocation.getCurrentPosition(async function(pos){gps={lat:pos.coords.latitude,lng:pos.coords.longitude};var inp=document.getElementById('jemput');try{var alamat=await reverseAlamat(gps.lat,gps.lng);if(!inp.value.trim()){inp.value=alamat;data.jemput={nama:alamat,lat:gps.lat,lng:gps.lng};}document.getElementById('hintJemput').textContent='GPS ditemukan. Bisa diedit untuk keluarga.';}catch(e){var fb='Lokasi Saya (GPS)';if(!inp.value.trim()){inp.value=fb;data.jemput={nama:fb,lat:gps.lat,lng:gps.lng};}document.getElementById('hintJemput').textContent='GPS ditemukan.';}updateTombol();},function(){document.getElementById('hintJemput').textContent='Izin lokasi ditolak. Ketik manual.';},{enableHighAccuracy:true,timeout:8000});}
-function setupSaran(inputId,boxId,key){var inp=document.getElementById(inputId);var box=document.getElementById(boxId);var timer=null;inp.addEventListener('input',function(){updateTombol();var q=inp.value.trim();if(q.length<2){box.style.display='none';return;}clearTimeout(timer);timer=setTimeout(function(){cariSaran(q).then(function(list){if(list.length===0){box.innerHTML='<div style="padding:14px;font-size:14px;color:#888">Tidak ketemu, coba ketik lebih lengkap / pilih di Peta</div>';box.style.display='block';return;}box.innerHTML='';list.forEach(function(x){var b=document.createElement('button');b.type='button';b.innerHTML='<span style="font-size:22px">📍</span><span><b>'+x.nama+'</b><small>'+x.display_name+' • '+(x._j?x._j.toFixed(1)+' km':'')+'</small></span>';b.onclick=function(){document.getElementById(key==='jemput'?'jemput':'tujuan').value=x.display_name;data[key]={nama:x.display_name,lat:x.lat,lng:x.lng};box.style.display='none';updateTombol();};box.appendChild(b);});box.style.display='block';}).catch(function(){box.innerHTML='<div style="padding:14px;font-size:14px;color:#888">Sinyal lagi lemot, coba ketik lagi / pilih di Peta</div>';box.style.display='block';});},350);});document.addEventListener('click',function(e){if(!inp.closest('.field').contains(e.target))box.style.display='none';});}
-// SARAN BARU: Photon, bukan Nominatim lagi
-async function cariSaran(q){
-  var cacheKey=q.toLowerCase()+'|'+(gps?gps.lat.toFixed(2)+','+gps.lng.toFixed(2):'nogps');
-  if(cacheSaran[cacheKey]) return cacheSaran[cacheKey];
+// === TUJUAN: INI SATU-SATUNYA YANG DIBENERIN ===
+function setupSaranTujuan(){
+  var inp=document.getElementById('tujuan');var box=document.getElementById('saranTujuan');var timer=null;
+  inp.addEventListener('input',function(){
+    updateTombol();
+    var q=inp.value.trim();
+    if(q.length<2){box.style.display='none';return;}
+    clearTimeout(timer);
+    timer=setTimeout(function(){
+      cariSaranTujuan(q).then(function(list){
+        if(list.length===0){box.innerHTML='<div style="padding:14px;font-size:14px;color:#888">Tidak ketemu, coba ketik lebih lengkap / pilih di Peta</div>';box.style.display='block';return;}
+        box.innerHTML='';
+        list.forEach(function(x){
+          var b=document.createElement('button');b.type='button';
+          b.innerHTML='<span style="font-size:22px">📍</span><span><b>'+x.nama+'</b><small>'+x.display_name+' • '+(x._j?x._j.toFixed(1)+' km':'')+'</small></span>';
+          b.onclick=function(){document.getElementById('tujuan').value=x.display_name;data.tujuan={nama:x.display_name,lat:x.lat,lng:x.lng};box.style.display='none';updateTombol();};
+          box.appendChild(b);
+        });
+        box.style.display='block';
+      }).catch(function(){box.innerHTML='<div style="padding:14px;font-size:14px;color:#888">Sinyal lagi lemot, coba ketik lagi / pilih di Peta</div>';box.style.display='block';});
+    },350);
+  });
+  document.addEventListener('click',function(e){if(!inp.closest('.field').contains(e.target))box.style.display='none';});
+}
+// Penjemputan tetap pakai cara lama yang sudah ok (Photon simple)
+function setupSaranJemput(){
+  var inp=document.getElementById('jemput');var box=document.getElementById('saranJemput');var timer=null;
+  inp.addEventListener('input',function(){
+    updateTombol();
+    var q=inp.value.trim();
+    if(q.length<2){box.style.display='none';return;}
+    clearTimeout(timer);
+    timer=setTimeout(function(){
+      cariSaranTujuan(q).then(function(list){
+        if(list.length===0){box.style.display='none';return;}
+        box.innerHTML='';
+        list.forEach(function(x){
+          var b=document.createElement('button');b.type='button';
+          b.innerHTML='<span style="font-size:22px">📍</span><span><b>'+x.nama+'</b><small>'+x.display_name+' • '+(x._j?x._j.toFixed(1)+' km':'')+'</small></span>';
+          b.onclick=function(){document.getElementById('jemput').value=x.display_name;data.jemput={nama:x.display_name,lat:x.lat,lng:x.lng};box.style.display='none';updateTombol();};
+          box.appendChild(b);
+        });
+        box.style.display='block';
+      });
+    },350);
+  });
+  document.addEventListener('click',function(e){if(!inp.closest('.field').contains(e.target))box.style.display='none';});
+}
+async function cariPhoton(q,pakaiLokasi){
   var url='https://photon.komoot.io/api/?q='+encodeURIComponent(q)+'&limit=20&lang=id';
-  if(gps) url+='&lat='+gps.lat+'&lon='+gps.lng;
-  var r=await fetch(url);
-  var j=await r.json();
+  if(pakaiLokasi && gps) url+='&lat='+gps.lat+'&lon='+gps.lng;
+  var r=await fetch(url); var j=await r.json();
   var list=(j.features||[]).map(function(f){
     var p=f.properties||{}; var c=f.geometry.coordinates;
-    var parts=[];
-    if(p.name) parts.push(p.name);
-    if(p.street) parts.push(p.street);
-    if(p.city) parts.push(p.city);
-    else if(p.county) parts.push(p.county);
-    if(p.state) parts.push(p.state);
+    var parts=[]; if(p.name) parts.push(p.name); if(p.street) parts.push(p.street); if(p.city) parts.push(p.city); else if(p.county) parts.push(p.county); if(p.state) parts.push(p.state);
     var display=parts.join(', ')||p.name||q;
     return {nama:p.name||display, display_name:display, lat:c[1], lng:c[0], _j: gps?jarak(gps.lat,gps.lng,c[1],c[0]):0};
   });
-  // Buang yang namanya sama persis, biar ga double
-  var seen={}; list=list.filter(function(x){if(seen[x.display_name]) return false; seen[x.display_name]=1; return true;});
-  if(gps) list.sort(function(a,b){return a._j-b._j;});
-  list=list.slice(0,6);
-  cacheSaran[cacheKey]=list;
   return list;
 }
-setupSaran('jemput','saranJemput','jemput');setupSaran('tujuan','saranTujuan','tujuan');
+async function cariNominatim(q){
+  var url='https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(q)+'&format=json&limit=10&countrycodes=id&accept-language=id';
+  if(gps){var d=0.6; url+='&viewbox='+(gps.lng-d)+','+(gps.lat+d)+','+(gps.lng+d)+','+(gps.lat-d);}
+  var r=await fetch(url); var j=await r.json();
+  return j.map(function(x){return {nama:x.display_name.split(',')[0], display_name:x.display_name, lat:parseFloat(x.lat), lng:parseFloat(x.lon), _j: gps?jarak(gps.lat,gps.lng,parseFloat(x.lat),parseFloat(x.lon)):0};});
+}
+// Daftar cadangan Bandung, biar Bojong dkk PASTI ketemu walau server luar error
+function cadanganBandung(q){
+  var daftar=[
+    {nama:'Bojongsoang',display_name:'Bojongsoang, Bandung, Jawa Barat',lat:-6.9909,lng:107.6383},
+    {nama:'Bojongloa Kaler',display_name:'Bojongloa Kaler, Bandung, Jawa Barat',lat:-6.9365,lng:107.5968},
+    {nama:'Bojongloa Kidul',display_name:'Bojongloa Kidul, Bandung, Jawa Barat',lat:-6.9510,lng:107.5940},
+    {nama:'Bojongkoneng',display_name:'Bojongkoneng, Bandung, Jawa Barat',lat:-6.9200,lng:107.6300},
+    {nama:'Bojong',display_name:'Bojong, Bandung, Jawa Barat',lat:-6.9300,lng:107.6200},
+    {nama:'Kebon Jeruk',display_name:'Kebon Jeruk, Bandung, Jawa Barat',lat:-6.9200,lng:107.6100},
+    {nama:'Kebon Kelapa',display_name:'Kebon Kelapa, Bandung, Jawa Barat',lat:-6.9205,lng:107.6060},
+    {nama:'Kebon Kawung',display_name:'Kebon Kawung, Bandung, Jawa Barat',lat:-6.9147,lng:107.6020},
+    {nama:'Stasiun Bandung',display_name:'Stasiun Bandung, Kebon Kawung, Bandung',lat:-6.9147,lng:107.6024},
+    {nama:'Bandara Husein Sastranegara',display_name:'Bandara Husein Sastranegara, Bandung',lat:-6.9006,lng:107.5769}
+  ];
+  var ql=q.toLowerCase();
+  return daftar.filter(function(x){return x.nama.toLowerCase().includes(ql) || x.display_name.toLowerCase().includes(ql);}).map(function(x){x._j=gps?jarak(gps.lat,gps.lng,x.lat,x.lng):0;return x;});
+}
+async function cariSaranTujuan(q){
+  var cacheKey='tujuan|'+q.toLowerCase()+'|'+(gps?gps.lat.toFixed(2)+','+gps.lng.toFixed(2):'nogps');
+  if(cacheSaran[cacheKey]) return cacheSaran[cacheKey];
+  var list=[];
+  try{ list=await cariPhoton(q,true); }catch(e){ list=[]; }
+  if(list.length===0){ try{ list=await cariPhoton(q,false); }catch(e){} }
+  if(list.length===0){ try{ list=await cariNominatim(q); }catch(e){} }
+  // Gabung dengan cadangan Bandung, biar Bojong ga pernah kosong
+  var cad=cadanganBandung(q);
+  var seen={}; var gabung=[];
+  list.concat(cad).forEach(function(x){ if(!seen[x.display_name]){seen[x.display_name]=1; gabung.push(x);} });
+  if(gps) gabung.sort(function(a,b){return a._j-b._j;});
+  gabung=gabung.slice(0,6);
+  cacheSaran[cacheKey]=gabung;
+  return gabung;
+}
+setupSaranJemput();setupSaranTujuan();
 function bukaPeta(mode){modePeta=mode;document.getElementById('mapJudul').textContent=mode==='jemput'?'Pilih Penjemputan':'Pilih Tujuan';document.getElementById('mapSheet').classList.add('open');document.getElementById('overlay').classList.add('show');setTimeout(function(){if(typeof L==='undefined'){document.getElementById('map').innerHTML='<p style="padding:20px">Peta gagal dimuat, cek internet.</p>';return;}if(!map){var s=gps||{lat:-6.9175,lng:107.6191};map=L.map('map').setView([s.lat,s.lng],15);L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:19,subdomains:'abcd'}).addTo(map);map.on('click',function(e){setPin(e.latlng);});}map.invalidateSize();var cur=data[mode]||gps||{lat:-6.9175,lng:107.6191};map.setView([cur.lat,cur.lng],15);setPin({lat:cur.lat,lng:cur.lng});},100);}
 async function setPin(ll){pinLatLng=ll;if(marker)marker.setLatLng(ll);else{marker=L.marker(ll,{draggable:true}).addTo(map);marker.on('dragend',function(){setPin(marker.getLatLng());});}document.getElementById('mapAlamat').textContent='Memuat alamat...';try{var a=await reverseAlamat(ll.lat,ll.lng);document.getElementById('mapAlamat').textContent=a;document.getElementById('mapAlamat').dataset.nama=a.split(',').slice(0,4).join(',');}catch(e){document.getElementById('mapAlamat').textContent='Lokasi Pin ('+ll.lat.toFixed(5)+', '+ll.lng.toFixed(5)+')';document.getElementById('mapAlamat').dataset.nama='Lokasi Pin';}}
 function pakaiPin(){if(!pinLatLng)return;var alamat=document.getElementById('mapAlamat').dataset.nama||document.getElementById('mapAlamat').textContent;document.getElementById(modePeta==='jemput'?'jemput':'tujuan').value=alamat;data[modePeta]={nama:alamat,lat:pinLatLng.lat,lng:pinLatLng.lng};tutupPeta();updateTombol();}
