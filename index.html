@@ -107,7 +107,6 @@ label{font-weight:800;font-size:20px;display:block;margin:18px 0 8px;color:#222}
 <script>
 var latDari=0,lngDari=0,latKe=0,lngKe=0;
 var timerDari=null,timerKe=null;
-// === CUMA INI YANG DIUBAH: TUJUAN JADI 6, URUT TERDEKAT! GPS / PETA GA DISENTUH! ===
 var JUMLAH_SARAN = 6;
 function hitungJarakKm(a,b,c,d){var R=6371;var dLat=(c-a)*Math.PI/180;var dLon=(d-b)*Math.PI/180;var x=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
 function formatJarak(km){ if(km<1) return Math.round(km*1000)+' m'; return km.toFixed(1).replace('.',',')+' km'; }
@@ -130,7 +129,7 @@ function formatAlamatLengkap(data, lat, lng){
 }
 function cariSaranMapsAsli(teks, tipe, callback){
   var acuan = titikAcuan(tipe);
-  fetch('https://photon.komoot.io/api/?q='+encodeURIComponent(teks)+'&limit=30&lat='+acuan.lat+'&lon='+acuan.lon+'&lang=id')
+  fetch('https://photon.komoot.io/api/?q='+encodeURIComponent(teks)+'&limit=20&lat='+acuan.lat+'&lon='+acuan.lon+'&lang=id')
     .then(function(r){ return r.json(); }).then(function(data){
       if(data && data.features && data.features.length){
         var list=[];
@@ -157,11 +156,10 @@ function cariSaranMapsAsli(teks, tipe, callback){
           seen[kunci]=true;
           list.push({nama:nama, alamat:alamat, kec:kec, lat:c[1], lon:c[0], _jarak:hitungJarakKm(acuan.lat, acuan.lon, c[1], c[0])});
         }
-        // === CUMA INI YANG DITAMBAH: URUT DARI TERDEKAT, AMBIL 6! ===
         list.sort(function(a,b){ return a._jarak - b._jarak; });
         callback(list.slice(0, JUMLAH_SARAN));
       } else {
-        return fetch('https://nominatim.openstreetmap.org/search?format=json&limit=15&countrycodes=id&q='+encodeURIComponent(teks))
+        return fetch('https://nominatim.openstreetmap.org/search?format=json&limit=10&countrycodes=id&q='+encodeURIComponent(teks))
           .then(function(r){ return r.json(); }).then(function(d2){
             var list2=[]; var seen2={};
             for(var k=0;k<(d2||[]).length;k++){
@@ -176,7 +174,7 @@ function cariSaranMapsAsli(teks, tipe, callback){
           });
       }
     }).catch(function(){
-      fetch('https://nominatim.openstreetmap.org/search?format=json&limit=15&countrycodes=id&q='+encodeURIComponent(teks))
+      fetch('https://nominatim.openstreetmap.org/search?format=json&limit=10&countrycodes=id&q='+encodeURIComponent(teks))
         .then(function(r){ return r.json(); }).then(function(d2){
           var list2=[];
           for(var k=0;k<(d2||[]).length;k++){
@@ -190,111 +188,4 @@ function cariSaranMapsAsli(teks, tipe, callback){
 }
 function tampilkanSaran(inputEl, saranEl, list, teks, tipe){
   if(!list.length){
-    saranEl.innerHTML='<div class="saran-kosong">Tidak ketemu.<br>Coba ketik lengkap: "'+teks+' Cimaung" atau "'+teks+' Campakamulya"</div><div class="saran-tips">💡 Tips: Kalau nama tempat kembar, tambahkan Kecamatan-nya!</div>';
-    saranEl.classList.add('show');
-    return;
-  }
-  var html='<div class="saran-judul">✅ Cek alamat yang sesuai tujuan anda</div>';
-  for(var i=0;i<list.length;i++){
-    html += '<div class="saran-item" data-idx="'+i+'"><span>📍</span><div><b>'+list[i].nama+'</b><span class="kec">📍 '+list[i].kec+'</span><small>'+list[i].alamat+'<br>📏 '+formatJarak(list[i]._jarak)+' dari kamu</small></div></div>';
-  }
-  html += '<div class="saran-tips">💡 Diurutkan dari yang terdekat! Yang paling atas paling dekat!</div>';
-  saranEl.innerHTML=html;
-  saranEl.classList.add('show');
-  var items=saranEl.querySelectorAll('.saran-item');
-  for(var j=0;j<items.length;j++){
-    (function(item, idx){
-      item.addEventListener('mousedown', function(e){
-        e.preventDefault();
-        var p=list[idx];
-        var lengkap = p.nama + ' - ' + p.alamat;
-        inputEl.value=lengkap;
-        if(tipe==='dari'){ latDari=p.lat; lngDari=p.lon; }
-        else { latKe=p.lat; lngKe=p.lon; }
-        saranEl.classList.remove('show');
-        cekJarak();
-      });
-    })(items[j], j);
-  }
-}
-var sudahIsiGPS=false;
-function isiDariGPS(paksa){
-  var inputDari=document.getElementById('inputDari');
-  var gpsInfo=document.getElementById('gpsInfo');
-  if(sudahIsiGPS && !paksa) return;
-  if(!navigator.geolocation){
-    gpsInfo.innerHTML='⚠️ GPS tidak didukung di HP ini.';
-    inputDari.placeholder='Ketik Lokasi Jemput...';
-    return;
-  }
-  gpsInfo.innerHTML='📡 Mendeteksi lokasi kamu dari GPS...';
-  navigator.geolocation.getCurrentPosition(function(pos){
-    latDari=pos.coords.latitude; lngDari=pos.coords.longitude;
-    sudahIsiGPS=true;
-    fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+latDari+'&lon='+lngDari+'&zoom=18&addressdetails=1')
-      .then(function(r){ return r.json(); }).then(function(data){
-        inputDari.value=formatAlamatLengkap(data, latDari, lngDari);
-        gpsInfo.innerHTML='✅ Lokasi kamu: GPS • Bisa diedit! <button onclick="isiDariGPS(true)">Pakai GPS Lagi</button>';
-        cekJarak();
-      }).catch(function(){
-        inputDari.value=latDari.toFixed(5)+', '+lngDari.toFixed(5);
-        gpsInfo.innerHTML='✅ Lokasi kamu: GPS • Bisa diedit! <button onclick="isiDariGPS(true)">Pakai GPS Lagi</button>';
-        cekJarak();
-      });
-  }, function(err){
-    gpsInfo.innerHTML='⚠️ GPS belum aktif / ditolak. Ketik manual aja, atau <button onclick="isiDariGPS(true)">Aktifkan GPS</button>';
-    inputDari.placeholder='Ketik Lokasi Jemput...';
-  }, {enableHighAccuracy:true, timeout:10000, maximumAge:60000});
-}
-function pasang(inputId, saranId, tipe){
-  var inputEl=document.getElementById(inputId); var saranEl=document.getElementById(saranId);
-  inputEl.addEventListener('input', function(){
-    var teks=inputEl.value.trim();
-    if(tipe==='dari'){ latDari=0; lngDari=0; sudahIsiGPS=false; document.getElementById('gpsInfo').innerHTML='✏️ Lokasi diedit manual • <button onclick="isiDariGPS(true)">Balik ke GPS Saya</button>'; }
-    else { latKe=0; lngKe=0; }
-    if(teks.length<2){ saranEl.classList.remove('show'); saranEl.innerHTML=''; return; }
-    saranEl.innerHTML='<div class="saran-loading">🔍 Mencari "'+teks+'"...</div>'; saranEl.classList.add('show');
-    clearTimeout(tipe==='dari'?timerDari:timerKe);
-    var t=setTimeout(function(){ cariSaranMapsAsli(teks, tipe, function(list){ tampilkanSaran(inputEl, saranEl, list, teks, tipe); }); },400);
-    if(tipe==='dari') timerDari=t; else timerKe=t;
-  });
-  document.addEventListener('click', function(e){ if(e.target!==inputEl && !saranEl.contains(e.target)){ saranEl.classList.remove('show'); } });
-}
-pasang('inputDari','saranDari','dari');
-pasang('inputKe','saranKe','ke');
-var mapPicker=null, markerPicker=null, tipePeta='dari', latPeta=-6.9175, lngPeta=107.6191, alamatPetaText='';
-function bukaPeta(tipe){
-  tipePeta=tipe;
-  document.getElementById('judulPeta').innerText=tipe==='dari'?'Pilih Lokasi Penjemputan':'Pilih Lokasi Tujuan';
-  document.getElementById('overlayPeta').classList.add('show');
-  document.getElementById('saranDari').classList.remove('show');
-  document.getElementById('saranKe').classList.remove('show');
-  setTimeout(function(){
-    var startLat=-6.9175, startLng=107.6191;
-    if(tipe==='dari' && latDari){ startLat=latDari; startLng=lngDari; }
-    if(tipe==='ke' && latKe){ startLat=latKe; startLng=lngKe; }
-    if(!mapPicker){
-      mapPicker=L.map('mapPicker').setView([startLat,startLng],14);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(mapPicker);
-      mapPicker.on('click',function(e){ latPeta=e.latlng.lat; lngPeta=e.latlng.lng; if(markerPicker) markerPicker.setLatLng([latPeta,lngPeta]); else markerPicker=L.marker([latPeta,lngPeta]).addTo(mapPicker); cariAlamat(latPeta,lngPeta); });
-    } else { mapPicker.invalidateSize(); mapPicker.setView([startLat,startLng],14); }
-    latPeta=startLat; lngPeta=startLng;
-    if(markerPicker) markerPicker.setLatLng([latPeta,lngPeta]); else markerPicker=L.marker([latPeta,lngPeta]).addTo(mapPicker);
-    cariAlamat(latPeta,lngPeta);
-  },150);
-}
-function cariAlamat(lat,lng){
-  document.getElementById('alamatPeta').innerText='Mencari alamat lengkap...';
-  fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lng+'&zoom=18&addressdetails=1')
-    .then(function(r){ return r.json(); }).then(function(data){ alamatPetaText=formatAlamatLengkap(data, lat, lng); document.getElementById('alamatPeta').innerHTML='📍 <b>'+alamatPetaText+'</b>'; })
-    .catch(function(){ alamatPetaText=lat.toFixed(5)+', '+lng.toFixed(5); document.getElementById('alamatPeta').innerHTML='📍 <b>'+alamatPetaText+'</b>'; });
-}
-function konfirmasiPeta(){
-  var inputEl=tipePeta==='dari'?document.getElementById('inputDari'):document.getElementById('inputKe');
-  inputEl.value=alamatPetaText||(latPeta.toFixed(5)+', '+lngPeta.toFixed(5));
-  if(tipePeta==='dari'){ latDari=latPeta; lngDari=lngPeta; sudahIsiGPS=true; document.getElementById('gpsInfo').innerHTML='📍 Lokasi dipilih dari Peta • Bisa diedit! <button onclick="isiDariGPS(true)">Balik ke GPS Saya</button>'; }
-  else { latKe=latPeta; lngKe=lngPeta; }
-  document.getElementById('overlayPeta').classList.remove('show');
-  cekJarak();
-}
-function tutupPeta(){ document.getElementById('overlayPeta').
+    saranEl.innerHTML='<div class="saran-kosong">Tidak ketemu.<br>Coba ketik lengkap: "'+teks+' Cimaung" atau "'+teks+' Camp
