@@ -9,13 +9,14 @@
 body{background:#fff;max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;position:relative;padding-bottom:80px}
 header{background:#0a9e4e;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
 .logo{display:flex;align-items:center;gap:10px}
-.logo-icon{width:44px;height:44px;background:#fff;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-icon{width:46px;height:46px;background:#000;border:1px solid #d4af37;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .logo-icon img{width:100%;height:100%;object-fit:cover}
 .logo b{font-size:24px}
 .pilih-lokasi{font-size:14px;font-weight:700;display:flex;align-items:center;gap:4px;cursor:pointer}
 h1{text-align:center;color:#0b3d1e;font-size:28px;margin:20px 14px 4px;line-height:1.2}
-.car-icon{text-align:center;margin:6px 0 12px}
-.car-icon img{width:240px;max-width:85%;height:110px;object-fit:cover;border-radius:14px}
+.car-icon{margin:6px 14px 12px;background:#000;border-radius:16px;overflow:hidden}
+.car-icon img{width:100%;height:auto;display:block;object-fit:contain}
+.car-caption{text-align:center;font-size:12px;color:#888;margin-top:2px}
 label{font-weight:800;color:#111;font-size:17px;margin:14px 0 8px;display:block}
 .field{display:flex;align-items:center;gap:10px}
 .pin{font-size:28px;color:#0a9e4e;flex-shrink:0}
@@ -25,7 +26,7 @@ label{font-weight:800;color:#111;font-size:17px;margin:14px 0 8px;display:block}
 .wrap{padding:0 16px}
 .info{background:#d9ecd9;border-radius:14px;padding:14px;margin-top:18px}
 .info-top{display:flex;gap:12px;align-items:center}
-.info-icon{width:48px;height:48px;min-width:48px;background:#fff;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.info-icon{width:48px;height:48px;min-width:48px;background:#000;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .info-icon img{width:100%;height:100%;object-fit:cover}
 .info-top p{font-size:15px;line-height:1.4;color:#111}
 .btn-lanjut{width:100%;background:#0a9e4e;color:#fff;border:0;border-radius:12px;padding:17px;font-size:22px;font-weight:800;margin-top:14px;cursor:pointer}
@@ -46,12 +47,13 @@ nav span{font-size:22px}
 </style></head>
 <body>
 <header>
-<div class="logo"><div class="logo-icon"><img src="icon-512.png" alt="Ammo Travel"></div><b>Ammo Travel</b></div>
+<div class="logo"><div class="logo-icon"><img src="icon-512.png?v=2" alt="Ammo Travel"></div><b>Ammo Travel</b></div>
 <div class="pilih-lokasi" onclick="pilihLokasi()">📍 Pilih Lokasi</div>
 </header>
 
 <h1>Mau Pergi Kemana<br>Hari Ini?</h1>
-<div class="car-icon"><img src="https://images.unsplash.com/photo-1550355291-bbee04a92027?w=800&q=80" alt="Sedan Ammo Travel"></div>
+<div class="car-icon"><img src="xpander-putih.png" alt="Mobil Ammo Travel"></div>
+<div class="car-caption">Nyaman • Lega • 7 Kursi</div>
 
 <div class="wrap">
 <label>Penjemputan</label>
@@ -61,7 +63,7 @@ nav span{font-size:22px}
 <div class="field"><div class="pin">📍</div><div class="input-wrap"><input id="ke" placeholder="Ketik / Pilih Tujuan..."><button class="btn-peta" type="button" onclick="bukaPeta('ke')">📍 Pilih di Peta</button></div></div>
 
 <div class="info">
-<div class="info-top"><div class="info-icon"><img src="https://images.unsplash.com/photo-1550355291-bbee04a92027?w=200&q=80" alt="Driver"></div><p><b>Driver di sekitar kamu siap menjemput!</b><br>Cek harga setelah isi lokasi</p></div>
+<div class="info-top"><div class="info-icon"><img src="xpander-putih.png" alt="Driver"></div><p><b>Driver di sekitar kamu siap menjemput!</b><br>Cek harga setelah isi lokasi</p></div>
 <button class="btn-lanjut" onclick="cekDriver()">Cek Driver &amp; Lanjut</button>
 </div>
 </div>
