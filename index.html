@@ -169,20 +169,6 @@ async function cariNominatim(q){
   var r=await fetch(url); var j=await r.json();
   return j.map(function(x){return {nama:x.display_name.split(',')[0], display_name:x.display_name, lat:parseFloat(x.lat), lng:parseFloat(x.lon), _j: gps?jarak(gps.lat,gps.lng,parseFloat(x.lat),parseFloat(x.lon)):0};});
 }
-// Daftar cadangan Bandung, biar Bojong dkk PASTI ketemu walau server luar error
-function cadanganBandung(q){
-  var daftar=[
-    {nama:'Bojongsoang',display_name:'Bojongsoang, Bandung, Jawa Barat',lat:-6.9909,lng:107.6383},
-    {nama:'Bojongloa Kaler',display_name:'Bojongloa Kaler, Bandung, Jawa Barat',lat:-6.9365,lng:107.5968},
-    {nama:'Bojongloa Kidul',display_name:'Bojongloa Kidul, Bandung, Jawa Barat',lat:-6.9510,lng:107.5940},
-    {nama:'Bojongkoneng',display_name:'Bojongkoneng, Bandung, Jawa Barat',lat:-6.9200,lng:107.6300},
-    {nama:'Bojong',display_name:'Bojong, Bandung, Jawa Barat',lat:-6.9300,lng:107.6200},
-    {nama:'Kebon Jeruk',display_name:'Kebon Jeruk, Bandung, Jawa Barat',lat:-6.9200,lng:107.6100},
-    {nama:'Kebon Kelapa',display_name:'Kebon Kelapa, Bandung, Jawa Barat',lat:-6.9205,lng:107.6060},
-    {nama:'Kebon Kawung',display_name:'Kebon Kawung, Bandung, Jawa Barat',lat:-6.9147,lng:107.6020},
-    {nama:'Stasiun Bandung',display_name:'Stasiun Bandung, Kebon Kawung, Bandung',lat:-6.9147,lng:107.6024},
-    {nama:'Bandara Husein Sastranegara',display_name:'Bandara Husein Sastranegara, Bandung',lat:-6.9006,lng:107.5769}
-  ];
   var ql=q.toLowerCase();
   return daftar.filter(function(x){return x.nama.toLowerCase().includes(ql) || x.display_name.toLowerCase().includes(ql);}).map(function(x){x._j=gps?jarak(gps.lat,gps.lng,x.lat,x.lng):0;return x;});
 }
