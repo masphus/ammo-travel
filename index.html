@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ammo Travel</title>
+<meta name="theme-color" content="#15803d">
+<style>
+*{box-sizing:border-box;font-family:Arial,sans-serif}
+body{margin:0;background:#f0fdf4;color:#14532d;padding-bottom:20px}
+header{background:#15803d;color:white;padding:14px;text-align:center;font-weight:bold;font-size:20px}
+.card{background:white;margin:12px;padding:16px;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.btn{display:block;width:100%;padding:14px;margin:8px 0;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;text-align:center;text-decoration:none}
+.green{background:#15803d;color:white}.light{background:#dcfce7;color:#14532d}.red{background:#dc2626;color:white}.blue{background:#2563eb;color:white}.orange{background:#f59e0b;color:white}
+input,select{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:1px solid #ccc;font-size:16px}
+input::placeholder{color:#999}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:8px;border-bottom:1px solid #eee;text-align:left}
+.small-btn{padding:6px 10px;border:none;border-radius:8px;color:white;margin:2px;cursor:pointer}
+#chatBox{display:none;position:fixed;bottom:0;left:0;right:0;background:white;border-top:4px solid #15803d;padding:12px;z-index:9999;max-height:85vh;overflow:auto}
+#mapBox{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:white;z-index:9998;padding:12px;overflow:auto}
+#pinBox{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:10000;align-items:center;justify-content:center}
+#pinBox .card{width:90%;max-width:350px}
+#chatIsi{background:#f0fdf4;padding:10px;border-radius:10px;min-height:100px;margin:8px 0}
+#mapBox iframe{width:100%;height:180px;border:0;border-radius:12px}
+#driverPage,#adminPage,#editBox,#waitingPage{display:none}
+#waitingPage{text-align:center;padding:20px 12px}
+.spinner{width:70px;height:70px;border:6px solid #dcfce7;border-top:6px solid #15803d;border-radius:50%;margin:20px auto;animation:putar 1s linear infinite}
+@keyframes putar{to{transform:rotate(360deg)}}
+/* ADMIN - OTOMATIS LANDSCAPE, RESPONSIF */
+.adminWrap{display:flex;min-height:100vh;background:#f8fafc}
+.adminSide{background:#15803d;color:white;width:260px;padding:20px 14px;flex-shrink:0}
+.adminSide button{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:transparent;color:white;border:none;padding:13px 12px;border-radius:10px;font-size:17px;cursor:pointer}
+.adminSide button.aktif{background:rgba(255,255,255,.25);font-weight:bold}
+.adminMain{flex:1;padding:20px;min-width:0}
+.adminTop{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.adminTop h1{margin:0;font-size:30px;color:#14532d}
+.adminStat{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0}
+.adminStatCard{background:#dcfce7;padding:20px 12px;border-radius:16px;text-align:center}
+.adminStatCard .icon{width:52px;height:52px;background:#16a34a;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 10px}
+.adminStatCard span{font-size:14px;color:#14532d}
+.adminStatCard b{font-size:32px;display:block;color:#14532d}
+.adminTwo{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.orderRow{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #eee}
+.badge{padding:4px 8px;border-radius:6px;font-size:12px;font-weight:bold;color:white;white-space:nowrap}
+.menunggu{background:#f59e0b}.ontrip{background:#2563eb}.aktif{background:#86efac;color:#14532d}
+.adminTab{display:none}.adminTab.tampil{display:block}
+/* HP TEGAK - ADMIN JADI ATAS-BAWAH TAPI TETEP RAPI, GA PUTIH! */
+@media(max-width:800px){
+.adminWrap{flex-direction:column}
+.adminSide{width:100%;padding:12px}
+.adminSide button{display:inline-block;width:auto;padding:10px 12px;margin:2px;font-size:14px}
+.adminMain{padding:12px}
+.adminTop h1{font-size:22px}
+.adminStat{grid-template-columns:repeat(2,1fr);gap:10px}
+.adminTwo{grid-template-columns:1fr}
+}
+.driverHead{background:#16a34a;color:white;padding:28px 16px 60px;text-align:center;border-radius:0 0 24px 24px}
+.driverHead h1{margin:0;font-size:26px}
+.driverBody{background:white;margin:-40px 12px 12px;padding:16px;border-radius:20px;box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.earnBox{background:#16a34a;padding:12px;border-radius:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.earnBox div{background:#86efac;padding:14px;border-radius:12px;text-align:center}
+.earnBox b{font-size:22px;color:white;display:block}
+.earnBox span{color:white;font-size:13px}
+.riwayatItem{display:flex;gap:12px;align-items:center;background:white;padding:14px;border-radius:14px;margin:10px 12px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.cek{width:36px;height:36px;background:#22c55e;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.driverNav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid #ddd;z-index:9000}
+.driverNav button{border:none;background:none;font-size:13px;color:#666;cursor:pointer}
+.driverNav button.aktif{color:#15803d;font-weight:bold}
+.driverTab{display:none}.driverTab.tampil{display:block}
+.orderBaru{border:3px solid #f59e0b!important;animation:kedip 1s infinite}
+@keyframes kedip{50%{background:#fef3c7}}
+.miniMap{width:100%;height:180px;border:0;border-radius:12px}
+</style>
+</head>
+<body>
+<header>🚗 Ammo Travel</header>
+
+<div id="passengerPage">
+<div class="card" style="text-align:center"><h2>Selamat Datang!</h2><p>Mau kemana hari ini?</p><button class="btn light" type="button" onclick="pakaiGPS()">📍 Pakai GPS Saya - Cari Lokasi Saya</button><p id="gpsInfo" style="font-size:12px;color:#666"></p></div>
+<div class="card">
+<label>📍 Penjemputan</label><input id="jemput" placeholder="Ketik / pilih lokasi jemput...">
+<button class="btn light" type="button" onclick="bukaPeta()">🗺️ Pilih di Peta - Radius 2KM</button>
+<label>🎯 Tujuan</label><input id="tujuan" placeholder="Ketik / pilih tujuan...">
+<button class="btn light" type="button" onclick="bukaPeta()">🗺️ Pilih di Peta - Radius 2KM</button>
+<label>📅 Tanggal</label><input type="date" value="2026-11-13">
+<label>💺 Jumlah Kursi</label><select id="kursiSelect"><option>1 Kursi</option><option>2 Kursi</option><option>3 Kursi</option><option>4 Kursi</option><option>5 Kursi</option><option>6 Kursi</option><option>7 Kursi - Sewa Full</option></select>
+<button class="btn green" type="button" onclick="pesanTravel()">Pesan Travel Sekarang</button>
+<button class="btn light" type="button" onclick="bukaChat()">💬 Chat Admin</button>
+</div>
+</div>
+
+<!-- HALAMAN MENUNGGU - BARU! -->
+<div id="waitingPage">
+<div class="card">
+<h2>🔍 Mencari Driver...</h2>
+<div class="spinner"></div>
+<p id="waitingText"><b id="waitingRute">Dago → Lembang</b><br><span id="waitingDetail">2 Kursi • Mencari driver terdekat radius 2KM...</span></p>
+<p id="waitingTimer" style="font-size:13px;color:#888">Menunggu 0 detik...</p>
+<div id="noDriverBox" style="display:none;background:#fef3c7;padding:12px;border-radius:12px"><b>😔 Tidak ada driver online</b><p style="font-size:13px">Semua driver sedang offline / sibuk. Coba lagi nanti.</p><button class="btn orange" type="button" onclick="cobaLagi()">🔄 Coba Lagi Cari Driver</button></div>
+<p id="driverDiterimaBox" style="display:none;background:#dcfce7;padding:12px;border-radius:12px"><b>✅ Driver Diterima!</b><br><span id="driverDiterimaNama">Budi - Toyota Avanza - B 1234 ABC - ⭐ 4.9 - Lagi menuju ke kamu!</span><br><a class="btn blue" href="https://wa.me/6281234567890" target="_blank">💬 Chat Driver via WA</a></p>
+<iframe id="waitingMap" class="miniMap" src="https://maps.google.com/maps?q=Dago,Bandung&z=15&output=embed"></iframe>
+<p style="font-size:12px;color:#888">Peta kecil radius 2KM dari lokasi kamu</p>
+<button class="btn red" type="button" onclick="batalOrder()">❌ Batalkan Pesanan</button>
+</div>
+</div>
+
+<div id="chatBox">
+<h3>💬 Chat Admin</h3>
+<div id="chatIsi"><p><b>Admin Sari:</b> Halo! Mau pesan travel kemana? 😊</p></div>
+<form onsubmit="kirimChat();return false">
+<input id="chatInput" placeholder="pesan disini">
+<button class="btn green" type="submit">Send / Kirim</button>
+</form>
+<button class="btn light" type="button" onclick="tutupChat()">Tutup Chat</button>
+</div>
+
+<div id="pinBox"><div class="card"><h3 id="pinJudul">Masukkan PIN</h3><p id="pinInfo">Masukkan PIN untuk lanjut.</p><form onsubmit="cekPin();return false"><input id="pinInput" type="password" inputmode="numeric"><button class="btn green" type="submit">Send / Kirim</button></form><button class="btn light" type="button" onclick="tutupPin()">Batal</button><p id="pinError" style="color:red;text-align:center;display:none">PIN Salah!</p></div></div>
+
+<div id="mapBox">
+<h3>🗺️ Pilih di Peta - Radius 2KM</h3>
+<p style="font-size:13px">Peta kecil, cuma sekitar lokasi kamu (2KM). Mau isi yang mana?</p>
+<label style="display:inline-block;padding:8px 14px;background:#dcfce7;border-radius:20px;margin:2px"><input type="radio" name="isiKe" id="isiJemput" checked> 📍 Jemput</label>
+<label style="display:inline-block;padding:8px 14px;background:#dcfce7;border-radius:20px;margin:2px"><input type="radio" name="isiKe" id="isiTujuan"> 🎯 Tujuan</label>
+<iframe id="mapFrame" src="https://maps.google.com/maps?q=Dago,Bandung&z=15&output=embed" style="width:100%;height:180px;border:0;border-radius:12px"></iframe>
+<p style="font-size:12px;color:#888">Zoom 15 = radius sekitar 2KM dari titik ini</p>
+<button class="btn green" type="button" onclick="isiLokasi('Citylink, Bandung')">📍 Pakai: Citylink, Bandung</button>
+<button class="btn green" type="button" onclick="isiLokasi('Dago, Bandung')">📍 Pakai: Dago, Bandung</button>
+<button class="btn green" type="button" onclick="isiLokasi('Lembang, Bandung Barat')">📍 Pakai: Lembang</button>
+<button class="btn green" type="button" onclick="isiLokasi('Stasiun Bandung')">📍 Pakai: Stasiun Bandung</button>
+<button class="btn green" type="button" onclick="isiLokasi('Bandara Soekarno Hatta, Tangerang')">📍 Pakai: Bandara Soekarno Hatta</button>
+<a class="btn light" href="https://maps.google.com/?q=Bandung" target="_blank">🌍 Buka di Aplikasi Google Maps</a>
+<button class="btn red" type="button" onclick="tutupPeta()">Tutup Peta</button>
+</div>
+
+<div id="driverPage" style="padding-bottom:80px">
+<div class="driverHead"><h1>Penghasilan Saya - Budi</h1></div>
+<div id="dtab-beranda" class="driverTab tampil">
+<div id="driverOrderBaru" style="display:none" class="card orderBaru"><h3>🔔 ORDER BARU MASUK!</h3><p id="driverOrderText"><b>Dago → Lembang</b><br>Penumpang: Sari • 2 Kursi • Rp 60.000<br>📍 Radius 2KM dari kamu!</p><iframe id="driverMap" class="miniMap" src="https://maps.google.com/maps?q=Dago,Bandung&z=15&output=embed"></iframe><button class="btn green" type="button" onclick="terimaOrderBaru()">✅ Terima Order - Saya OTW!</button><button class="btn red" type="button" onclick="tolakOrderBaru()">❌ Tolak Order</button></div>
+<div class="driverBody"><p style="margin:0;color:#15803d;font-weight:bold">🚗 Ammo Travel • Driver</p><p style="font-size:14px">Halo Budi! Kamu ONLINE hari ini.</p><button id="onlineBtn" class="btn green" type="button" onclick="toggleOnline()">🟢 ONLINE - Klik untuk OFFLINE</button><div class="earnBox" style="margin-top:12px"><div><span>💼 Penghasilan Hari Ini</span><b>Rp 450.000</b></div><div><span>💼 Minggu Ini</span><b>Rp 2.150.000</b></div></div></div>
+<div class="card"><h3>💬 Chat Penumpang Masuk</h3><div id="inboxDriver"></div></div>
+<div style="padding:0 12px"><button class="btn light" type="button" onclick="keluar()">⬅ Keluar - Kembali ke Penumpang</button></div>
+</div>
+<div id="dtab-order" class="driverTab"><div class="driverBody"><h3>📋 Order</h3><div id="orderJalanBox"><p><b>Order Jalan:</b> <span id="orderJalanText">Belum ada order jalan</span></p><iframe id="orderJalanMap" class="miniMap" src="https://maps.google.com/maps?q=Bandung&z=15&output=embed"></iframe></div><a class="btn blue" href="https://maps.google.com/?q=Stasiun+Bandung" target="_blank">🧭 Navigasi ke Tujuan</a><button class="btn green" type="button" onclick="selesaikanTrip()">🏁 Selesaikan Trip</button></div><div style="padding:0 12px"><button class="btn light" type="button" onclick="keluar()">⬅ Keluar - Kembali ke Penumpang</button></div></div>
+<div id="dtab-penghasilan" class="driverTab"><div class="driverBody"><p style="margin:0;color:#15803d;font-weight:bold">🚗 Ammo Travel • Driver</p><div class="earnBox" style="margin-top:12px"><div><span>💼 Penghasilan Hari Ini</span><b>Rp 450.000</b></div><div><span>💼 Minggu Ini</span><b>Rp 2.150.000</b></div></div></div><h3 style="margin:16px 12px">📅 Riwayat Pesanan Hari Ini</h3><div class="riwayatItem"><div class="cek">✓</div><div style="flex:1"><b>Dago → Lembang</b><br><small>Hari ini, 08:23 • Cash</small></div><div style="text-align:right"><b style="color:#15803d">Rp 60.000</b><br><span class="badge aktif">Selesai</span></div></div><div class="riwayatItem"><div class="cek">✓</div><div style="flex:1"><b>Dago → Pasteur</b><br><small>Hari ini, 10:15 • Cash</small></div><div style="text-align:right"><b style="color:#15803d">Rp 35.000</b><br><span class="badge aktif">Selesai</span></div></div><div class="riwayatItem"><div class="cek">✓</div><div style="flex:1"><b>Cihampelas → Dipatiukur</b><br><small>Hari ini, 12:40 • Cash</small></div><div style="text-align:right"><b style="color:#15803d">Rp 28.000</b><br><span class="badge aktif">Selesai</span></div></div><div style="padding:0 12px"><button class="btn green" type="button" onclick="alert('Pengajuan Tarik Saldo Rp 450.000 dikirim ke Admin!')">⬇️ Tarik Saldo</button><button class="btn light" type="button" onclick="keluar()">⬅ Keluar - Kembali ke Penumpang</button></div></div>
+<div id="dtab-akun" class="driverTab"><div class="driverBody" style="text-align:center"><div style="font-size:60px">👨‍✈️</div><h3>Budi Pratama</h3><p>Toyota Avanza • B 1234 ABC • ⭐ 4.9</p><p>HP: 0812-3456-7890</p></div><div style="padding:0 12px"><button class="btn light" type="button" onclick="keluar()">⬅ Keluar - Kembali ke Penumpang</button></div></div>
+<div class="driverNav"><button id="dnav-beranda" class="aktif" type="button" onclick="pindahDriver('beranda')">🏠<br>Beranda</button><button id="dnav-order" type="button" onclick="pindahDriver('order')">📋<br>Order</button><button id="dnav-penghasilan" type="button" onclick="pindahDriver('penghasilan')">📈<br>Penghasilan</button><button id="dnav-akun" type="button" onclick="pindahDriver('akun')">👤<br>Akun</button></div>
+</div>
+
+<div id="adminPage">
+<div class="adminWrap">
+<div class="adminSide">
+<div><h3>🚗 Ammo Travel</h3><p>Super Admin</p></div>
+<button id="menuDashboard" class="aktif" type="button" onclick="pindahAdmin('dashboard')">📊 Dashboard</button>
+<button id="menuPenumpang" type="button" onclick="pindahAdmin('penumpang')">👤 Penumpang</button>
+<button id="menuDriver" type="button" onclick="pindahAdmin('driver')">🚗 Driver</button>
+<button id="menuOrder" type="button" onclick="pindahAdmin('order')">📋 Order</button>
+<button id="menuPenghasilan" type="button" onclick="pindahAdmin('penghasilan')">💰 Penghasilan</button>
+<button id="menuChat" type="button" onclick="pindahAdmin('chat')">💬 Chat</button>
+<button id="menuPengaturan" type="button" onclick="pindahAdmin('pengaturan')">⚙️ Pengaturan</button>
+<button type="button" onclick="keluar()" style="background:#dc2626;margin-top:10px">⬅ Keluar</button>
+</div>
+<div class="adminMain">
+<div class="adminTop"><h1>Ammo Travel - Super Admin</h1><span>👩 Admin Sari Lestari &nbsp; 🔔</span></div>
+<div id="tab-dashboard" class="adminTab tampil">
+<div class="adminStat"><div class="adminStatCard"><div class="icon">👥</div><span>Total Penumpang</span><b>1.250</b></div><div class="adminStatCard"><div class="icon">👤</div><span>Total Driver Aktif</span><b>85</b></div><div class="adminStatCard"><div class="icon">📋</div><span>Order Hari Ini</span><b>124</b></div><div class="adminStatCard"><div class="icon">💰</div><span>Pendapatan Hari Ini</span><b>Rp 7.400.000</b></div></div>
+<div class="adminTwo"><div class="card" style="margin:0"><h3>🟢 Order Live</h3><p style="font-size:13px;color:#666;margin:0">Update real-time • 6 pesanan aktif</p><div class="orderRow"><span class="badge menunggu">Menunggu</span><div><b>ORD-1028 • Jakarta Selatan → Bandara Soekarno-Hatta</b><br><small>Penumpang: Ahmad Fauzi • 2 menit lalu • Rp 85.000</small></div></div><div class="orderRow"><span class="badge ontrip">On Trip</span><div><b>ORD-1027 • Kebayoran → SCBD</b><br><small>Penumpang: Dina Kusuma • 12 menit lalu • Rp 62.000</small></div></div><div class="orderRow"><span class="badge ontrip">On Trip</span><div><b>ORD-1026 • Bekasi → Thamrin</b><br><small>Penumpang: Ryan Pratama • 18 menit lalu • Rp 95.000</small></div></div></div><div class="card" style="margin:0"><h3>📍 Driver Online - Peta Kecil 2KM</h3><p style="font-size:13px;color:#666;margin:0">Driver aktif saat ini: 85 driver</p><iframe src="https://maps.google.com/maps?q=Bandung&z=15&output=embed" style="width:100%;height:180px;border:0;border-radius:12px;margin-top:10px"></iframe></div></div>
+<div class="card" style="margin:14px 0 0"><h2 style="margin:0;font-size:26px;color:#14532d">Database Driver</h2><p style="color:#666;margin:4px 0 12px">Kelola data driver, verifikasi dan tindakan</p><table><tr><th>No</th><th>Nama</th><th>Mobil</th><th>Status</th><th>Aksi</th></tr><tbody id="driverTable"></tbody></table><div id="editBox" style="background:#fef9c3;padding:14px;border-radius:12px;margin-top:10px"><h4>✏️ Edit Driver</h4><input id="editNama"><input id="editMobil"><select id="editStatus"><option>Menunggu</option><option>Aktif</option></select><button class="btn green" type="button" onclick="simpanEdit()">Simpan</button><button class="btn red" type="button" onclick="document.getElementById('editBox').style.display='none'">Batal</button></div></div>
+</div>
+<div id="tab-penumpang" class="adminTab"><div class="card"><h3>👤 Penumpang</h3><p>1. Sari - Dago -> Lembang - Rp 60.000 - Selesai</p><p>2. Ahmad Fauzi - Jakarta Selatan -> Bandara - Rp 85.000 - Menunggu</p><p>3. Dina Kusuma - Kebayoran -> SCBD - Rp 62.000 - On Trip</p></div></div>
+<div id="tab-driver" class="adminTab"><div class="card"><h3>🚗 Driver</h3><table><tr><th>Nama</th><th>Mobil</th><th>Status</th><th>Aksi</th></tr><tbody id="driverTable2"></tbody></table></div></div>
+<div id="tab-order" class="adminTab"><div class="card"><h3>📋 Order</h3><p><b>ORD-1028</b> Jakarta Selatan -> Bandara - Menunggu - Rp 85.000</p><p><b>ORD-1027</b> Kebayoran -> SCBD - On Trip - Rp 62.000</p><p><b>ORD-1026</b> Bekasi -> Thamrin - On Trip - Rp 95.000</p></div></div>
+<div id="tab-penghasilan" class="adminTab"><div class="card"><h3>💰 Penghasilan</h3><p>Hari Ini: <b>Rp 7.400.000</b></p><p>Minggu Ini: <b>Rp 42.500.000</b></p><p>Bulan Ini: <b>Rp 185.000.000</b></p></div></div>
+<div id="tab-chat" class="adminTab"><div class="card"><h3>💬 Chat Penumpang</h3><div id="inboxAdmin"></div><button class="btn light" type="button" onclick="tampilInbox()">🔄 Refresh Inbox</button><input id="balasAdminInput" placeholder="pesan disini"><button class="btn green" type="button" onclick="balasAdmin()">Send / Kirim</button><button class="btn red" type="button" onclick="hapusInbox()">🗑️ Hapus Semua Chat Lama</button></div></div>
+<div id="tab-pengaturan" class="adminTab"><div class="card"><h3>⚙️ Pengaturan</h3><label>Nama Admin</label><input value="Sari Lestari"><label>Kode Admin</label><input value="#ADMIN" disabled><label>PIN Admin</label><input value="999999" disabled><button class="btn green" type="button" onclick="alert('Pengaturan tersimpan!')">Simpan Pengaturan</button></div></div>
+<button class="btn red" type="button" onclick="keluar()">⬅ Keluar ke Halaman Penumpang</button>
+</div></div></div>
+
+<script>
+var pinUntuk=''; var myLat=-6.9147; var myLng=107.6098; var waitingDetik=0; var waitingTimerId=null; var driverOnline=true;
+function keluar(){document.getElementById('passengerPage').style.display='block';document.getElementById('driverPage').style.display='none';document.getElementById('adminPage').style.display='none';document.getElementById('waitingPage').style.display='none';try{if(screen.orientation&&screen.orientation.unlock)screen.orientation.unlock();if(document.exitFullscreen&&document.fullscreenElement)document.exitFullscreen()}catch(e){}window.scrollTo(0,0)}
+// 1. ROTASI OTOMATIS - MINTA FULLSCREEN + KUNCI LANDSCAPE PAS MASUK ADMIN
+function kunciLandscape(){try{if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().then(function(){if(screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(function(){})}).catch(function(){})}catch(e){}}
+function bukaChat(){document.getElementById('chatBox').style.display='block'}
+function tutupChat(){document.getElementById('chatBox').style.display='none'}
+function bukaPeta(){document.getElementById('mapBox').style.display='block';updatePetaGPS()}
+function tutupPeta(){document.getElementById('mapBox').style.display='none'}
+function tutupPin(){document.getElementById('pinBox').style.display='none'}
+function pakaiGPS(){if(!navigator.geolocation){document.getElementById('gpsInfo').innerText='GPS tidak didukung HP ini';return}document.getElementById('gpsInfo').innerText='Mencari GPS kamu...';navigator.geolocation.getCurrentPosition(function(pos){myLat=pos.coords.latitude;myLng=pos.coords.longitude;document.getElementById('gpsInfo').innerText='GPS ketemu: '+myLat.toFixed(4)+', '+myLng.toFixed(4)+' - Radius 2KM';document.getElementById('jemput').value='Lokasi Saya (GPS) - '+myLat.toFixed(4)+', '+myLng.toFixed(4);updatePetaGPS()},function(){document.getElementById('gpsInfo').innerText='GPS ditolak / gagal, pakai Dago dulu ya'})}
+function updatePetaGPS(){var q=myLat+','+myLng;var url='https://maps.google.com/maps?q='+q+'&z=15&output=embed';document.getElementById('mapFrame').src=url;document.getElementById('waitingMap').src=url;document.getElementById('driverMap').src=url;document.getElementById('orderJalanMap').src=url}
+function isiLokasi(lokasi){if(document.getElementById('isiTujuan').checked){document.getElementById('tujuan').value=lokasi}else{document.getElementById('jemput').value=lokasi}tutupPeta()}
+// 2. PENUMPANG -> HALAMAN MENUNGGU
+function pesanTravel(){var jemput=document.getElementById('jemput').value||'Dago, Bandung';var tujuan=document.getElementById('tujuan').value||'Lembang';var kursi=document.getElementById('kursiSelect').value;var order={jemput:jemput,tujuan:tujuan,kursi:kursi,status:'mencari',waktu:Date.now(),lat:myLat,lng:myLng};try{localStorage.setItem('ammo_order',JSON.stringify(order))}catch(e){}document.getElementById('passengerPage').style.display='none';document.getElementById('waitingPage').style.display='block';document.getElementById('waitingRute').innerText=jemput+' → '+tujuan;document.getElementById('waitingDetail').innerText=kursi+' • Mencari driver terdekat radius 2KM...';document.getElementById('noDriverBox').style.display='none';document.getElementById('driverDiterimaBox').style.display='none';waitingDetik=0;if(waitingTimerId)clearInterval(waitingTimerId);waitingTimerId=setInterval(function(){waitingDetik++;document.getElementById('waitingTimer').innerText='Menunggu '+waitingDetik+' detik...';if(waitingDetik==15&&!driverOnline){document.getElementById('noDriverBox').style.display='block'}if(waitingDetik==15){document.getElementById('noDriverBox').style.display='block';document.getElementById('noDriverBox').querySelector('b').innerText='😔 Belum ada driver yang terima';document.getElementById('noDriverBox').querySelector('p').innerText='Sudah 15 detik, driver belum terima. Coba lagi atau batalkan.'}},1000);try{if(navigator.vibrate)navigator.vibrate(200)}catch(e){}}
+function cobaLagi(){waitingDetik=0;document.getElementById('noDriverBox').style.display='none';document.getElementById('waitingDetail').innerText='Mencari lagi driver terdekat radius 2KM...'}
+function batalOrder(){if(waitingTimerId)clearInterval(waitingTimerId);try{localStorage.removeItem('ammo_order')}catch(e){}document.getElementById('waitingPage').style.display='none';document.getElementById('passengerPage').style.display='block';alert('Pesanan dibatalkan')}
+function toggleOnline(){var b=document.getElementById('onlineBtn');if(b.innerText.indexOf('ONLINE')>-1){b.innerText='🔴 OFFLINE - Klik untuk ONLINE';b.style.background='#dc2626';driverOnline=false}else{b.innerText='🟢 ONLINE - Klik untuk OFFLINE';b.style.background='#15803d';driverOnline=true}}
+function terimaOrder(btn){btn.innerText='✅ Order Diterima! Menuju Penjemputan...';btn.style.background='#2563eb';alert('Order diterima!')}
+function terimaOrderBaru(){var order=null;try{order=JSON.parse(localStorage.getItem('ammo_order')||'null')}catch(e){}if(order){order.status='diterima';order.driver='Budi - Toyota Avanza';try{localStorage.setItem('ammo_order',JSON.stringify(order))}catch(e){}document.getElementById('driverOrderBaru').style.display='none';document.getElementById('orderJalanText').innerText=order.jemput+' → '+order.tujuan+' - Penumpang: Sari - OTW Jemput';pindahDriver('order');alert('Order diterima! Penumpang sudah dikasih tau!')}else{alert('Order diterima!')}}
+function tolakOrderBaru(){document.getElementById('driverOrderBaru').style.display='none';alert('Order ditolak')}
+function selesaikanTrip(){try{localStorage.removeItem('ammo_order')}catch(e){}document.getElementById('orderJalanText').innerText='Belum ada order jalan';alert('Trip selesai! Rp 45.000 masuk saldo!')}
+function pindahDriver(tab){var tabs=['beranda','order','penghasilan','akun'];for(var i=0;i<tabs.length;i++){document.getElementById('dtab-'+tabs[i]).classList.remove('tampil');document.getElementById('dnav-'+tabs[i]).classList.remove('aktif')}document.getElementById('dtab-'+tab).classList.add('tampil');document.getElementById('dnav-'+tab).classList.add('aktif');cekOrderDriver()}
+function pindahAdmin(tab){var tabs=['dashboard','penumpang','driver','order','penghasilan','chat','pengaturan'];for(var i=0;i<tabs.length;i++){var el=document.getElementById('tab-'+tabs[i]);if(el)el.classList.remove('tampil');var m=document.getElementById('menu'+tabs[i].charAt(0).toUpperCase()+tabs[i].slice(1));if(m)m.classList.remove('aktif')}document.getElementById('tab-'+tab).classList.add('tampil');var mm=document.getElementById('menu'+tab.charAt(0).toUpperCase()+tab.slice(1));if(mm)mm.classList.add('aktif');if(tab=='chat')tampilInbox();if(tab=='driver'||tab=='dashboard')tampilDriver()}
+function kirimChat(){var inp=document.getElementById('chatInput');var teks=inp.value.trim();if(!teks)return;var atas=teks.toUpperCase();document.getElementById('chatIsi').innerHTML+='<p><b>Kamu:</b> '+teks+'</p>';if(atas.indexOf('#ADMIN')>-1){pinUntuk='admin';document.getElementById('pinJudul').innerText='Masukkan PIN Admin';document.getElementById('pinInfo').innerText='Masukkan PIN untuk lanjut.';document.getElementById('pinBox').style.display='flex';document.getElementById('pinInput').value='';document.getElementById('pinError').style.display='none';inp.value='';return}if(atas.indexOf('@DRIVER')>-1){pinUntuk='driver';document.getElementById('pinJudul').innerText='Masukkan PIN Driver';document.getElementById('pinInfo').innerText='Masukkan PIN untuk lanjut.';document.getElementById('pinBox').style.display='flex';document.getElementById('pinInput').value='';document.getElementById('pinError').style.display='none';inp.value='';return}try{var chats=JSON.parse(localStorage.getItem('ammo_chats')||'[]');chats.push(teks);localStorage.setItem('ammo_chats',JSON.stringify(chats))}catch(e){}document.getElementById('chatIsi').innerHTML+='<p><b>Admin Sari:</b> Siap, saya cek dulu ya, sebentar... 🙏</p>';inp.value=''}
+function cekPin(){var p=document.getElementById('pinInput').value.trim();if(pinUntuk=='admin'&&p=='999999'){tutupPin();tutupChat();document.getElementById('passengerPage').style.display='none';document.getElementById('waitingPage').style.display='none';document.getElementById('driverPage').style.display='none';document.getElementById('adminPage').style.display='block';pindahAdmin('dashboard');kunciLandscape()}else if(pinUntuk=='driver'&&p=='123456'){tutupPin();tutupChat();document.getElementById('passengerPage').style.display='none';document.getElementById('waitingPage').style.display='none';document.getElementById('driverPage').style.display='block';document.getElementById('adminPage').style.display='none';pindahDriver('beranda');cekOrderDriver();tampilInbox()}else{document.getElementById('pinError').style.display='block'}}
+function tampilInbox(){try{var chats=JSON.parse(localStorage.getItem('ammo_chats')||'[]');var html='';var ada=false;for(var i=0;i<chats.length;i++){if(chats[i].toUpperCase().indexOf('#ADMIN')>-1||chats[i].toUpperCase().indexOf('@DRIVER')>-1)continue;ada=true;html+='<p style="background:#f0fdf4;padding:8px;border-radius:8px">💬 Penumpang: '+chats[i]+'</p>'}if(!ada)html='<p>Belum ada chat penumpang.</p>';document.getElementById('inboxAdmin').innerHTML=html;document.getElementById('inboxDriver').innerHTML=html}catch(e){}}
+function hapusInbox(){if(confirm('Hapus semua chat lama?')){localStorage.removeItem('ammo_chats');tampilInbox();alert('Inbox dibersihkan!')}}
+function balasAdmin(){var v=document.getElementById('balasAdminInput').value;if(!v)return;alert('Balasan terkirim: '+v);document.getElementById('balasAdminInput').value=''}
+var drivers=[{nama:'Budi Pratama',mobil:'Toyota Avanza',status:'Menunggu'},{nama:'Rina Wijaya',mobil:'Daihatsu Xenia',status:'Menunggu'},{nama:'Andi Saputra',mobil:'Suzuki Ertiga',status:'Aktif'}];
+var editIndex=-1;
+function tampilDriver(){var html='';for(var i=0;i<drivers.length;i++){var d=drivers[i];var st=d.status=='Aktif'?'<span class="badge aktif">Aktif</span>':'<span class="badge menunggu">Menunggu</span>';var extra=d.status=='Menunggu'?'<button class="small-btn green" onclick="terima('+i+')">Terima</button><button class="small-btn red" onclick="tolak('+i+')">Tolak</button>':'';html+='<tr><td>'+(i+1)+'.</td><td><b>'+d.nama+'</b></td><td>'+d.mobil+'</td><td>'+st+'</td><td><button class="small-btn blue" onclick="editDriver('+i+')">Edit</button><button class="small-btn red" onclick="hapusDriver('+i+')">Hapus</button>'+extra+'</td></tr>'}document.getElementById('driverTable').innerHTML=html;document.getElementById('driverTable2').innerHTML=html}
+function editDriver(i){editIndex=i;document.getElementById('editNama').value=drivers[i].nama;document.getElementById('editMobil').value=drivers[i].mobil;document.getElementById('editStatus').value=drivers[i].status;document.getElementById('editBox').style.display='block'}
+function simpanEdit(){drivers[editIndex].nama=document.getElementById('editNama').value;drivers[editIndex].mobil=document.getElementById('editMobil').value;drivers[editIndex].status=document.getElementById('editStatus').value;document.getElementById('editBox').style.display='none';tampilDriver();alert('Data tersimpan!')}
+function hapusDriver(i){if(confirm('Hapus '+drivers[i].nama+'?')){drivers.splice(i,1);tampilDriver()}}
+function terima(i){drivers[i].status='Aktif';tampilDriver();alert(drivers[i].nama+' diterima!')}
+function tolak(i){drivers[i].status='Ditolak';tampilDriver()}
+// 3. DRIVER CEK ORDER TIAP 3 DETIK + PENUMPANG CEK DITERIMA / TIDAK
+function cekOrderDriver(){try{var order=JSON.parse(localStorage.getItem('ammo_order')||'null');if(order&&order.status=='mencari'){document.getElementById('driverOrderBaru').style.display='block';document.getElementById('driverOrderText').innerHTML='<b>'+order.jemput+' → '+order.tujuan+'</b><br>Penumpang: Sari • '+order.kursi+' • Rp 60.000<br>📍 Radius 2KM dari kamu!';if(order.lat)document.getElementById('driverMap').src='https://maps.google.com/maps?q='+order.lat+','+order.lng+'&z=15&output=embed';try{if(navigator.vibrate)navigator.vibrate([200,100,200])}catch(e){}if(document.getElementById('driverPage').style.display=='block')document.title='🔔 ORDER BARU! - Ammo Travel'}else if(order&&order.status=='diterima'){document.getElementById('driverOrderBaru').style.display='none'}}catch(e){}}
+function cekStatusPenumpang(){try{var order=JSON.parse(localStorage.getItem('ammo_order')||'null');if(order&&order.status=='diterima'&&document.getElementById('waitingPage').style.display=='block'){document.getElementById('driverDiterimaBox').style.display='block';document.getElementById('driverDiterimaNama').innerText=(order.driver||'Budi - Toyota Avanza')+' - Lagi menuju ke kamu!';if(waitingTimerId)clearInterval(waitingTimerId)}}catch(e){}}
+setInterval(function(){cekOrderDriver();cekStatusPenumpang();tampilInbox()},3000);
+tampilDriver();tampilInbox();
+</script>
+</body>
+</html>
