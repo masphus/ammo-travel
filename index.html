@@ -82,42 +82,58 @@ label{font-weight:700;color:#333;font-size:16px;display:block;margin:18px 0 8px;
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script>
 let gps=null;let data={jemput:null,tujuan:null};let modePeta='tujuan';let map=null,marker=null,pinLatLng=null;
-let lastReq=0;let cacheSaran={};let cacheReverse={};
+let cacheSaran={};let cacheReverse={};
 function jarak(a,b,c,d){var R=6371,dl=(c-a)*Math.PI/180,dn=(d-b)*Math.PI/180;var x=Math.sin(dl/2)*Math.sin(dl/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dn/2)*Math.sin(dn/2);return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
 function updateTombol(){var j=document.getElementById('jemput').value.trim();var t=document.getElementById('tujuan').value.trim();var lengkap=j&&t;document.getElementById('swapBtn').disabled=!lengkap;document.getElementById('cekBtn').disabled=!lengkap;if(!j)data.jemput=null;if(!t)data.tujuan=null;}
 function tukar(){var ji=document.getElementById('jemput');var tu=document.getElementById('tujuan');var tmp=ji.value;ji.value=tu.value;tu.value=tmp;var tmp2=data.jemput;data.jemput=data.tujuan;data.tujuan=tmp2;updateTombol();}
-// ANTRIAN NOMINATIM: max 1 request per 1.1 detik, biar ga di-blokir
-async function fetchNominatim(url){
-  var now=Date.now(); var tunggu=1100-(now-lastReq);
-  if(tunggu>0) await new Promise(function(r){setTimeout(r,tunggu)});
-  lastReq=Date.now();
-  var res=await fetch(url,{headers:{'Accept-Language':'id'}});
-  if(!res.ok) throw new Error('nominatim sibuk');
-  return res.json();
+// REVERSE BARU: BigDataCloud, gratis, ga gampang ke-blokir kayak Nominatim
+async function reverseAlamat(lat,lng){
+  var k=lat.toFixed(4)+','+lng.toFixed(4);
+  if(cacheReverse[k]) return cacheReverse[k];
+  var r=await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude='+lat+'&longitude='+lng+'&localityLanguage=id');
+  var j=await r.json();
+  var parts=[];
+  if(j.locality) parts.push(j.locality);
+  if(j.city && j.city!==j.locality) parts.push(j.city);
+  if(j.principalSubdivision) parts.push(j.principalSubdivision);
+  if(j.countryName) parts.push(j.countryName);
+  var alamat=parts.length?parts.join(', '):('Lokasi Pin ('+lat.toFixed(5)+', '+lng.toFixed(5)+')');
+  // Simpan juga nama jalan kalau ada
+  if(j.locality) alamat=j.locality+', '+alamat;
+  cacheReverse[k]=alamat;
+  return alamat;
 }
-function isiGPS(){if(!navigator.geolocation){document.getElementById('hintJemput').textContent='GPS tidak tersedia.';return;}navigator.geolocation.getCurrentPosition(async function(pos){gps={lat:pos.coords.latitude,lng:pos.coords.longitude};var inp=document.getElementById('jemput');try{var j=await fetchNominatim('https://nominatim.openstreetmap.org/reverse?lat='+gps.lat+'&lon='+gps.lng+'&format=json&accept-language=id');var nama=j.display_name.split(',').slice(0,4).join(',');if(!inp.value.trim()){inp.value=nama;data.jemput={nama:nama,lat:gps.lat,lng:gps.lng};}document.getElementById('hintJemput').textContent='GPS ditemukan. Bisa diedit untuk keluarga.';}catch(e){// FALLBACK: kalau reverse ke-blokir, jangan biarkan kosong
-  var fallback='Lokasi Saya (GPS)';if(!inp.value.trim()){inp.value=fallback;data.jemput={nama:fallback,lat:gps.lat,lng:gps.lng};}document.getElementById('hintJemput').textContent='GPS ditemukan.';}updateTombol();},function(){document.getElementById('hintJemput').textContent='Izin lokasi ditolak. Ketik manual.';},{enableHighAccuracy:true,timeout:8000});}
-function setupSaran(inputId,boxId,key){var inp=document.getElementById(inputId);var box=document.getElementById(boxId);var timer=null;inp.addEventListener('input',function(){updateTombol();var q=inp.value.trim();if(q.length<2){box.style.display='none';return;}clearTimeout(timer);timer=setTimeout(function(){cariSaran(q).then(function(list){if(list.length===0){box.innerHTML='<div style="padding:14px;font-size:14px;color:#888">Tidak ketemu, coba ketik lebih lengkap / pilih di Peta</div>';box.style.display='block';return;}box.innerHTML='';list.forEach(function(x){var b=document.createElement('button');b.type='button';var nama=x.display_name.split(',').slice(0,3).join(',');b.innerHTML='<span style="font-size:22px">📍</span><span><b>'+nama+'</b><small>'+x.display_name+' • '+(x._j?x._j.toFixed(1)+' km':'')+'</small></span>';b.onclick=function(){var nm=x.display_name.split(',').slice(0,4).join(',');document.getElementById(key==='jemput'?'jemput':'tujuan').value=nm;data[key]={nama:nm,lat:parseFloat(x.lat),lng:parseFloat(x.lon)};box.style.display='none';updateTombol();};box.appendChild(b);});box.style.display='block';}).catch(function(){box.innerHTML='<div style="padding:14px;font-size:14px;color:#888">Server saran sibuk, coba lagi 2 detik / pilih di Peta</div>';box.style.display='block';});},500);});document.addEventListener('click',function(e){if(!inp.closest('.field').contains(e.target))box.style.display='none';});}
+function isiGPS(){if(!navigator.geolocation){document.getElementById('hintJemput').textContent='GPS tidak tersedia.';return;}navigator.geolocation.getCurrentPosition(async function(pos){gps={lat:pos.coords.latitude,lng:pos.coords.longitude};var inp=document.getElementById('jemput');try{var alamat=await reverseAlamat(gps.lat,gps.lng);if(!inp.value.trim()){inp.value=alamat;data.jemput={nama:alamat,lat:gps.lat,lng:gps.lng};}document.getElementById('hintJemput').textContent='GPS ditemukan. Bisa diedit untuk keluarga.';}catch(e){var fb='Lokasi Saya (GPS)';if(!inp.value.trim()){inp.value=fb;data.jemput={nama:fb,lat:gps.lat,lng:gps.lng};}document.getElementById('hintJemput').textContent='GPS ditemukan.';}updateTombol();},function(){document.getElementById('hintJemput').textContent='Izin lokasi ditolak. Ketik manual.';},{enableHighAccuracy:true,timeout:8000});}
+function setupSaran(inputId,boxId,key){var inp=document.getElementById(inputId);var box=document.getElementById(boxId);var timer=null;inp.addEventListener('input',function(){updateTombol();var q=inp.value.trim();if(q.length<2){box.style.display='none';return;}clearTimeout(timer);timer=setTimeout(function(){cariSaran(q).then(function(list){if(list.length===0){box.innerHTML='<div style="padding:14px;font-size:14px;color:#888">Tidak ketemu, coba ketik lebih lengkap / pilih di Peta</div>';box.style.display='block';return;}box.innerHTML='';list.forEach(function(x){var b=document.createElement('button');b.type='button';b.innerHTML='<span style="font-size:22px">📍</span><span><b>'+x.nama+'</b><small>'+x.display_name+' • '+(x._j?x._j.toFixed(1)+' km':'')+'</small></span>';b.onclick=function(){document.getElementById(key==='jemput'?'jemput':'tujuan').value=x.display_name;data[key]={nama:x.display_name,lat:x.lat,lng:x.lng};box.style.display='none';updateTombol();};box.appendChild(b);});box.style.display='block';}).catch(function(){box.innerHTML='<div style="padding:14px;font-size:14px;color:#888">Sinyal lagi lemot, coba ketik lagi / pilih di Peta</div>';box.style.display='block';});},350);});document.addEventListener('click',function(e){if(!inp.closest('.field').contains(e.target))box.style.display='none';});}
+// SARAN BARU: Photon, bukan Nominatim lagi
 async function cariSaran(q){
   var cacheKey=q.toLowerCase()+'|'+(gps?gps.lat.toFixed(2)+','+gps.lng.toFixed(2):'nogps');
   if(cacheSaran[cacheKey]) return cacheSaran[cacheKey];
-  var list=[];
-  if(!gps){
-    list=await fetchNominatim('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(q)+'&format=json&limit=10&countrycodes=id&accept-language=id');
-  } else {
-    // CUMA 1x REQUEST, pakai viewbox tanpa bounded, biar tetap dapat yang deket tapi ga 2x tembak
-    var d=0.6; var viewbox=(gps.lng-d)+','+(gps.lat+d)+','+(gps.lng+d)+','+(gps.lat-d);
-    list=await fetchNominatim('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(q)+'&format=json&limit=20&countrycodes=id&accept-language=id&viewbox='+viewbox);
-    list=list.map(function(x){x._j=jarak(gps.lat,gps.lng,parseFloat(x.lat),parseFloat(x.lon));return x;});
-    list.sort(function(a,b){return a._j-b._j;});
-  }
+  var url='https://photon.komoot.io/api/?q='+encodeURIComponent(q)+'&limit=20&lang=id';
+  if(gps) url+='&lat='+gps.lat+'&lon='+gps.lng;
+  var r=await fetch(url);
+  var j=await r.json();
+  var list=(j.features||[]).map(function(f){
+    var p=f.properties||{}; var c=f.geometry.coordinates;
+    var parts=[];
+    if(p.name) parts.push(p.name);
+    if(p.street) parts.push(p.street);
+    if(p.city) parts.push(p.city);
+    else if(p.county) parts.push(p.county);
+    if(p.state) parts.push(p.state);
+    var display=parts.join(', ')||p.name||q;
+    return {nama:p.name||display, display_name:display, lat:c[1], lng:c[0], _j: gps?jarak(gps.lat,gps.lng,c[1],c[0]):0};
+  });
+  // Buang yang namanya sama persis, biar ga double
+  var seen={}; list=list.filter(function(x){if(seen[x.display_name]) return false; seen[x.display_name]=1; return true;});
+  if(gps) list.sort(function(a,b){return a._j-b._j;});
   list=list.slice(0,6);
   cacheSaran[cacheKey]=list;
   return list;
 }
 setupSaran('jemput','saranJemput','jemput');setupSaran('tujuan','saranTujuan','tujuan');
 function bukaPeta(mode){modePeta=mode;document.getElementById('mapJudul').textContent=mode==='jemput'?'Pilih Penjemputan':'Pilih Tujuan';document.getElementById('mapSheet').classList.add('open');document.getElementById('overlay').classList.add('show');setTimeout(function(){if(typeof L==='undefined'){document.getElementById('map').innerHTML='<p style="padding:20px">Peta gagal dimuat, cek internet.</p>';return;}if(!map){var s=gps||{lat:-6.9175,lng:107.6191};map=L.map('map').setView([s.lat,s.lng],15);L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:19,subdomains:'abcd'}).addTo(map);map.on('click',function(e){setPin(e.latlng);});}map.invalidateSize();var cur=data[mode]||gps||{lat:-6.9175,lng:107.6191};map.setView([cur.lat,cur.lng],15);setPin({lat:cur.lat,lng:cur.lng});},100);}
-async function setPin(ll){pinLatLng=ll;if(marker)marker.setLatLng(ll);else{marker=L.marker(ll,{draggable:true}).addTo(map);marker.on('dragend',function(){setPin(marker.getLatLng());});}var k=ll.lat.toFixed(4)+','+ll.lng.toFixed(4);document.getElementById('mapAlamat').textContent='Memuat alamat...';if(cacheReverse[k]){document.getElementById('mapAlamat').textContent=cacheReverse[k];document.getElementById('mapAlamat').dataset.nama=cacheReverse[k].split(',').slice(0,4).join(',');return;}try{var j=await fetchNominatim('https://nominatim.openstreetmap.org/reverse?lat='+ll.lat+'&lon='+ll.lng+'&format=json&accept-language=id');cacheReverse[k]=j.display_name;document.getElementById('mapAlamat').textContent=j.display_name;document.getElementById('mapAlamat').dataset.nama=j.display_name.split(',').slice(0,4).join(',');}catch(e){document.getElementById('mapAlamat').textContent='Lokasi Pin ('+ll.lat.toFixed(5)+', '+ll.lng.toFixed(5)+')';document.getElementById('mapAlamat').dataset.nama='Lokasi Pin';}}
+async function setPin(ll){pinLatLng=ll;if(marker)marker.setLatLng(ll);else{marker=L.marker(ll,{draggable:true}).addTo(map);marker.on('dragend',function(){setPin(marker.getLatLng());});}document.getElementById('mapAlamat').textContent='Memuat alamat...';try{var a=await reverseAlamat(ll.lat,ll.lng);document.getElementById('mapAlamat').textContent=a;document.getElementById('mapAlamat').dataset.nama=a.split(',').slice(0,4).join(',');}catch(e){document.getElementById('mapAlamat').textContent='Lokasi Pin ('+ll.lat.toFixed(5)+', '+ll.lng.toFixed(5)+')';document.getElementById('mapAlamat').dataset.nama='Lokasi Pin';}}
 function pakaiPin(){if(!pinLatLng)return;var alamat=document.getElementById('mapAlamat').dataset.nama||document.getElementById('mapAlamat').textContent;document.getElementById(modePeta==='jemput'?'jemput':'tujuan').value=alamat;data[modePeta]={nama:alamat,lat:pinLatLng.lat,lng:pinLatLng.lng};tutupPeta();updateTombol();}
 function tutupPeta(){document.getElementById('mapSheet').classList.remove('open');document.getElementById('overlay').classList.remove('show');}
 function cekDriver(){alert('Penjemputan: '+document.getElementById('jemput').value+'\nTujuan: '+document.getElementById('tujuan').value);}
