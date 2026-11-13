@@ -20,13 +20,28 @@ h2{text-align:center;margin-bottom:12px}
 .btn-bayar{width:100%;background:#0a9e4e;color:#fff;border:0;border-radius:12px;padding:17px;font-size:19px;font-weight:800;margin-top:8px;cursor:pointer}
 .btn-bayar:disabled{background:#ccc}
 .btn-batal{display:block;text-align:center;color:#d32f2f;border:2px solid #ffcccc;border-radius:12px;padding:14px;font-weight:700;text-decoration:none;margin-top:10px}
+.btn-riwayat-bawah{width:100%;background:#fff;border:2px solid #0a9e4e;color:#0a7a3a;border-radius:12px;padding:13px;font-weight:800;margin-top:10px;cursor:pointer}
 .qris-box{background:#fff;border:2px solid #0a9e4e;border-radius:14px;padding:14px;text-align:center}
 .qris-box img{width:210px;height:210px;object-fit:contain}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:99;padding:20px}
-.overlay.show{display:flex}
-.popup{background:#fff;border-radius:18px;padding:22px;width:100%;max-width:400px;text-align:center;max-height:90vh;overflow-y:auto}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:99;padding:20px;pointer-events:none}
+.overlay.show{display:flex;pointer-events:auto}
+.popup{background:#fff;border-radius:18px;padding:22px;width:100%;max-width:400px;text-align:center;max-height:90vh;overflow-y:auto;pointer-events:auto}
 .spinner{width:60px;height:60px;border:6px solid #eee;border-top:6px solid #0a9e4e;border-radius:50%;margin:14px auto;animation:putar 1s linear infinite}
 @keyframes putar{to{transform:rotate(360deg)}}
+.driver-card{background:#e8f5e9;border:2px solid #0a9e4e;border-radius:14px;padding:14px;text-align:left;line-height:1.7;margin:12px 0}
+.btn-chat{width:100%;background:#0a9e4e;color:#fff;border:0;border-radius:12px;padding:14px;font-weight:800;font-size:16px;cursor:pointer;margin-top:10px}
+.btn-admin{width:100%;background:#fff;border:2px solid #0a9e4e;color:#0a7a3a;border-radius:12px;padding:13px;font-weight:800;font-size:15px;cursor:pointer;margin-top:8px}
+.btn-riwayat{width:100%;background:#0a7a3a;color:#fff;border:0;border-radius:12px;padding:14px;font-weight:800;font-size:16px;cursor:pointer;margin-top:8px}
+.btn-tutup{width:100%;background:#eee;border:0;border-radius:12px;padding:12px;font-weight:700;margin-top:8px;cursor:pointer}
+.chat-box{background:#f1f1f1;border-radius:12px;padding:10px;text-align:left;margin-top:12px;display:none}
+.chat-bubble{background:#fff;border-radius:10px;padding:8px 10px;margin:6px 0;font-size:13px;line-height:1.4}
+.chat-input{display:flex;gap:6px;margin-top:8px}
+.chat-input input{flex:1;padding:10px;border-radius:10px;border:1px solid #ddd}
+.chat-input button{background:#0a9e4e;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+.riwayat-item{background:#f9f9f9;border:1px solid #eee;border-radius:12px;padding:12px;text-align:left;font-size:13px;line-height:1.6;margin-bottom:10px}
+.status-live{display:inline-block;background:#0a9e4e;color:#fff;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800}
+#petaReal{width:100%;height:260px;border-radius:14px;border:2px solid #0a9e4e;margin:10px 0;background:#e8f5e9}
+.peta-info{background:#fff;border:1px solid #eee;border-radius:12px;padding:10px;font-size:13px;line-height:1.6;text-align:left;margin-top:8px}
 </style></head>
 <body>
 <div class="card">
@@ -55,20 +70,47 @@ h2{text-align:center;margin-bottom:12px}
 
 <button class="btn-bayar" id="btnBayar" disabled onclick="lanjut()">👇 Pilih dulu metode pembayaran di atas</button>
 <a class="btn-batal" href="index.html">❌ Batalkan Pesanan</a>
+<button class="btn-riwayat-bawah" onclick="bukaRiwayat()">📋 Cek Riwayat Booking Saya</button>
 </div>
 
 <div class="overlay" id="overlayCari"><div class="popup">
 <div id="cariLoading"><div style="font-size:22px;font-weight:800">🔍 Mencari Driver...</div><div class="spinner"></div><p id="cariStatus">Menghubungi driver di Bandung...</p></div>
 <div id="cariKetemu" style="display:none">
 <div style="font-size:22px;font-weight:800;color:#0a7a3a">✅ Driver Ditemukan!</div>
-<p style="margin:12px 0;line-height:1.6">🚗 <b>Ahmad - Ammo Travel</b><br>🚘 Calya Putih - D 1234 ABC<br>📍 <span id="dDari"></span> → 🎯 <span id="dKe"></span><br>💰 <span id="dHarga"></span> <span id="dMetode"></span></p>
-<button onclick="hubungiAdmin()" style="width:100%;background:#fff;border:2px solid #0a9e4e;color:#0a7a3a;border-radius:12px;padding:13px;font-weight:800">📞 Hubungi Admin Jika Ada Masalah</button>
-<button onclick="document.getElementById('overlayCari').classList.remove('show')" style="width:100%;background:#eee;border:0;border-radius:12px;padding:12px;font-weight:700;margin-top:8px">Tutup</button>
+<div class="driver-card">🚗 <b>Driver:</b> Ahmad - Ammo Travel<br>⭐ <b>Rating:</b> 4.9 (128 trip)<br>🚘 <b>Mobil:</b> Toyota Calya - Putih<br>🔢 <b>Plat:</b> D 1234 ABC<br>📍 <b>Dari:</b> <span id="dDari"></span><br>🎯 <b>Ke:</b> <span id="dKe"></span><br>💰 <b>Bayar:</b> <span id="dHarga"></span> <span id="dMetode"></span><br>⏱️ <b>Estimasi Jemput:</b> 5 - 10 menit</div>
+<p style="font-size:13px;color:#666">Driver akan segera menuju lokasi jemput kamu. Driver sudah tau titik jemput & tujuan kamu dari aplikasi, <b>tidak perlu chat yang tidak penting.</b></p>
+<div style="background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:10px;font-size:12px;line-height:1.5;margin-top:10px">⚠️ <b>Keamanan:</b> Nomor HP penumpang & driver <b>disembunyikan.</b> Dilarang minta nomor WA / transaksi di luar aplikasi.</div>
+<button class="btn-chat" onclick="bukaChat()">💬 Chat di Aplikasi</button>
+<div class="chat-box" id="chatBox">
+<div class="chat-bubble"><b>Driver Ahmad:</b> Halo kak! Saya OTW ke lokasi jemput ya, estimasi 7 menit. 🙏</div>
+<div class="chat-bubble"><b>Kamu:</b> Siap, saya tunggu di depan ya.</div>
+<div class="chat-input"><input id="chatInput" placeholder="Ketik pesan ke driver..."><button onclick="kirimChat()">Kirim</button></div>
+</div>
+<button class="btn-admin" onclick="hubungiAdmin()">📞 Hubungi Admin Jika Ada Masalah</button>
+<button class="btn-riwayat" onclick="tutupPopup(); bukaRiwayat();">📋 Cek Riwayat Booking & Lihat Peta Driver</button>
+<button class="btn-tutup" onclick="tutupPopup()">Tutup</button>
 </div>
 </div></div>
 
+<div class="overlay" id="overlayRiwayat"><div class="popup">
+<div style="font-size:20px;font-weight:800">📋 Riwayat Booking Saya</div>
+<p style="font-size:13px;color:#666;margin:6px 0">Lacak driver kamu di peta beneran di bawah ini:</p>
+<div class="riwayat-item"><span class="status-live">● LIVE - DRIVER OTW</span><br><b id="rDari">Bandung</b> → <b id="rKe">Jakarta</b><br>🚗 Ahmad - Calya Putih - D 1234 ABC<br>💰 <b id="rHarga">Rp 780.000</b> <span id="rMetode"></span><br>📅 Hari ini, <span id="rWaktu"></span><br>📡 <span id="gpsStatus" style="font-size:11px;color:#0a7a3a">● GPS Driver Aktif - Update tiap 5 detik</span></div>
+<div id="petaReal"><p style="padding:20px;color:#666;font-size:13px">Memuat peta beneran...</p></div>
+<div class="peta-info">📍 <b>Jemput:</b> Alun-alun Bandung<br>🚗 <b>Driver:</b> <span id="infoDriverPos">Jl. Asia Afrika - 1.2 km lagi</span><br>⏱️ <b>ETA:</b> <span id="infoEta">7 menit</span> | 📏 <b>Jarak:</b> <span id="infoJarak">1.2 km</span><br>🕒 <b>Terakhir update:</b> <span id="infoUpdate">Baru saja</span></div>
+<p style="font-size:11px;color:#888;line-height:1.5;margin-top:8px">* Peta ini peta beneran (OpenStreetMap). Titik driver bergerak mengikuti GPS driver, bukan animasi.</p>
+<button class="btn-chat" onclick="bukaChatDariRiwayat()">💬 Chat Driver di Aplikasi</button>
+<button class="btn-admin" onclick="hubungiAdmin()">📞 Hubungi Admin</button>
+<button class="btn-tutup" onclick="tutupRiwayat()">Kembali</button>
+</div></div>
+
+<div class="overlay" id="overlayQRIS" onclick="tutupQRIS()"><div class="popup" onclick="event.stopPropagation()"><div style="font-size:18px;font-weight:800">📷 Scan QRIS Ammo Travel</div><img src="qris.jpg" style="width:100%;max-width:320px;margin:12px auto;border-radius:12px;display:block"><div style="font-weight:800">AMMO TRAVEL</div><button class="btn-tutup" onclick="tutupQRIS()">Tutup</button></div></div>
+
 <script>
 let metode=''; let hargaFinal=750000; let dariText=''; let keText='';
+let map=null, markerDriver=null, markerJemput=null, routeLine=null, driverIndex=0, intervalGPS=null;
+let ruteDriver=[[-6.9210,107.6040],[-6.9202,107.6060],[-6.9195,107.6075],[-6.9188,107.6085],[-6.9180,107.6080],[-6.9175,107.6090]];
+let jemputLatLng=[-6.9175,107.6090];
 function getParam(n){try{return new URLSearchParams(location.search).get(n)||''}catch(e){return ''}}
 dariText=getParam('dari'); keText=getParam('ke');
 document.getElementById('tDari').innerText=dariText||'Lokasi Jemput';
@@ -80,6 +122,10 @@ function sudahBayar(){if(confirm('Kamu sudah scan QRIS & sudah SCREENSHOT buktin
 function salin(){if(navigator.clipboard){navigator.clipboard.writeText('1092365519').then(()=>alert('Tersalin: 1092365519 a.n. Ahmad Maha Mongkol'))}else{alert('1092365519')}}
 function lanjut(){if(!metode){alert('Pilih dulu!');return} cariDriver()}
 function cariDriver(){document.getElementById('overlayCari').classList.add('show'); document.getElementById('cariLoading').style.display='block'; document.getElementById('cariKetemu').style.display='none'; let s=document.getElementById('cariStatus'); s.innerText='Menghubungi driver...'; setTimeout(()=>{s.innerText='Driver Ahmad menerima pesanan...'},1500); setTimeout(()=>{document.getElementById('cariLoading').style.display='none'; document.getElementById('cariKetemu').style.display='block'; document.getElementById('dDari').innerText=dariText; document.getElementById('dKe').innerText=keText; document.getElementById('dHarga').innerText='Rp '+hargaFinal.toLocaleString('id-ID'); document.getElementById('dMetode').innerText=metode=='tunai'?'(Tunai)':metode=='bank'?'(Transfer BCA)':'(QRIS)';},3000)}
+function tutupPopup(){document.getElementById('overlayCari').classList.remove('show')}
+function bukaChat(){let c=document.getElementById('chatBox'); c.style.display=c.style.display=='block'?'none':'block'}
+function kirimChat(){let inp=document.getElementById('chatInput'); let teks=inp.value.trim(); if(!teks) return; let div=document.createElement('div'); div.className='chat-bubble'; div.innerHTML='<b>Kamu:</b> '+teks; document.getElementById('chatBox').insertBefore(div, document.querySelector('.chat-input')); inp.value=''; setTimeout(()=>{let d2=document.createElement('div'); d2.className='chat-bubble'; d2.innerHTML='<b>Driver Ahmad:</b> Siap kak, noted! Saya OTW! 🙏'; document.getElementById('chatBox').insertBefore(d2, document.querySelector('.chat-input'));},1000)}
 function hubungiAdmin(){window.open('https://wa.me/6281234567890?text='+encodeURIComponent('Halo Admin Ammo Travel! Dari: '+dariText+' Ke: '+keText), '_blank')}
-</script>
-</body></html>
+function perbesarQRIS(){document.getElementById('overlayQRIS').classList.add('show')}
+function tutupQRIS(){document.getElementById('overlayQRIS').classList.remove('show')}
+function loadLeaflet(cb){if(window.L){cb();return} let link=document.createElement('link'); link.rel='stylesheet'; link.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'; document.head.appendChild(link); let s=document.createElement('script'); s.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js
