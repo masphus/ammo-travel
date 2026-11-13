@@ -169,9 +169,7 @@ async function cariNominatim(q){
   var r=await fetch(url); var j=await r.json();
   return j.map(function(x){return {nama:x.display_name.split(',')[0], display_name:x.display_name, lat:parseFloat(x.lat), lng:parseFloat(x.lon), _j: gps?jarak(gps.lat,gps.lng,parseFloat(x.lat),parseFloat(x.lon)):0};});
 }
-  var ql=q.toLowerCase();
-  return daftar.filter(function(x){return x.nama.toLowerCase().includes(ql) || x.display_name.toLowerCase().includes(ql);}).map(function(x){x._j=gps?jarak(gps.lat,gps.lng,x.lat,x.lng):0;return x;});
-}
+
 async function cariSaranTujuan(q){
   var cacheKey='tujuan|'+q.toLowerCase()+'|'+(gps?gps.lat.toFixed(2)+','+gps.lng.toFixed(2):'nogps');
   if(cacheSaran[cacheKey]) return cacheSaran[cacheKey];
@@ -179,10 +177,9 @@ async function cariSaranTujuan(q){
   try{ list=await cariPhoton(q,true); }catch(e){ list=[]; }
   if(list.length===0){ try{ list=await cariPhoton(q,false); }catch(e){} }
   if(list.length===0){ try{ list=await cariNominatim(q); }catch(e){} }
-  // Gabung dengan cadangan Bandung, biar Bojong ga pernah kosong
-  var cad=cadanganBandung(q);
+
   var seen={}; var gabung=[];
-  list.concat(cad).forEach(function(x){ if(!seen[x.display_name]){seen[x.display_name]=1; gabung.push(x);} });
+list.forEach(function(x){ if(!seen[x.display_name]){seen[x.display_name]=1; gabung.push(x);} });
   if(gps) gabung.sort(function(a,b){return a._j-b._j;});
   gabung=gabung.slice(0,6);
   cacheSaran[cacheKey]=gabung;
