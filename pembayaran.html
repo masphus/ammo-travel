@@ -1,134 +1,167 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8">
+<html lang="id"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pembayaran - Ammo Travel</title>
-<style>*{box-sizing:border-box;margin:0;padding:0;font-family:Arial}body{background:#f0f7f0;padding:14px}
-.box{background:#fff;border-radius:20px;padding:20px;margin-top:10px;box-shadow:0 4px 20px rgba(0,0,0,0.1)}
-.peringatan{background:#fff3cd;border:2px solid #ffc107;border-radius:14px;padding:12px;text-align:center;margin-bottom:12px}
-.peringatan b{color:#d00;font-size:15px}
-.card{border:2px solid #eee;border-radius:16px;padding:14px;margin:10px 0;cursor:pointer}
-.card.pilih{border-color:#0a7a2e;background:#eaffef;box-shadow:0 0 0 2px #0a7a2e}
-.harga{font-size:28px;font-weight:800;color:#0a7a2e;text-align:center}
-button{width:100%;padding:16px;background:#0a7a2e;color:#fff;border:0;border-radius:12px;font-size:16px;font-weight:700;margin-top:10px;cursor:pointer}
-.detail{display:none;margin-top:10px;background:#f8f8f8;padding:12px;border-radius:12px;text-align:center}
-.wallet{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.wbtn{padding:12px 8px;border-radius:14px;border:2px solid #ddd;background:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:92px;justify-content:center}
-.wbtn:active{border-color:#0a7a2e;background:#eaffef}
-.wbtn img{width:62px;height:32px;object-fit:contain}
-.wbtn b{font-size:16px;color:#111}
-.wbtn span{font-size:11px;color:#666}
-.wbtn.dana b{color:#118EEA}.wbtn.ovo b{color:#4C2E8A}.wbtn.gopay b{color:#00AA13}.wbtn.shopee b{color:#EE4D2D}
-.rek{font-size:20px;font-weight:800}
-.loader{width:40px;height:40px;border:5px solid #e0e0e0;border-top:5px solid #0a7a2e;border-radius:50%;margin:12px auto;animation:putar 1s linear infinite;display:none}
-@keyframes putar{to{transform:rotate(360deg)}}
-#popup{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;padding:20px;z-index:99}
-.popup-box{background:#fff;border-radius:20px;padding:22px;text-align:center;max-width:360px;width:100%}
-.btn-kembali{background:#fff;color:#333;border:2px solid #ddd}
-.btn-batal{background:#fff!important;color:#d00!important;border:2px solid #ffcccc!important}
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#f5f5f5;max-width:480px;margin:0 auto;min-height:100vh;padding:14px}
+.card{background:#fff;border-radius:18px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,0.08)}
+.btn-back{display:block;text-align:center;background:#fff;border:2px solid #e0e0e0;border-radius:12px;padding:13px;font-weight:700;font-size:16px;color:#333;text-decoration:none;margin-bottom:14px}
+h2{text-align:center;font-size:22px;margin-bottom:12px}
+.warn{background:#fff3cd;border:2px solid #ffc107;border-radius:14px;padding:14px;text-align:center;margin-bottom:12px;line-height:1.4}
+.warn b{color:#d32f2f}
+.warn-tol{background:#ffebee;border:2px solid #e53935;border-radius:14px;padding:12px;text-align:center;margin-bottom:14px;line-height:1.5;font-size:14px}
+.warn-tol b{color:#c62828;font-size:15px}
+.rute{background:#f1f1f1;border-radius:12px;padding:12px;margin-bottom:12px;font-size:14px;line-height:1.6}
+.rute b{color:#0a9e4e}
+.harga{text-align:center;font-size:38px;font-weight:900;color:#0a7a3a;margin:8px 0 4px}
+.harga-kecil{text-align:center;font-size:13px;color:#888;margin-bottom:12px}
+.rincian{background:#f9f9f9;border-radius:12px;padding:12px;font-size:13px;line-height:1.8;color:#555;margin-bottom:14px}
+.pilih{border:2px solid #e0e0e0;border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;background:#fff}
+.pilih.active{border-color:#0a9e4e;background:#e8f5e9}
+.pilih b{font-size:17px}
+.pilih small{display:block;color:#777;font-size:13px;margin-top:2px}
+.detail{display:none;background:#f9f9f9;border-radius:12px;padding:12px;margin-top:10px;font-size:14px;line-height:1.6}
+.pilih.active .detail{display:block}
+.btn-bayar{width:100%;background:#0a9e4e;color:#fff;border:0;border-radius:12px;padding:17px;font-size:19px;font-weight:800;margin-top:8px;cursor:pointer}
+.btn-bayar:disabled{background:#ccc;cursor:not-allowed}
+.btn-batal{display:block;text-align:center;color:#d32f2f;border:2px solid #ffcccc;border-radius:12px;padding:14px;font-weight:700;text-decoration:none;margin-top:10px;font-size:15px}
+.qris{width:180px;height:180px;background:#fff;border:2px dashed #aaa;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:10px auto;font-size:40px}
 </style></head>
 <body>
-<h2 style="text-align:center">🚗 AMMO TRAVEL</h2>
-<div class="box">
-<button type="button" class="btn-kembali" onclick="kembali()">⬅️ Kembali ke Beranda</button>
-<h3 style="text-align:center;margin-top:10px">💳 Pembayaran</h3>
-<div class="peringatan"><div style="font-size:28px">⚠️📸</div><b>⚠️ WAJIB SCREENSHOT! ⚠️</b><p style="font-size:13px;margin-top:4px">Setelah bayar, <b>WAJIB SCREENSHOT</b> bukti pembayaran!<br><b>Tunjukkan ke Driver</b> saat naik!</p></div>
-<p id="rute" style="text-align:center;color:#666;margin:8px"></p>
-<div class="harga" id="total">Rp 0</div>
-<div class="card" id="k1" onclick="pilih('ewallet')"><b>📱 Bayar Pakai E-Wallet</b><div style="color:#666;font-size:13px">Pilih salah satu, langsung dibuka aplikasinya</div>
-<div class="detail" id="d1"><p><b>Pilih E-Wallet Kamu:</b></p>
-<div class="wallet">
-<button type="button" class="wbtn dana" onclick="bayarWallet('DANA');event.stopPropagation()"><img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_DANA.png" alt="DANA" onerror="this.style.display='none'"><b>DANA</b><span>Ini DANA - Bayar pakai DANA</span></button>
-<button type="button" class="wbtn ovo" onclick="bayarWallet('OVO');event.stopPropagation()"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e6/OVO_Logo.png" alt="OVO" onerror="this.style.display='none'"><b>OVO</b><span>Ini OVO - Bayar pakai OVO</span></button>
-<button type="button" class="wbtn gopay" onclick="bayarWallet('GoPay');event.stopPropagation()"><img src="https://upload.wikimedia.org/wikipedia/commons/8/86/Gopay_logo.svg" alt="GoPay" onerror="this.style.display='none'"><b>GoPay</b><span>Ini GoPay - Bayar pakai GoPay</span></button>
-<button type="button" class="wbtn shopee" onclick="bayarWallet('ShopeePay');event.stopPropagation()"><img src="https://upload.wikimedia.org/wikipedia/commons/f/fe/ShopeePay_logo.png" alt="ShopeePay" onerror="this.style.display='none'"><b>ShopeePay</b><span>Ini ShopeePay</span></button>
+<div class="card">
+<a class="btn-back" href="index.html">⬅️ Kembali ke Beranda</a>
+<h2>💳 Pembayaran</h2>
+
+<div class="warn">
+⚠️📸<br>
+<b>⚠️ WAJIB SCREENSHOT! ⚠️</b><br>
+Setelah bayar, <b style="color:#d32f2f">WAJIB SCREENSHOT</b> bukti pembayaran!<br>
+<b style="color:#d32f2f">Tunjukkan ke Driver</b> saat naik!
 </div>
-<div class="loader" id="loadWallet"></div><p id="statusWallet" style="font-weight:700;color:#0a7a2e"></p>
-<p style="font-size:12px;color:#d00;font-weight:700">📸 Jangan lupa screenshot setelah bayar!</p></div></div>
-<div class="card" id="k2" onclick="pilih('transfer')"><b>🏦 Transfer Bank / Rekening</b><div style="color:#666;font-size:13px">Transfer ke rekening Ammo Travel</div>
-<div class="detail" id="d2"><p>Bank BCA</p><div class="rek">123 456 7890</div><p>a.n. Ammo Travel</p><button type="button" style="background:#333" onclick="alert('Nomor rekening tersalin!');event.stopPropagation()">📋 Salin Nomor Rekening</button><p style="font-size:12px;color:#d00;font-weight:700;margin-top:8px">📸 WAJIB SCREENSHOT bukti transfer!</p><button type="button" onclick="sudahBayar('Transfer');event.stopPropagation()">✅ Saya Sudah Transfer</button></div></div>
-<div class="card" id="k3" onclick="pilih('tunai')"><b>💵 Tunai / Cash</b><div style="color:#666;font-size:13px">Langsung cari driver, bayar ke driver nanti</div>
-<div class="detail" id="d3"><div style="font-size:40px">💵</div><p>Siapkan uang pas ya!</p><button type="button" onclick="keCariDriver();event.stopPropagation()">✅ Lanjut Cari Driver →</button></div></div>
-<button type="button" id="btnBayar" onclick="bayar()">👇 Pilih dulu metode pembayaran di atas</button>
-<button type="button" class="btn-batal" onclick="batalTotal()">❌ Batalkan Pesanan - Kembali ke Beranda</button>
+
+<div class="warn-tol">
+<b>⚠️ PERHATIAN! ⚠️</b><br>
+Tarif di bawah ini <b>BELUM termasuk TOL dan PARKIR</b> bila ada.<br>
+Biaya TOL & PARKIR dibayar terpisah / ditanggung penumpang sesuai struk.
 </div>
-<div id="popup"><div class="popup-box"><div style="font-size:50px">📸⚠️</div><h3>SUDAH SCREENSHOT BELUM?</h3><p id="popupText" style="margin:10px;color:#333"></p><p style="background:#fff3cd;padding:10px;border-radius:10px;font-size:13px"><b>WAJIB SCREENSHOT</b> bukti pembayaran ini sekarang!<br>Tunjukkan ke Driver saat naik!</p><button type="button" onclick="tutupPopup()">✅ SUDAH SAYA SCREENSHOT, LANJUT CARI DRIVER →</button><button type="button" style="background:#fff;color:#666;border:2px solid #ddd" onclick="document.getElementById('popup').style.display='none'">⬅️ Belum, Saya Screenshot Dulu</button><button type="button" class="btn-batal" onclick="batalTotal()">❌ Batalkan Saja</button></div></div>
+
+<div class="rute">
+📍 <b>Dari:</b> <span id="tDari">-</span><br>
+🎯 <b>Ke:</b> <span id="tKe">-</span><br>
+🚗 <b>Armada:</b> Calya / Sigra / Innova - 7 Kursi<br>
+📏 <b>Jarak:</b> <span id="tJarak">Menghitung...</span><br>
+💰 <b>Tarif:</b> Rp 5.000 / km (Rata)
+</div>
+
+<div class="harga" id="tHarga">Menghitung...</div>
+<div class="harga-kecil">* Belum termasuk TOL & PARKIR bila ada</div>
+
+<div class="rincian" id="tRincian">Menghitung rincian...</div>
+
+<div class="pilih" onclick="pilihMetode('ewallet',this)">
+<b>📱 Bayar Pakai E-Wallet</b>
+<small>Pilih salah satu, langsung dibuka aplikasinya</small>
+<div class="detail">
+<button onclick="event.stopPropagation(); bayarEWallet('DANA')" style="width:100%;padding:12px;margin:4px 0;border-radius:10px;border:1px solid #ddd;background:#fff;font-weight:700;cursor:pointer">💙 DANA</button>
+<button onclick="event.stopPropagation(); bayarEWallet('OVO')" style="width:100%;padding:12px;margin:4px 0;border-radius:10px;border:1px solid #ddd;background:#fff;font-weight:700;cursor:pointer">💜 OVO</button>
+<button onclick="event.stopPropagation(); bayarEWallet('GoPay')" style="width:100%;padding:12px;margin:4px 0;border-radius:10px;border:1px solid #ddd;background:#fff;font-weight:700;cursor:pointer">💚 GoPay</button>
+<div style="text-align:center;color:#888;font-size:12px;margin-top:8px">Atau scan QRIS di bawah ini:</div>
+<div class="qris">📷 QRIS</div>
+</div>
+</div>
+
+<div class="pilih" onclick="pilihMetode('bank',this)">
+<b>🏦 Transfer Bank / Rekening</b>
+<small>Transfer ke rekening Ammo Travel</small>
+<div class="detail">
+<b>BCA</b><br>123 456 7890<br>a.n. Ammo Travel<br><br>
+<b>BRI</b><br>9876 5432 10<br>a.n. Ammo Travel<br><br>
+<button onclick="event.stopPropagation(); salinRek('1234567890')" style="padding:10px 14px;border-radius:8px;border:0;background:#0a9e4e;color:#fff;font-weight:700;cursor:pointer">📋 Salin No. Rekening BCA</button>
+</div>
+</div>
+
+<div class="pilih" onclick="pilihMetode('tunai',this)">
+<b>💵 Tunai / Cash</b>
+<small>Langsung cari driver, bayar ke driver nanti</small>
+<div class="detail">Siap! Kamu bayar langsung ke driver saat naik. Jangan lupa siapkan uang pas ya! 🙏<br><br><b>Ingat:</b> TOL & PARKIR bayar terpisah bila ada.</div>
+</div>
+
+<button class="btn-bayar" id="btnBayar" disabled onclick="lanjutBayar()">👇 Pilih dulu metode pembayaran di atas</button>
+<a class="btn-batal" href="index.html">❌ Batalkan Pesanan - Kembali ke Beranda</a>
+</div>
+
 <script>
-localStorage.removeItem('ammo_batal');
-const p=new URLSearchParams(location.search);
-let tipe=(p.get('tipe')||'bersama').toLowerCase();
-let dari=p.get('dari')||'Soreang';
-let ke=p.get('ke')||'Dago';
-let kursi=parseInt(p.get('kursi'))||1;
-let hargaParam=(p.get('harga')||'').replace(/[^0-9]/g,'');
-let hargaAngka=parseInt(hargaParam)||0;
-let TARIF={
- 'Soreang-Dago':{bersama:35000,private:120000},
- 'Dago-Soreang':{bersama:35000,private:120000},
- 'Soreang-Bandung':{bersama:30000,private:100000},
- 'Bandung-Soreang':{bersama:30000,private:100000},
- 'Soreang-Cimahi':{bersama:30000,private:100000},
- 'Cimahi-Soreang':{bersama:30000,private:100000},
- 'Bandung-Dago':{bersama:25000,private:90000},
- 'Dago-Bandung':{bersama:25000,private:90000}
-};
-function hitungHarga(){
-  if(hargaAngka>0) return hargaAngka;
-  let kunci=dari+'-'+ke;
-  let t=TARIF[kunci];
-  if(t){ if(tipe=='private') return t.private; return t.bersama*kursi; }
-  if(tipe=='private') return 100000;
-  return 30000*kursi;
+let metode = '';
+let hargaFinal = 0;
+let jarakKm = 12;
+let dariText = '', keText = '';
+function getParam(n){ let u = new URLSearchParams(location.search); return u.get(n) || ''; }
+dariText = getParam('dari'); keText = getParam('ke');
+document.getElementById('tDari').innerText = dariText || 'Lokasi Jemput';
+document.getElementById('tKe').innerText = keText || 'Tujuan';
+
+async function geocode(q){
+  try{
+    let r = await fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(q)+'&limit=1');
+    let j = await r.json();
+    if(j.length) return {lat: parseFloat(j[0].lat), lon: parseFloat(j[0].lon)};
+  }catch(e){}
+  return null;
 }
-hargaAngka=hitungHarga();
-let harga='Rp '+hargaAngka.toLocaleString('id-ID');
-document.getElementById('rute').innerText=dari+' → '+ke+' • '+kursi+' Kursi • '+tipe.toUpperCase();
-document.getElementById('total').innerText=harga;
-let dipilih='';
-let timerBayar=null;
-let sudahBatal=false;
-function kembali(){
-  sudahBatal=true;
-  localStorage.setItem('ammo_batal','1');
-  if(timerBayar) clearTimeout(timerBayar);
-  window.location.href='/ammo-travel/index.html';
+function hitungJarakKm(a,b){
+  let R=6371, dLat=(b.lat-a.lat)*Math.PI/180, dLon=(b.lon-a.lon)*Math.PI/180;
+  let h=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
+  return R*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));
 }
-function pilih(t){dipilih=t;
-document.getElementById('k1').classList.toggle('pilih',t=='ewallet');
-document.getElementById('k2').classList.toggle('pilih',t=='transfer');
-document.getElementById('k3').classList.toggle('pilih',t=='tunai');
-document.getElementById('d1').style.display=t=='ewallet'?'block':'none';
-document.getElementById('d2').style.display=t=='transfer'?'block':'none';
-document.getElementById('d3').style.display=t=='tunai'?'block':'none';
-if(t=='tunai') document.getElementById('btnBayar').innerText='✅ Lanjut Cari Driver →';
-if(t=='transfer') document.getElementById('btnBayar').innerText='✅ Saya Sudah Transfer, Cari Driver →';
-if(t=='ewallet') document.getElementById('btnBayar').innerText='👆 Pilih DANA / OVO / GoPay / ShopeePay di atas';
+function hitungHargaDariJarak(){
+  // RUMUS RATA - GAMPANG!
+  // Harga = Jarak x Rp 5.000
+  let perKm = 5000;
+  let harga = jarakKm * perKm;
+  harga = Math.round(harga/1000)*1000;
+  hargaFinal = harga;
+  document.getElementById('tJarak').innerText = jarakKm + ' km (estimasi)';
+  document.getElementById('tHarga').innerText = 'Rp ' + harga.toLocaleString('id-ID');
+  document.getElementById('tRincian').innerHTML = 'Jarak: ' + jarakKm + ' km x Rp ' + perKm.toLocaleString('id-ID') + ' = Rp ' + harga.toLocaleString('id-ID') + '<br><b>Total: Rp ' + harga.toLocaleString('id-ID') + '</b><br><span style="color:#c62828">* Belum termasuk TOL & PARKIR bila ada</span>';
+  if(metode) updateTombol();
 }
-function keCariDriver(){
-  if(sudahBatal) return;
-  if(localStorage.getItem('ammo_batal')=='1') return;
-  location.href='cari-driver.html?tipe='+tipe+'&dari='+encodeURIComponent(dari)+'&ke='+encodeURIComponent(ke)+'&kursi='+kursi+'&harga='+encodeURIComponent(harga)+'&bayar='+dipilih;
+async function hitungJarak(){
+  let a = await geocode(dariText);
+  let b = await geocode(keText);
+  if(a && b){ jarakKm = Math.max(3, Math.round(hitungJarakKm(a,b)*1.3)); }
+  hitungHargaDariJarak();
 }
-function batalTotal(){
-  sudahBatal=true;
-  localStorage.setItem('ammo_batal','1');
-  if(timerBayar) clearTimeout(timerBayar);
-  document.getElementById('popup').style.display='none';
-  document.getElementById('loadWallet').style.display='none';
-  document.getElementById('statusWallet').innerText='';
-  alert('Pesanan dibatalkan! Kembali ke beranda, TIDAK jadi cari driver!');
-  window.location.href='/ammo-travel/index.html';
+hitungJarak();
+function pilihMetode(m, el){
+  metode = m;
+  document.querySelectorAll('.pilih').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  updateTombol();
 }
-function sudahBayar(metode){
-  if(sudahBatal) return;
-  document.getElementById('popupText').innerText='Pembayaran '+metode+' sebesar '+harga+' Berhasil!';
-  document.getElementById('popup').style.display='flex';
+function updateTombol(){
+  let btn = document.getElementById('btnBayar');
+  btn.disabled = false;
+  let hrp = 'Rp ' + hargaFinal.toLocaleString('id-ID');
+  if(metode=='ewallet') btn.innerText = '✅ Lanjut Bayar Pakai E-Wallet - ' + hrp + ' (Belum Termasuk Tol & Parkir)';
+  if(metode=='bank') btn.innerText = '✅ Saya Sudah Transfer - ' + hrp + ' (Belum Termasuk Tol & Parkir)';
+  if(metode=='tunai') btn.innerText = '✅ Pesan Driver - Bayar Tunai ' + hrp;
 }
-function tutupPopup(){ if(sudahBatal) return; keCariDriver(); }
-function bayarWallet(wallet){
-  if(sudahBatal) return;
-  dipilih='ewallet-'+wallet.toLowerCase();
-  document.getElementById('statusWallet').innerText='Membuka aplikasi '+wallet+'...';
-  document.getElementById('loadWallet').style.display='block';
-  let link='';
-  if(wallet=='DANA') link='dana://';
-  if(wallet=='OVO') link='
+function bayarEWallet(app){
+  alert('Membuka ' + app + '... Bayar Rp ' + hargaFinal.toLocaleString('id-ID') + ' ke Ammo Travel (Belum termasuk TOL & PARKIR), lalu SCREENSHOT buktinya ya!');
+}
+function salinRek(norek){
+  navigator.clipboard.writeText(norek).then(()=>alert('Nomor rekening tersalin: ' + norek));
+}
+function lanjutBayar(){
+  if(!metode){ alert('Pilih dulu metode pembayaran!'); return; }
+  let pesan = 'Halo Ammo Travel! Saya mau pesan travel.\n\nDari: ' + dariText + '\nKe: ' + keText + '\nJarak: ' + jarakKm + ' km\nTotal: Rp ' + hargaFinal.toLocaleString('id-ID') + ' (Belum termasuk TOL & PARKIR)\nMetode: ' + metode + '\n\nMohon konfirmasi driver ya!';
+  if(metode=='tunai'){
+    alert('Pesanan dibuat! Driver akan dihubungi via WhatsApp. Siapkan uang tunai Rp ' + hargaFinal.toLocaleString('id-ID') + ' ya! Ingat, TOL & PARKIR bayar terpisah bila ada!');
+  } else {
+    alert('Siap! Jangan lupa SCREENSHOT bukti pembayaran ya! Lalu kirim ke WhatsApp Admin! TOL & PARKIR bayar terpisah bila ada!');
+  }
+  window.open('https://wa.me/6281234567890?text=' + encodeURIComponent(pesan), '_blank');
+}
+</script>
+</body></html>
