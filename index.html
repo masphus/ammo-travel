@@ -7,23 +7,26 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
 body{background:#fff;max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;position:relative;padding-bottom:80px}
-header{background:#0a9e4e;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:14px 16px}
+header{background:#0a9e4e;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
 .logo{display:flex;align-items:center;gap:10px}
-.logo-icon{width:44px;height:44px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px}
+.logo-icon{width:44px;height:44px;background:#fff;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-icon img{width:100%;height:100%;object-fit:cover}
 .logo b{font-size:24px}
 .pilih-lokasi{font-size:14px;font-weight:700;display:flex;align-items:center;gap:4px;cursor:pointer}
 h1{text-align:center;color:#0b3d1e;font-size:28px;margin:20px 14px 4px;line-height:1.2}
-.car-icon{text-align:center;font-size:34px;margin:4px 0 12px}
+.car-icon{text-align:center;margin:6px 0 12px}
+.car-icon img{width:240px;max-width:85%;height:110px;object-fit:cover;border-radius:14px}
 label{font-weight:800;color:#111;font-size:17px;margin:14px 0 8px;display:block}
 .field{display:flex;align-items:center;gap:10px}
-.pin{font-size:28px;color:#0a9e4e}
-.input-wrap{flex:1;display:flex;align-items:center;background:#f1f1f1;border:1px solid #ccc;border-radius:12px;padding:6px 6px 6px 12px}
-.input-wrap input{flex:1;border:0;background:transparent;outline:0;font-size:15px;padding:10px 0}
-.btn-peta{background:#0a9e4e;color:#fff;border:0;border-radius:8px;padding:9px 10px;font-weight:700;font-size:13px;white-space:nowrap;cursor:pointer}
+.pin{font-size:28px;color:#0a9e4e;flex-shrink:0}
+.input-wrap{flex:1;min-width:0;display:flex;align-items:center;background:#f1f1f1;border:1px solid #ccc;border-radius:12px;padding:6px 6px 6px 12px}
+.input-wrap input{flex:1;min-width:0;border:0;background:transparent;outline:0;font-size:15px;padding:10px 0}
+.btn-peta{background:#0a9e4e;color:#fff;border:0;border-radius:8px;padding:9px 10px;font-weight:700;font-size:13px;white-space:nowrap;cursor:pointer;flex-shrink:0}
 .wrap{padding:0 16px}
 .info{background:#d9ecd9;border-radius:14px;padding:14px;margin-top:18px}
 .info-top{display:flex;gap:12px;align-items:center}
-.info-icon{width:44px;height:44px;min-width:44px;background:#0a9e4e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff}
+.info-icon{width:48px;height:48px;min-width:48px;background:#fff;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.info-icon img{width:100%;height:100%;object-fit:cover}
 .info-top p{font-size:15px;line-height:1.4;color:#111}
 .btn-lanjut{width:100%;background:#0a9e4e;color:#fff;border:0;border-radius:12px;padding:17px;font-size:22px;font-weight:800;margin-top:14px;cursor:pointer}
 .chat{position:fixed;bottom:92px;right:14px;width:58px;height:58px;background:#0a9e4e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.25);cursor:pointer;z-index:10}
@@ -43,12 +46,12 @@ nav span{font-size:22px}
 </style></head>
 <body>
 <header>
-<div class="logo"><div class="logo-icon">🚗</div><b>Ammo Travel</b></div>
+<div class="logo"><div class="logo-icon"><img src="icon-512.png" alt="Ammo Travel"></div><b>Ammo Travel</b></div>
 <div class="pilih-lokasi" onclick="pilihLokasi()">📍 Pilih Lokasi</div>
 </header>
 
 <h1>Mau Pergi Kemana<br>Hari Ini?</h1>
-<div class="car-icon">🚗</div>
+<div class="car-icon"><img src="https://images.unsplash.com/photo-1550355291-bbee04a92027?w=800&q=80" alt="Sedan Ammo Travel"></div>
 
 <div class="wrap">
 <label>Penjemputan</label>
@@ -58,7 +61,7 @@ nav span{font-size:22px}
 <div class="field"><div class="pin">📍</div><div class="input-wrap"><input id="ke" placeholder="Ketik / Pilih Tujuan..."><button class="btn-peta" type="button" onclick="bukaPeta('ke')">📍 Pilih di Peta</button></div></div>
 
 <div class="info">
-<div class="info-top"><div class="info-icon">🚗</div><p><b>Driver di sekitar kamu siap menjemput!</b><br>Cek harga setelah isi lokasi</p></div>
+<div class="info-top"><div class="info-icon"><img src="https://images.unsplash.com/photo-1550355291-bbee04a92027?w=200&q=80" alt="Driver"></div><p><b>Driver di sekitar kamu siap menjemput!</b><br>Cek harga setelah isi lokasi</p></div>
 <button class="btn-lanjut" onclick="cekDriver()">Cek Driver &amp; Lanjut</button>
 </div>
 </div>
@@ -86,35 +89,21 @@ let map = null;
 let marker = null;
 let alamatPeta = '';
 let latPeta = -6.9175, lngPeta = 107.6191;
-
-// 1. PENJEMPUTAN ISI OTOMATIS DARI GPS - TAPI TETAP BISA DIUBAH MANUAL
 async function isiDariGPS(){
-  if(!navigator.geolocation){
-    document.getElementById('dari').placeholder = 'Ketik / Pilih Lokasi Jemput...';
-    return;
-  }
-  document.getElementById('dari').placeholder = 'Mencari lokasi GPS kamu...';
+  if(!navigator.geolocation){ document.getElementById('dari').placeholder = 'Ketik / Pilih Lokasi Jemput...'; return; }
   navigator.geolocation.getCurrentPosition(async (pos)=>{
     latPeta = pos.coords.latitude; lngPeta = pos.coords.longitude;
     try{
       let r = await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+latPeta+'&lon='+lngPeta+'&zoom=18&addressdetails=1');
       let j = await r.json();
       let alamat = j.display_name || (latPeta+', '+lngPeta);
-      // Cuma isi kalau user belum ketik apa-apa, jadi ga nimpa ketikan user!
-      if(!document.getElementById('dari').value){
-        document.getElementById('dari').value = alamat;
-      }
+      if(!document.getElementById('dari').value){ document.getElementById('dari').value = alamat; }
     }catch(e){
-      if(!document.getElementById('dari').value){
-        document.getElementById('dari').value = 'Lokasi Saya ('+latPeta.toFixed(5)+', '+lngPeta.toFixed(5)+')';
-      }
+      if(!document.getElementById('dari').value){ document.getElementById('dari').value = 'Lokasi Saya ('+latPeta.toFixed(5)+', '+lngPeta.toFixed(5)+')'; }
     }
-  }, ()=>{
-    document.getElementById('dari').placeholder = 'Ketik / Pilih Lokasi Jemput...';
-  }, {enableHighAccuracy:true, timeout:10000});
+  }, ()=>{ document.getElementById('dari').placeholder = 'Ketik / Pilih Lokasi Jemput...'; }, {enableHighAccuracy:true, timeout:10000});
 }
 isiDariGPS();
-
 function bukaPeta(target){
   targetPeta = target;
   document.getElementById('mapJudul').innerText = target=='dari' ? 'Pilih Penjemputan di Peta' : 'Pilih Tujuan di Peta';
@@ -135,21 +124,14 @@ function bukaPeta(target){
         }catch(err){ alamatPeta = latPeta.toFixed(5)+', '+lngPeta.toFixed(5); }
         document.getElementById('mapAlamat').innerText = '📍 '+alamatPeta;
       });
-    } else {
-      map.invalidateSize();
-      map.setView([latPeta, lngPeta], 15);
-    }
+    } else { map.invalidateSize(); map.setView([latPeta, lngPeta], 15); }
     document.getElementById('mapAlamat').innerText = 'Tap di peta untuk pilih lokasi...';
     alamatPeta = '';
   }, 100);
 }
 function tutupPeta(){ document.getElementById('mapModal').style.display='none'; }
 function pakaiLokasiPeta(){
-  if(!alamatPeta){
-    // Kalau belum tap, pakai tengah peta
-    let c = map.getCenter();
-    alamatPeta = 'Lokasi Peta ('+c.lat.toFixed(5)+', '+c.lng.toFixed(5)+')';
-  }
+  if(!alamatPeta){ let c = map.getCenter(); alamatPeta = 'Lokasi Peta ('+c.lat.toFixed(5)+', '+c.lng.toFixed(5)+')'; }
   document.getElementById(targetPeta).value = alamatPeta;
   tutupPeta();
 }
