@@ -4,43 +4,82 @@
 <title>Pembayaran - Ammo Travel</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
-body{background:#f5f5f5;max-width:480px;margin:0 auto;min-height:100vh;padding:14px}
-.card{background:#fff;border-radius:18px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,0.08);position:relative;z-index:2}
-.btn-back{display:block;text-align:center;background:#fff;border:2px solid #e0e0e0;border-radius:12px;padding:13px;font-weight:700;font-size:16px;color:#333;text-decoration:none;margin-bottom:14px}
-h2{text-align:center;font-size:22px;margin-bottom:12px}
+body{background:#f5f5f5;max-width:480px;margin:0 auto;padding:14px}
+.card{background:#fff;border-radius:18px;padding:16px}
+.btn-back{display:block;text-align:center;background:#fff;border:2px solid #e0e0e0;border-radius:12px;padding:13px;font-weight:700;color:#333;text-decoration:none;margin-bottom:14px}
+h2{text-align:center;margin-bottom:12px}
 .warn{background:#fff3cd;border:2px solid #ffc107;border-radius:14px;padding:14px;text-align:center;margin-bottom:12px;line-height:1.4}
-.warn b{color:#d32f2f}
-.warn-tol{background:#ffebee;border:2px solid #e53935;border-radius:14px;padding:12px;text-align:center;margin-bottom:14px;line-height:1.5;font-size:14px}
-.warn-tol b{color:#c62828;font-size:15px}
+.warn-tol{background:#ffebee;border:2px solid #e53935;border-radius:14px;padding:12px;text-align:center;margin-bottom:14px;font-size:14px;line-height:1.5}
 .rute{background:#f1f1f1;border-radius:12px;padding:12px;margin-bottom:12px;font-size:14px;line-height:1.6}
-.rute b{color:#0a9e4e}
 .harga{text-align:center;font-size:38px;font-weight:900;color:#0a7a3a;margin:8px 0 4px}
 .harga-kecil{text-align:center;font-size:13px;color:#888;margin-bottom:14px}
-.pilih{border:2px solid #e0e0e0;border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;background:#fff;position:relative;z-index:3}
+.pilih{border:2px solid #e0e0e0;border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;background:#fff}
 .pilih.active{border-color:#0a9e4e;background:#e8f5e9}
-.pilih b{font-size:17px}
-.pilih small{display:block;color:#777;font-size:13px;margin-top:2px}
 .detail{display:none;background:#f9f9f9;border-radius:12px;padding:12px;margin-top:10px;font-size:14px;line-height:1.6}
 .pilih.active .detail{display:block}
-.btn-bayar{width:100%;background:#0a9e4e;color:#fff;border:0;border-radius:12px;padding:17px;font-size:19px;font-weight:800;margin-top:8px;cursor:pointer;position:relative;z-index:3}
-.btn-bayar:disabled{background:#ccc;cursor:not-allowed}
-.btn-batal{display:block;text-align:center;color:#d32f2f;border:2px solid #ffcccc;border-radius:12px;padding:14px;font-weight:700;text-decoration:none;margin-top:10px;font-size:15px}
-.qris-box{background:#fff;border:2px solid #0a9e4e;border-radius:14px;padding:14px;text-align:center;margin:10px auto}
-.qris-box img{width:210px;height:210px;object-fit:contain;border-radius:10px}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:999;padding:20px;pointer-events:none}
-.overlay.show{display:flex;pointer-events:auto}
-.popup{background:#fff;border-radius:18px;padding:22px;width:100%;max-width:400px;text-align:center;max-height:90vh;overflow-y:auto;pointer-events:auto}
+.btn-bayar{width:100%;background:#0a9e4e;color:#fff;border:0;border-radius:12px;padding:17px;font-size:19px;font-weight:800;margin-top:8px;cursor:pointer}
+.btn-bayar:disabled{background:#ccc}
+.btn-batal{display:block;text-align:center;color:#d32f2f;border:2px solid #ffcccc;border-radius:12px;padding:14px;font-weight:700;text-decoration:none;margin-top:10px}
+.qris-box{background:#fff;border:2px solid #0a9e4e;border-radius:14px;padding:14px;text-align:center}
+.qris-box img{width:210px;height:210px;object-fit:contain}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:99;padding:20px}
+.overlay.show{display:flex}
+.popup{background:#fff;border-radius:18px;padding:22px;width:100%;max-width:400px;text-align:center;max-height:90vh;overflow-y:auto}
 .spinner{width:60px;height:60px;border:6px solid #eee;border-top:6px solid #0a9e4e;border-radius:50%;margin:14px auto;animation:putar 1s linear infinite}
 @keyframes putar{to{transform:rotate(360deg)}}
-.driver-card{background:#e8f5e9;border:2px solid #0a9e4e;border-radius:14px;padding:14px;text-align:left;line-height:1.7;margin:12px 0}
-.btn-chat{width:100%;background:#0a9e4e;color:#fff;border:0;border-radius:12px;padding:14px;font-weight:800;font-size:16px;cursor:pointer;margin-top:10px}
-.btn-admin{width:100%;background:#fff;border:2px solid #0a9e4e;color:#0a7a3a;border-radius:12px;padding:13px;font-weight:800;font-size:15px;cursor:pointer;margin-top:8px}
-.btn-riwayat{width:100%;background:#0a7a3a;color:#fff;border:0;border-radius:12px;padding:14px;font-weight:800;font-size:16px;cursor:pointer;margin-top:8px}
-.btn-tutup{width:100%;background:#eee;border:0;border-radius:12px;padding:12px;font-weight:700;margin-top:8px;cursor:pointer}
-.chat-box{background:#f1f1f1;border-radius:12px;padding:10px;text-align:left;margin-top:12px;display:none}
-.chat-bubble{background:#fff;border-radius:10px;padding:8px 10px;margin:6px 0;font-size:13px;line-height:1.4}
-.chat-input{display:flex;gap:6px;margin-top:8px}
-.chat-input input{flex:1;padding:10px;border-radius:10px;border:1px solid #ddd}
-.chat-input button{background:#0a9e4e;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
-.logo-bca{width:70px;height:28px;object-fit:contain}
-.riwayat-item{background:#f9f9f9;border:1px solid #eee;border-radius:12px
+</style></head>
+<body>
+<div class="card">
+<a class="btn-back" href="index.html">⬅️ Kembali ke Beranda</a>
+<h2>💳 Pembayaran</h2>
+<div class="warn"><b>⚠️ WAJIB SCREENSHOT! ⚠️</b><br>Setelah bayar, <b>WAJIB SCREENSHOT</b> bukti pembayaran!<br><b>Tunjukkan ke Driver</b> saat naik!</div>
+<div class="warn-tol"><b>⚠️ PERHATIAN! ⚠️</b><br>Tarif ini <b>BELUM termasuk TOL dan PARKIR</b> bila ada.</div>
+<div class="rute">📍 <b>Dari:</b> <span id="tDari">-</span><br>🎯 <b>Ke:</b> <span id="tKe">-</span><br>🚗 <b>Armada:</b> Calya / Sigra / Innova - 7 Kursi<br>📏 <b>Jarak:</b> <span id="tJarak">-</span></div>
+<div class="harga" id="tHarga">Rp 750.000</div>
+<div class="harga-kecil">* Belum termasuk TOL & PARKIR bila ada</div>
+
+<div class="pilih" onclick="pilih('qris',this)"><b>📷 1. Bayar Pakai QRIS</b><br><small>Scan pakai DANA / OVO / GoPay / BCA / Semua Bank</small><div class="detail">
+<div class="qris-box">
+<img src="qris.jpg" alt="QRIS Ammo Travel" onerror="this.src='https://via.placeholder.com/210?text=Upload+qris.jpg+dulu'">
+<div style="font-weight:800;margin-top:8px">AMMO TRAVEL</div>
+<div style="font-size:12px;color:#666">QRIS - Semua E-Wallet & Bank</div>
+<div style="font-size:12px;color:#0a7a3a;font-weight:700" id="qrisNominal">Scan & bayar sesuai nominal</div>
+</div>
+<p style="font-size:12px;margin-top:8px">1. Buka DANA / OVO / GoPay / m-BCA<br>2. Klik Scan / QRIS, arahkan ke QR di atas<br>3. Masukkan nominal sesuai harga<br>4. <b>SCREENSHOT</b> buktinya!</p>
+<button onclick="event.stopPropagation(); sudahBayar()" style="width:100%;background:#0a9e4e;color:#fff;border:0;border-radius:10px;padding:13px;font-weight:800;margin-top:8px">✅ Saya Sudah Bayar Pakai QRIS - Cari Driver</button>
+</div></div>
+
+<div class="pilih" onclick="pilih('bank',this)"><b>🏦 2. Transfer Bank - BCA</b><br><small>Transfer ke rekening BCA Ammo Travel</small><div class="detail"><span style="font-size:20px;font-weight:800">1092 3655 19</span><br>a.n. <b>Ahmad Maha Mongkol</b><br><br><button onclick="event.stopPropagation(); salin()" style="padding:10px 14px;border-radius:8px;border:0;background:#0a9e4e;color:#fff;font-weight:700">📋 Salin No. Rekening</button></div></div>
+
+<div class="pilih" onclick="pilih('tunai',this)"><b>💵 3. Tunai / Cash</b><br><small>Bayar langsung ke driver nanti</small><div class="detail">Siap! Bayar langsung ke driver saat naik. Siapkan uang pas ya! 🙏<br><b>Ingat:</b> TOL & PARKIR bayar terpisah bila ada.</div></div>
+
+<button class="btn-bayar" id="btnBayar" disabled onclick="lanjut()">👇 Pilih dulu metode pembayaran di atas</button>
+<a class="btn-batal" href="index.html">❌ Batalkan Pesanan</a>
+</div>
+
+<div class="overlay" id="overlayCari"><div class="popup">
+<div id="cariLoading"><div style="font-size:22px;font-weight:800">🔍 Mencari Driver...</div><div class="spinner"></div><p id="cariStatus">Menghubungi driver di Bandung...</p></div>
+<div id="cariKetemu" style="display:none">
+<div style="font-size:22px;font-weight:800;color:#0a7a3a">✅ Driver Ditemukan!</div>
+<p style="margin:12px 0;line-height:1.6">🚗 <b>Ahmad - Ammo Travel</b><br>🚘 Calya Putih - D 1234 ABC<br>📍 <span id="dDari"></span> → 🎯 <span id="dKe"></span><br>💰 <span id="dHarga"></span> <span id="dMetode"></span></p>
+<button onclick="hubungiAdmin()" style="width:100%;background:#fff;border:2px solid #0a9e4e;color:#0a7a3a;border-radius:12px;padding:13px;font-weight:800">📞 Hubungi Admin Jika Ada Masalah</button>
+<button onclick="document.getElementById('overlayCari').classList.remove('show')" style="width:100%;background:#eee;border:0;border-radius:12px;padding:12px;font-weight:700;margin-top:8px">Tutup</button>
+</div>
+</div></div>
+
+<script>
+let metode=''; let hargaFinal=750000; let dariText=''; let keText='';
+function getParam(n){try{return new URLSearchParams(location.search).get(n)||''}catch(e){return ''}}
+dariText=getParam('dari'); keText=getParam('ke');
+document.getElementById('tDari').innerText=dariText||'Lokasi Jemput';
+document.getElementById('tKe').innerText=keText||'Tujuan';
+function hitung(){let d=(dariText||'').toLowerCase(); let k=(keText||'').toLowerCase(); let j=10; if(d.includes('bandung')&&k.includes('jakarta')) j=156; if(d.includes('jakarta')&&k.includes('bandung')) j=156; if(d.includes('bandung')&&k.includes('cimahi')) j=12; if(d.includes('bandung')&&k.includes('lembang')) j=16; let h=Math.max(25000,Math.round(j*5000/1000)*1000); hargaFinal=h; document.getElementById('tJarak').innerText=j+' km (estimasi)'; document.getElementById('tHarga').innerText='Rp '+h.toLocaleString('id-ID'); let q=document.getElementById('qrisNominal'); if(q) q.innerText='Scan & bayar Rp '+h.toLocaleString('id-ID');}
+hitung();
+function pilih(m,el){metode=m; document.querySelectorAll('.pilih').forEach(p=>p.classList.remove('active')); el.classList.add('active'); let b=document.getElementById('btnBayar'); b.disabled=false; let hrp='Rp '+hargaFinal.toLocaleString('id-ID'); if(m=='qris') b.innerText='✅ Saya Sudah Bayar Pakai QRIS - Cari Driver '+hrp; if(m=='bank') b.innerText='✅ Saya Sudah Transfer - '+hrp; if(m=='tunai') b.innerText='🔍 Cari Driver - Bayar Tunai '+hrp;}
+function sudahBayar(){if(confirm('Kamu sudah scan QRIS & sudah SCREENSHOT buktinya?')){cariDriver()}else{alert('Scan QRIS dulu ya!')}}
+function salin(){if(navigator.clipboard){navigator.clipboard.writeText('1092365519').then(()=>alert('Tersalin: 1092365519 a.n. Ahmad Maha Mongkol'))}else{alert('1092365519')}}
+function lanjut(){if(!metode){alert('Pilih dulu!');return} cariDriver()}
+function cariDriver(){document.getElementById('overlayCari').classList.add('show'); document.getElementById('cariLoading').style.display='block'; document.getElementById('cariKetemu').style.display='none'; let s=document.getElementById('cariStatus'); s.innerText='Menghubungi driver...'; setTimeout(()=>{s.innerText='Driver Ahmad menerima pesanan...'},1500); setTimeout(()=>{document.getElementById('cariLoading').style.display='none'; document.getElementById('cariKetemu').style.display='block'; document.getElementById('dDari').innerText=dariText; document.getElementById('dKe').innerText=keText; document.getElementById('dHarga').innerText='Rp '+hargaFinal.toLocaleString('id-ID'); document.getElementById('dMetode').innerText=metode=='tunai'?'(Tunai)':metode=='bank'?'(Transfer BCA)':'(QRIS)';},3000)}
+function hubungiAdmin(){window.open('https://wa.me/6281234567890?text='+encodeURIComponent('Halo Admin Ammo Travel! Dari: '+dariText+' Ke: '+keText), '_blank')}
+</script>
+</body></html>
