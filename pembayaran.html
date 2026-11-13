@@ -48,12 +48,12 @@ h2{text-align:center;margin-bottom:12px}
 <div class="card">
 <a class="btn-back" href="index.html">⬅️ Kembali ke Beranda</a>
 <h2>💳 Pembayaran</h2>
-<div id="peringatanRute">⚠️ RUTE BELUM DIPILIH!<br><span style="font-weight:400;font-size:13px;color:#333">Kamu buka halaman ini langsung. Balik ke Beranda dulu, pilih Dari & Ke, baru ke sini lagi ya!</span><br><a href="index.html" style="display:inline-block;margin-top:8px;background:#c62828;color:#fff;padding:10px 16px;border-radius:10px;text-decoration:none">⬅️ Pilih Rute di Beranda</a></div>
+<div id="peringatanRute">⚠️ RUTE BELUM DIPILIH!<br><span style="font-weight:400;font-size:13px;color:#333">Balik ke Beranda dulu, pilih Dari & Ke, baru ke sini lagi ya!</span><br><a href="index.html" style="display:inline-block;margin-top:8px;background:#c62828;color:#fff;padding:10px 16px;border-radius:10px;text-decoration:none">⬅️ Pilih Rute di Beranda</a></div>
 <div class="warn"><b>⚠️ WAJIB SCREENSHOT! ⚠️</b><br>Setelah bayar, <b>WAJIB SCREENSHOT</b> bukti pembayaran!<br><b>Tunjukkan ke Driver</b> saat naik!</div>
 <div class="warn-tol"><b>⚠️ PERHATIAN! ⚠️</b><br>Tarif ini <b>BELUM termasuk TOL dan PARKIR</b> bila ada.</div>
-<div class="rute">📍 <b>Dari:</b> <span id="tDari">-</span><br>🎯 <b>Ke:</b> <span id="tKe">-</span><br>🚗 <b>Armada:</b> Calya / Sigra / Innova - 7 Kursi<br>📏 <b>Jarak:</b> <span id="tJarak">-</span></div>
-<div class="harga" id="tHarga">Rp 0</div>
-<div class="harga-kecil">* Belum termasuk TOL & PARKIR bila ada</div>
+<div class="rute">📍 <b>Dari:</b> <span id="tDari">-</span><br>🎯 <b>Ke:</b> <span id="tKe">-</span><br>🚗 <b>Armada:</b> Calya / Sigra / Innova - 7 Kursi<br>📏 <b>Jarak:</b> <span id="tJarak">Menghitung jarak jalan beneran...</span><br>🛣️ <b>Rute:</b> <span id="tRuteInfo" style="font-size:12px;color:#666">Menghitung via jalan...</span></div>
+<div class="harga" id="tHarga">Menghitung...</div>
+<div class="harga-kecil" id="tHargaDetail">Harga = Jarak KM x Rp 5.000 / km<br>* Belum termasuk TOL & PARKIR bila ada</div>
 
 <div class="pilih" onclick="pilihMetode('qris',this)"><b>📷 1. Bayar Pakai QRIS</b><br><small>Scan pakai DANA / OVO / GoPay / BCA / Semua Bank</small><div class="detail">
 <div class="qris-box">
@@ -70,7 +70,7 @@ h2{text-align:center;margin-bottom:12px}
 
 <div class="pilih" onclick="pilihMetode('tunai',this)"><b>💵 3. Tunai / Cash</b><br><small>Bayar langsung ke driver nanti</small><div class="detail">Siap! Bayar langsung ke driver saat naik. Siapkan uang pas ya! 🙏<br><b>Ingat:</b> TOL & PARKIR bayar terpisah bila ada.</div></div>
 
-<button class="btn-bayar" id="btnBayar" disabled onclick="lanjutBayar()">👇 Pilih dulu metode pembayaran di atas</button>
+<button class="btn-bayar" id="btnBayar" disabled onclick="lanjutBayar()">⏳ Menghitung jarak & harga...</button>
 <a class="btn-batal" href="index.html">❌ Batalkan Pesanan</a>
 <button class="btn-riwayat-bawah" onclick="bukaRiwayat()">📋 Cek Riwayat Booking Saya</button>
 </div>
@@ -79,7 +79,7 @@ h2{text-align:center;margin-bottom:12px}
 <div id="cariLoading"><div style="font-size:22px;font-weight:800">🔍 Mencari Driver...</div><div class="spinner"></div><p id="cariStatus">Menghubungi driver di Bandung...</p></div>
 <div id="cariKetemu" style="display:none">
 <div style="font-size:22px;font-weight:800;color:#0a7a3a">✅ Driver Ditemukan!</div>
-<div class="driver-card">🚗 <b>Driver:</b> Ahmad - Ammo Travel<br>⭐ <b>Rating:</b> 4.9 (128 trip)<br>🚘 <b>Mobil:</b> Toyota Calya - Putih<br>🔢 <b>Plat:</b> D 1234 ABC<br>📍 <b>Dari:</b> <span id="dDari"></span><br>🎯 <b>Ke:</b> <span id="dKe"></span><br>💰 <b>Bayar:</b> <span id="dHarga"></span> <span id="dMetode"></span><br>⏱️ <b>Estimasi Jemput:</b> 5 - 10 menit</div>
+<div class="driver-card">🚗 <b>Driver:</b> Ahmad - Ammo Travel<br>⭐ <b>Rating:</b> 4.9 (128 trip)<br>🚘 <b>Mobil:</b> Toyota Calya - Putih<br>🔢 <b>Plat:</b> D 1234 ABC<br>📍 <b>Dari:</b> <span id="dDari"></span><br>🎯 <b>Ke:</b> <span id="dKe"></span><br>📏 <b>Jarak:</b> <span id="dJarak"></span><br>💰 <b>Bayar:</b> <span id="dHarga"></span> <span id="dMetode"></span><br>⏱️ <b>Estimasi Jemput:</b> 5 - 10 menit</div>
 <button class="btn-chat" onclick="bukaChat()">💬 Chat di Aplikasi</button>
 <div class="chat-box" id="chatBox"><div class="chat-bubble"><b>Driver Ahmad:</b> Halo kak! Saya OTW ke lokasi jemput ya, estimasi 7 menit. 🙏</div><div class="chat-input"><input id="chatInput" placeholder="Ketik pesan ke driver..."><button onclick="kirimChat()">Kirim</button></div></div>
 <button class="btn-admin" onclick="hubungiAdmin()">📞 Hubungi Admin Jika Ada Masalah</button>
@@ -101,71 +101,118 @@ h2{text-align:center;margin-bottom:12px}
 <script>
 var metode = '';
 var hargaFinal = 0;
+var jarakKm = 0;
 var dariText = '';
 var keText = '';
+var HARGA_PER_KM = 5000;
 var map = null, markerDriver = null, markerJemput = null, routeLine = null, driverIndex = 0, intervalGPS = null;
 var ruteDriver = [[-6.9210,107.6040],[-6.9202,107.6060],[-6.9195,107.6075],[-6.9188,107.6085],[-6.9180,107.6080],[-6.9175,107.6090]];
 var jemputLatLng = [-6.9175,107.6090];
+
 function getParam(n){ try{ var u = new URLSearchParams(window.location.search); var v = u.get(n); return v ? decodeURIComponent(v) : ''; }catch(e){ return ''; } }
 function ambilRute(){
-  var d = getParam('dari');
-  var k = getParam('ke');
+  var d = getParam('dari'); var k = getParam('ke');
   if(!d){ try{ d = localStorage.getItem('ammo_dari') || ''; }catch(e){} }
   if(!k){ try{ k = localStorage.getItem('ammo_ke') || ''; }catch(e){} }
+  // Kalo di index udah simpan KM, pake itu dulu sambil nunggu hitung ulang
   dariText = d; keText = k;
   if(dariText){ try{ localStorage.setItem('ammo_dari', dariText); }catch(e){} }
   if(keText){ try{ localStorage.setItem('ammo_ke', keText); }catch(e){} }
 }
-function hitungJarakKota(dari, ke){
-  var d = (dari||'').toLowerCase(); var k = (ke||'').toLowerCase();
-  if(d.indexOf('bandung')>-1 && k.indexOf('jakarta')>-1) return 156;
-  if(d.indexOf('jakarta')>-1 && k.indexOf('bandung')>-1) return 156;
-  if(d.indexOf('bandung')>-1 && k.indexOf('cimahi')>-1) return 12;
-  if(d.indexOf('bandung')>-1 && k.indexOf('lembang')>-1) return 16;
-  if(d.indexOf('bandung')>-1 && k.indexOf('cianjur')>-1) return 60;
-  if(d.indexOf('bandung')>-1 && k.indexOf('garut')>-1) return 65;
-  if(d && k && d===k) return 5;
-  if(d && k) return 10;
-  return 0;
+function hitungHargaDariKm(km){
+  jarakKm = km;
+  var h = Math.round(km * HARGA_PER_KM / 1000) * 1000;
+  // Minimal: dalam kota 50rb, antar kota 150rb - bukan dari nama kota, tapi dari jarak!
+  // Kalo jarak < 10 km = dalam kota, kalo > 10 km = antar kota
+  var minHarga = (km <= 10) ? 50000 : 150000;
+  if(h < minHarga) h = minHarga;
+  hargaFinal = h;
+  document.getElementById('tJarak').innerText = km.toFixed(1) + ' km (jalan beneran)';
+  document.getElementById('tHarga').innerText = 'Rp ' + h.toLocaleString('id-ID');
+  document.getElementById('tHargaDetail').innerHTML = km.toFixed(1) + ' km x Rp 5.000 = Rp ' + h.toLocaleString('id-ID') + '<br>* Belum termasuk TOL & PARKIR bila ada';
+  var q = document.getElementById('qrisNominal'); if(q) q.innerText = 'Scan & bayar Rp ' + h.toLocaleString('id-ID');
+  var b = document.getElementById('btnBayar'); if(!metode){ b.innerText = '👇 Pilih dulu metode pembayaran di atas'; }
+  else { updateTombol(); }
+  try{ localStorage.setItem('ammo_km', km); localStorage.setItem('ammo_harga', h); }catch(e){}
 }
-function tampilkan(){
-  document.getElementById('tDari').innerText = dariText || '-';
-  document.getElementById('tKe').innerText = keText || '-';
+function hitungJarakGarisLurus(lat1, lon1, lat2, lon2){
+  var R = 6371; var dLat = (lat2-lat1)*Math.PI/180; var dLon = (lon2-lon1)*Math.PI/180;
+  var a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+function cariKoordinat(alamat){
+  return fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(alamat))
+    .then(function(r){ return r.json(); })
+    .then(function(data){ if(data && data[0]) return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) }; return null; });
+}
+function hitungJarakBeneran(){
   if(!dariText || !keText){
     document.getElementById('tJarak').innerText = '-';
     document.getElementById('tHarga').innerText = 'Rp 0';
     document.getElementById('peringatanRute').style.display = 'block';
-    hargaFinal = 0;
     return;
   }
-  var j = hitungJarakKota(dariText, keText);
-  var h = Math.max(25000, Math.round(j*5000/1000)*1000);
-  hargaFinal = h;
-  document.getElementById('tJarak').innerText = j + ' km (estimasi)';
-  document.getElementById('tHarga').innerText = 'Rp ' + h.toLocaleString('id-ID');
-  var q = document.getElementById('qrisNominal'); if(q) q.innerText = 'Scan & bayar Rp ' + h.toLocaleString('id-ID');
-  document.getElementById('peringatanRute').style.display = 'none';
+  document.getElementById('tDari').innerText = dariText;
+  document.getElementById('tKe').innerText = keText;
+  document.getElementById('tJarak').innerText = 'Menghitung jarak jalan beneran...';
+  document.getElementById('tRuteInfo').innerText = 'Mencari jalan via OpenStreetMap...';
+  // 1. Coba hitung via jalan beneran (OSRM)
+  Promise.all([cariKoordinat(dariText), cariKoordinat(keText)]).then(function(hasil){
+    var dariCoord = hasil[0]; var keCoord = hasil[1];
+    if(!dariCoord || !keCoord){
+      // Kalo alamat ga ketemu, pake perkiraan garis lurus dari Bandung (bukan 10 km!)
+      document.getElementById('tRuteInfo').innerText = 'Alamat tidak ditemukan di peta, pakai estimasi garis lurus x 1.4';
+      // Fallback: kalo ga ketemu, anggap 50 km antar kota, biar ga rugi
+      hitungHargaDariKm(50);
+      return;
+    }
+    jemputLatLng = [dariCoord.lat, dariCoord.lon];
+    return fetch('https://router.project-osrm.org/route/v1/driving/' + dariCoord.lon + ',' + dariCoord.lat + ';' + keCoord.lon + ',' + keCoord.lat + '?overview=false')
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        if(data && data.routes && data.routes[0]){
+          var kmJalan = data.routes[0].distance / 1000;
+          var menit = Math.round(data.routes[0].duration / 60);
+          document.getElementById('tRuteInfo').innerText = 'Via jalan beneran • Estimasi ' + menit + ' menit • OSRM / OpenStreetMap';
+          hitungHargaDariKm(kmJalan);
+        } else {
+          // Fallback garis lurus x 1.4
+          var lurus = hitungJarakGarisLurus(dariCoord.lat, dariCoord.lon, keCoord.lat, keCoord.lon);
+          var kmEstimasi = lurus * 1.4;
+          document.getElementById('tRuteInfo').innerText = 'Estimasi garis lurus x 1.4 (jalan belok-belok)';
+          hitungHargaDariKm(kmEstimasi);
+        }
+      });
+  }).catch(function(e){
+    console.log('Gagal hitung OSRM', e);
+    document.getElementById('tRuteInfo').innerText = 'Gagal hitung online, pakai estimasi 50 km antar kota';
+    hitungHargaDariKm(50);
+  });
 }
-ambilRute(); tampilkan();
+function updateTombol(){
+  var b = document.getElementById('btnBayar'); b.disabled = false;
+  var hrp = 'Rp ' + hargaFinal.toLocaleString('id-ID');
+  if(metode=='qris') b.innerText = '✅ Saya Sudah Bayar Pakai QRIS - Cari Driver ' + hrp;
+  if(metode=='bank') b.innerText = '✅ Saya Sudah Transfer - ' + hrp;
+  if(metode=='tunai') b.innerText = '🔍 Cari Driver - Bayar Tunai ' + hrp;
+}
+ambilRute(); hitungJarakBeneran();
 window.pilihMetode = function(m, el){
-  if(!dariText || !keText){ alert('Pilih rute dulu di Beranda! Dari & Ke masih kosong!'); window.location.href='index.html'; return; }
+  if(!dariText || !keText){ alert('Pilih rute dulu di Beranda!'); window.location.href='index.html'; return; }
+  if(hargaFinal <= 0){ alert('Tunggu sebentar, jarak masih dihitung...'); return; }
   metode = m;
   var all = document.querySelectorAll('.pilih'); for(var i=0;i<all.length;i++){ all[i].classList.remove('active'); }
   el.classList.add('active');
-  var b = document.getElementById('btnBayar'); b.disabled = false;
-  var hrp = 'Rp ' + hargaFinal.toLocaleString('id-ID');
-  if(m=='qris') b.innerText = '✅ Saya Sudah Bayar Pakai QRIS - Cari Driver ' + hrp;
-  if(m=='bank') b.innerText = '✅ Saya Sudah Transfer - ' + hrp;
-  if(m=='tunai') b.innerText = '🔍 Cari Driver - Bayar Tunai ' + hrp;
+  updateTombol();
 };
 window.sudahBayarQRIS = function(){ if(confirm('Kamu sudah scan QRIS & sudah SCREENSHOT buktinya?')){ cariDriver(); } else { alert('Scan QRIS dulu ya!'); } };
 window.salinRek = function(){ if(navigator.clipboard){ navigator.clipboard.writeText('1092365519').then(function(){ alert('Tersalin: 1092365519 a.n. Ahmad Maha Mongkol'); }); } else { alert('1092365519'); } };
 window.lanjutBayar = function(){ if(!dariText || !keText){ alert('Pilih rute dulu di Beranda!'); window.location.href='index.html'; return; } if(!metode){ alert('Pilih dulu metode pembayaran!'); return; } cariDriver(); };
-function cariDriver(){ document.getElementById('overlayCari').classList.add('show'); document.getElementById('cariLoading').style.display='block'; document.getElementById('cariKetemu').style.display='none'; var s=document.getElementById('cariStatus'); s.innerText='Menghubungi driver...'; setTimeout(function(){ s.innerText='Driver Ahmad menerima pesanan...'; },1500); setTimeout(function(){ document.getElementById('cariLoading').style.display='none'; document.getElementById('cariKetemu').style.display='block'; document.getElementById('dDari').innerText=dariText; document.getElementById('dKe').innerText=keText; document.getElementById('dHarga').innerText='Rp '+hargaFinal.toLocaleString('id-ID'); document.getElementById('dMetode').innerText=metode=='tunai'?'(Tunai)':metode=='bank'?'(Transfer BCA)':'(QRIS)'; },3000); }
+function cariDriver(){ document.getElementById('overlayCari').classList.add('show'); document.getElementById('cariLoading').style.display='block'; document.getElementById('cariKetemu').style.display='none'; var s=document.getElementById('cariStatus'); s.innerText='Menghubungi driver...'; setTimeout(function(){ s.innerText='Driver Ahmad menerima pesanan...'; },1500); setTimeout(function(){ document.getElementById('cariLoading').style.display='none'; document.getElementById('cariKetemu').style.display='block'; document.getElementById('dDari').innerText=dariText; document.getElementById('dKe').innerText=keText; document.getElementById('dJarak').innerText=jarakKm.toFixed(1)+' km'; document.getElementById('dHarga').innerText='Rp '+hargaFinal.toLocaleString('id-ID'); document.getElementById('dMetode').innerText=metode=='tunai'?'(Tunai)':metode=='bank'?'(Transfer BCA)':'(QRIS)'; },3000); }
 window.tutupPopup = function(){ document.getElementById('overlayCari').classList.remove('show'); };
 window.bukaChat = function(){ var c=document.getElementById('chatBox'); c.style.display=c.style.display=='block'?'none':'block'; };
 window.kirimChat = function(){ var inp=document.getElementById('chatInput'); var teks=inp.value.trim(); if(!teks) return; var div=document.createElement('div'); div.className='chat-bubble'; div.innerHTML='<b>Kamu:</b> '+teks; document.getElementById('chatBox').insertBefore(div, document.querySelector('.chat-input')); inp.value=''; };
-window.hubungiAdmin = function(){ window.open('https://wa.me/6281234567890?text='+encodeURIComponent('Halo Admin Ammo Travel! Dari: '+dariText+' Ke: '+keText), '_blank'); };
+window.hubungiAdmin = function(){ window.open('https://wa.me/6281234567890?text='+encodeURIComponent('Halo Admin Ammo Travel! Dari: '+dariText+' Ke: '+keText+' Jarak: '+jarakKm.toFixed(1)+' km Harga: Rp '+hargaFinal.toLocaleString('id-ID')), '_blank'); };
 function loadLeaflet(cb){ if(window.L){ cb(); return; } var link=document.createElement('link'); link.rel='stylesheet'; link.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'; document.head.appendChild(link); var s=document.createElement('script'); s.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'; s.onload=cb; s.onerror=function(){ alert('Peta gagal dimuat, cek internet kamu ya!'); }; document.head.appendChild(s); }
 window.bukaRiwayat = function(){ document.getElementById('overlayRiwayat').classList.add('show'); document.getElementById('rDari').innerText=dariText||'-'; document.getElementById('rKe').innerText=keText||'-'; document.getElementById('rHarga').innerText='Rp '+hargaFinal.toLocaleString('id-ID'); document.getElementById('rMetode').innerText=metode?'('+metode+')':'(Tunai)'; document.getElementById('rWaktu').innerText=new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}); setTimeout(function(){ loadLeaflet(initPetaReal); },200); };
 window.tutupRiwayat = function(){ document.getElementById('overlayRiwayat').classList.remove('show'); if(intervalGPS) clearInterval(intervalGPS); };
