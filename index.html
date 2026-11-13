@@ -107,7 +107,8 @@ label{font-weight:800;font-size:20px;display:block;margin:18px 0 8px;color:#222}
 <script>
 var latDari=0,lngDari=0,latKe=0,lngKe=0;
 var timerDari=null,timerKe=null;
-var JUMLAH_SARAN = 4;
+// === CUMA INI YANG DIUBAH: TUJUAN JADI 6, URUT TERDEKAT! GPS / PETA GA DISENTUH! ===
+var JUMLAH_SARAN = 6;
 function hitungJarakKm(a,b,c,d){var R=6371;var dLat=(c-a)*Math.PI/180;var dLon=(d-b)*Math.PI/180;var x=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
 function formatJarak(km){ if(km<1) return Math.round(km*1000)+' m'; return km.toFixed(1).replace('.',',')+' km'; }
 function titikAcuan(tipe){ if(tipe==='ke' && latDari && lngDari) return {lat:latDari,lon:lngDari}; if(tipe==='dari' && latKe && lngKe) return {lat:latKe,lon:lngKe}; return {lat:-6.9175,lon:107.6191}; }
@@ -129,7 +130,7 @@ function formatAlamatLengkap(data, lat, lng){
 }
 function cariSaranMapsAsli(teks, tipe, callback){
   var acuan = titikAcuan(tipe);
-  fetch('https://photon.komoot.io/api/?q='+encodeURIComponent(teks)+'&limit=20&lat='+acuan.lat+'&lon='+acuan.lon+'&lang=id')
+  fetch('https://photon.komoot.io/api/?q='+encodeURIComponent(teks)+'&limit=30&lat='+acuan.lat+'&lon='+acuan.lon+'&lang=id')
     .then(function(r){ return r.json(); }).then(function(data){
       if(data && data.features && data.features.length){
         var list=[];
@@ -155,11 +156,12 @@ function cariSaranMapsAsli(teks, tipe, callback){
           if(seen[kunci]) continue;
           seen[kunci]=true;
           list.push({nama:nama, alamat:alamat, kec:kec, lat:c[1], lon:c[0], _jarak:hitungJarakKm(acuan.lat, acuan.lon, c[1], c[0])});
-          if(list.length>=JUMLAH_SARAN) break;
         }
-        callback(list);
+        // === CUMA INI YANG DITAMBAH: URUT DARI TERDEKAT, AMBIL 6! ===
+        list.sort(function(a,b){ return a._jarak - b._jarak; });
+        callback(list.slice(0, JUMLAH_SARAN));
       } else {
-        return fetch('https://nominatim.openstreetmap.org/search?format=json&limit=10&countrycodes=id&q='+encodeURIComponent(teks))
+        return fetch('https://nominatim.openstreetmap.org/search?format=json&limit=15&countrycodes=id&q='+encodeURIComponent(teks))
           .then(function(r){ return r.json(); }).then(function(d2){
             var list2=[]; var seen2={};
             for(var k=0;k<(d2||[]).length;k++){
@@ -168,21 +170,21 @@ function cariSaranMapsAsli(teks, tipe, callback){
               var kunci2=nf.toLowerCase();
               if(seen2[kunci2]) continue; seen2[kunci2]=true;
               list2.push({nama:nama2, alamat:nf, kec:bg.slice(1,4).join(',').trim(), lat:parseFloat(d2[k].lat), lon:parseFloat(d2[k].lon), _jarak:hitungJarakKm(acuan.lat, acuan.lon, parseFloat(d2[k].lat), parseFloat(d2[k].lon))});
-              if(list2.length>=JUMLAH_SARAN) break;
             }
-            callback(list2);
+            list2.sort(function(a,b){ return a._jarak - b._jarak; });
+            callback(list2.slice(0, JUMLAH_SARAN));
           });
       }
     }).catch(function(){
-      fetch('https://nominatim.openstreetmap.org/search?format=json&limit=10&countrycodes=id&q='+encodeURIComponent(teks))
+      fetch('https://nominatim.openstreetmap.org/search?format=json&limit=15&countrycodes=id&q='+encodeURIComponent(teks))
         .then(function(r){ return r.json(); }).then(function(d2){
           var list2=[];
           for(var k=0;k<(d2||[]).length;k++){
             var nf=d2[k].display_name||''; var bg=nf.split(',');
             list2.push({nama:(bg[0]||'').trim(), alamat:nf, kec:bg.slice(1,4).join(',').trim(), lat:parseFloat(d2[k].lat), lon:parseFloat(d2[k].lon), _jarak:hitungJarakKm(acuan.lat, acuan.lon, parseFloat(d2[k].lat), parseFloat(d2[k].lon))});
-            if(list2.length>=JUMLAH_SARAN) break;
           }
-          callback(list2);
+          list2.sort(function(a,b){ return a._jarak - b._jarak; });
+          callback(list2.slice(0, JUMLAH_SARAN));
         }).catch(function(){ callback([]); });
     });
 }
@@ -192,12 +194,11 @@ function tampilkanSaran(inputEl, saranEl, list, teks, tipe){
     saranEl.classList.add('show');
     return;
   }
-  // INI YANG 146 - JUDULNYA SUDAH DIGANTI!
   var html='<div class="saran-judul">✅ Cek alamat yang sesuai tujuan anda</div>';
   for(var i=0;i<list.length;i++){
     html += '<div class="saran-item" data-idx="'+i+'"><span>📍</span><div><b>'+list[i].nama+'</b><span class="kec">📍 '+list[i].kec+'</span><small>'+list[i].alamat+'<br>📏 '+formatJarak(list[i]._jarak)+' dari kamu</small></div></div>';
   }
-  html += '<div class="saran-tips">💡 Kalau ada 2 nama yang sama, cek Kecamatan / Kabupaten-nya!</div>';
+  html += '<div class="saran-tips">💡 Diurutkan dari yang terdekat! Yang paling atas paling dekat!</div>';
   saranEl.innerHTML=html;
   saranEl.classList.add('show');
   var items=saranEl.querySelectorAll('.saran-item');
@@ -296,38 +297,4 @@ function konfirmasiPeta(){
   document.getElementById('overlayPeta').classList.remove('show');
   cekJarak();
 }
-function tutupPeta(){ document.getElementById('overlayPeta').classList.remove('show'); }
-function cekJarak(){
-  if(latDari && lngDari && latKe && lngKe){
-    var lurus=hitungJarakKm(latDari,lngDari,latKe,lngKe); var jalan=lurus*1.4; var harga=Math.round(jalan*5000/1000)*1000; if(harga<50000) harga=50000;
-    document.getElementById('infoJarak').innerText='Perkiraan: '+jalan.toFixed(1)+' km • Rp '+harga.toLocaleString('id-ID');
-  }
-}
-function lanjutKePembayaran(){
-  var dari=document.getElementById('inputDari').value.trim(); var ke=document.getElementById('inputKe').value.trim();
-  if(!dari){ alert('Isi dulu Penjemputan-nya!'); return; }
-  if(!ke){ alert('Isi dulu Tujuan-nya!'); return; }
-  try{
-    localStorage.setItem('ammo_dari',dari); localStorage.setItem('ammo_ke',ke); localStorage.setItem('dari',dari); localStorage.setItem('ke',ke);
-    localStorage.setItem('ammo_rute',JSON.stringify({dari:dari,ke:ke})); sessionStorage.setItem('ammo_dari',dari); sessionStorage.setItem('ammo_ke',ke);
-    if(latDari && lngDari){ localStorage.setItem('ammo_dari_lat',latDari); localStorage.setItem('ammo_dari_lng',lngDari); }
-    if(latKe && lngKe){ localStorage.setItem('ammo_ke_lat',latKe); localStorage.setItem('ammo_ke_lng',lngKe); }
-  }catch(e){}
-  var link='pembayaran.html?dari='+encodeURIComponent(dari)+'&ke='+encodeURIComponent(ke);
-  if(latDari && lngDari) link+='&dari_lat='+latDari+'&dari_lng='+lngDari;
-  if(latKe && lngKe) link+='&ke_lat='+latKe+'&ke_lng='+lngKe;
-  link+='&v=146'; window.location.href=link;
-}
-window.onload=function(){
-  try{
-    var d=localStorage.getItem('ammo_dari')||''; var k=localStorage.getItem('ammo_ke')||'';
-    if(k) document.getElementById('inputKe').value=k;
-    var dlat=localStorage.getItem('ammo_dari_lat'); var dlng=localStorage.getItem('ammo_dari_lng'); var klat=localStorage.getItem('ammo_ke_lat'); var klng=localStorage.getItem('ammo_ke_lng');
-    if(dlat) latDari=parseFloat(dlat); if(dlng) lngDari=parseFloat(dlng); if(klat) latKe=parseFloat(klat); if(klng) lngKe=parseFloat(klng);
-    if(d){ document.getElementById('inputDari').value=d; sudahIsiGPS=true; document.getElementById('gpsInfo').innerHTML='📍 Lokasi terakhir • Bisa diedit! <button onclick="isiDariGPS(true)">Pakai GPS Saya</button>'; }
-    else { isiDariGPS(false); }
-    cekJarak();
-  }catch(e){ isiDariGPS(false); }
-};
-</script>
-</body></html>
+function tutupPeta(){ document.getElementById('overlayPeta').
