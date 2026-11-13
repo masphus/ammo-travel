@@ -23,9 +23,9 @@ h2{text-align:center;margin-bottom:12px}
 .btn-riwayat-bawah{width:100%;background:#fff;border:2px solid #0a9e4e;color:#0a7a3a;border-radius:12px;padding:13px;font-weight:800;margin-top:10px;cursor:pointer}
 .qris-box{background:#fff;border:2px solid #0a9e4e;border-radius:14px;padding:14px;text-align:center}
 .qris-box img{width:210px;height:210px;object-fit:contain}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:99;padding:20px;pointer-events:none}
-.overlay.show{display:flex;pointer-events:auto}
-.popup{background:#fff;border-radius:18px;padding:22px;width:100%;max-width:400px;text-align:center;max-height:90vh;overflow-y:auto;pointer-events:auto}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:99;padding:20px}
+.overlay.show{display:flex}
+.popup{background:#fff;border-radius:18px;padding:22px;width:100%;max-width:400px;text-align:center;max-height:90vh;overflow-y:auto}
 .spinner{width:60px;height:60px;border:6px solid #eee;border-top:6px solid #0a9e4e;border-radius:50%;margin:14px auto;animation:putar 1s linear infinite}
 @keyframes putar{to{transform:rotate(360deg)}}
 .driver-card{background:#e8f5e9;border:2px solid #0a9e4e;border-radius:14px;padding:14px;text-align:left;line-height:1.7;margin:12px 0}
@@ -42,18 +42,20 @@ h2{text-align:center;margin-bottom:12px}
 .status-live{display:inline-block;background:#0a9e4e;color:#fff;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800}
 #petaReal{width:100%;height:260px;border-radius:14px;border:2px solid #0a9e4e;margin:10px 0;background:#e8f5e9}
 .peta-info{background:#fff;border:1px solid #eee;border-radius:12px;padding:10px;font-size:13px;line-height:1.6;text-align:left;margin-top:8px}
+#peringatanRute{display:none;background:#ffebee;border:2px solid #e53935;border-radius:12px;padding:12px;text-align:center;color:#c62828;font-weight:800;margin-bottom:12px;line-height:1.5}
 </style></head>
 <body>
 <div class="card">
 <a class="btn-back" href="index.html">⬅️ Kembali ke Beranda</a>
 <h2>💳 Pembayaran</h2>
+<div id="peringatanRute">⚠️ RUTE BELUM DIPILIH!<br><span style="font-weight:400;font-size:13px;color:#333">Kamu buka halaman ini langsung. Balik ke Beranda dulu, pilih Dari & Ke, baru ke sini lagi ya!</span><br><a href="index.html" style="display:inline-block;margin-top:8px;background:#c62828;color:#fff;padding:10px 16px;border-radius:10px;text-decoration:none">⬅️ Pilih Rute di Beranda</a></div>
 <div class="warn"><b>⚠️ WAJIB SCREENSHOT! ⚠️</b><br>Setelah bayar, <b>WAJIB SCREENSHOT</b> bukti pembayaran!<br><b>Tunjukkan ke Driver</b> saat naik!</div>
 <div class="warn-tol"><b>⚠️ PERHATIAN! ⚠️</b><br>Tarif ini <b>BELUM termasuk TOL dan PARKIR</b> bila ada.</div>
 <div class="rute">📍 <b>Dari:</b> <span id="tDari">-</span><br>🎯 <b>Ke:</b> <span id="tKe">-</span><br>🚗 <b>Armada:</b> Calya / Sigra / Innova - 7 Kursi<br>📏 <b>Jarak:</b> <span id="tJarak">-</span></div>
-<div class="harga" id="tHarga">Rp 750.000</div>
+<div class="harga" id="tHarga">Rp 0</div>
 <div class="harga-kecil">* Belum termasuk TOL & PARKIR bila ada</div>
 
-<div class="pilih" onclick="pilih('qris',this)"><b>📷 1. Bayar Pakai QRIS</b><br><small>Scan pakai DANA / OVO / GoPay / BCA / Semua Bank</small><div class="detail">
+<div class="pilih" onclick="pilihMetode('qris',this)"><b>📷 1. Bayar Pakai QRIS</b><br><small>Scan pakai DANA / OVO / GoPay / BCA / Semua Bank</small><div class="detail">
 <div class="qris-box">
 <img src="qris.jpg" alt="QRIS Ammo Travel" onerror="this.src='https://via.placeholder.com/210?text=Upload+qris.jpg+dulu'">
 <div style="font-weight:800;margin-top:8px">AMMO TRAVEL</div>
@@ -61,14 +63,14 @@ h2{text-align:center;margin-bottom:12px}
 <div style="font-size:12px;color:#0a7a3a;font-weight:700" id="qrisNominal">Scan & bayar sesuai nominal</div>
 </div>
 <p style="font-size:12px;margin-top:8px">1. Buka DANA / OVO / GoPay / m-BCA<br>2. Klik Scan / QRIS, arahkan ke QR di atas<br>3. Masukkan nominal sesuai harga<br>4. <b>SCREENSHOT</b> buktinya!</p>
-<button onclick="event.stopPropagation(); sudahBayar()" style="width:100%;background:#0a9e4e;color:#fff;border:0;border-radius:10px;padding:13px;font-weight:800;margin-top:8px">✅ Saya Sudah Bayar Pakai QRIS - Cari Driver</button>
+<button onclick="event.stopPropagation(); sudahBayarQRIS()" style="width:100%;background:#0a9e4e;color:#fff;border:0;border-radius:10px;padding:13px;font-weight:800;margin-top:8px">✅ Saya Sudah Bayar Pakai QRIS - Cari Driver</button>
 </div></div>
 
-<div class="pilih" onclick="pilih('bank',this)"><b>🏦 2. Transfer Bank - BCA</b><br><small>Transfer ke rekening BCA Ammo Travel</small><div class="detail"><span style="font-size:20px;font-weight:800">1092 3655 19</span><br>a.n. <b>Ahmad Maha Mongkol</b><br><br><button onclick="event.stopPropagation(); salin()" style="padding:10px 14px;border-radius:8px;border:0;background:#0a9e4e;color:#fff;font-weight:700">📋 Salin No. Rekening</button></div></div>
+<div class="pilih" onclick="pilihMetode('bank',this)"><b>🏦 2. Transfer Bank - BCA</b><br><small>Transfer ke rekening BCA Ammo Travel</small><div class="detail"><span style="font-size:20px;font-weight:800">1092 3655 19</span><br>a.n. <b>Ahmad Maha Mongkol</b><br><br><button onclick="event.stopPropagation(); salinRek()" style="padding:10px 14px;border-radius:8px;border:0;background:#0a9e4e;color:#fff;font-weight:700">📋 Salin No. Rekening</button></div></div>
 
-<div class="pilih" onclick="pilih('tunai',this)"><b>💵 3. Tunai / Cash</b><br><small>Bayar langsung ke driver nanti</small><div class="detail">Siap! Bayar langsung ke driver saat naik. Siapkan uang pas ya! 🙏<br><b>Ingat:</b> TOL & PARKIR bayar terpisah bila ada.</div></div>
+<div class="pilih" onclick="pilihMetode('tunai',this)"><b>💵 3. Tunai / Cash</b><br><small>Bayar langsung ke driver nanti</small><div class="detail">Siap! Bayar langsung ke driver saat naik. Siapkan uang pas ya! 🙏<br><b>Ingat:</b> TOL & PARKIR bayar terpisah bila ada.</div></div>
 
-<button class="btn-bayar" id="btnBayar" disabled onclick="lanjut()">👇 Pilih dulu metode pembayaran di atas</button>
+<button class="btn-bayar" id="btnBayar" disabled onclick="lanjutBayar()">👇 Pilih dulu metode pembayaran di atas</button>
 <a class="btn-batal" href="index.html">❌ Batalkan Pesanan</a>
 <button class="btn-riwayat-bawah" onclick="bukaRiwayat()">📋 Cek Riwayat Booking Saya</button>
 </div>
@@ -78,14 +80,8 @@ h2{text-align:center;margin-bottom:12px}
 <div id="cariKetemu" style="display:none">
 <div style="font-size:22px;font-weight:800;color:#0a7a3a">✅ Driver Ditemukan!</div>
 <div class="driver-card">🚗 <b>Driver:</b> Ahmad - Ammo Travel<br>⭐ <b>Rating:</b> 4.9 (128 trip)<br>🚘 <b>Mobil:</b> Toyota Calya - Putih<br>🔢 <b>Plat:</b> D 1234 ABC<br>📍 <b>Dari:</b> <span id="dDari"></span><br>🎯 <b>Ke:</b> <span id="dKe"></span><br>💰 <b>Bayar:</b> <span id="dHarga"></span> <span id="dMetode"></span><br>⏱️ <b>Estimasi Jemput:</b> 5 - 10 menit</div>
-<p style="font-size:13px;color:#666">Driver akan segera menuju lokasi jemput kamu. Driver sudah tau titik jemput & tujuan kamu dari aplikasi, <b>tidak perlu chat yang tidak penting.</b></p>
-<div style="background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:10px;font-size:12px;line-height:1.5;margin-top:10px">⚠️ <b>Keamanan:</b> Nomor HP penumpang & driver <b>disembunyikan.</b> Dilarang minta nomor WA / transaksi di luar aplikasi.</div>
 <button class="btn-chat" onclick="bukaChat()">💬 Chat di Aplikasi</button>
-<div class="chat-box" id="chatBox">
-<div class="chat-bubble"><b>Driver Ahmad:</b> Halo kak! Saya OTW ke lokasi jemput ya, estimasi 7 menit. 🙏</div>
-<div class="chat-bubble"><b>Kamu:</b> Siap, saya tunggu di depan ya.</div>
-<div class="chat-input"><input id="chatInput" placeholder="Ketik pesan ke driver..."><button onclick="kirimChat()">Kirim</button></div>
-</div>
+<div class="chat-box" id="chatBox"><div class="chat-bubble"><b>Driver Ahmad:</b> Halo kak! Saya OTW ke lokasi jemput ya, estimasi 7 menit. 🙏</div><div class="chat-input"><input id="chatInput" placeholder="Ketik pesan ke driver..."><button onclick="kirimChat()">Kirim</button></div></div>
 <button class="btn-admin" onclick="hubungiAdmin()">📞 Hubungi Admin Jika Ada Masalah</button>
 <button class="btn-riwayat" onclick="tutupPopup(); bukaRiwayat();">📋 Cek Riwayat Booking & Lihat Peta Driver</button>
 <button class="btn-tutup" onclick="tutupPopup()">Tutup</button>
@@ -94,38 +90,88 @@ h2{text-align:center;margin-bottom:12px}
 
 <div class="overlay" id="overlayRiwayat"><div class="popup">
 <div style="font-size:20px;font-weight:800">📋 Riwayat Booking Saya</div>
-<p style="font-size:13px;color:#666;margin:6px 0">Lacak driver kamu di peta beneran di bawah ini:</p>
-<div class="riwayat-item"><span class="status-live">● LIVE - DRIVER OTW</span><br><b id="rDari">Bandung</b> → <b id="rKe">Jakarta</b><br>🚗 Ahmad - Calya Putih - D 1234 ABC<br>💰 <b id="rHarga">Rp 780.000</b> <span id="rMetode"></span><br>📅 Hari ini, <span id="rWaktu"></span><br>📡 <span id="gpsStatus" style="font-size:11px;color:#0a7a3a">● GPS Driver Aktif - Update tiap 5 detik</span></div>
+<div class="riwayat-item"><span class="status-live">● LIVE - DRIVER OTW</span><br><b id="rDari">-</b> → <b id="rKe">-</b><br>🚗 Ahmad - Calya Putih - D 1234 ABC<br>💰 <b id="rHarga">Rp 0</b> <span id="rMetode"></span><br>📅 Hari ini, <span id="rWaktu"></span></div>
 <div id="petaReal"><p style="padding:20px;color:#666;font-size:13px">Memuat peta beneran...</p></div>
-<div class="peta-info">📍 <b>Jemput:</b> Alun-alun Bandung<br>🚗 <b>Driver:</b> <span id="infoDriverPos">Jl. Asia Afrika - 1.2 km lagi</span><br>⏱️ <b>ETA:</b> <span id="infoEta">7 menit</span> | 📏 <b>Jarak:</b> <span id="infoJarak">1.2 km</span><br>🕒 <b>Terakhir update:</b> <span id="infoUpdate">Baru saja</span></div>
-<p style="font-size:11px;color:#888;line-height:1.5;margin-top:8px">* Peta ini peta beneran (OpenStreetMap). Titik driver bergerak mengikuti GPS driver, bukan animasi.</p>
+<div class="peta-info">🚗 <b>Driver:</b> <span id="infoDriverPos">Jl. Asia Afrika - 1.2 km lagi</span><br>⏱️ <b>ETA:</b> <span id="infoEta">7 menit</span> | 📏 <b>Jarak:</b> <span id="infoJarak">1.2 km</span><br>🕒 <b>Terakhir update:</b> <span id="infoUpdate">Baru saja</span></div>
 <button class="btn-chat" onclick="bukaChatDariRiwayat()">💬 Chat Driver di Aplikasi</button>
 <button class="btn-admin" onclick="hubungiAdmin()">📞 Hubungi Admin</button>
 <button class="btn-tutup" onclick="tutupRiwayat()">Kembali</button>
 </div></div>
 
-<div class="overlay" id="overlayQRIS" onclick="tutupQRIS()"><div class="popup" onclick="event.stopPropagation()"><div style="font-size:18px;font-weight:800">📷 Scan QRIS Ammo Travel</div><img src="qris.jpg" style="width:100%;max-width:320px;margin:12px auto;border-radius:12px;display:block"><div style="font-weight:800">AMMO TRAVEL</div><button class="btn-tutup" onclick="tutupQRIS()">Tutup</button></div></div>
-
 <script>
-let metode=''; let hargaFinal=750000; let dariText=''; let keText='';
-let map=null, markerDriver=null, markerJemput=null, routeLine=null, driverIndex=0, intervalGPS=null;
-let ruteDriver=[[-6.9210,107.6040],[-6.9202,107.6060],[-6.9195,107.6075],[-6.9188,107.6085],[-6.9180,107.6080],[-6.9175,107.6090]];
-let jemputLatLng=[-6.9175,107.6090];
-function getParam(n){try{return new URLSearchParams(location.search).get(n)||''}catch(e){return ''}}
-dariText=getParam('dari'); keText=getParam('ke');
-document.getElementById('tDari').innerText=dariText||'Lokasi Jemput';
-document.getElementById('tKe').innerText=keText||'Tujuan';
-function hitung(){let d=(dariText||'').toLowerCase(); let k=(keText||'').toLowerCase(); let j=10; if(d.includes('bandung')&&k.includes('jakarta')) j=156; if(d.includes('jakarta')&&k.includes('bandung')) j=156; if(d.includes('bandung')&&k.includes('cimahi')) j=12; if(d.includes('bandung')&&k.includes('lembang')) j=16; let h=Math.max(25000,Math.round(j*5000/1000)*1000); hargaFinal=h; document.getElementById('tJarak').innerText=j+' km (estimasi)'; document.getElementById('tHarga').innerText='Rp '+h.toLocaleString('id-ID'); let q=document.getElementById('qrisNominal'); if(q) q.innerText='Scan & bayar Rp '+h.toLocaleString('id-ID');}
-hitung();
-function pilih(m,el){metode=m; document.querySelectorAll('.pilih').forEach(p=>p.classList.remove('active')); el.classList.add('active'); let b=document.getElementById('btnBayar'); b.disabled=false; let hrp='Rp '+hargaFinal.toLocaleString('id-ID'); if(m=='qris') b.innerText='✅ Saya Sudah Bayar Pakai QRIS - Cari Driver '+hrp; if(m=='bank') b.innerText='✅ Saya Sudah Transfer - '+hrp; if(m=='tunai') b.innerText='🔍 Cari Driver - Bayar Tunai '+hrp;}
-function sudahBayar(){if(confirm('Kamu sudah scan QRIS & sudah SCREENSHOT buktinya?')){cariDriver()}else{alert('Scan QRIS dulu ya!')}}
-function salin(){if(navigator.clipboard){navigator.clipboard.writeText('1092365519').then(()=>alert('Tersalin: 1092365519 a.n. Ahmad Maha Mongkol'))}else{alert('1092365519')}}
-function lanjut(){if(!metode){alert('Pilih dulu!');return} cariDriver()}
-function cariDriver(){document.getElementById('overlayCari').classList.add('show'); document.getElementById('cariLoading').style.display='block'; document.getElementById('cariKetemu').style.display='none'; let s=document.getElementById('cariStatus'); s.innerText='Menghubungi driver...'; setTimeout(()=>{s.innerText='Driver Ahmad menerima pesanan...'},1500); setTimeout(()=>{document.getElementById('cariLoading').style.display='none'; document.getElementById('cariKetemu').style.display='block'; document.getElementById('dDari').innerText=dariText; document.getElementById('dKe').innerText=keText; document.getElementById('dHarga').innerText='Rp '+hargaFinal.toLocaleString('id-ID'); document.getElementById('dMetode').innerText=metode=='tunai'?'(Tunai)':metode=='bank'?'(Transfer BCA)':'(QRIS)';},3000)}
-function tutupPopup(){document.getElementById('overlayCari').classList.remove('show')}
-function bukaChat(){let c=document.getElementById('chatBox'); c.style.display=c.style.display=='block'?'none':'block'}
-function kirimChat(){let inp=document.getElementById('chatInput'); let teks=inp.value.trim(); if(!teks) return; let div=document.createElement('div'); div.className='chat-bubble'; div.innerHTML='<b>Kamu:</b> '+teks; document.getElementById('chatBox').insertBefore(div, document.querySelector('.chat-input')); inp.value=''; setTimeout(()=>{let d2=document.createElement('div'); d2.className='chat-bubble'; d2.innerHTML='<b>Driver Ahmad:</b> Siap kak, noted! Saya OTW! 🙏'; document.getElementById('chatBox').insertBefore(d2, document.querySelector('.chat-input'));},1000)}
-function hubungiAdmin(){window.open('https://wa.me/6281234567890?text='+encodeURIComponent('Halo Admin Ammo Travel! Dari: '+dariText+' Ke: '+keText), '_blank')}
-function perbesarQRIS(){document.getElementById('overlayQRIS').classList.add('show')}
-function tutupQRIS(){document.getElementById('overlayQRIS').classList.remove('show')}
-function loadLeaflet(cb){if(window.L){cb();return} let link=document.createElement('link'); link.rel='stylesheet'; link.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'; document.head.appendChild(link); let s=document.createElement('script'); s.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js
+var metode = '';
+var hargaFinal = 0;
+var dariText = '';
+var keText = '';
+var map = null, markerDriver = null, markerJemput = null, routeLine = null, driverIndex = 0, intervalGPS = null;
+var ruteDriver = [[-6.9210,107.6040],[-6.9202,107.6060],[-6.9195,107.6075],[-6.9188,107.6085],[-6.9180,107.6080],[-6.9175,107.6090]];
+var jemputLatLng = [-6.9175,107.6090];
+function getParam(n){ try{ var u = new URLSearchParams(window.location.search); var v = u.get(n); return v ? decodeURIComponent(v) : ''; }catch(e){ return ''; } }
+function ambilRute(){
+  var d = getParam('dari');
+  var k = getParam('ke');
+  if(!d){ try{ d = localStorage.getItem('ammo_dari') || ''; }catch(e){} }
+  if(!k){ try{ k = localStorage.getItem('ammo_ke') || ''; }catch(e){} }
+  dariText = d; keText = k;
+  if(dariText){ try{ localStorage.setItem('ammo_dari', dariText); }catch(e){} }
+  if(keText){ try{ localStorage.setItem('ammo_ke', keText); }catch(e){} }
+}
+function hitungJarakKota(dari, ke){
+  var d = (dari||'').toLowerCase(); var k = (ke||'').toLowerCase();
+  if(d.indexOf('bandung')>-1 && k.indexOf('jakarta')>-1) return 156;
+  if(d.indexOf('jakarta')>-1 && k.indexOf('bandung')>-1) return 156;
+  if(d.indexOf('bandung')>-1 && k.indexOf('cimahi')>-1) return 12;
+  if(d.indexOf('bandung')>-1 && k.indexOf('lembang')>-1) return 16;
+  if(d.indexOf('bandung')>-1 && k.indexOf('cianjur')>-1) return 60;
+  if(d.indexOf('bandung')>-1 && k.indexOf('garut')>-1) return 65;
+  if(d && k && d===k) return 5;
+  if(d && k) return 10;
+  return 0;
+}
+function tampilkan(){
+  document.getElementById('tDari').innerText = dariText || '-';
+  document.getElementById('tKe').innerText = keText || '-';
+  if(!dariText || !keText){
+    document.getElementById('tJarak').innerText = '-';
+    document.getElementById('tHarga').innerText = 'Rp 0';
+    document.getElementById('peringatanRute').style.display = 'block';
+    hargaFinal = 0;
+    return;
+  }
+  var j = hitungJarakKota(dariText, keText);
+  var h = Math.max(25000, Math.round(j*5000/1000)*1000);
+  hargaFinal = h;
+  document.getElementById('tJarak').innerText = j + ' km (estimasi)';
+  document.getElementById('tHarga').innerText = 'Rp ' + h.toLocaleString('id-ID');
+  var q = document.getElementById('qrisNominal'); if(q) q.innerText = 'Scan & bayar Rp ' + h.toLocaleString('id-ID');
+  document.getElementById('peringatanRute').style.display = 'none';
+}
+ambilRute(); tampilkan();
+window.pilihMetode = function(m, el){
+  if(!dariText || !keText){ alert('Pilih rute dulu di Beranda! Dari & Ke masih kosong!'); window.location.href='index.html'; return; }
+  metode = m;
+  var all = document.querySelectorAll('.pilih'); for(var i=0;i<all.length;i++){ all[i].classList.remove('active'); }
+  el.classList.add('active');
+  var b = document.getElementById('btnBayar'); b.disabled = false;
+  var hrp = 'Rp ' + hargaFinal.toLocaleString('id-ID');
+  if(m=='qris') b.innerText = '✅ Saya Sudah Bayar Pakai QRIS - Cari Driver ' + hrp;
+  if(m=='bank') b.innerText = '✅ Saya Sudah Transfer - ' + hrp;
+  if(m=='tunai') b.innerText = '🔍 Cari Driver - Bayar Tunai ' + hrp;
+};
+window.sudahBayarQRIS = function(){ if(confirm('Kamu sudah scan QRIS & sudah SCREENSHOT buktinya?')){ cariDriver(); } else { alert('Scan QRIS dulu ya!'); } };
+window.salinRek = function(){ if(navigator.clipboard){ navigator.clipboard.writeText('1092365519').then(function(){ alert('Tersalin: 1092365519 a.n. Ahmad Maha Mongkol'); }); } else { alert('1092365519'); } };
+window.lanjutBayar = function(){ if(!dariText || !keText){ alert('Pilih rute dulu di Beranda!'); window.location.href='index.html'; return; } if(!metode){ alert('Pilih dulu metode pembayaran!'); return; } cariDriver(); };
+function cariDriver(){ document.getElementById('overlayCari').classList.add('show'); document.getElementById('cariLoading').style.display='block'; document.getElementById('cariKetemu').style.display='none'; var s=document.getElementById('cariStatus'); s.innerText='Menghubungi driver...'; setTimeout(function(){ s.innerText='Driver Ahmad menerima pesanan...'; },1500); setTimeout(function(){ document.getElementById('cariLoading').style.display='none'; document.getElementById('cariKetemu').style.display='block'; document.getElementById('dDari').innerText=dariText; document.getElementById('dKe').innerText=keText; document.getElementById('dHarga').innerText='Rp '+hargaFinal.toLocaleString('id-ID'); document.getElementById('dMetode').innerText=metode=='tunai'?'(Tunai)':metode=='bank'?'(Transfer BCA)':'(QRIS)'; },3000); }
+window.tutupPopup = function(){ document.getElementById('overlayCari').classList.remove('show'); };
+window.bukaChat = function(){ var c=document.getElementById('chatBox'); c.style.display=c.style.display=='block'?'none':'block'; };
+window.kirimChat = function(){ var inp=document.getElementById('chatInput'); var teks=inp.value.trim(); if(!teks) return; var div=document.createElement('div'); div.className='chat-bubble'; div.innerHTML='<b>Kamu:</b> '+teks; document.getElementById('chatBox').insertBefore(div, document.querySelector('.chat-input')); inp.value=''; };
+window.hubungiAdmin = function(){ window.open('https://wa.me/6281234567890?text='+encodeURIComponent('Halo Admin Ammo Travel! Dari: '+dariText+' Ke: '+keText), '_blank'); };
+function loadLeaflet(cb){ if(window.L){ cb(); return; } var link=document.createElement('link'); link.rel='stylesheet'; link.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'; document.head.appendChild(link); var s=document.createElement('script'); s.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'; s.onload=cb; s.onerror=function(){ alert('Peta gagal dimuat, cek internet kamu ya!'); }; document.head.appendChild(s); }
+window.bukaRiwayat = function(){ document.getElementById('overlayRiwayat').classList.add('show'); document.getElementById('rDari').innerText=dariText||'-'; document.getElementById('rKe').innerText=keText||'-'; document.getElementById('rHarga').innerText='Rp '+hargaFinal.toLocaleString('id-ID'); document.getElementById('rMetode').innerText=metode?'('+metode+')':'(Tunai)'; document.getElementById('rWaktu').innerText=new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}); setTimeout(function(){ loadLeaflet(initPetaReal); },200); };
+window.tutupRiwayat = function(){ document.getElementById('overlayRiwayat').classList.remove('show'); if(intervalGPS) clearInterval(intervalGPS); };
+window.bukaChatDariRiwayat = function(){ window.tutupRiwayat(); document.getElementById('overlayCari').classList.add('show'); document.getElementById('cariLoading').style.display='none'; document.getElementById('cariKetemu').style.display='block'; document.getElementById('chatBox').style.display='block'; };
+function hitungJarakGPS(a,b,c,d){ var R=6371; var dLat=(c-a)*Math.PI/180; var dLon=(d-b)*Math.PI/180; var x=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2); return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x)); }
+function initPetaReal(){ try{ if(map){ map.invalidateSize(); return; } map=L.map('petaReal').setView([-6.9195,107.6065],15); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map); var iconJemput=L.divIcon({html:'<div style="font-size:28px">📍</div>',iconSize:[30,30],className:''}); var iconDriver=L.divIcon({html:'<div style="font-size:28px">🚗</div>',iconSize:[30,30],className:''}); markerJemput=L.marker(jemputLatLng,{icon:iconJemput}).addTo(map).bindPopup('📍 Lokasi Jemput Kamu'); markerDriver=L.marker(ruteDriver[0],{icon:iconDriver}).addTo(map).bindPopup('🚗 Driver Ahmad'); routeLine=L.polyline(ruteDriver,{color:'#0a9e4e',weight:4,dashArray:'8,6'}).addTo(map); map.fitBounds(routeLine.getBounds(),{padding:[30,30]}); driverIndex=0; if(intervalGPS) clearInterval(intervalGPS); intervalGPS=setInterval(updateGPSDriver,5000); updateGPSDriver(); }catch(e){ console.log(e); } }
+function updateGPSDriver(){ if(driverIndex>=ruteDriver.length){ clearInterval(intervalGPS); document.getElementById('infoDriverPos').innerText='Sudah sampai di titik jemput!'; document.getElementById('infoEta').innerText='Tiba!'; return; } var pos=ruteDriver[driverIndex]; if(markerDriver) markerDriver.setLatLng(pos); var jarak=hitungJarakGPS(pos[0],pos[1],jemputLatLng[0],jemputLatLng[1]); var eta=Math.max(1,Math.ceil(jarak*5)); document.getElementById('infoDriverPos').innerText='Lat '+pos[0].toFixed(4)+', Lng '+pos[1].toFixed(4)+' - '+jarak.toFixed(2)+' km lagi'; document.getElementById('infoJarak').innerText=jarak.toFixed(2)+' km'; document.getElementById('infoEta').innerText=eta+' menit'; document.getElementById('infoUpdate').innerText=new Date().toLocaleTimeString('id-ID')+' - GPS Aktif'; driverIndex++; }
+</script>
+</body></html>
