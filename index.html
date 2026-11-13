@@ -2,6 +2,8 @@
 <html lang="id"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ammo Travel</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
 body{background:#fff;max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;position:relative;padding-bottom:80px}
@@ -19,10 +21,6 @@ label{font-weight:800;color:#111;font-size:17px;margin:14px 0 8px;display:block}
 .input-wrap input{flex:1;border:0;background:transparent;outline:0;font-size:15px;padding:10px 0}
 .btn-peta{background:#0a9e4e;color:#fff;border:0;border-radius:8px;padding:9px 10px;font-weight:700;font-size:13px;white-space:nowrap;cursor:pointer}
 .wrap{padding:0 16px}
-.suggest{background:#fff;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,0.12);padding:6px 14px;margin-top:18px}
-.suggest div{display:flex;align-items:center;gap:12px;padding:13px 0;font-size:16px;cursor:pointer}
-.suggest div+div{border-top:1px solid #f0f0f0}
-.suggest span{color:#0a9e4e;font-size:24px}
 .info{background:#d9ecd9;border-radius:14px;padding:14px;margin-top:18px}
 .info-top{display:flex;gap:12px;align-items:center}
 .info-icon{width:44px;height:44px;min-width:44px;background:#0a9e4e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff}
@@ -34,7 +32,13 @@ nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-w
 nav button{background:none;border:0;font-size:13px;color:#777;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
 nav button.active{color:#0a9e4e;font-weight:700}
 nav span{font-size:22px}
-#popup{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:flex-end;justify-content:center;z-index:99}
+#mapModal{position:fixed;inset:0;background:#fff;display:none;flex-direction:column;z-index:99}
+#map{flex:1;width:100%}
+.map-head{background:#0a9e4e;color:#fff;padding:14px;display:flex;justify-content:space-between;align-items:center}
+.map-head button{background:#fff;color:#0a9e4e;border:0;border-radius:8px;padding:8px 12px;font-weight:700;cursor:pointer}
+.map-foot{padding:12px;background:#fff;box-shadow:0 -2px 10px rgba(0,0,0,0.1)}
+.map-foot p{font-size:13px;color:#333;margin-bottom:8px}
+#popup{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:flex-end;justify-content:center;z-index:100}
 .popup-box{background:#fff;width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:20px;text-align:center}
 </style></head>
 <body>
@@ -48,16 +52,10 @@ nav span{font-size:22px}
 
 <div class="wrap">
 <label>Penjemputan</label>
-<div class="field"><div class="pin">📍</div><div class="input-wrap"><input id="dari" placeholder="Ketik / Pilih Lokasi Jemput..." oninput="filterLokasi(this.value,'dari')"><button class="btn-peta" type="button" onclick="pilihPeta('Penjemputan')">📍 Pilih di Peta</button></div></div>
+<div class="field"><div class="pin">📍</div><div class="input-wrap"><input id="dari" placeholder="Mencari lokasi GPS kamu..."><button class="btn-peta" type="button" onclick="bukaPeta('dari')">📍 Pilih di Peta</button></div></div>
 
 <label>Tujuan</label>
-<div class="field"><div class="pin">📍</div><div class="input-wrap"><input id="ke" placeholder="Ketik / Pilih Tujuan..." oninput="filterLokasi(this.value,'ke')"><button class="btn-peta" type="button" onclick="pilihPeta('Tujuan')">📍 Pilih di Peta</button></div></div>
-
-<div class="suggest" id="suggest">
-<div onclick="isi('dari','Bandara Soekarno Hatta, Tangerang')"><span>📍</span> Bandara Soekarno Hatta, Tangerang</div>
-<div onclick="isi('ke','Stasiun Bandung, Bandung')"><span>📍</span> Stasiun Bandung, Bandung</div>
-<div onclick="isi('ke','Malioboro, Yogyakarta')"><span>📍</span> Malioboro, Yogyakarta</div>
-</div>
+<div class="field"><div class="pin">📍</div><div class="input-wrap"><input id="ke" placeholder="Ketik / Pilih Tujuan..."><button class="btn-peta" type="button" onclick="bukaPeta('ke')">📍 Pilih di Peta</button></div></div>
 
 <div class="info">
 <div class="info-top"><div class="info-icon">🚗</div><p><b>Driver di sekitar kamu siap menjemput!</b><br>Cek harga setelah isi lokasi</p></div>
@@ -74,40 +72,92 @@ nav span{font-size:22px}
 <button onclick="navKe('Akun',this)"><span>👤</span>Akun</button>
 </nav>
 
-<div id="popup"><div class="popup-box"><h3 id="popupJudul">Pilih di Peta</h3><p id="popupIsi" style="margin:12px;color:#555"></p><button class="btn-lanjut" style="font-size:16px" onclick="document.getElementById('popup').style.display='none'">Tutup</button></div></div>
+<div id="mapModal">
+<div class="map-head"><b id="mapJudul">Pilih di Peta</b><button onclick="tutupPeta()">✕ Tutup</button></div>
+<div id="map"></div>
+<div class="map-foot"><p id="mapAlamat">Tap di peta untuk pilih lokasi...</p><button class="btn-lanjut" style="margin-top:0;font-size:16px" onclick="pakaiLokasiPeta()">✅ Pakai Lokasi Ini</button></div>
+</div>
+
+<div id="popup"><div class="popup-box"><h3 id="popupJudul">Info</h3><p id="popupIsi" style="margin:12px;color:#555"></p><button class="btn-lanjut" style="font-size:16px" onclick="document.getElementById('popup').style.display='none'">Tutup</button></div></div>
 
 <script>
-// ==== KODE BOLEH DIUBAH, TAMPILAN JANGAN DIUBAH ====
-let lokasiList = [
-  'Bandara Soekarno Hatta, Tangerang',
-  'Stasiun Bandung, Bandung',
-  'Malioboro, Yogyakarta',
-  'Bandara Husein Sastranegara, Bandung',
-  'Stasiun Gambir, Jakarta',
-  'Bandara Ngurah Rai, Bali',
-  'Mataram, NTB'
-];
-function isi(target, val){
-  document.getElementById(target).value = val;
+let targetPeta = 'dari';
+let map = null;
+let marker = null;
+let alamatPeta = '';
+let latPeta = -6.9175, lngPeta = 107.6191;
+
+// 1. PENJEMPUTAN ISI OTOMATIS DARI GPS - TAPI TETAP BISA DIUBAH MANUAL
+async function isiDariGPS(){
+  if(!navigator.geolocation){
+    document.getElementById('dari').placeholder = 'Ketik / Pilih Lokasi Jemput...';
+    return;
+  }
+  document.getElementById('dari').placeholder = 'Mencari lokasi GPS kamu...';
+  navigator.geolocation.getCurrentPosition(async (pos)=>{
+    latPeta = pos.coords.latitude; lngPeta = pos.coords.longitude;
+    try{
+      let r = await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+latPeta+'&lon='+lngPeta+'&zoom=18&addressdetails=1');
+      let j = await r.json();
+      let alamat = j.display_name || (latPeta+', '+lngPeta);
+      // Cuma isi kalau user belum ketik apa-apa, jadi ga nimpa ketikan user!
+      if(!document.getElementById('dari').value){
+        document.getElementById('dari').value = alamat;
+      }
+    }catch(e){
+      if(!document.getElementById('dari').value){
+        document.getElementById('dari').value = 'Lokasi Saya ('+latPeta.toFixed(5)+', '+lngPeta.toFixed(5)+')';
+      }
+    }
+  }, ()=>{
+    document.getElementById('dari').placeholder = 'Ketik / Pilih Lokasi Jemput...';
+  }, {enableHighAccuracy:true, timeout:10000});
 }
-function filterLokasi(keyword, target){
-  let s = document.getElementById('suggest');
-  if(!keyword){ s.innerHTML = '<div onclick="isi(\'dari\',\'Bandara Soekarno Hatta, Tangerang\')"><span>📍</span> Bandara Soekarno Hatta, Tangerang</div><div onclick="isi(\'ke\',\'Stasiun Bandung, Bandung\')"><span>📍</span> Stasiun Bandung, Bandung</div><div onclick="isi(\'ke\',\'Malioboro, Yogyakarta\')"><span>📍</span> Malioboro, Yogyakarta</div>'; return; }
-  let hasil = lokasiList.filter(x => x.toLowerCase().includes(keyword.toLowerCase()));
-  if(hasil.length==0){ s.innerHTML='<div><span>📍</span> '+keyword+'</div>'; return; }
-  s.innerHTML = hasil.map(x=>'<div onclick="isi(\''+target+'\',\''+x+'\')"><span>📍</span> '+x+'</div>').join('');
+isiDariGPS();
+
+function bukaPeta(target){
+  targetPeta = target;
+  document.getElementById('mapJudul').innerText = target=='dari' ? 'Pilih Penjemputan di Peta' : 'Pilih Tujuan di Peta';
+  document.getElementById('mapModal').style.display='flex';
+  setTimeout(()=>{
+    if(!map){
+      map = L.map('map').setView([latPeta, lngPeta], 15);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(map);
+      marker = L.marker([latPeta, lngPeta]).addTo(map);
+      map.on('click', async function(e){
+        latPeta = e.latlng.lat; lngPeta = e.latlng.lng;
+        marker.setLatLng(e.latlng);
+        document.getElementById('mapAlamat').innerText = 'Mencari alamat...';
+        try{
+          let r = await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+latPeta+'&lon='+lngPeta+'&zoom=18&addressdetails=1');
+          let j = await r.json();
+          alamatPeta = j.display_name || (latPeta+', '+lngPeta);
+        }catch(err){ alamatPeta = latPeta.toFixed(5)+', '+lngPeta.toFixed(5); }
+        document.getElementById('mapAlamat').innerText = '📍 '+alamatPeta;
+      });
+    } else {
+      map.invalidateSize();
+      map.setView([latPeta, lngPeta], 15);
+    }
+    document.getElementById('mapAlamat').innerText = 'Tap di peta untuk pilih lokasi...';
+    alamatPeta = '';
+  }, 100);
+}
+function tutupPeta(){ document.getElementById('mapModal').style.display='none'; }
+function pakaiLokasiPeta(){
+  if(!alamatPeta){
+    // Kalau belum tap, pakai tengah peta
+    let c = map.getCenter();
+    alamatPeta = 'Lokasi Peta ('+c.lat.toFixed(5)+', '+c.lng.toFixed(5)+')';
+  }
+  document.getElementById(targetPeta).value = alamatPeta;
+  tutupPeta();
 }
 function pilihLokasi(){ alert('Pilih Lokasi: Bandung / Jakarta / Yogyakarta / Bali / NTB'); }
-function pilihPeta(apa){
-  document.getElementById('popupJudul').innerText = 'Pilih di Peta - ' + apa;
-  document.getElementById('popupIsi').innerText = 'Fitur peta akan dibuka di sini. Untuk sekarang, ketik lokasi di kolom ' + apa + ' ya.';
-  document.getElementById('popup').style.display='flex';
-}
 function cekDriver(){
   let dari = document.getElementById('dari').value.trim();
   let ke = document.getElementById('ke').value.trim();
   if(!dari || !ke){ alert('Isi dulu Penjemputan dan Tujuan ya!'); return; }
-  // VAL boleh berubah di sini - nanti disambung ke halaman harga / driver
   location.href = 'pembayaran.html?dari='+encodeURIComponent(dari)+'&ke='+encodeURIComponent(ke);
 }
 function bukaChat(){ alert('Chat Ammo Travel - Halo! Mau pergi kemana hari ini?'); }
