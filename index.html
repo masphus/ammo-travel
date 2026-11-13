@@ -12,6 +12,7 @@ input{width:100%;padding:13px;border-radius:10px;border:1px solid #ccc;margin:6p
 button{width:100%;padding:16px;background:#0a7a2e;color:#fff;border:0;border-radius:12px;font-size:16px;font-weight:700;margin-top:6px}
 #map{height:300px;border-radius:16px;margin:10px 0;border:2px solid #0a7a2e}
 .kecil{font-size:12px;color:#666;text-align:center}
+.desc{font-weight:600;color:#333;margin-top:4px}
 </style></head>
 <body>
 <h2 style="text-align:center">🚗 AMMO TRAVEL</h2>
@@ -24,9 +25,9 @@ button{width:100%;padding:16px;background:#0a7a2e;color:#fff;border:0;border-rad
 <label>Jumlah Kursi:</label><input type="number" id="kursi" value="1" min="1" max="4" oninput="hitung()">
 <p id="jarak" style="text-align:center;font-weight:700;margin:10px">Menghitung rute jalan...</p>
 <p style="text-align:center;color:#0a7a2e;font-weight:700">👇 Silahkan Pilih, Penumpang Bebas Memilih!</p>
-<div class="card" id="c1" onclick="pilih('bersama')"><b>👥 OPSI 1 - BERSAMA</b><div class="harga" id="h1"></div><div id="s1" style="font-weight:700"></div></div>
-<div class="card" id="c2" onclick="pilih('langsung')"><b>⚡ OPSI 2 - LANGSUNG</b><div class="harga" id="h2"></div><div id="s2" style="font-weight:700"></div></div>
-<div class="card" id="c3" onclick="pilih('sewa')"><b>🚐 OPSI 3 - SEWA MOBIL</b><div class="harga" id="h3"></div><div style="color:#0a7a2e;font-weight:700">✅ Driver WAJIB jalan!</div></div>
+<div class="card" id="c1" onclick="pilih('bersama')"><b>👥 OPSI 1 - BERSAMA</b><div class="harga" id="h1"></div><div class="desc">Biaya lebih hemat</div></div>
+<div class="card" id="c2" onclick="pilih('langsung')"><b>⚡ OPSI 2 - LANGSUNG</b><div class="harga" id="h2"></div><div class="desc">Anda tidak perlu menunggu lama</div></div>
+<div class="card" id="c3" onclick="pilih('sewa')"><b>🚐 OPSI 3 - SEWA MOBIL</b><div class="harga" id="h3"></div><div class="desc" style="color:#0a7a2e">Anda mendapatkan Prioritas dan tidak ada penumpang lain</div></div>
 <button onclick="pesan()">Cari Driver →</button>
 <p style="text-align:center;margin-top:18px"><a href="admin.html" style="color:#888;font-size:12px">Masuk Admin</a></p>
 <script>
@@ -64,8 +65,6 @@ function hitung(){
   document.getElementById('h1').innerText='Rp '+pb.toLocaleString('id-ID')+' / kursi • Total Rp '+(pb*kursi).toLocaleString('id-ID');
   document.getElementById('h2').innerText='Rp '+pl.toLocaleString('id-ID')+' / kursi • Total Rp '+(pl*kursi).toLocaleString('id-ID');
   document.getElementById('h3').innerText='Rp '+ps.toLocaleString('id-ID')+' / mobil';
-  document.getElementById('s1').innerText=kursi>=3?'✅ Driver LANGSUNG jalan!':'⏳ Butuh 3 orang untuk jalan';
-  document.getElementById('s2').innerText=kursi>=2?'✅ Driver LANGSUNG jalan!':'⏳ Butuh 2 orang untuk jalan';
 }
 function pilih(t){dipilih=t;document.getElementById('c1').classList.toggle('pilih',t=='bersama');document.getElementById('c2').classList.toggle('pilih',t=='langsung');document.getElementById('c3').classList.toggle('pilih',t=='sewa');}
 function pesan(){if(!dipilih){alert('Silahkan pilih dulu! Mau BERSAMA, LANGSUNG, atau SEWA?');return;}alert('Mencari Driver untuk '+dipilih.toUpperCase()+'!');}
