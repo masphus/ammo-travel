@@ -13,7 +13,6 @@ button{width:100%;padding:16px;background:#0a7a2e;color:#fff;border:0;border-rad
 .detail{display:none;margin-top:10px;background:#f8f8f8;padding:12px;border-radius:12px;text-align:center}
 .wallet{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
 .wbtn{padding:16px;border-radius:12px;border:2px solid #ddd;background:#fff;cursor:pointer;font-weight:700;font-size:15px}
-.wbtn:active{border-color:#0a7a2e;background:#eaffef}
 .rek{font-size:20px;font-weight:800}
 .loader{width:40px;height:40px;border:5px solid #e0e0e0;border-top:5px solid #0a7a2e;border-radius:50%;margin:12px auto;animation:putar 1s linear infinite;display:none}
 @keyframes putar{to{transform:rotate(360deg)}}
@@ -24,45 +23,29 @@ button{width:100%;padding:16px;background:#0a7a2e;color:#fff;border:0;border-rad
 <h2 style="text-align:center">🚗 AMMO TRAVEL</h2>
 <div class="box">
 <h3 style="text-align:center">💳 Pembayaran</h3>
-<div class="peringatan">
-<div style="font-size:28px">⚠️📸</div>
-<b>⚠️ WAJIB SCREENSHOT! ⚠️</b>
-<p style="font-size:13px;margin-top:4px">Setelah bayar, <b>WAJIB SCREENSHOT</b> bukti pembayaran ini!<br><b>Tunjukkan screenshot-nya kepada Driver</b> saat naik!<br>Kalau tidak ada bukti, Driver berhak menolak!</p>
-</div>
+<div class="peringatan"><div style="font-size:28px">⚠️📸</div><b>⚠️ WAJIB SCREENSHOT! ⚠️</b><p style="font-size:13px;margin-top:4px">Setelah bayar, <b>WAJIB SCREENSHOT</b> bukti pembayaran!<br><b>Tunjukkan ke Driver</b> saat naik!</p></div>
 <p id="rute" style="text-align:center;color:#666;margin:8px"></p>
 <div class="harga" id="total">Rp 0</div>
-<p style="text-align:center;font-size:13px;color:#999">Pilih e-wallet, langsung dibuka aplikasinya!</p>
 <div class="card" id="k1" onclick="pilih('ewallet')"><b>📱 Bayar Pakai E-Wallet</b><div style="color:#666;font-size:13px">Pilih salah satu, langsung dibuka aplikasinya</div>
-<div class="detail" id="d1">
-<p><b>Pilih E-Wallet Kamu:</b></p>
+<div class="detail" id="d1"><p><b>Pilih E-Wallet Kamu:</b></p>
 <div class="wallet">
-<button class="wbtn" onclick="bayarWallet('DANA');event.stopPropagation()">💜 DANA</button>
-<button class="wbtn" onclick="bayarWallet('OVO');event.stopPropagation()">💜 OVO</button>
-<button class="wbtn" onclick="bayarWallet('GoPay');event.stopPropagation()">💚 GoPay</button>
-<button class="wbtn" onclick="bayarWallet('ShopeePay');event.stopPropagation()">🧡 ShopeePay</button>
+<button type="button" class="wbtn" onclick="bayarWallet('DANA');event.stopPropagation()">💜 DANA</button>
+<button type="button" class="wbtn" onclick="bayarWallet('OVO');event.stopPropagation()">💜 OVO</button>
+<button type="button" class="wbtn" onclick="bayarWallet('GoPay');event.stopPropagation()">💚 GoPay</button>
+<button type="button" class="wbtn" onclick="bayarWallet('ShopeePay');event.stopPropagation()">🧡 ShopeePay</button>
 </div>
-<div class="loader" id="loadWallet"></div>
-<p id="statusWallet" style="font-weight:700;color:#0a7a2e"></p>
-<p style="font-size:12px;color:#d00;font-weight:700">📸 Jangan lupa screenshot setelah bayar!</p>
-</div></div>
+<div class="loader" id="loadWallet"></div><p id="statusWallet" style="font-weight:700;color:#0a7a2e"></p>
+<p style="font-size:12px;color:#d00;font-weight:700">📸 Jangan lupa screenshot setelah bayar!</p></div></div>
 <div class="card" id="k2" onclick="pilih('transfer')"><b>🏦 Transfer Bank / Rekening</b><div style="color:#666;font-size:13px">Transfer ke rekening Ammo Travel</div>
-<div class="detail" id="d2"><p>Bank BCA</p><div class="rek">123 456 7890</div><p>a.n. Ammo Travel</p><button style="background:#333" onclick="alert('Nomor rekening tersalin!');event.stopPropagation()">📋 Salin Nomor Rekening</button><p style="font-size:12px;color:#d00;font-weight:700;margin-top:8px">📸 WAJIB SCREENSHOT bukti transfer!</p><button onclick="sudahBayar('Transfer');event.stopPropagation()">✅ Saya Sudah Transfer</button></div></div>
+<div class="detail" id="d2"><p>Bank BCA</p><div class="rek">123 456 7890</div><p>a.n. Ammo Travel</p><button type="button" style="background:#333" onclick="alert('Nomor rekening tersalin!');event.stopPropagation()">📋 Salin Nomor Rekening</button><p style="font-size:12px;color:#d00;font-weight:700;margin-top:8px">📸 WAJIB SCREENSHOT bukti transfer!</p><button type="button" onclick="sudahBayar('Transfer');event.stopPropagation()">✅ Saya Sudah Transfer</button></div></div>
 <div class="card" id="k3" onclick="pilih('tunai')"><b>💵 Tunai / Cash</b><div style="color:#666;font-size:13px">Langsung cari driver, bayar ke driver nanti</div>
-<div class="detail" id="d3"><div style="font-size:40px">💵</div><p>Siapkan uang pas ya!</p><p style="font-size:12px;color:#666">Tidak perlu screenshot, bayar langsung ke driver.</p><button onclick="keCariDriver();event.stopPropagation()">✅ Lanjut Cari Driver →</button></div></div>
-<button id="btnBayar" onclick="bayar()">👇 Pilih dulu metode pembayaran di atas</button>
-<button style="background:#fff;color:#d00;border:2px solid #ffcccc" onclick="batalTotal()">❌ Batalkan Pesanan</button>
+<div class="detail" id="d3"><div style="font-size:40px">💵</div><p>Siapkan uang pas ya!</p><button type="button" onclick="keCariDriver();event.stopPropagation()">✅ Lanjut Cari Driver →</button></div></div>
+<button type="button" id="btnBayar" onclick="bayar()">👇 Pilih dulu metode pembayaran di atas</button>
+<button type="button" style="background:#fff;color:#d00;border:2px solid #ffcccc" onclick="batalTotal()">❌ Batalkan Pesanan - Kembali ke Beranda</button>
 </div>
-<div id="popup">
-<div class="popup-box">
-<div style="font-size:50px">📸⚠️</div>
-<h3>SUDAH SCREENSHOT BELUM?</h3>
-<p id="popupText" style="margin:10px;color:#333"></p>
-<p style="background:#fff3cd;padding:10px;border-radius:10px;font-size:13px"><b>WAJIB SCREENSHOT</b> bukti pembayaran ini sekarang!<br><br>Tunjukkan ke Driver saat naik!<br>Kalau tidak ada bukti, Driver boleh menolak!</p>
-<button onclick="tutupPopup()">✅ SUDAH SAYA SCREENSHOT, LANJUT CARI DRIVER →</button>
-<button style="background:#fff;color:#666;border:2px solid #ddd" onclick="document.getElementById('popup').style.display='none'">⬅️ Belum, Saya Screenshot Dulu</button>
-</div>
-</div>
+<div id="popup"><div class="popup-box"><div style="font-size:50px">📸⚠️</div><h3>SUDAH SCREENSHOT BELUM?</h3><p id="popupText" style="margin:10px;color:#333"></p><p style="background:#fff3cd;padding:10px;border-radius:10px;font-size:13px"><b>WAJIB SCREENSHOT</b> bukti pembayaran ini sekarang!<br>Tunjukkan ke Driver saat naik!</p><button type="button" onclick="tutupPopup()">✅ SUDAH SAYA SCREENSHOT, LANJUT CARI DRIVER →</button><button type="button" style="background:#fff;color:#666;border:2px solid #ddd" onclick="document.getElementById('popup').style.display='none'">⬅️ Belum, Saya Screenshot Dulu</button><button type="button" style="background:#fff;color:#d00;border:2px solid #ffcccc" onclick="batalTotal()">❌ Batalkan Saja</button></div></div>
 <script>
+localStorage.removeItem('ammo_batal');
 const p=new URLSearchParams(location.search);
 let tipe=(p.get('tipe')||'bersama').toLowerCase();
 let dari=p.get('dari')||'Soreang';
@@ -87,24 +70,28 @@ if(t=='ewallet') document.getElementById('btnBayar').innerText='👆 Pilih DANA 
 }
 function keCariDriver(){
   if(sudahBatal) return;
+  if(localStorage.getItem('ammo_batal')=='1') return;
   location.href='cari-driver.html?tipe='+tipe+'&dari='+encodeURIComponent(dari)+'&ke='+encodeURIComponent(ke)+'&kursi='+kursi+'&harga='+encodeURIComponent(harga)+'&bayar='+dipilih;
 }
 function batalTotal(){
   sudahBatal=true;
+  localStorage.setItem('ammo_batal','1');
   if(timerBayar) clearTimeout(timerBayar);
   document.getElementById('popup').style.display='none';
   document.getElementById('loadWallet').style.display='none';
   document.getElementById('statusWallet').innerText='';
-  alert('Pesanan dibatalkan! Tidak jadi mencari driver.');
-  location.href='index.html';
+  alert('Pesanan dibatalkan! Kembali ke beranda, TIDAK jadi cari driver!');
+  location.replace('index.html?batal=1&x='+Date.now());
 }
 function sudahBayar(metode){
   if(sudahBatal) return;
+  if(localStorage.getItem('ammo_batal')=='1') return;
   document.getElementById('popupText').innerText='Pembayaran '+metode+' sebesar '+harga+' Berhasil!';
   document.getElementById('popup').style.display='flex';
 }
 function tutupPopup(){ if(sudahBatal) return; keCariDriver(); }
 function bayarWallet(wallet){
+  if(sudahBatal) return;
   dipilih='ewallet-'+wallet.toLowerCase();
   document.getElementById('statusWallet').innerText='Membuka aplikasi '+wallet+'...';
   document.getElementById('loadWallet').style.display='block';
@@ -114,8 +101,10 @@ function bayarWallet(wallet){
   if(wallet=='GoPay') link='gojek://';
   if(wallet=='ShopeePay') link='shopeepay://';
   try{ window.location.href=link; }catch(e){}
+  if(timerBayar) clearTimeout(timerBayar);
   timerBayar=setTimeout(()=>{
     if(sudahBatal) return;
+    if(localStorage.getItem('ammo_batal')=='1') return;
     document.getElementById('statusWallet').innerText='✅ Pembayaran '+wallet+' Berhasil!';
     sudahBayar(wallet);
   }, 4000);
