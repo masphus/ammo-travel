@@ -9,12 +9,12 @@
 body{margin:0;background:#f5f5f5;padding-bottom:80px}
 .top{background:#0AA64A;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:30}
 .logo{display:flex;align-items:center;gap:10px}
-.logoIcon{width:40px;height:40px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px}
+.logoIcon{width:40px;height:40px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.logoIcon img{width:100%;height:100%;object-fit:cover}
 .logo b{font-size:22px}
 .pilihLokasi{display:flex;align-items:center;gap:4px;font-size:14px;font-weight:600}
 .wrapPage{padding:0 16px;max-width:480px;margin:0 auto}
-h1{text-align:center;color:#0B3D1E;font-size:26px;line-height:1.2;margin:22px 0 2px}
-.carIcon{text-align:center;font-size:32px;margin:4px 0 10px}
+h1{text-align:center;color:#0B3D1E;font-size:26px;line-height:1.2;margin:22px 0 10px}
 label{font-weight:700;color:#333;font-size:16px;display:block;margin:18px 0 8px;padding-left:38px}
 .field{position:relative;display:flex;align-items:center}
 .pinLeft{position:absolute;left:2px;font-size:26px;z-index:2}
@@ -31,7 +31,8 @@ label{font-weight:700;color:#333;font-size:16px;display:block;margin:18px 0 8px;
 #swapBtn{width:44px;height:44px;border-radius:50%;border:2px solid #ddd;background:#fff;font-size:20px;cursor:pointer}
 #swapBtn:disabled{opacity:.35}
 .driverBox{background:#D8EEDF;border-radius:14px;padding:16px;margin-top:22px;display:flex;gap:12px;align-items:flex-start}
-.driverIcon{width:48px;height:48px;background:#0AA64A;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;color:#fff}
+.driverIcon{width:48px;height:48px;background:#0AA64A;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.driverIcon img{width:100%;height:100%;object-fit:cover}
 .driverBox p{margin:0;font-size:15px;color:#0B3D1E;line-height:1.4}
 .cek{width:100%;margin-top:14px;background:#0AA64A;color:#fff;border:0;padding:16px;border-radius:10px;font-size:20px;font-weight:800;cursor:pointer}
 .cek:disabled{background:#BDBDBD}
@@ -55,10 +56,9 @@ label{font-weight:700;color:#333;font-size:16px;display:block;margin:18px 0 8px;
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
 </head>
 <body>
-<div class="top"><div class="logo"><div class="logoIcon">🚗</div><b>Ammo Travel</b></div><div class="pilihLokasi">📍 Pilih Lokasi</div></div>
+<div class="top"><div class="logo"><div class="logoIcon"><img src="icon-512.png" alt="Ammo"></div><b>Ammo Travel</b></div><div class="pilihLokasi">📍 Pilih Lokasi</div></div>
 <div class="wrapPage">
 <h1>Mau Pergi Kemana Hari Ini?</h1>
-<div class="carIcon">🚗</div>
 <label>Penjemputan</label>
 <div class="field"><span class="pinLeft">📍</span>
 <div class="inputBox"><input id="jemput" placeholder="Ketik / Pilih Lokasi Jemput..." autocomplete="off"><button class="btnPeta" onclick="bukaPeta('jemput')">📍 Pilih di Peta</button></div>
@@ -72,7 +72,7 @@ label{font-weight:700;color:#333;font-size:16px;display:block;margin:18px 0 8px;
 <div id="saranTujuan" class="saran"></div>
 </div>
 <div class="hint">Ketik 2 huruf, muncul maks 6, yang terdekat dulu.</div>
-<div class="driverBox"><div class="driverIcon">🚗</div><p><b>Driver di sekitar kamu siap menjemput!</b><br>Cek harga setelah isi lokasi</p></div>
+<div class="driverBox"><div class="driverIcon"><img src="icon-512.png" alt="Driver"></div><p><b>Driver di sekitar kamu siap menjemput!</b><br>Cek harga setelah isi lokasi</p></div>
 <button class="cek" id="cekBtn" onclick="cekDriver()" disabled>Cek Driver & Lanjut</button>
 </div>
 <div class="chatFab">💬<i></i></div>
