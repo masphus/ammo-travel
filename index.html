@@ -7,23 +7,23 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
 body{background:#fff;max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;position:relative;padding-bottom:80px}
-header{background:#0a9e4e;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
+header{background:#0a9e4e;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:16px 16px 14px;overflow:visible}
 .logo{display:flex;align-items:center;gap:10px}
-.logo-icon{width:46px;height:46px;background:#000;border:1px solid #d4af37;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.logo-icon img{width:100%;height:100%;object-fit:cover}
-.logo b{font-size:24px}
-.pilih-lokasi{font-size:14px;font-weight:700;display:flex;align-items:center;gap:4px;cursor:pointer}
+.logo-icon{width:42px;height:42px;background:#000;border:1px solid #d4af37;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-icon img{width:100%;height:100%;object-fit:cover;display:block}
+.logo b{font-size:22px}
+.pilih-lokasi{font-size:14px;font-weight:700;display:flex;align-items:center;gap:4px;cursor:pointer;white-space:nowrap}
 h1{text-align:center;color:#0b3d1e;font-size:28px;margin:20px 14px 4px;line-height:1.2}
 .car-icon{margin:6px 14px 12px;background:#000;border-radius:16px;overflow:hidden}
 .car-icon img{width:100%;height:auto;display:block;object-fit:contain}
 .car-caption{text-align:center;font-size:12px;color:#888;margin-top:2px}
 label{font-weight:800;color:#111;font-size:17px;margin:14px 0 8px;display:block}
-.field{display:flex;align-items:center;gap:10px}
-.pin{font-size:28px;color:#0a9e4e;flex-shrink:0}
-.input-wrap{flex:1;min-width:0;display:flex;align-items:center;background:#f1f1f1;border:1px solid #ccc;border-radius:12px;padding:6px 6px 6px 12px}
-.input-wrap input{flex:1;min-width:0;border:0;background:transparent;outline:0;font-size:15px;padding:10px 0}
-.btn-peta{background:#0a9e4e;color:#fff;border:0;border-radius:8px;padding:9px 10px;font-weight:700;font-size:13px;white-space:nowrap;cursor:pointer;flex-shrink:0}
-.wrap{padding:0 16px}
+.field{display:flex;align-items:center;gap:8px}
+.pin{font-size:26px;color:#0a9e4e;flex-shrink:0}
+.input-wrap{flex:1;min-width:0;display:flex;align-items:center;background:#f1f1f1;border:1px solid #ccc;border-radius:12px;padding:6px 6px 6px 10px;overflow:hidden}
+.input-wrap input{flex:1;min-width:0;width:0;border:0;background:transparent;outline:0;font-size:14px;padding:10px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn-peta{background:#0a9e4e;color:#fff;border:0;border-radius:8px;padding:9px 8px;font-weight:700;font-size:12px;white-space:nowrap;cursor:pointer;flex-shrink:0;margin-left:6px}
+.wrap{padding:0 14px}
 .info{background:#d9ecd9;border-radius:14px;padding:14px;margin-top:18px}
 .info-top{display:flex;gap:12px;align-items:center}
 .info-icon{width:48px;height:48px;min-width:48px;background:#000;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -44,6 +44,20 @@ nav span{font-size:22px}
 .map-foot p{font-size:13px;color:#333;margin-bottom:8px}
 #popup{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:flex-end;justify-content:center;z-index:100}
 .popup-box{background:#fff;width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:20px;text-align:center}
+/* CHAT BARU - TIDAK MENGUBAH TAMPILAN LAIN */
+#chatBox{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-radius:18px 18px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,0.2);display:none;flex-direction:column;z-index:101;height:520px;max-height:85vh}
+.chat-head{background:#0a9e4e;color:#fff;padding:14px 16px;border-radius:18px 18px 0 0;display:flex;justify-content:space-between;align-items:center}
+.chat-head b{font-size:16px}
+.chat-head small{display:block;font-weight:400;font-size:12px;opacity:0.9}
+.chat-head button{background:#fff;color:#0a9e4e;border:0;border-radius:8px;padding:6px 10px;font-weight:700;cursor:pointer}
+#chatIsi{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#f7f7f7}
+.bubble{max-width:85%;padding:10px 12px;border-radius:14px;font-size:14px;line-height:1.4}
+.bubble.admin{background:#fff;border:1px solid #e0e0e0;align-self:flex-start;border-bottom-left-radius:4px}
+.bubble.saya{background:#0a9e4e;color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.chat-input{display:flex;gap:8px;padding:12px;background:#fff;border-top:1px solid #eee}
+.chat-input input{flex:1;border:1px solid #ddd;border-radius:20px;padding:11px 14px;outline:0;font-size:14px}
+.chat-input button{background:#0a9e4e;color:#fff;border:0;border-radius:20px;padding:11px 16px;font-weight:700;cursor:pointer}
+.btn-wa{display:block;text-align:center;background:#25D366;color:#fff;text-decoration:none;font-weight:700;padding:12px;border-radius:10px;margin:0 12px 12px;font-size:14px}
 </style></head>
 <body>
 <header>
@@ -84,6 +98,14 @@ nav span{font-size:22px}
 </div>
 
 <div id="popup"><div class="popup-box"><h3 id="popupJudul">Info</h3><p id="popupIsi" style="margin:12px;color:#555"></p><button class="btn-lanjut" style="font-size:16px" onclick="document.getElementById('popup').style.display='none'">Tutup</button></div></div>
+
+<!-- KOTAK CHAT BARU -->
+<div id="chatBox">
+<div class="chat-head"><div><b>Ammo Travel 💬</b><small>Online • Biasanya balas &lt; 1 menit</small></div><button onclick="tutupChat()">✕ Tutup</button></div>
+<div id="chatIsi"></div>
+<a class="btn-wa" id="btnWA" href="https://wa.me/6285890611111?text=Halo%20Ammo%20Travel,%20mau%20pesan%20travel%20dong!" target="_blank">💬 Lanjut ke WhatsApp Admin</a>
+<div class="chat-input"><input id="chatText" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter') kirimChat()"><button onclick="kirimChat()">Kirim</button></div>
+</div>
 
 <script>
 let targetPeta = 'dari';
@@ -144,7 +166,46 @@ function cekDriver(){
   if(!dari || !ke){ alert('Isi dulu Penjemputan dan Tujuan ya!'); return; }
   location.href = 'pembayaran.html?dari='+encodeURIComponent(dari)+'&ke='+encodeURIComponent(ke);
 }
-function bukaChat(){ alert('Chat Ammo Travel - Halo! Mau pergi kemana hari ini?'); }
+// CHAT - BARU, SUDAH BISA!
+let chatDibuka = false;
+function bukaChat(){
+  document.getElementById('chatBox').style.display='flex';
+  document.querySelector('.chat').style.display='none';
+  if(!chatDibuka){
+    chatDibuka = true;
+    tambahChat('Halo! Selamat datang di Ammo Travel! 👋 Mau pergi kemana hari ini?', 'admin');
+    tambahChat('Ketik aja Penjemputan & Tujuan kamu, nanti aku bantu cek driver ya!', 'admin');
+  }
+  setTimeout(()=>{ document.getElementById('chatText').focus(); }, 300);
+}
+function tutupChat(){
+  document.getElementById('chatBox').style.display='none';
+  document.querySelector('.chat').style.display='flex';
+}
+function tambahChat(teks, siapa){
+  let div = document.createElement('div');
+  div.className = 'bubble ' + siapa;
+  div.innerText = teks;
+  document.getElementById('chatIsi').appendChild(div);
+  document.getElementById('chatIsi').scrollTop = document.getElementById('chatIsi').scrollHeight;
+}
+function kirimChat(){
+  let input = document.getElementById('chatText');
+  let teks = input.value.trim();
+  if(!teks) return;
+  tambahChat(teks, 'saya');
+  input.value = '';
+  // Update link WA dengan isi chat terakhir
+  document.getElementById('btnWA').href = 'https://wa.me/6281234567890?text=' + encodeURIComponent('Halo Ammo Travel, ' + teks);
+  setTimeout(()=>{
+    let t = teks.toLowerCase();
+    let balas = 'Siap! Bisa tolong kirim Penjemputan & Tujuan lengkapnya ya? Biar aku cek driver terdekat! Atau klik tombol hijau Lanjut ke WhatsApp untuk ngobrol langsung sama admin 😊';
+    if(t.includes('harga') || t.includes('berapa') || t.includes('biaya')) balas = 'Untuk harga, isi dulu Penjemputan & Tujuan di halaman utama, terus klik Cek Driver & Lanjut, nanti harga langsung muncul! 💰';
+    if(t.includes('halo') || t.includes('hai') || t.includes('selamat')) balas = 'Halo juga! 👋 Mau pergi kemana hari ini? Ceritain aja Penjemputan & Tujuan kamu!';
+    if(t.includes('driver') || t.includes('jemput')) balas = 'Driver kita siap 24 jam! Di sekitar kamu ada banyak driver Calya, Sigra, Innova yang siap jemput! Isi lokasi aja dulu ya!';
+    tambahChat(balas, 'admin');
+  }, 800);
+}
 function navKe(nama, btn){
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
