@@ -1,26 +1,36 @@
 <!DOCTYPE html>
 <html><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ammo Travel HP</title>
-<style>*{box-sizing:border-box;margin:0;padding:0;font-family:Arial}body{background:#f0f7f0}
-.top{background:#0a7a2e;color:#fff;padding:14px;display:flex;justify-content:space-between}
-.grid{padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.card{background:#d9f2dd;border-radius:14px;padding:16px;text-align:center}
-.card b{font-size:28px}
-.btn{background:#fff;padding:14px;border-radius:12px;margin:0 12px 10px}
+<title>Pilih Harga - Ammo Travel</title>
+<style>*{box-sizing:border-box;margin:0;padding:0;font-family:Arial}body{background:#f0f7f0;padding:14px}
+.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px;border:2px solid #eee}
+.card.pilih{border-color:#0a7a2e;background:#eaffef}
+.harga{font-size:28px;font-weight:800;color:#0a7a2e}
+button{width:100%;padding:16px;background:#0a7a2e;color:#fff;border:0;border-radius:12px;font-size:16px;font-weight:700}
 </style></head>
 <body>
-<div class="top"><b>🚌 AMMO TRAVEL</b><span>👩‍💼 Sari</span></div>
-<div style="padding:12px"><b>Super Admin - Versi HP</b></div>
-<div class="grid">
-<div class="card">👥<br>Total Penumpang<br><b>1.250</b></div>
-<div class="card">👤<br>Driver Aktif<br><b>85</b></div>
-<div class="card">📋<br>Order Hari Ini<br><b>124</b></div>
-<div class="card">💰<br>Pendapatan<br><b>Rp 7,4 Jt</b></div>
+<h2 style="text-align:center">🚗 Soreang → Dago</h2>
+<p style="text-align:center;color:#666;margin:8px 0">1 Kursi • Pilih 1 dari 2 opsi ini:</p>
+
+<div class="card pilih" onclick="pilih(this,'gabung')">
+<b>👥 OPSI 1 - GABUNG / PER KURSI</b><br>
+<div class="harga">Rp 30.000 / kursi</div>
+<small>• Bayar per orang • Bisa gabung sama penumpang lain<br>• 1 kursi = Rp 30.000</small><br>
+<b id="t1">✅ Dipilih</b>
 </div>
-<div class="btn">🚐 Data Penumpang</div>
-<div class="btn">👨‍✈️ Data Driver</div>
-<div class="btn">🧾 Order & Jadwal</div>
-<div class="btn">📊 Laporan</div>
-<p style="text-align:center;color:#888;font-size:12px;padding:10px">Versi HP - Sudah Pas, Gak Gede Lagi!</p>
+
+<div class="card" onclick="pilih(this,'sewa')">
+<b>🚐 OPSI 2 - SEWA HARIAN / PER MOBIL</b><br>
+<div class="harga">Rp 220.000 / mobil</div>
+<small>• Mobil punya kamu seharian, dikunci!<br>• Mau isi 1-4 orang, harga TETAP 220rb<br>• GA BOLEH ditambah penumpang lain</small><br>
+<b id="t2" style="display:none">✅ Dipilih</b>
+</div>
+
+<p id="total" style="text-align:center;font-weight:700;margin:10px">Total: Rp 30.000 - Gabung</p>
+<button onclick="lanjut()">Lanjut Cari Driver →</button>
+<script>
+let pil='gabung';
+function pilih(el,tipe){pil=tipe;document.querySelectorAll('.card').forEach(c=>c.classList.remove('pilih'));el.classList.add('pilih');document.getElementById('t1').style.display=tipe=='gabung'?'block':'none';document.getElementById('t2').style.display=tipe=='sewa'?'block':'none';document.getElementById('total').innerText=tipe=='gabung'?'Total: Rp 30.000 - Gabung':'Total: Rp 220.000 - Sewa Mobil';}
+function lanjut(){alert('Mencari driver untuk: '+(pil=='gabung'?'GABUNG Rp 30.000':'SEWA Rp 220.000'))}
+</script>
 </body></html>
