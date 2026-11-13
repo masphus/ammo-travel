@@ -26,6 +26,15 @@ h2{text-align:center;font-size:22px;margin-bottom:12px}
 .btn-bayar:disabled{background:#ccc;cursor:not-allowed}
 .btn-batal{display:block;text-align:center;color:#d32f2f;border:2px solid #ffcccc;border-radius:12px;padding:14px;font-weight:700;text-decoration:none;margin-top:10px;font-size:15px}
 .qris{width:180px;height:180px;background:#fff;border:2px dashed #aaa;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:10px auto;font-size:40px}
+/* POPUP CARI DRIVER */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:99;padding:20px}
+.overlay.show{display:flex}
+.popup{background:#fff;border-radius:18px;padding:22px;width:100%;max-width:400px;text-align:center}
+.spinner{width:60px;height:60px;border:6px solid #eee;border-top:6px solid #0a9e4e;border-radius:50%;margin:14px auto;animation:putar 1s linear infinite}
+@keyframes putar{to{transform:rotate(360deg)}}
+.driver-card{background:#e8f5e9;border:2px solid #0a9e4e;border-radius:14px;padding:14px;text-align:left;line-height:1.7;margin:12px 0}
+.btn-wa{width:100%;background:#25D366;color:#fff;border:0;border-radius:12px;padding:14px;font-weight:800;font-size:16px;cursor:pointer;margin-top:10px}
+.btn-tutup{width:100%;background:#eee;border:0;border-radius:12px;padding:12px;font-weight:700;margin-top:8px;cursor:pointer}
 </style></head>
 <body>
 <div class="card">
@@ -67,13 +76,15 @@ Biaya TOL & PARKIR dibayar terpisah / ditanggung penumpang sesuai struk.
 </div>
 </div>
 
+<!-- BANK BCA ASLI -->
 <div class="pilih" onclick="pilihMetode('bank',this)">
-<b>🏦 Transfer Bank / Rekening</b>
-<small>Transfer ke rekening Ammo Travel</small>
+<b>🏦 Transfer Bank - BCA</b>
+<small>Transfer ke rekening BCA Ammo Travel</small>
 <div class="detail">
-<b>BCA</b><br>123 456 7890<br>a.n. Ammo Travel<br><br>
-<b>BRI</b><br>9876 5432 10<br>a.n. Ammo Travel<br><br>
-<button onclick="event.stopPropagation(); salinRek('1234567890')" style="padding:10px 14px;border-radius:8px;border:0;background:#0a9e4e;color:#fff;font-weight:700;cursor:pointer">📋 Salin No. Rekening BCA</button>
+<b>BCA</b><br>
+<span style="font-size:20px;font-weight:800">1092 3655 19</span><br>
+a.n. <b>Ahmad Maha Mongkol</b><br><br>
+<button onclick="event.stopPropagation(); salinRek('1092365519')" style="padding:10px 14px;border-radius:8px;border:0;background:#0a9e4e;color:#fff;font-weight:700;cursor:pointer">📋 Salin No. Rekening BCA</button>
 </div>
 </div>
 
@@ -85,6 +96,34 @@ Biaya TOL & PARKIR dibayar terpisah / ditanggung penumpang sesuai struk.
 
 <button class="btn-bayar" id="btnBayar" disabled onclick="lanjutBayar()">👇 Pilih dulu metode pembayaran di atas</button>
 <a class="btn-batal" href="index.html">❌ Batalkan Pesanan - Kembali ke Beranda</a>
+</div>
+
+<!-- POPUP CARI DRIVER -->
+<div class="overlay" id="overlayCari">
+<div class="popup" id="popupCari">
+<div id="cariLoading">
+<div style="font-size:22px;font-weight:800">🔍 Mencari Driver...</div>
+<div class="spinner"></div>
+<p style="color:#666;font-size:14px">Tunggu sebentar ya...<br>Driver terdekat lagi dicari...</p>
+<p style="color:#888;font-size:13px;margin-top:8px" id="cariStatus">Menghubungi driver di Bandung...</p>
+</div>
+<div id="cariKetemu" style="display:none">
+<div style="font-size:22px;font-weight:800;color:#0a7a3a">✅ Driver Ditemukan!</div>
+<div class="driver-card">
+🚗 <b>Driver:</b> Ahmad - Ammo Travel<br>
+⭐ <b>Rating:</b> 4.9 (128 trip)<br>
+🚘 <b>Mobil:</b> Toyota Calya - Putih<br>
+🔢 <b>Plat:</b> D 1234 ABC<br>
+📍 <b>Dari:</b> <span id="dDari"></span><br>
+🎯 <b>Ke:</b> <span id="dKe"></span><br>
+💰 <b>Bayar:</b> <span id="dHarga"></span> <span id="dMetode"></span><br>
+⏱️ <b>Estimasi Jemput:</b> 5 - 10 menit
+</div>
+<p style="font-size:13px;color:#666">Driver akan segera menuju lokasi jemput kamu. Siapkan uang pas ya kalau bayar tunai!</p>
+<button class="btn-wa" onclick="hubungiDriver()">💬 Hubungi Driver via WhatsApp</button>
+<button class="btn-tutup" onclick="tutupPopup()">Tutup</button>
+</div>
+</div>
 </div>
 
 <script>
@@ -132,25 +171,52 @@ function updateTombol(){
   let btn = document.getElementById('btnBayar');
   btn.disabled = false;
   let hrp = 'Rp ' + hargaFinal.toLocaleString('id-ID');
-  if(metode=='ewallet') btn.innerText = '✅ Lanjut Bayar Pakai E-Wallet - ' + hrp + ' (Belum Termasuk Tol & Parkir)';
-  if(metode=='bank') btn.innerText = '✅ Saya Sudah Transfer - ' + hrp + ' (Belum Termasuk Tol & Parkir)';
-  if(metode=='tunai') btn.innerText = '✅ Pesan Driver - Bayar Tunai ' + hrp;
+  if(metode=='ewallet') btn.innerText = '✅ Lanjut Bayar Pakai E-Wallet - ' + hrp;
+  if(metode=='bank') btn.innerText = '✅ Saya Sudah Transfer - ' + hrp;
+  if(metode=='tunai') btn.innerText = '🔍 Cari Driver - Bayar Tunai ' + hrp;
 }
 function bayarEWallet(app){
   alert('Membuka ' + app + '... Bayar Rp ' + hargaFinal.toLocaleString('id-ID') + ' ke Ammo Travel (Belum termasuk TOL & PARKIR), lalu SCREENSHOT buktinya ya!');
 }
 function salinRek(norek){
-  navigator.clipboard.writeText(norek).then(()=>alert('Nomor rekening tersalin: ' + norek));
+  navigator.clipboard.writeText(norek).then(()=>alert('Nomor rekening tersalin: ' + norek + ' a.n. Ahmad Maha Mongkol'));
 }
 function lanjutBayar(){
   if(!metode){ alert('Pilih dulu metode pembayaran!'); return; }
-  let pesan = 'Halo Ammo Travel! Saya mau pesan travel.\n\nDari: ' + dariText + '\nKe: ' + keText + '\nJarak: ' + jarakKm + ' km\nTotal: Rp ' + hargaFinal.toLocaleString('id-ID') + ' (Belum termasuk TOL & PARKIR)\nMetode: ' + metode + '\n\nMohon konfirmasi driver ya!';
   if(metode=='tunai'){
-    alert('Pesanan dibuat! Driver akan dihubungi via WhatsApp. Siapkan uang tunai Rp ' + hargaFinal.toLocaleString('id-ID') + ' ya! Ingat, TOL & PARKIR bayar terpisah bila ada!');
+    // TUNAI -> CARI DRIVER, BUKAN KE WA!
+    cariDriver();
+  } else if(metode=='bank'){
+    alert('Siap! Jangan lupa SCREENSHOT bukti transfer ke BCA 1092365519 a.n. Ahmad Maha Mongkol ya! Lalu kita carikan driver!');
+    cariDriver();
   } else {
-    alert('Siap! Jangan lupa SCREENSHOT bukti pembayaran ya! Lalu kirim ke WhatsApp Admin! TOL & PARKIR bayar terpisah bila ada!');
+    alert('Siap! Jangan lupa SCREENSHOT bukti pembayaran ya! Lalu kita carikan driver!');
+    cariDriver();
   }
+}
+function cariDriver(){
+  document.getElementById('overlayCari').classList.add('show');
+  document.getElementById('cariLoading').style.display = 'block';
+  document.getElementById('cariKetemu').style.display = 'none';
+  let status = document.getElementById('cariStatus');
+  status.innerText = 'Menghubungi driver di Bandung...';
+  setTimeout(()=>{ status.innerText = 'Ada 2 driver terdekat...'; }, 1200);
+  setTimeout(()=>{ status.innerText = 'Driver Ahmad menerima pesanan...'; }, 2200);
+  setTimeout(()=>{
+    document.getElementById('cariLoading').style.display = 'none';
+    document.getElementById('cariKetemu').style.display = 'block';
+    document.getElementById('dDari').innerText = dariText;
+    document.getElementById('dKe').innerText = keText;
+    document.getElementById('dHarga').innerText = 'Rp ' + hargaFinal.toLocaleString('id-ID');
+    document.getElementById('dMetode').innerText = metode=='tunai' ? '(Tunai)' : metode=='bank' ? '(Transfer BCA)' : '(E-Wallet)';
+  }, 3000);
+}
+function hubungiDriver(){
+  let pesan = 'Halo Driver Ammo Travel! Saya mau pesan travel.\n\nDari: ' + dariText + '\nKe: ' + keText + '\nJarak: ' + jarakKm + ' km\nTotal: Rp ' + hargaFinal.toLocaleString('id-ID') + ' (Belum termasuk TOL & PARKIR)\nMetode: ' + metode + '\n\nSaya sudah di lokasi jemput ya!';
   window.open('https://wa.me/6281234567890?text=' + encodeURIComponent(pesan), '_blank');
+}
+function tutupPopup(){
+  document.getElementById('overlayCari').classList.remove('show');
 }
 </script>
 </body></html>
