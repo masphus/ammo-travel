@@ -8,7 +8,7 @@
 @keyframes putar{to{transform:rotate(360deg)}}
 .driver{display:none}
 .foto{width:80px;height:80px;background:#0a7a2e;color:#fff;font-size:36px;line-height:80px;border-radius:50%;margin:10px auto}
-.harga{font-size:24px;font-weight:800;color:#0a7a2e;margin:8px}
+.harga{font-size:26px;font-weight:800;color:#0a7a2e;margin:8px}
 button{width:100%;padding:15px;border:0;border-radius:12px;font-size:16px;font-weight:700;margin-top:8px;cursor:pointer}
 .btn-hijau{background:#0a7a2e;color:#fff}.btn-wa{background:#25D366;color:#fff}.btn-batal{background:#fff;color:#d00;border:2px solid #ffcccc}
 </style></head>
@@ -18,7 +18,9 @@ button{width:100%;padding:15px;border:0;border-radius:12px;font-size:16px;font-w
 <div class="loader"></div>
 <h3>Mencari Driver Terdekat...</h3>
 <p id="info" style="color:#666;margin:10px"></p>
+<p id="bayarInfo" style="font-size:13px;color:#0a7a2e;font-weight:700"></p>
 <p style="font-size:13px;color:#999">Mohon tunggu, kami hubungkan dengan driver terbaik...</p>
+<button class="btn-batal" onclick="batal()">❌ Batalkan Pencarian</button>
 </div>
 <div class="box driver" id="ketemu">
 <div style="font-size:40px">✅</div>
@@ -29,24 +31,16 @@ button{width:100%;padding:15px;border:0;border-radius:12px;font-size:16px;font-w
 <p style="font-weight:700;margin:8px">Plat: D 1234 ABC • Putih</p>
 <p id="detail" style="color:#333"></p>
 <div class="harga" id="hargaFinal"></div>
+<p id="statusBayar" style="color:#0a7a2e;font-weight:700"></p>
 <p style="color:#0a7a2e;font-weight:700">📍 Driver 5 menit lagi sampai di lokasi jemput!</p>
-<button class="btn-hijau" onclick="alert('Pesanan dikonfirmasi! Driver sedang menuju lokasi Anda!')">✅ Konfirmasi Pesanan</button>
+<button class="btn-hijau" onclick="alert('🎉 Pesanan dikonfirmasi! Driver sedang menuju lokasi Anda!');location.href='index.html'">✅ Konfirmasi, Driver Jalan!</button>
 <button class="btn-wa" onclick="alert('Membuka WhatsApp Driver...')">💬 Chat Driver via WhatsApp</button>
-<button class="btn-batal" onclick="location.href='index.html'">❌ Batalkan</button>
+<button class="btn-batal" onclick="batal()">❌ Batalkan Pesanan</button>
 </div>
 <script>
 const p=new URLSearchParams(location.search);
-let tipe=(p.get('tipe')||'bersama').toUpperCase();
+let tipe=(p.get('tipe')||'bersama').toLowerCase();
 let dari=p.get('dari')||'Soreang';
 let ke=p.get('ke')||'Dago';
-let kursi=p.get('kursi')||'1';
-let harga=p.get('harga')||'Rp 0';
-document.getElementById('info').innerText=dari+' → '+ke+' • '+kursi+' Kursi • '+tipe;
-document.getElementById('detail').innerText=dari+' → '+ke+' • '+kursi+' Kursi • '+tipe;
-document.getElementById('hargaFinal').innerText=harga;
-let drivers=[['Budi Santoso','Toyota Avanza'],['Andi Pratama','Daihatsu Xenia'],['Ujang Suryana','Suzuki Ertiga']];
-let d=drivers[Math.floor(Math.random()*drivers.length)];
-document.getElementById('nama').innerText=d[0];
-setTimeout(()=>{document.getElementById('loading').style.display='none';document.getElementById('ketemu').style.display='block';},3000);
-</script>
-</body></html>
+let kursi=parseInt(p.get('kursi'))||1;
+let
