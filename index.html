@@ -4,17 +4,86 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Antar Jemput</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *{box-sizing:border-box;font-family:system-ui,Arial,sans-serif}
-body{margin:0;background:#f3f4f6;padding:16px;padding-bottom:120px}
-.card{background:#fff;border-radius:20px;padding:16px;max-width:480px;margin:0 auto;box-shadow:0 4px 20px rgba(0,0,0,.08)}
-h2{margin:0 0 4px;font-size:22px}
+body{margin:0;background:#f3f4f6;padding:16px}
+.card{background:#fff;border-radius:20px;padding:16px;max-width:480px;margin:0 auto}
+h2{margin:0 0 4px}
 .sub{color:#666;font-size:13px;margin-bottom:16px}
-label{font-size:13px;font-weight:700;color:#333;margin:12px 0 6px;display:block}
-.input-wrap{position:relative}
+label{font-size:13px;font-weight:700;display:block;margin:12px 0 6px}
+.wrap{position:relative}
 input{width:100%;padding:13px 42px 13px 13px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:15px;outline:none;background:#fafafa}
-input:focus{border-color:#111;background:#fff}
-.icon-btn{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:#eee;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:16px}
-.saran
+.icon{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:#eee;width:30px;height:30px;border-radius:8px;cursor:pointer}
+.saran{position:absolute;left:0;right:0;top:100%;background:#fff;border:1px solid #ddd;border-radius:12px;margin-top:6px;z-index:20;display:none;overflow:hidden}
+.saran button{display:block;width:100%;text-align:left;border:0;background:#fff;padding:12px;cursor:pointer;border-bottom:1px solid #f3f4f6;font-size:14px}
+.saran small{color:#888;display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.swap{display:flex;justify-content:center;margin:10px 0 2px}
+#swapBtn{width:44px;height:44px;border-radius:50%;border:2px solid #e5e7eb;background:#fff;font-size:20px;cursor:pointer}
+#swapBtn:disabled{opacity:.35}
+.hint{font-size:12px;color:#888;margin-top:4px}
+.cek{width:100%;margin-top:18px;background:#111;color:#fff;border:0;padding:15px;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer}
+.cek:disabled{background:#ccc}
+#mapSheet{position:fixed;left:0;right:0;bottom:0;height:55vh;background:#fff;border-radius:20px 20px 0 0;display:none;z-index:100;flex-direction:column;overflow:hidden;border-top:2px solid #111}
+#mapSheet.open{display:flex}
+.sheet-head{padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eee}
+.sheet-head button{border:0;background:#f3f4f6;padding:8px 12px;border-radius:8px}
+#map{flex:1;width:100%;background:#e5e7eb}
+.sheet-foot{padding:12px 16px}
+#mapAlamat{font-size:13px;color:#444;min-height:36px;margin-bottom:10px}
+#pakaiPin{width:100%;background:#111;color:#fff;border:0;padding:13px;border-radius:12px;font-weight:700}
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;z-index:99}
+#overlay.show{display:block}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+</head>
+<body>
+<div class="card">
+<h2>Ke Mana Hari Ini?</h2>
+<div class="sub">Kalau tulisan ini muncul, berarti file sudah benar.</div>
+<label>Penjemputan</label>
+<div class="wrap">
+<input id="jemput" placeholder="Mencari GPS..." autocomplete="off">
+<button class="icon" onclick="bukaPeta('jemput')">Peta</button>
+<div id="saranJemput" class="saran"></div>
+</div>
+<div class="hint" id="hintJemput">Mengambil lokasi GPS...</div>
+<div class="swap"><button id="swapBtn" onclick="tukar()" disabled>⇅</button></div>
+<label>Tujuan</label>
+<div class="wrap">
+<input id="tujuan" placeholder="Ketik tujuan..." autocomplete="off">
+<button class="icon" onclick="bukaPeta('tujuan')">Peta</button>
+<div id="saranTujuan" class="saran"></div>
+</div>
+<div class="hint">Saran muncul setelah ketik 2 huruf, maks 6, terdekat dulu.</div>
+<button class="cek" id="cekBtn" onclick="cekDriver()" disabled>Cek Driver</button>
+</div>
+<div id="overlay" onclick="tutupPeta()"></div>
+<div id="mapSheet">
+<div class="sheet-head"><b id="mapJudul">Pilih di Peta</b><button onclick="tutupPeta()">Tutup</button></div>
+<div id="map"></div>
+<div class="sheet-foot"><div id="mapAlamat">Geser pin atau ketuk peta.</div><button id="pakaiPin" onclick="pakaiPin()">Pakai Lokasi Ini</button></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+let gps=null;
+let data={jemput:null,tujuan:null};
+let modePeta='tujuan';
+let map=null,marker=null,pinLatLng=null;
+function jarak(a,b,c,d){var R=6371,dl=(c-a)*Math.PI/180,dn=(d-b)*Math.PI/180;var x=Math.sin(dl/2)*Math.sin(dl/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dn/2)*Math.sin(dn/2);return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
+function updateTombol(){var j=document.getElementById('jemput').value.trim();var t=document.getElementById('tujuan').value.trim();var lengkap=j&&t;document.getElementById('swapBtn').disabled=!lengkap;document.getElementById('cekBtn').disabled=!lengkap;if(!j)data.jemput=null;if(!t)data.tujuan=null;}
+function tukar(){var ji=document.getElementById('jemput');var tu=document.getElementById('tujuan');var tmp=ji.value;ji.value=tu.value;tu.value=tmp;var tmp2=data.jemput;data.jemput=data.tujuan;data.tujuan=tmp2;updateTombol();}
+function isiGPS(){if(!navigator.geolocation){document.getElementById('hintJemput').textContent='GPS tidak tersedia.';return;}navigator.geolocation.getCurrentPosition(function(pos){gps={lat:pos.coords.latitude,lng:pos.coords.longitude};fetch('https://nominatim.openstreetmap.org/reverse?lat='+gps.lat+'&lon='+gps.lng+'&format=json').then(function(r){return r.json()}).then(function(j){var nama=j.display_name.split(',').slice(0,4).join(',');var inp=document.getElementById('jemput');if(!inp.value.trim()){inp.value=nama;data.jemput={nama:nama,lat:gps.lat,lng:gps.lng};}document.getElementById('hintJemput').textContent='GPS ditemukan. Bisa diedit untuk keluarga.';updateTombol();}).catch(function(){document.getElementById('hintJemput').textContent='GPS ditemukan.';});},function(){document.getElementById('hintJemput').textContent='Izin lokasi ditolak. Ketik manual.';},{enableHighAccuracy:true,timeout:8000});}
+function setupSaran(inputId,boxId,key){var inp=document.getElementById(inputId);var box=document.getElementById(boxId);var timer=null;inp.addEventListener('input',function(){updateTombol();var q=inp.value.trim();if(q.length<2){box.style.display='none';return;}clearTimeout(timer);timer=setTimeout(function(){var url='https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(q)+'&format=json&limit=20&countrycodes=id';fetch(url).then(function(r){return r.json()}).then(function(list){if(gps){list=list.map(function(x){x._j=jarak(gps.lat,gps.lng,parseFloat(x.lat),parseFloat(x.lon));return x;});list.sort(function(a,b){return a._j-b._j;});}list=list.slice(0,6);if(list.length===0){box.style.display='none';return;}box.innerHTML='';list.forEach(function(x,i){var b=document.createElement('button');b.type='button';var nama=x.display_name.split(',').slice(0,3).join(',');b.innerHTML=nama+'<small>'+x.display_name+'</small>';b.onclick=function(){var nm=x.display_name.split(',').slice(0,4).join(',');document.getElementById(key==='jemput'?'jemput':'tujuan').value=nm;data[key]={nama:nm,lat:parseFloat(x.lat),lng:parseFloat(x.lon)};box.style.display='none';updateTombol();};box.appendChild(b);});box.style.display='block';}).catch(function(){box.style.display='none';});},300);});document.addEventListener('click',function(e){if(!inp.contains(e.target)&&!box.contains(e.target))box.style.display='none';});}
+setupSaran('jemput','saranJemput','jemput');
+setupSaran('tujuan','saranTujuan','tujuan');
+function bukaPeta(mode){modePeta=mode;document.getElementById('mapJudul').textContent=mode==='jemput'?'Pilih Penjemputan':'Pilih Tujuan';document.getElementById('mapSheet').classList.add('open');document.getElementById('overlay').classList.add('show');setTimeout(function(){if(typeof L==='undefined'){document.getElementById('map').innerHTML='<p style="padding:20px">Peta gagal dimuat, cek internet.</p>';return;}if(!map){var s=gps||{lat:-6.9175,lng:107.6191};map=L.map('map').setView([s.lat,s.lng],15);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);map.on('click',function(e){setPin(e.latlng);});}map.invalidateSize();var cur=data[mode]||gps||{lat:-6.9175,lng:107.6191};map.setView([cur.lat,cur.lng],15);setPin({lat:cur.lat,lng:cur.lng});},100);}
+function setPin(ll){pinLatLng=ll;if(marker)marker.setLatLng(ll);else{marker=L.marker(ll,{draggable:true}).addTo(map);marker.on('dragend',function(){setPin(marker.getLatLng());});}document.getElementById('mapAlamat').textContent='Memuat alamat...';fetch('https://nominatim.openstreetmap.org/reverse?lat='+ll.lat+'&lon='+ll.lng+'&format=json').then(function(r){return r.json()}).then(function(j){document.getElementById('mapAlamat').textContent=j.display_name;document.getElementById('mapAlamat').dataset.nama=j.display_name.split(',').slice(0,4).join(',');}).catch(function(){document.getElementById('mapAlamat').textContent='Lokasi Pin';document.getElementById('mapAlamat').dataset.nama='Lokasi Pin';});}
+function pakaiPin(){if(!pinLatLng)return;var alamat=document.getElementById('mapAlamat').dataset.nama||document.getElementById('mapAlamat').textContent;document.getElementById(modePeta==='jemput'?'jemput':'tujuan').value=alamat;data[modePeta]={nama:alamat,lat:pinLatLng.lat,lng:pinLatLng.lng};tutupPeta();updateTombol();}
+function tutupPeta(){document.getElementById('mapSheet').classList.remove('open');document.getElementById('overlay').classList.remove('show');}
+function cekDriver(){alert('Penjemputan: '+document.getElementById('jemput').value+'\nTujuan: '+document.getElementById('tujuan').value);}
+document.getElementById('jemput').addEventListener('input',updateTombol);
+document.getElementById('tujuan').addEventListener('input',updateTombol);
+window.addEventListener('load',isiGPS);
+</script>
+</body>
+</html>
