@@ -51,9 +51,9 @@ h2{text-align:center;margin-bottom:12px}
 <div id="peringatanRute">⚠️ RUTE BELUM DIPILIH!<br><span style="font-weight:400;font-size:13px;color:#333">Balik ke Beranda dulu, pilih Dari & Ke, baru ke sini lagi ya!</span><br><a href="index.html" style="display:inline-block;margin-top:8px;background:#c62828;color:#fff;padding:10px 16px;border-radius:10px;text-decoration:none">⬅️ Pilih Rute di Beranda</a></div>
 <div class="warn"><b>⚠️ WAJIB SCREENSHOT! ⚠️</b><br>Setelah bayar, <b>WAJIB SCREENSHOT</b> bukti pembayaran!<br><b>Tunjukkan ke Driver</b> saat naik!</div>
 <div class="warn-tol"><b>⚠️ PERHATIAN! ⚠️</b><br>Tarif ini <b>BELUM termasuk TOL dan PARKIR</b> bila ada.</div>
-<div class="rute">📍 <b>Dari:</b> <span id="tDari">-</span><br>🎯 <b>Ke:</b> <span id="tKe">-</span><br>🚗 <b>Armada:</b> Calya / Sigra / Innova - 7 Kursi<br>📏 <b>Jarak:</b> <span id="tJarak">Menghitung jarak jalan beneran...</span><br>🛣️ <b>Rute:</b> <span id="tRuteInfo" style="font-size:12px;color:#666">Menghitung via jalan...</span></div>
+<div class="rute">📍 <b>Dari:</b> <span id="tDari">-</span><br>🎯 <b>Ke:</b> <span id="tKe">-</span><br>🚗 <b>Armada:</b> Calya / Sigra / Innova - 7 Kursi<br>📏 <b>Jarak:</b> <span id="tJarak">Menghitung...</span></div>
 <div class="harga" id="tHarga">Menghitung...</div>
-<div class="harga-kecil" id="tHargaDetail">Harga = Jarak KM x Rp 5.000 / km<br>* Belum termasuk TOL & PARKIR bila ada</div>
+<div class="harga-kecil">* Belum termasuk TOL & PARKIR bila ada</div>
 
 <div class="pilih" onclick="pilihMetode('qris',this)"><b>📷 1. Bayar Pakai QRIS</b><br><small>Scan pakai DANA / OVO / GoPay / BCA / Semua Bank</small><div class="detail">
 <div class="qris-box">
@@ -76,7 +76,7 @@ h2{text-align:center;margin-bottom:12px}
 </div>
 
 <div class="overlay" id="overlayCari"><div class="popup">
-<div id="cariLoading"><div style="font-size:22px;font-weight:800">🔍 Mencari Driver...</div><div class="spinner"></div><p id="cariStatus">Menghubungi driver di Bandung...</p></div>
+<div id="cariLoading"><div style="font-size:22px;font-weight:800">🔍 Mencari Driver...</div><div class="spinner"></div><p id="cariStatus">Menghubungi driver...</p></div>
 <div id="cariKetemu" style="display:none">
 <div style="font-size:22px;font-weight:800;color:#0a7a3a">✅ Driver Ditemukan!</div>
 <div class="driver-card">🚗 <b>Driver:</b> Ahmad - Ammo Travel<br>⭐ <b>Rating:</b> 4.9 (128 trip)<br>🚘 <b>Mobil:</b> Toyota Calya - Putih<br>🔢 <b>Plat:</b> D 1234 ABC<br>📍 <b>Dari:</b> <span id="dDari"></span><br>🎯 <b>Ke:</b> <span id="dKe"></span><br>📏 <b>Jarak:</b> <span id="dJarak"></span><br>💰 <b>Bayar:</b> <span id="dHarga"></span> <span id="dMetode"></span><br>⏱️ <b>Estimasi Jemput:</b> 5 - 10 menit</div>
@@ -91,7 +91,7 @@ h2{text-align:center;margin-bottom:12px}
 <div class="overlay" id="overlayRiwayat"><div class="popup">
 <div style="font-size:20px;font-weight:800">📋 Riwayat Booking Saya</div>
 <div class="riwayat-item"><span class="status-live">● LIVE - DRIVER OTW</span><br><b id="rDari">-</b> → <b id="rKe">-</b><br>🚗 Ahmad - Calya Putih - D 1234 ABC<br>💰 <b id="rHarga">Rp 0</b> <span id="rMetode"></span><br>📅 Hari ini, <span id="rWaktu"></span></div>
-<div id="petaReal"><p style="padding:20px;color:#666;font-size:13px">Memuat peta beneran...</p></div>
+<div id="petaReal"><p style="padding:20px;color:#666;font-size:13px">Memuat peta...</p></div>
 <div class="peta-info">🚗 <b>Driver:</b> <span id="infoDriverPos">Jl. Asia Afrika - 1.2 km lagi</span><br>⏱️ <b>ETA:</b> <span id="infoEta">7 menit</span> | 📏 <b>Jarak:</b> <span id="infoJarak">1.2 km</span><br>🕒 <b>Terakhir update:</b> <span id="infoUpdate">Baru saja</span></div>
 <button class="btn-chat" onclick="bukaChatDariRiwayat()">💬 Chat Driver di Aplikasi</button>
 <button class="btn-admin" onclick="hubungiAdmin()">📞 Hubungi Admin</button>
@@ -108,13 +108,11 @@ var HARGA_PER_KM = 5000;
 var map = null, markerDriver = null, markerJemput = null, routeLine = null, driverIndex = 0, intervalGPS = null;
 var ruteDriver = [[-6.9210,107.6040],[-6.9202,107.6060],[-6.9195,107.6075],[-6.9188,107.6085],[-6.9180,107.6080],[-6.9175,107.6090]];
 var jemputLatLng = [-6.9175,107.6090];
-
 function getParam(n){ try{ var u = new URLSearchParams(window.location.search); var v = u.get(n); return v ? decodeURIComponent(v) : ''; }catch(e){ return ''; } }
 function ambilRute(){
   var d = getParam('dari'); var k = getParam('ke');
   if(!d){ try{ d = localStorage.getItem('ammo_dari') || ''; }catch(e){} }
   if(!k){ try{ k = localStorage.getItem('ammo_ke') || ''; }catch(e){} }
-  // Kalo di index udah simpan KM, pake itu dulu sambil nunggu hitung ulang
   dariText = d; keText = k;
   if(dariText){ try{ localStorage.setItem('ammo_dari', dariText); }catch(e){} }
   if(keText){ try{ localStorage.setItem('ammo_ke', keText); }catch(e){} }
@@ -122,14 +120,11 @@ function ambilRute(){
 function hitungHargaDariKm(km){
   jarakKm = km;
   var h = Math.round(km * HARGA_PER_KM / 1000) * 1000;
-  // Minimal: dalam kota 50rb, antar kota 150rb - bukan dari nama kota, tapi dari jarak!
-  // Kalo jarak < 10 km = dalam kota, kalo > 10 km = antar kota
   var minHarga = (km <= 10) ? 50000 : 150000;
   if(h < minHarga) h = minHarga;
   hargaFinal = h;
-  document.getElementById('tJarak').innerText = km.toFixed(1) + ' km (jalan beneran)';
+  document.getElementById('tJarak').innerText = km.toFixed(1) + ' km';
   document.getElementById('tHarga').innerText = 'Rp ' + h.toLocaleString('id-ID');
-  document.getElementById('tHargaDetail').innerHTML = km.toFixed(1) + ' km x Rp 5.000 = Rp ' + h.toLocaleString('id-ID') + '<br>* Belum termasuk TOL & PARKIR bila ada';
   var q = document.getElementById('qrisNominal'); if(q) q.innerText = 'Scan & bayar Rp ' + h.toLocaleString('id-ID');
   var b = document.getElementById('btnBayar'); if(!metode){ b.innerText = '👇 Pilih dulu metode pembayaran di atas'; }
   else { updateTombol(); }
@@ -154,40 +149,23 @@ function hitungJarakBeneran(){
   }
   document.getElementById('tDari').innerText = dariText;
   document.getElementById('tKe').innerText = keText;
-  document.getElementById('tJarak').innerText = 'Menghitung jarak jalan beneran...';
-  document.getElementById('tRuteInfo').innerText = 'Mencari jalan via OpenStreetMap...';
-  // 1. Coba hitung via jalan beneran (OSRM)
+  document.getElementById('tJarak').innerText = 'Menghitung...';
   Promise.all([cariKoordinat(dariText), cariKoordinat(keText)]).then(function(hasil){
     var dariCoord = hasil[0]; var keCoord = hasil[1];
-    if(!dariCoord || !keCoord){
-      // Kalo alamat ga ketemu, pake perkiraan garis lurus dari Bandung (bukan 10 km!)
-      document.getElementById('tRuteInfo').innerText = 'Alamat tidak ditemukan di peta, pakai estimasi garis lurus x 1.4';
-      // Fallback: kalo ga ketemu, anggap 50 km antar kota, biar ga rugi
-      hitungHargaDariKm(50);
-      return;
-    }
+    if(!dariCoord || !keCoord){ hitungHargaDariKm(50); return; }
     jemputLatLng = [dariCoord.lat, dariCoord.lon];
     return fetch('https://router.project-osrm.org/route/v1/driving/' + dariCoord.lon + ',' + dariCoord.lat + ';' + keCoord.lon + ',' + keCoord.lat + '?overview=false')
       .then(function(r){ return r.json(); })
       .then(function(data){
         if(data && data.routes && data.routes[0]){
           var kmJalan = data.routes[0].distance / 1000;
-          var menit = Math.round(data.routes[0].duration / 60);
-          document.getElementById('tRuteInfo').innerText = 'Via jalan beneran • Estimasi ' + menit + ' menit • OSRM / OpenStreetMap';
           hitungHargaDariKm(kmJalan);
         } else {
-          // Fallback garis lurus x 1.4
           var lurus = hitungJarakGarisLurus(dariCoord.lat, dariCoord.lon, keCoord.lat, keCoord.lon);
-          var kmEstimasi = lurus * 1.4;
-          document.getElementById('tRuteInfo').innerText = 'Estimasi garis lurus x 1.4 (jalan belok-belok)';
-          hitungHargaDariKm(kmEstimasi);
+          hitungHargaDariKm(lurus * 1.4);
         }
       });
-  }).catch(function(e){
-    console.log('Gagal hitung OSRM', e);
-    document.getElementById('tRuteInfo').innerText = 'Gagal hitung online, pakai estimasi 50 km antar kota';
-    hitungHargaDariKm(50);
-  });
+  }).catch(function(e){ hitungHargaDariKm(50); });
 }
 function updateTombol(){
   var b = document.getElementById('btnBayar'); b.disabled = false;
