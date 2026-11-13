@@ -1,77 +1,52 @@
 <!DOCTYPE html>
 <html><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ammo Travel - 3 Opsi Harga</title>
-<style>*{box-sizing:border-box;margin:0;padding:0;font-family:Arial}body{background:#f0f7f0;padding:14px}
-select,input{width:100%;padding:12px;border-radius:10px;border:1px solid #ccc;margin:6px 0;font-size:15px}
-.card{background:#fff;border-radius:16px;padding:14px;margin:10px 0;border:2px solid #eee}
-.card.pilih{border-color:#0a7a2e;background:#eaffef}
-.harga{font-size:24px;font-weight:800;color:#0a7a2e}
-.status{font-weight:700;margin-top:6px}
-button{width:100%;padding:16px;background:#0a7a2e;color:#fff;border:0;border-radius:12px;font-size:16px;font-weight:700}
+<title>Ammo Travel</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>*{box-sizing:border-box;margin:0;padding:0;font-family:Arial}body{background:#f0f7f0;padding:12px}
+input,select{width:100%;padding:13px;border-radius:10px;border:1px solid #ccc;margin:6px 0;font-size:15px}
+.card{background:#fff;border-radius:16px;padding:14px;margin:10px 0;border:2px solid #eee;cursor:pointer}
+.card.pilih{border-color:#0a7a2e;background:#eaffef;box-shadow:0 0 0 2px #0a7a2e}
+.harga{font-size:22px;font-weight:800;color:#0a7a2e}
+button{width:100%;padding:16px;background:#0a7a2e;color:#fff;border:0;border-radius:12px;font-size:16px;font-weight:700;margin-top:6px}
+#map{height:280px;border-radius:16px;margin:10px 0;border:2px solid #0a7a2e}
+.kecil{font-size:12px;color:#666;text-align:center}
 </style></head>
 <body>
-<h2 style="text-align:center">🚗 Ammo Travel</h2>
-<p style="text-align:center;color:#666">Harga dari jarak, otomatis!</p>
-
-<label>Dari:</label>
-<select id="dari" onchange="hitung()">
-<option value="soreang">Soreang</option><option value="bandung">Bandung</option>
-<option value="dago">Dago</option><option value="lembang">Lembang</option>
-</select>
-<label>Ke:</label>
-<select id="ke" onchange="hitung()">
-<option value="dago">Dago</option><option value="soreang">Soreang</option>
-<option value="bandung">Bandung</option><option value="lembang">Lembang</option>
-</select>
-<label>Jumlah Kursi / Penumpang:</label>
-<input type="number" id="kursi" value="1" min="1" max="4" oninput="hitung()">
-
+<h2 style="text-align:center">🚗 AMMO TRAVEL</h2>
+<p style="text-align:center;color:#666">Klik Peta Untuk Pilih Tujuan</p>
+<div id="map"></div>
+<p class="kecil">📍 Klik peta = ganti tujuan (Ke) • Seret pin merah = ganti jemput (Dari)</p>
+<label>Dari (Jemput):</label><input id="dari" list="kota" value="Soreang" oninput="dariKetik()">
+<label>Ke (Tujuan):</label><input id="ke" list="kota" value="Dago" oninput="keKetik()">
+<datalist id="kota"><option value="Soreang"><option value="Bandung"><option value="Dago"><option value="Lembang"><option value="Cimahi"><option value="Ciwidey"><option value="Padalarang"></datalist>
+<label>Jumlah Kursi:</label><input type="number" id="kursi" value="1" min="1" max="4" oninput="hitung()">
 <p id="jarak" style="text-align:center;font-weight:700;margin:10px"></p>
-
-<div class="card pilih" id="c1" onclick="pilih('bersama')">
-<b>👥 OPSI 1 - PERJALANAN BERSAMA</b>
-<div class="harga" id="h1">-</div><small>Rp 2.000 / KM / kursi</small>
-<div class="status" id="s1"></div>
-</div>
-
-<div class="card" id="c2" onclick="pilih('langsung')">
-<b>⚡ OPSI 2 - LANGSUNG</b>
-<div class="harga" id="h2">-</div><small>Rp 3.000 / KM / kursi</small>
-<div class="status" id="s2"></div>
-</div>
-
-<div class="card" id="c3" onclick="pilih('sewa')">
-<b>🚐 OPSI 3 - SEWA</b>
-<div class="harga" id="h3">-</div><small>Rp 5.000 / KM / mobil</small>
-<div class="status" id="s3" style="color:#0a7a2e">✅ Driver WAJIB jalan sekarang!</div>
-</div>
-
-<p id="total" style="text-align:center;font-weight:800;margin:10px"></p>
-<button onclick="alert('Driver ditugaskan!')">Cari Driver →</button>
-
+<p style="text-align:center;color:#0a7a2e;font-weight:700">👇 Silahkan Pilih, Penumpang Bebas Memilih!</p>
+<div class="card" id="c1" onclick="pilih('bersama')"><b>👥 OPSI 1 - BERSAMA</b><div class="harga" id="h1"></div><div style="font-size:13px;color:#666">Rp 2.000 / KM / kursi</div><div id="s1" style="font-weight:700"></div></div>
+<div class="card" id="c2" onclick="pilih('langsung')"><b>⚡ OPSI 2 - LANGSUNG</b><div class="harga" id="h2"></div><div style="font-size:13px;color:#666">Rp 3.000 / KM / kursi</div><div id="s2" style="font-weight:700"></div></div>
+<div class="card" id="c3" onclick="pilih('sewa')"><b>🚐 OPSI 3 - SEWA</b><div class="harga" id="h3"></div><div style="font-size:13px;color:#666">Rp 5.000 / KM / mobil</div><div style="color:#0a7a2e;font-weight:700">✅ Driver WAJIB jalan!</div></div>
+<button onclick="pesan()">Cari Driver →</button>
+<p style="text-align:center;margin-top:18px"><a href="admin.html" style="color:#888;font-size:12px">Masuk Admin</a></p>
 <script>
-const koor={soreang:[-7.024,107.538],bandung:[-6.917,107.6],dago:[-6.867,107.62],lembang:[-6.81,107.61]};
-function jarakKm(a,b){const R=6371,dLat=(b[0]-a[0])*Math.PI/180,dLon=(b[1]-a[1])*Math.PI/180;const h=Math.sin(dLat/2)**2+Math.cos(a[0]*Math.PI/180)*Math.cos(b[0]*Math.PI/180)*Math.sin(dLon/2)**2;return R*2*Math.asin(Math.sqrt(h))*1.3}
-let pil='bersama',tot1=0,tot2=0,tot3=0;
-function hitung(){
-let d=document.getElementById('dari').value,k=document.getElementById('ke').value;
-let kursi=parseInt(document.getElementById('kursi').value)||1;
-let km=jarakKm(koor[d],koor[k]); if(d==k) km=2;
-let pb=Math.round(km*2000/100)*100, pl=Math.round(km*3000/100)*100, ps=Math.round(km*5000/100)*100;
-tot1=pb*kursi; tot2=pl*kursi; tot3=ps;
-document.getElementById('jarak').innerText='Jarak: '+km.toFixed(1)+' KM • '+kursi+' Kursi';
-document.getElementById('h1').innerText='Rp '+pb.toLocaleString('id-ID')+' / kursi • Total Rp '+tot1.toLocaleString('id-ID');
-document.getElementById('h2').innerText='Rp '+pl.toLocaleString('id-ID')+' / kursi • Total Rp '+tot2.toLocaleString('id-ID');
-document.getElementById('h3').innerText='Rp '+ps.toLocaleString('id-ID')+' / mobil';
-// ATURAN JALAN
-let s1=document.getElementById('s1'),s2=document.getElementById('s2');
-if(kursi>=3){s1.innerText='✅ '+kursi+' kursi! Driver LANGSUNG ditugaskan, langsung jalan!';s1.style.color='#0a7a2e';}else{s1.innerText='⏳ Menunggu sampai 3 orang untuk jalan. Kurang '+(3-kursi)+' lagi.';s1.style.color='#b77900';}
-if(kursi>=2){s2.innerText='✅ '+kursi+' orang! Driver LANGSUNG ditugaskan, langsung jalan!';s2.style.color='#0a7a2e';}else{s2.innerText='⏳ Menunggu 1 orang lagi untuk langsung jalan.';s2.style.color='#b77900';}
-updateTotal();
-}
-function pilih(t){pil=t;['c1','c2','c3'].forEach((id,i)=>document.getElementById(id).classList.toggle('pilih',id=='c'+(t=='bersama'?1:t=='langsung'?2:3)));updateTotal();}
-function updateTotal(){let txt=pil=='bersama'?'Total BERSAMA: Rp '+tot1.toLocaleString('id-ID'):pil=='langsung'?'Total LANGSUNG: Rp '+tot2.toLocaleString('id-ID'):'Total SEWA: Rp '+tot3.toLocaleString('id-ID');document.getElementById('total').innerText=txt;}
+const kota={soreang:[-7.024,107.538],bandung:[-6.917,107.6],dago:[-6.867,107.62],lembang:[-6.81,107.61],cimahi:[-6.872,107.542],ciwidey:[-7.08,107.44],padalarang:[-6.84,107.47]};
+let dariPos=[-7.024,107.538], kePos=[-6.867,107.62], dipilih='';
+let map=L.map('map').setView([-6.95,107.58],11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+let m1=L.marker(dariPos,{draggable:true}).addTo(map).bindPopup('Dari: Jemput').openPopup();
+let m2=L.marker(kePos).addTo(map).bindPopup('Ke: Tujuan');
+let garis=L.polyline([dariPos,kePos],{color:'#0a7a2e',weight:4}).addTo(map);
+function updatePeta(){m1.setLatLng(dariPos);m2.setLatLng(kePos);garis.setLatLngs([dariPos,kePos]);map.fitBounds([dariPos,kePos],{padding:[30,30]});hitung();}
+map.on('click',e=>{kePos=[e.latlng.lat,e.latlng.lng];document.getElementById('ke').value='Lokasi di Peta';updatePeta();});
+m1.on('dragend',()=>{let p=m1.getLatLng();dariPos=[p.lat,p.lng];document.getElementById('dari').value='Lokasi Saya';updatePeta();});
+function cari(nama){nama=nama.toLowerCase().trim();return kota[nama]||null;}
+function dariKetik(){let p=cari(document.getElementById('dari').value);if(p){dariPos=p;updatePeta();}}
+function keKetik(){let p=cari(document.getElementById('ke').value);if(p){kePos=p;updatePeta();}}
+function jk(a,b){const R=6371,la=(b[0]-a[0])*Math.PI/180,lo=(b[1]-a[1])*Math.PI/180;const h=Math.sin(la/2)**2+Math.cos(a[0]*Math.PI/180)*Math.cos(b[0]*Math.PI/180)*Math.sin(lo/2)**2;return R*2*Math.asin(Math.sqrt(h))*1.3}
+function hitung(){let kursi=parseInt(document.getElementById('kursi').value)||1;let km=jk(dariPos,kePos);if(km<2)km=2;let pb=Math.round(km*2000/100)*100,pl=Math.round(km*3000/100)*100,ps=Math.round(km*5000/100)*100;document.getElementById('jarak').innerText='Jarak: '+km.toFixed(1)+' KM • '+kursi+' Kursi';document.getElementById('h1').innerText='Rp '+pb.toLocaleString('id-ID')+' / kursi • Total Rp '+(pb*kursi).toLocaleString('id-ID');document.getElementById('h2').innerText='Rp '+pl.toLocaleString('id-ID')+' / kursi • Total Rp '+(pl*kursi).toLocaleString('id-ID');document.getElementById('h3').innerText='Rp '+ps.toLocaleString('id-ID')+' / mobil';document.getElementById('s1').innerText=kursi>=3?'✅ Driver LANGSUNG jalan!':'⏳ Butuh 3 orang untuk jalan';document.getElementById('s2').innerText=kursi>=2?'✅ Driver LANGSUNG jalan!':'⏳ Butuh 2 orang untuk jalan';}
+function pilih(t){dipilih=t;document.getElementById('c1').classList.toggle('pilih',t=='bersama');document.getElementById('c2').classList.toggle('pilih',t=='langsung');document.getElementById('c3').classList.toggle('pilih',t=='sewa');}
+function pesan(){if(!dipilih){alert('Silahkan pilih dulu! Mau BERSAMA, LANGSUNG, atau SEWA?');return;}alert('Mencari Driver untuk '+dipilih.toUpperCase()+'!');}
 hitung();
 </script>
 </body></html>
