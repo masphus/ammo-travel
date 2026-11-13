@@ -107,7 +107,7 @@ label{font-weight:800;font-size:20px;display:block;margin:18px 0 8px;color:#222}
 <script>
 var latDari=0,lngDari=0,latKe=0,lngKe=0;
 var timerDari=null,timerKe=null;
-var JUMLAH_SARAN = 4;
+var JUMLAH_SARAN = 6;
 function hitungJarakKm(a,b,c,d){var R=6371;var dLat=(c-a)*Math.PI/180;var dLon=(d-b)*Math.PI/180;var x=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
 function formatJarak(km){ if(km<1) return Math.round(km*1000)+' m'; return km.toFixed(1).replace('.',',')+' km'; }
 function titikAcuan(tipe){ if(tipe==='ke' && latDari && lngDari) return {lat:latDari,lon:lngDari}; if(tipe==='dari' && latKe && lngKe) return {lat:latKe,lon:lngKe}; return {lat:-6.9175,lon:107.6191}; }
@@ -157,15 +157,11 @@ function cariSaranMapsAsli(teks, tipe, callback){
           list.push({nama:nama, alamat:alamat, kec:kec, lat:c[1], lon:c[0], _jarak:hitungJarakKm(acuan.lat, acuan.lon, c[1], c[0])});
           if(list.length>=JUMLAH_SARAN) break;
         }
-        callback(list);
-      } else {
-        return fetch('https://nominatim.openstreetmap.org/search?format=json&limit=10&countrycodes=id&q='+encodeURIComponent(teks))
-          .then(function(r){ return r.json(); }).then(function(d2){
-            var list2=[]; var seen2={};
+        list.sort(function(a,b){ return a._jarak - b._jarak; });
+        callback(list); } else {
             for(var k=0;k<(d2||[]).length;k++){
               var nf=d2[k].display_name||''; var bg=nf.split(',');
-              var nama2=(bg[0]||'').trim();
-              var kunci2=nf.toLowerCase();
+              var nama2=(bg[0]||'').trim();var kunci2=nf.toLowerCase();
               if(seen2[kunci2]) continue; seen2[kunci2]=true;
               list2.push({nama:nama2, alamat:nf, kec:bg.slice(1,4).join(',').trim(), lat:parseFloat(d2[k].lat), lon:parseFloat(d2[k].lon), _jarak:hitungJarakKm(acuan.lat, acuan.lon, parseFloat(d2[k].lat), parseFloat(d2[k].lon))});
               if(list2.length>=JUMLAH_SARAN) break;
@@ -174,9 +170,19 @@ function cariSaranMapsAsli(teks, tipe, callback){
           });
       }
     }).catch(function(){
-      fetch('https://nominatim.openstreetmap.org/search?format=json&limit=10&countrycodes=id&q='+encodeURIComponent(teks))
+              return fetch('https://nominatim.openstreetmap.org/search?format=json&limit=10&countrycodes=id&q='+encodeURIComponent(teks))
         .then(function(r){ return r.json(); }).then(function(d2){
-          var list2=[];
+          var list2=[]; 
+          var seen2={};
+            for(var k=0;k<(d2||[]).length;k++){
+              var nf=d2[k].display_name||''; var bg=nf.split(',');
+              var nama2=(bg[0]||'').trim();var kunci2=nf.toLowerCase();
+              if(seen2[kunci2]) continue; seen2[kunci2]=true;
+              list2.push({nama:nama2, alamat:nf, kec:bg.slice(1,4).join(',').trim(), lat:parseFloat(d2[k].lat), lon:parseFloat(d2[k].lon), _jarak:hitungJarakKm(acuan.lat, acuan.lon, parseFloat(d2[k].lat), parseFloat(d2[k].lon))});
+              if(list2.length>=JUMLAH_SARAN) break;
+            }
+            list2.sort(function(a,b){ return a._jarak - b._jarak; });
+            callback(list2);
           for(var k=0;k<(d2||[]).length;k++){
             var nf=d2[k].display_name||''; var bg=nf.split(',');
             list2.push({nama:(bg[0]||'').trim(), alamat:nf, kec:bg.slice(1,4).join(',').trim(), lat:parseFloat(d2[k].lat), lon:parseFloat(d2[k].lon), _jarak:hitungJarakKm(acuan.lat, acuan.lon, parseFloat(d2[k].lat), parseFloat(d2[k].lon))});
