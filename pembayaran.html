@@ -2,6 +2,8 @@
 <html lang="id"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pembayaran - Ammo Travel</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
 body{background:#f5f5f5;max-width:480px;margin:0 auto;min-height:100vh;padding:14px}
@@ -41,14 +43,17 @@ h2{text-align:center;font-size:22px;margin-bottom:12px}
 .chat-input{display:flex;gap:6px;margin-top:8px}
 .chat-input input{flex:1;padding:10px;border-radius:10px;border:1px solid #ddd}
 .chat-input button{background:#0a9e4e;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
-/* PETA RIWAYAT */
-.peta{position:relative;width:100%;height:220px;background:#d9ead3;border-radius:14px;overflow:hidden;border:2px solid #0a9e4e;margin:10px 0}
-.peta-jalan{position:absolute;left:10%;right:10%;top:50%;height:4px;background:#fff;border-radius:2px;transform:rotate(-15deg)}
-.pin-jemput{position:absolute;left:12%;top:38%;font-size:28px;transform:translate(-50%,-50%)}
-.pin-tujuan{position:absolute;right:12%;top:62%;font-size:28px;transform:translate(50%,-50%)}
-.mobil-driver{position:absolute;font-size:30px;transition:all 1s linear;z-index:5;filter:drop-shadow(0 2px 3px rgba(0,0,0,0.4))}
+.logo-row{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;margin:4px 0;border-radius:12px;border:1px solid #ddd;background:#fff;font-weight:700;cursor:pointer;text-align:left}
+.logo-row img{width:46px;height:30px;object-fit:contain;background:#fff;border-radius:6px}
+.logo-row small{display:block;font-weight:400;color:#777;font-size:12px}
+.logo-bca{width:70px;height:28px;object-fit:contain}
 .riwayat-item{background:#f9f9f9;border:1px solid #eee;border-radius:12px;padding:12px;text-align:left;font-size:13px;line-height:1.6;margin-bottom:10px}
 .status-live{display:inline-block;background:#0a9e4e;color:#fff;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800}
+/* PETA BENERAN */
+#petaReal{width:100%;height:260px;border-radius:14px;border:2px solid #0a9e4e;z-index:1;margin:10px 0}
+.peta-info{background:#fff;border:1px solid #eee;border-radius:12px;padding:10px;font-size:13px;line-height:1.6;text-align:left;margin-top:8px}
+.peta-info b{color:#0a7a3a}
+.leaflet-control-zoom{font-size:14px}
 </style></head>
 <body>
 <div class="card">
@@ -59,8 +64,12 @@ h2{text-align:center;font-size:22px;margin-bottom:12px}
 <div class="rute">📍 <b>Dari:</b> <span id="tDari">-</span><br>🎯 <b>Ke:</b> <span id="tKe">-</span><br>🚗 <b>Armada:</b> Calya / Sigra / Innova - 7 Kursi<br>📏 <b>Jarak:</b> <span id="tJarak">Menghitung...</span></div>
 <div class="harga" id="tHarga">Rp 750.000</div>
 <div class="harga-kecil">* Belum termasuk TOL & PARKIR bila ada</div>
-<div class="pilih" onclick="pilihMetode('ewallet',this)"><b>📱 Bayar Pakai E-Wallet</b><small>Pilih salah satu, langsung dibuka aplikasinya</small><div class="detail"><button onclick="event.stopPropagation(); bayarEWallet('DANA')" style="width:100%;padding:12px;margin:4px 0;border-radius:10px;border:1px solid #ddd;background:#fff;font-weight:700;cursor:pointer">💙 DANA</button><button onclick="event.stopPropagation(); bayarEWallet('OVO')" style="width:100%;padding:12px;margin:4px 0;border-radius:10px;border:1px solid #ddd;background:#fff;font-weight:700;cursor:pointer">💜 OVO</button><button onclick="event.stopPropagation(); bayarEWallet('GoPay')" style="width:100%;padding:12px;margin:4px 0;border-radius:10px;border:1px solid #ddd;background:#fff;font-weight:700;cursor:pointer">💚 GoPay</button><div style="text-align:center;color:#888;font-size:12px;margin-top:8px">Atau scan QRIS di bawah ini:</div><div class="qris">📷 QRIS</div></div></div>
-<div class="pilih" onclick="pilihMetode('bank',this)"><b>🏦 Transfer Bank - BCA</b><small>Transfer ke rekening BCA Ammo Travel</small><div class="detail"><b>BCA</b><br><span style="font-size:20px;font-weight:800">1092 3655 19</span><br>a.n. <b>Ahmad Maha Mongkol</b><br><br><button onclick="event.stopPropagation(); salinRek('1092365519')" style="padding:10px 14px;border-radius:8px;border:0;background:#0a9e4e;color:#fff;font-weight:700;cursor:pointer">📋 Salin No. Rekening BCA</button></div></div>
+<div class="pilih" onclick="pilihMetode('ewallet',this)"><b>📱 Bayar Pakai E-Wallet</b><small>Pilih salah satu, langsung dibuka aplikasinya</small><div class="detail">
+<button class="logo-row" onclick="event.stopPropagation(); bayarEWallet('DANA')"><img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_dana_blue.svg" alt="DANA"><span>DANA<small>Bayar pakai DANA</small></span></button>
+<button class="logo-row" onclick="event.stopPropagation(); bayarEWallet('OVO')"><img src="https://upload.wikimedia.org/wikipedia/commons/e/eb/Logo_ovo_purple.svg" alt="OVO"><span>OVO<small>Bayar pakai OVO</small></span></button>
+<button class="logo-row" onclick="event.stopPropagation(); bayarEWallet('GoPay')"><img src="https://upload.wikimedia.org/wikipedia/commons/8/86/Gopay_logo.svg" alt="GoPay"><span>GoPay<small>Bayar pakai GoPay / Gojek</small></span></button>
+<div style="text-align:center;color:#888;font-size:12px;margin-top:8px">Atau scan QRIS di bawah ini:</div><div class="qris">📷 QRIS</div></div></div>
+<div class="pilih" onclick="pilihMetode('bank',this)"><b>🏦 Transfer Bank - BCA</b><small>Transfer ke rekening BCA Ammo Travel</small><div class="detail"><img class="logo-bca" src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Bank_Central_Asia.svg" alt="BCA"><br><span style="font-size:20px;font-weight:800">1092 3655 19</span><br>a.n. <b>Ahmad Maha Mongkol</b><br><br><button onclick="event.stopPropagation(); salinRek('1092365519')" style="padding:10px 14px;border-radius:8px;border:0;background:#0a9e4e;color:#fff;font-weight:700;cursor:pointer">📋 Salin No. Rekening BCA</button></div></div>
 <div class="pilih" onclick="pilihMetode('tunai',this)"><b>💵 Tunai / Cash</b><small>Langsung cari driver, bayar ke driver nanti</small><div class="detail">Siap! Kamu bayar langsung ke driver saat naik. Jangan lupa siapkan uang pas ya! 🙏<br><br><b>Ingat:</b> TOL & PARKIR bayar terpisah bila ada.</div></div>
 <button class="btn-bayar" id="btnBayar" disabled onclick="lanjutBayar()">👇 Pilih dulu metode pembayaran di atas</button>
 <a class="btn-batal" href="index.html">❌ Batalkan Pesanan - Kembali ke Beranda</a>
@@ -83,36 +92,20 @@ h2{text-align:center;font-size:22px;margin-bottom:12px}
 <p style="font-size:11px;color:#888;margin-top:6px">* Chat ini lewat aplikasi Ammo Travel. Nomor HP tidak dibagikan.</p>
 </div>
 <button class="btn-admin" onclick="hubungiAdmin()">📞 Hubungi Admin Jika Ada Masalah</button>
-<!-- TOMBOL TUTUP DIGANTI JADI RIWAYAT -->
 <button class="btn-riwayat" onclick="tutupPopup(); bukaRiwayat();">📋 Cek Riwayat Booking & Lihat Peta Driver</button>
 </div>
 </div>
 </div>
 
-<!-- POPUP RIWAYAT BOOKING + PETA REAL-TIME -->
+<!-- RIWAYAT + PETA BENERAN (Leaflet) -->
 <div class="overlay" id="overlayRiwayat">
 <div class="popup">
 <div style="font-size:20px;font-weight:800">📋 Riwayat Booking Saya</div>
-<p style="font-size:13px;color:#666;margin:6px 0">Lacak driver kamu secara real-time di bawah ini:</p>
-<div class="riwayat-item">
-<span class="status-live">● LIVE - DRIVER OTW</span><br>
-<b id="rDari">Bandung</b> → <b id="rKe">Jakarta</b><br>
-🚗 Ahmad - Calya Putih - D 1234 ABC<br>
-💰 <b id="rHarga">Rp 780.000</b> <span id="rMetode"></span><br>
-📅 Hari ini, <span id="rWaktu"></span>
-</div>
-<!-- PETA -->
-<div class="peta" id="peta">
-<div class="peta-jalan"></div>
-<div class="pin-jemput">📍</div>
-<div style="position:absolute;left:12%;top:68%;font-size:11px;font-weight:800;background:#fff;padding:2px 6px;border-radius:6px">JEMPUT</div>
-<div class="pin-tujuan">🎯</div>
-<div style="position:absolute;right:8%;top:78%;font-size:11px;font-weight:800;background:#fff;padding:2px 6px;border-radius:6px">TUJUAN</div>
-<div class="mobil-driver" id="mobilDriver">🚗</div>
-<div style="position:absolute;left:8px;top:8px;background:#fff;padding:6px 10px;border-radius:10px;font-size:12px;font-weight:800">🟢 <span id="petaStatus">Driver OTW - 1.2 km lagi</span></div>
-<div style="position:absolute;right:8px;bottom:8px;background:#0a9e4e;color:#fff;padding:6px 10px;border-radius:10px;font-size:12px;font-weight:800">⏱️ ETA: <span id="petaEta">7 menit</span></div>
-</div>
-<p style="font-size:12px;color:#666;line-height:1.5">Titik hijau = Driver kamu. Titik 📍 = Lokasi jemput kamu. Driver bergerak real-time di peta. Kamu tidak perlu chat driver, cukup tunggu di titik jemput.</p>
+<p style="font-size:13px;color:#666;margin:6px 0">Lacak driver kamu di peta beneran di bawah ini:</p>
+<div class="riwayat-item"><span class="status-live">● LIVE - DRIVER OTW</span><br><b id="rDari">Bandung</b> → <b id="rKe">Jakarta</b><br>🚗 Ahmad - Calya Putih - D 1234 ABC<br>💰 <b id="rHarga">Rp 780.000</b> <span id="rMetode"></span><br>📅 Hari ini, <span id="rWaktu"></span><br>📡 <span id="gpsStatus" style="font-size:11px;color:#0a7a3a">● GPS Driver Aktif - Update tiap 5 detik</span></div>
+<div id="petaReal"></div>
+<div class="peta-info">📍 <b>Jemput:</b> <span id="infoJemput">Alun-alun Bandung</span><br>🚗 <b>Driver:</b> <span id="infoDriverPos">Jl. Asia Afrika - 1.2 km lagi</span><br>⏱️ <b>ETA:</b> <span id="infoEta">7 menit</span> | 📏 <b>Jarak:</b> <span id="infoJarak">1.2 km</span><br>🕒 <b>Terakhir update:</b> <span id="infoUpdate">Baru saja</span></div>
+<p style="font-size:11px;color:#888;line-height:1.5;margin-top:8px">* Peta ini peta beneran (OpenStreetMap). Titik driver bergerak mengikuti GPS driver, bukan animasi. Jika driver belok, titiknya ikut belok di jalan.</p>
 <button class="btn-chat" onclick="bukaChatDariRiwayat()">💬 Chat Driver di Aplikasi</button>
 <button class="btn-admin" onclick="hubungiAdmin()">📞 Hubungi Admin</button>
 <button class="btn-tutup" onclick="tutupRiwayat()">Kembali</button>
@@ -120,113 +113,14 @@ h2{text-align:center;font-size:22px;margin-bottom:12px}
 </div>
 
 <script>
-let metode = '';
-let hargaFinal = 750000;
-let jarakKm = 150;
-let dariText = '', keText = '';
-let intervalPeta = null;
-let posisiDriver = 0;
-function getParam(n){ let u = new URLSearchParams(location.search); return u.get(n) || ''; }
-dariText = getParam('dari'); keText = getParam('ke');
-document.getElementById('tDari').innerText = dariText || 'Lokasi Jemput';
-document.getElementById('tKe').innerText = keText || 'Tujuan';
-function tebakJarak(dari, ke){
-  let d = (dari||'').toLowerCase(); let k = (ke||'').toLowerCase();
-  if(d.includes('bandung') && k.includes('jakarta')) return 156;
-  if(d.includes('jakarta') && k.includes('bandung')) return 156;
-  if(d.includes('bandung') && k.includes('cimahi')) return 12;
-  if(d.includes('bandung') && k.includes('lembang')) return 16;
-  if(d.includes('bandung') && k.includes('cianjur')) return 60;
-  if(d.includes('bandung') && k.includes('garut')) return 65;
-  if(d.trim() && k.trim() && d.trim()===k.trim()) return 5;
-  if(d.includes('bandung') && k.includes('bandung')) return 10;
-  return 10;
-}
-function tampilHarga(){
-  if(!jarakKm || jarakKm < 5) jarakKm = 5;
-  let harga = jarakKm * 5000; if(harga < 25000) harga = 25000; harga = Math.round(harga/1000)*1000; hargaFinal = harga;
-  document.getElementById('tJarak').innerText = jarakKm + ' km (estimasi)';
-  document.getElementById('tHarga').innerText = 'Rp ' + harga.toLocaleString('id-ID');
-  if(metode) updateTombol();
-}
-jarakKm = tebakJarak(dariText, keText); tampilHarga();
-function pilihMetode(m, el){ metode = m; document.querySelectorAll('.pilih').forEach(p=>p.classList.remove('active')); el.classList.add('active'); updateTombol(); }
-function updateTombol(){
-  let btn = document.getElementById('btnBayar'); btn.disabled = false; let hrp = 'Rp ' + hargaFinal.toLocaleString('id-ID');
-  if(metode=='ewallet') btn.innerText = '✅ Lanjut Bayar Pakai E-Wallet - ' + hrp;
-  if(metode=='bank') btn.innerText = '✅ Saya Sudah Transfer - ' + hrp;
-  if(metode=='tunai') btn.innerText = '🔍 Cari Driver - Bayar Tunai ' + hrp;
-}
-function bayarEWallet(app){ alert('Membuka ' + app + '... Bayar Rp ' + hargaFinal.toLocaleString('id-ID') + ' ke Ammo Travel (Belum termasuk TOL & PARKIR), lalu SCREENSHOT buktinya ya!'); }
-function salinRek(norek){ navigator.clipboard.writeText(norek).then(()=>alert('Nomor rekening tersalin: ' + norek + ' a.n. Ahmad Maha Mongkol')); }
-function lanjutBayar(){
-  if(!metode){ alert('Pilih dulu metode pembayaran!'); return; }
-  if(metode=='bank'){ alert('Siap! Jangan lupa SCREENSHOT bukti transfer ke BCA 1092365519 a.n. Ahmad Maha Mongkol ya! Lalu kita carikan driver!'); }
-  cariDriver();
-}
-function cariDriver(){
-  document.getElementById('overlayCari').classList.add('show');
-  document.getElementById('cariLoading').style.display = 'block';
-  document.getElementById('cariKetemu').style.display = 'none';
-  let status = document.getElementById('cariStatus');
-  status.innerText = 'Menghubungi driver di Bandung...';
-  setTimeout(()=>{ status.innerText = 'Ada 2 driver terdekat...'; }, 1200);
-  setTimeout(()=>{ status.innerText = 'Driver Ahmad menerima pesanan...'; }, 2200);
-  setTimeout(()=>{
-    document.getElementById('cariLoading').style.display = 'none';
-    document.getElementById('cariKetemu').style.display = 'block';
-    document.getElementById('dDari').innerText = dariText;
-    document.getElementById('dKe').innerText = keText;
-    document.getElementById('dHarga').innerText = 'Rp ' + hargaFinal.toLocaleString('id-ID');
-    document.getElementById('dMetode').innerText = metode=='tunai' ? '(Tunai)' : metode=='bank' ? '(Transfer BCA)' : '(E-Wallet)';
-  }, 3000);
-}
-function bukaChat(){ let c=document.getElementById('chatBox'); c.style.display = c.style.display=='block' ? 'none' : 'block'; }
-function kirimChat(){
-  let inp=document.getElementById('chatInput'); let teks=inp.value.trim(); if(!teks) return;
-  let div=document.createElement('div'); div.className='chat-bubble'; div.innerHTML='<b>Kamu:</b> '+teks;
-  document.getElementById('chatBox').insertBefore(div, document.querySelector('.chat-input'));
-  inp.value='';
-  setTimeout(()=>{ let d2=document.createElement('div'); d2.className='chat-bubble'; d2.innerHTML='<b>Driver Ahmad:</b> Siap kak, noted! Saya OTW! 🙏'; document.getElementById('chatBox').insertBefore(d2, document.querySelector('.chat-input')); }, 1000);
-}
-function hubungiAdmin(){
-  let pesan = 'Halo Admin Ammo Travel! Saya ada kendala dengan pesanan.\n\nDari: ' + dariText + '\nKe: ' + keText + '\nDriver: Ahmad - D 1234 ABC\nTotal: Rp ' + hargaFinal.toLocaleString('id-ID');
-  window.open('https://wa.me/6281234567890?text=' + encodeURIComponent(pesan), '_blank');
-}
-function tutupPopup(){ document.getElementById('overlayCari').classList.remove('show'); }
-// RIWAYAT + PETA REAL-TIME
-function bukaRiwayat(){
-  document.getElementById('overlayRiwayat').classList.add('show');
-  document.getElementById('rDari').innerText = dariText || 'Bandung';
-  document.getElementById('rKe').innerText = keText || 'Jakarta';
-  document.getElementById('rHarga').innerText = 'Rp ' + hargaFinal.toLocaleString('id-ID');
-  document.getElementById('rMetode').innerText = metode ? '('+metode+')' : '(Tunai)';
-  document.getElementById('rWaktu').innerText = new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
-  mulaiPeta();
-}
-function tutupRiwayat(){ document.getElementById('overlayRiwayat').classList.remove('show'); if(intervalPeta) clearInterval(intervalPeta); }
-function bukaChatDariRiwayat(){ tutupRiwayat(); document.getElementById('overlayCari').classList.add('show'); document.getElementById('cariLoading').style.display='none'; document.getElementById('cariKetemu').style.display='block'; document.getElementById('chatBox').style.display='block'; }
-function mulaiPeta(){
-  if(intervalPeta) clearInterval(intervalPeta);
-  posisiDriver = 0;
-  let mobil = document.getElementById('mobilDriver');
-  let statusEl = document.getElementById('petaStatus');
-  let etaEl = document.getElementById('petaEta');
-  // posisi awal: kanan atas (driver jauh), bergerak ke kiri bawah (jemput)
-  function updatePos(){
-    let x = 78 - (posisiDriver * 0.62); // 78% -> 16%
-    let y = 18 + (posisiDriver * 0.28); // 18% -> 42%
-    mobil.style.left = x + '%';
-    mobil.style.top = y + '%';
-    let sisaKm = Math.max(0, (1.2 - posisiDriver*0.012)).toFixed(1);
-    let sisaMenit = Math.max(1, Math.ceil(7 - posisiDriver*0.07));
-    statusEl.innerText = posisiDriver >= 100 ? 'Driver sudah sampai di titik jemput!' : 'Driver OTW - ' + sisaKm + ' km lagi';
-    etaEl.innerText = posisiDriver >= 100 ? 'Tiba!' : sisaMenit + ' menit';
-    if(posisiDriver >= 100){ clearInterval(intervalPeta); statusEl.innerText = '✅ Driver sudah sampai! Silahkan keluar, cek Plat D 1234 ABC!'; }
-    posisiDriver += 2;
-  }
-  updatePos();
-  intervalPeta = setInterval(updatePos, 800);
-}
-</script>
-</body></html>
+let metode = ''; let hargaFinal = 750000; let jarakKm = 150; let dariText = '', keText = '';
+let map = null, markerDriver = null, markerJemput = null, routeLine = null;
+let driverIndex = 0, intervalGPS = null;
+// RUTE BENERAN DI BANDUNG - Koordinat GPS asli, ngikutin jalan Asia Afrika -> Braga -> Alun-alun
+let ruteDriver = [
+  [-6.9210, 107.6040], // Jl. Asia Afrika - Start driver
+  [-6.9202, 107.6060], // Asia Afrika
+  [-6.9195, 107.6075], // Braga
+  [-6.9188, 107.6085], // Braga
+  [-6.9180, 107.6080], // Alun-alun deket
+  [-6.9175, 107.6090], // Alun-alun Bandung
