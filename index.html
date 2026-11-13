@@ -1,52 +1,124 @@
 <!DOCTYPE html>
 <html><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mencari Driver - Ammo Travel</title>
-<style>*{box-sizing:border-box;margin:0;padding:0;font-family:Arial}body{background:#f0f7f0;padding:14px;text-align:center}
-.box{background:#fff;border-radius:20px;padding:20px;margin-top:20px;box-shadow:0 4px 20px rgba(0,0,0,0.1)}
-.loader{width:70px;height:70px;border:6px solid #e0e0e0;border-top:6px solid #0a7a2e;border-radius:50%;margin:20px auto;animation:putar 1s linear infinite}
+<title>Pembayaran - Ammo Travel</title>
+<style>*{box-sizing:border-box;margin:0;padding:0;font-family:Arial}body{background:#f0f7f0;padding:14px}
+.box{background:#fff;border-radius:20px;padding:20px;margin-top:10px;box-shadow:0 4px 20px rgba(0,0,0,0.1)}
+.peringatan{background:#fff3cd;border:2px solid #ffc107;border-radius:14px;padding:12px;text-align:center;margin-bottom:12px}
+.peringatan b{color:#d00;font-size:15px}
+.card{border:2px solid #eee;border-radius:16px;padding:14px;margin:10px 0;cursor:pointer}
+.card.pilih{border-color:#0a7a2e;background:#eaffef;box-shadow:0 0 0 2px #0a7a2e}
+.harga{font-size:28px;font-weight:800;color:#0a7a2e;text-align:center}
+button{width:100%;padding:16px;background:#0a7a2e;color:#fff;border:0;border-radius:12px;font-size:16px;font-weight:700;margin-top:10px;cursor:pointer}
+.detail{display:none;margin-top:10px;background:#f8f8f8;padding:12px;border-radius:12px;text-align:center}
+.wallet{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.wbtn{padding:16px;border-radius:12px;border:2px solid #ddd;background:#fff;cursor:pointer;font-weight:700;font-size:15px}
+.wbtn:active{border-color:#0a7a2e;background:#eaffef}
+.rek{font-size:20px;font-weight:800}
+.loader{width:40px;height:40px;border:5px solid #e0e0e0;border-top:5px solid #0a7a2e;border-radius:50%;margin:12px auto;animation:putar 1s linear infinite;display:none}
 @keyframes putar{to{transform:rotate(360deg)}}
-.driver{display:none}
-.foto{width:80px;height:80px;background:#0a7a2e;color:#fff;font-size:36px;line-height:80px;border-radius:50%;margin:10px auto}
-.harga{font-size:24px;font-weight:800;color:#0a7a2e;margin:8px}
-button{width:100%;padding:15px;border:0;border-radius:12px;font-size:16px;font-weight:700;margin-top:8px;cursor:pointer}
-.btn-hijau{background:#0a7a2e;color:#fff}.btn-wa{background:#25D366;color:#fff}.btn-batal{background:#fff;color:#d00;border:2px solid #ffcccc}
+#popup{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;padding:20px;z-index:99}
+.popup-box{background:#fff;border-radius:20px;padding:22px;text-align:center;max-width:360px;width:100%}
 </style></head>
 <body>
-<h2>🚗 AMMO TRAVEL</h2>
-<div class="box" id="loading">
-<div class="loader"></div>
-<h3>Mencari Driver Terdekat...</h3>
-<p id="info" style="color:#666;margin:10px"></p>
-<p style="font-size:13px;color:#999">Mohon tunggu, kami hubungkan dengan driver terbaik...</p>
+<h2 style="text-align:center">🚗 AMMO TRAVEL</h2>
+<div class="box">
+<h3 style="text-align:center">💳 Pembayaran</h3>
+
+<div class="peringatan">
+<div style="font-size:28px">⚠️📸</div>
+<b>⚠️ WAJIB SCREENSHOT! ⚠️</b>
+<p style="font-size:13px;margin-top:4px">Setelah bayar, <b>WAJIB SCREENSHOT</b> bukti pembayaran ini!<br><b>Tunjukkan screenshot-nya kepada Driver</b> saat naik!<br>Kalau tidak ada bukti, Driver berhak menolak!</p>
 </div>
-<div class="box driver" id="ketemu">
-<div style="font-size:40px">✅</div>
-<h3>Driver Ditemukan!</h3>
-<div class="foto">👨‍✈️</div>
-<b style="font-size:20px" id="nama">Budi Santoso</b>
-<p style="color:#666">⭐ 4.9 • 1.240 perjalanan • Toyota Avanza</p>
-<p style="font-weight:700;margin:8px">Plat: D 1234 ABC • Putih</p>
-<p id="detail" style="color:#333"></p>
-<div class="harga" id="hargaFinal"></div>
-<p style="color:#0a7a2e;font-weight:700">📍 Driver 5 menit lagi sampai di lokasi jemput!</p>
-<button class="btn-hijau" onclick="alert('Pesanan dikonfirmasi! Driver sedang menuju lokasi Anda!')">✅ Konfirmasi Pesanan</button>
-<button class="btn-wa" onclick="alert('Membuka WhatsApp Driver...')">💬 Chat Driver via WhatsApp</button>
-<button class="btn-batal" onclick="location.href='index.html'">❌ Batalkan</button>
+
+<p id="rute" style="text-align:center;color:#666;margin:8px"></p>
+<div class="harga" id="total">Rp 0</div>
+<p style="text-align:center;font-size:13px;color:#999">Pilih e-wallet, langsung dibuka aplikasinya!</p>
+
+<div class="card" id="k1" onclick="pilih('ewallet')"><b>📱 Bayar Pakai E-Wallet</b><div style="color:#666;font-size:13px">Pilih salah satu, langsung dibuka aplikasinya</div>
+<div class="detail" id="d1">
+<p><b>Pilih E-Wallet Kamu:</b></p>
+<div class="wallet">
+<button class="wbtn" onclick="bayarWallet('DANA');event.stopPropagation()">💜 DANA</button>
+<button class="wbtn" onclick="bayarWallet('OVO');event.stopPropagation()">💜 OVO</button>
+<button class="wbtn" onclick="bayarWallet('GoPay');event.stopPropagation()">💚 GoPay</button>
+<button class="wbtn" onclick="bayarWallet('ShopeePay');event.stopPropagation()">🧡 ShopeePay</button>
 </div>
+<div class="loader" id="loadWallet"></div>
+<p id="statusWallet" style="font-weight:700;color:#0a7a2e"></p>
+<p style="font-size:12px;color:#d00;font-weight:700">📸 Jangan lupa screenshot setelah bayar!</p>
+</div></div>
+
+<div class="card" id="k2" onclick="pilih('transfer')"><b>🏦 Transfer Bank / Rekening</b><div style="color:#666;font-size:13px">Transfer ke rekening Ammo Travel</div>
+<div class="detail" id="d2"><p>Bank BCA</p><div class="rek">123 456 7890</div><p>a.n. Ammo Travel</p><button style="background:#333" onclick="alert('Nomor rekening tersalin!');event.stopPropagation()">📋 Salin Nomor Rekening</button><p style="font-size:12px;color:#d00;font-weight:700;margin-top:8px">📸 WAJIB SCREENSHOT bukti transfer!</p><button onclick="sudahBayar('Transfer');event.stopPropagation()">✅ Saya Sudah Transfer</button></div></div>
+
+<div class="card" id="k3" onclick="pilih('tunai')"><b>💵 Tunai / Cash</b><div style="color:#666;font-size:13px">Langsung cari driver, bayar ke driver nanti</div>
+<div class="detail" id="d3"><div style="font-size:40px">💵</div><p>Siapkan uang pas ya!</p><p style="font-size:12px;color:#666">Tidak perlu screenshot, bayar langsung ke driver.</p><button onclick="keCariDriver();event.stopPropagation()">✅ Lanjut Cari Driver →</button></div></div>
+
+<button id="btnBayar" onclick="bayar()">👇 Pilih dulu metode pembayaran di atas</button>
+<button style="background:#fff;color:#d00;border:2px solid #ffcccc" onclick="location.href='index.html'">❌ Batalkan Pesanan</button>
+</div>
+
+<div id="popup">
+<div class="popup-box">
+<div style="font-size:50px">📸⚠️</div>
+<h3>SUDAH SCREENSHOT BELUM?</h3>
+<p id="popupText" style="margin:10px;color:#333"></p>
+<p style="background:#fff3cd;padding:10px;border-radius:10px;font-size:13px"><b>WAJIB SCREENSHOT</b> bukti pembayaran ini sekarang!<br><br>Tunjukkan ke Driver saat naik!<br>Kalau tidak ada bukti, Driver boleh menolak!</p>
+<button onclick="tutupPopup()">✅ SUDAH SAYA SCREENSHOT, LANJUT CARI DRIVER →</button>
+<button style="background:#fff;color:#666;border:2px solid #ddd" onclick="document.getElementById('popup').style.display='none'">⬅️ Belum, Saya Screenshot Dulu</button>
+</div>
+</div>
+
 <script>
 const p=new URLSearchParams(location.search);
-let tipe=(p.get('tipe')||'bersama').toUpperCase();
+let tipe=(p.get('tipe')||'bersama').toLowerCase();
 let dari=p.get('dari')||'Soreang';
 let ke=p.get('ke')||'Dago';
 let kursi=p.get('kursi')||'1';
 let harga=p.get('harga')||'Rp 0';
-document.getElementById('info').innerText=dari+' → '+ke+' • '+kursi+' Kursi • '+tipe;
-document.getElementById('detail').innerText=dari+' → '+ke+' • '+kursi+' Kursi • '+tipe;
-document.getElementById('hargaFinal').innerText=harga;
-let drivers=[['Budi Santoso','Toyota Avanza'],['Andi Pratama','Daihatsu Xenia'],['Ujang Suryana','Suzuki Ertiga']];
-let d=drivers[Math.floor(Math.random()*drivers.length)];
-document.getElementById('nama').innerText=d[0];
-setTimeout(()=>{document.getElementById('loading').style.display='none';document.getElementById('ketemu').style.display='block';},3000);
+document.getElementById('rute').innerText=dari+' → '+ke+' • '+kursi+' Kursi • '+tipe.toUpperCase();
+document.getElementById('total').innerText=harga;
+let dipilih='';
+function pilih(t){dipilih=t;
+document.getElementById('k1').classList.toggle('pilih',t=='ewallet');
+document.getElementById('k2').classList.toggle('pilih',t=='transfer');
+document.getElementById('k3').classList.toggle('pilih',t=='tunai');
+document.getElementById('d1').style.display=t=='ewallet'?'block':'none';
+document.getElementById('d2').style.display=t=='transfer'?'block':'none';
+document.getElementById('d3').style.display=t=='tunai'?'block':'none';
+if(t=='tunai') document.getElementById('btnBayar').innerText='✅ Lanjut Cari Driver →';
+if(t=='transfer') document.getElementById('btnBayar').innerText='✅ Saya Sudah Transfer, Cari Driver →';
+if(t=='ewallet') document.getElementById('btnBayar').innerText='👆 Pilih DANA / OVO / GoPay / ShopeePay di atas';
+}
+function keCariDriver(){
+  location.href='cari-driver.html?tipe='+tipe+'&dari='+encodeURIComponent(dari)+'&ke='+encodeURIComponent(ke)+'&kursi='+kursi+'&harga='+encodeURIComponent(harga)+'&bayar='+dipilih;
+}
+function sudahBayar(metode){
+  document.getElementById('popupText').innerText='Pembayaran '+metode+' sebesar '+harga+' Berhasil!';
+  document.getElementById('popup').style.display='flex';
+}
+function tutupPopup(){ keCariDriver(); }
+function bayarWallet(wallet){
+  dipilih='ewallet-'+wallet.toLowerCase();
+  document.getElementById('statusWallet').innerText='Membuka aplikasi '+wallet+'...';
+  document.getElementById('loadWallet').style.display='block';
+  let link='';
+  if(wallet=='DANA') link='dana://';
+  if(wallet=='OVO') link='ovo://';
+  if(wallet=='GoPay') link='gojek://';
+  if(wallet=='ShopeePay') link='shopeepay://';
+  try{ window.location.href=link; }catch(e){}
+  setTimeout(()=>{
+    document.getElementById('statusWallet').innerText='✅ Pembayaran '+wallet+' Berhasil!';
+    sudahBayar(wallet);
+  }, 4000);
+}
+function bayar(){
+  if(!dipilih){alert('Pilih dulu mau bayar pakai apa?');return;}
+  if(dipilih=='tunai'){ keCariDriver(); return; }
+  if(dipilih=='transfer'){ sudahBayar('Transfer'); return; }
+  alert('Pilih DANA / OVO / GoPay / ShopeePay di atas ya!');
+}
 </script>
 </body></html>
