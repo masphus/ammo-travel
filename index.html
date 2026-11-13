@@ -1,69 +1,120 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8">
+<html lang="id"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ammo Travel</title>
-<style>*{box-sizing:border-box;margin:0;padding:0;font-family:Arial}body{background:#f0f7f0;padding:14px}
-.box{background:#fff;border-radius:20px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,0.1)}
-label{font-weight:700;font-size:13px}select,input{width:100%;padding:13px;border:2px solid #ddd;border-radius:12px;margin:6px 0 12px;font-size:15px}
-.harga{font-size:26px;font-weight:800;color:#0a7a2e;text-align:center;margin:10px}
-button{width:100%;padding:16px;background:#0a7a2e;color:#fff;border:0;border-radius:12px;font-size:16px;font-weight:700;margin-top:10px;cursor:pointer}
-.tipe{display:flex;gap:8px}.tipe button{background:#eee;color:#333}.tipe button.on{background:#0a7a2e;color:#fff}
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#fff;max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;position:relative;padding-bottom:80px}
+header{background:#0a9e4e;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:14px 16px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:44px;height:44px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px}
+.logo b{font-size:24px}
+.pilih-lokasi{font-size:14px;font-weight:700;display:flex;align-items:center;gap:4px;cursor:pointer}
+h1{text-align:center;color:#0b3d1e;font-size:28px;margin:20px 14px 4px;line-height:1.2}
+.car-icon{text-align:center;font-size:34px;margin:4px 0 12px}
+label{font-weight:800;color:#111;font-size:17px;margin:14px 0 8px;display:block}
+.field{display:flex;align-items:center;gap:10px}
+.pin{font-size:28px;color:#0a9e4e}
+.input-wrap{flex:1;display:flex;align-items:center;background:#f1f1f1;border:1px solid #ccc;border-radius:12px;padding:6px 6px 6px 12px}
+.input-wrap input{flex:1;border:0;background:transparent;outline:0;font-size:15px;padding:10px 0}
+.btn-peta{background:#0a9e4e;color:#fff;border:0;border-radius:8px;padding:9px 10px;font-weight:700;font-size:13px;white-space:nowrap;cursor:pointer}
+.wrap{padding:0 16px}
+.suggest{background:#fff;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,0.12);padding:6px 14px;margin-top:18px}
+.suggest div{display:flex;align-items:center;gap:12px;padding:13px 0;font-size:16px;cursor:pointer}
+.suggest div+div{border-top:1px solid #f0f0f0}
+.suggest span{color:#0a9e4e;font-size:24px}
+.info{background:#d9ecd9;border-radius:14px;padding:14px;margin-top:18px}
+.info-top{display:flex;gap:12px;align-items:center}
+.info-icon{width:44px;height:44px;min-width:44px;background:#0a9e4e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff}
+.info-top p{font-size:15px;line-height:1.4;color:#111}
+.btn-lanjut{width:100%;background:#0a9e4e;color:#fff;border:0;border-radius:12px;padding:17px;font-size:22px;font-weight:800;margin-top:14px;cursor:pointer}
+.chat{position:fixed;bottom:92px;right:14px;width:58px;height:58px;background:#0a9e4e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.25);cursor:pointer;z-index:10}
+.chat::after{content:'';position:absolute;top:4px;right:4px;width:12px;height:12px;background:#ff3333;border-radius:50%;border:2px solid #fff}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#e9e9e9;display:flex;justify-content:space-around;padding:10px 0 8px;border-top:1px solid #ddd;z-index:20}
+nav button{background:none;border:0;font-size:13px;color:#777;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button.active{color:#0a9e4e;font-weight:700}
+nav span{font-size:22px}
+#popup{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:flex-end;justify-content:center;z-index:99}
+.popup-box{background:#fff;width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:20px;text-align:center}
 </style></head>
 <body>
-<h2 style="text-align:center">🚗 AMMO TRAVEL</h2>
-<p style="text-align:center;color:#666">Travel Soreang - Bandung - Dago</p>
-<div class="box">
-<label>Dari</label>
-<select id="dari"><option>Soreang</option><option>Bandung</option><option>Dago</option><option>Cimahi</option></select>
-<label>Ke</label>
-<select id="ke"><option>Dago</option><option>Soreang</option><option>Bandung</option><option>Cimahi</option></select>
-<label>Tipe Perjalanan</label>
-<div class="tipe"><button type="button" id="bBersama" class="on" onclick="setTipe('bersama')">👥 Bersama</button><button type="button" id="bPrivate" onclick="setTipe('private')">🚗 Private</button></div>
-<label style="margin-top:12px;display:block">Jumlah Kursi</label>
-<select id="kursi"><option>1</option><option>2</option><option>3</option><option>4</option></select>
-<div class="harga" id="hargaTampil">Rp 35.000</div>
-<p id="ketHarga" style="text-align:center;font-size:12px;color:#666"></p>
-<button onclick="cari()">🔍 Cari Driver →</button>
+<header>
+<div class="logo"><div class="logo-icon">🚗</div><b>Ammo Travel</b></div>
+<div class="pilih-lokasi" onclick="pilihLokasi()">📍 Pilih Lokasi</div>
+</header>
+
+<h1>Mau Pergi Kemana<br>Hari Ini?</h1>
+<div class="car-icon">🚗</div>
+
+<div class="wrap">
+<label>Penjemputan</label>
+<div class="field"><div class="pin">📍</div><div class="input-wrap"><input id="dari" placeholder="Ketik / Pilih Lokasi Jemput..." oninput="filterLokasi(this.value,'dari')"><button class="btn-peta" type="button" onclick="pilihPeta('Penjemputan')">📍 Pilih di Peta</button></div></div>
+
+<label>Tujuan</label>
+<div class="field"><div class="pin">📍</div><div class="input-wrap"><input id="ke" placeholder="Ketik / Pilih Tujuan..." oninput="filterLokasi(this.value,'ke')"><button class="btn-peta" type="button" onclick="pilihPeta('Tujuan')">📍 Pilih di Peta</button></div></div>
+
+<div class="suggest" id="suggest">
+<div onclick="isi('dari','Bandara Soekarno Hatta, Tangerang')"><span>📍</span> Bandara Soekarno Hatta, Tangerang</div>
+<div onclick="isi('ke','Stasiun Bandung, Bandung')"><span>📍</span> Stasiun Bandung, Bandung</div>
+<div onclick="isi('ke','Malioboro, Yogyakarta')"><span>📍</span> Malioboro, Yogyakarta</div>
 </div>
+
+<div class="info">
+<div class="info-top"><div class="info-icon">🚗</div><p><b>Driver di sekitar kamu siap menjemput!</b><br>Cek harga setelah isi lokasi</p></div>
+<button class="btn-lanjut" onclick="cekDriver()">Cek Driver &amp; Lanjut</button>
+</div>
+</div>
+
+<div class="chat" onclick="bukaChat()">💬</div>
+
+<nav>
+<button class="active" onclick="navKe('Beranda',this)"><span>🏠</span>Beranda</button>
+<button onclick="navKe('Riwayat',this)"><span>🕐</span>Riwayat</button>
+<button onclick="navKe('Promo',this)"><span>🏷️</span>Promo</button>
+<button onclick="navKe('Akun',this)"><span>👤</span>Akun</button>
+</nav>
+
+<div id="popup"><div class="popup-box"><h3 id="popupJudul">Pilih di Peta</h3><p id="popupIsi" style="margin:12px;color:#555"></p><button class="btn-lanjut" style="font-size:16px" onclick="document.getElementById('popup').style.display='none'">Tutup</button></div></div>
+
 <script>
-let tipe='bersama';
-let TARIF={
- 'Soreang-Dago':{bersama:35000,private:120000},
- 'Dago-Soreang':{bersama:35000,private:120000},
- 'Soreang-Bandung':{bersama:30000,private:100000},
- 'Bandung-Soreang':{bersama:30000,private:100000},
- 'Soreang-Cimahi':{bersama:30000,private:100000},
- 'Cimahi-Soreang':{bersama:30000,private:100000},
- 'Bandung-Dago':{bersama:25000,private:90000},
- 'Dago-Bandung':{bersama:25000,private:90000}
-};
-function setTipe(t){tipe=t;document.getElementById('bBersama').classList.toggle('on',t=='bersama');document.getElementById('bPrivate').classList.toggle('on',t=='private');updateHarga();}
-function hitung(){
-  let dari=document.getElementById('dari').value;
-  let ke=document.getElementById('ke').value;
-  let kursi=parseInt(document.getElementById('kursi').value)||1;
-  let kunci=dari+'-'+ke;
-  let t=TARIF[kunci];
-  if(!t){ if(tipe=='private') return {total:100000,ket:'Private • Harga flat'}; return {total:30000*kursi,ket:'Bersama • Rp 30.000 / kursi'}; }
-  if(tipe=='private') return {total:t.private,ket:'Private • Harga flat 1 mobil'};
-  return {total:t.bersama*kursi,ket:'Bersama • Rp '+t.bersama.toLocaleString('id-ID')+' / kursi x '+kursi};
+// ==== KODE BOLEH DIUBAH, TAMPILAN JANGAN DIUBAH ====
+let lokasiList = [
+  'Bandara Soekarno Hatta, Tangerang',
+  'Stasiun Bandung, Bandung',
+  'Malioboro, Yogyakarta',
+  'Bandara Husein Sastranegara, Bandung',
+  'Stasiun Gambir, Jakarta',
+  'Bandara Ngurah Rai, Bali',
+  'Mataram, NTB'
+];
+function isi(target, val){
+  document.getElementById(target).value = val;
 }
-function updateHarga(){
-  let h=hitung();
-  document.getElementById('hargaTampil').innerText='Rp '+h.total.toLocaleString('id-ID');
-  document.getElementById('ketHarga').innerText=h.ket;
+function filterLokasi(keyword, target){
+  let s = document.getElementById('suggest');
+  if(!keyword){ s.innerHTML = '<div onclick="isi(\'dari\',\'Bandara Soekarno Hatta, Tangerang\')"><span>📍</span> Bandara Soekarno Hatta, Tangerang</div><div onclick="isi(\'ke\',\'Stasiun Bandung, Bandung\')"><span>📍</span> Stasiun Bandung, Bandung</div><div onclick="isi(\'ke\',\'Malioboro, Yogyakarta\')"><span>📍</span> Malioboro, Yogyakarta</div>'; return; }
+  let hasil = lokasiList.filter(x => x.toLowerCase().includes(keyword.toLowerCase()));
+  if(hasil.length==0){ s.innerHTML='<div><span>📍</span> '+keyword+'</div>'; return; }
+  s.innerHTML = hasil.map(x=>'<div onclick="isi(\''+target+'\',\''+x+'\')"><span>📍</span> '+x+'</div>').join('');
 }
-document.getElementById('dari').onchange=updateHarga;
-document.getElementById('ke').onchange=updateHarga;
-document.getElementById('kursi').onchange=updateHarga;
-updateHarga();
-function cari(){
-  let dari=document.getElementById('dari').value;
-  let ke=document.getElementById('ke').value;
-  let kursi=document.getElementById('kursi').value;
-  let h=hitung();
-  let harga='Rp '+h.total.toLocaleString('id-ID');
-  location.href='pembayaran.html?tipe='+tipe+'&dari='+encodeURIComponent(dari)+'&ke='+encodeURIComponent(ke)+'&kursi='+kursi+'&harga='+encodeURIComponent(harga);
+function pilihLokasi(){ alert('Pilih Lokasi: Bandung / Jakarta / Yogyakarta / Bali / NTB'); }
+function pilihPeta(apa){
+  document.getElementById('popupJudul').innerText = 'Pilih di Peta - ' + apa;
+  document.getElementById('popupIsi').innerText = 'Fitur peta akan dibuka di sini. Untuk sekarang, ketik lokasi di kolom ' + apa + ' ya.';
+  document.getElementById('popup').style.display='flex';
+}
+function cekDriver(){
+  let dari = document.getElementById('dari').value.trim();
+  let ke = document.getElementById('ke').value.trim();
+  if(!dari || !ke){ alert('Isi dulu Penjemputan dan Tujuan ya!'); return; }
+  // VAL boleh berubah di sini - nanti disambung ke halaman harga / driver
+  location.href = 'pembayaran.html?dari='+encodeURIComponent(dari)+'&ke='+encodeURIComponent(ke);
+}
+function bukaChat(){ alert('Chat Ammo Travel - Halo! Mau pergi kemana hari ini?'); }
+function navKe(nama, btn){
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(nama!='Beranda') alert('Halaman '+nama+' - segera hadir!');
 }
 </script>
 </body></html>
