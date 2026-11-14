@@ -95,4 +95,39 @@ document.getElementById('chatInput').addEventListener('keydown',e=>{if(e.key==='
 function cekDriver(){const p=document.getElementById('pickup').value.trim();const d=document.getElementById('dest').value.trim();if(!p||!d){alert('Isi dulu Penjemputan & Tujuan ya');return}let jarakKm=0;if(pickupData&&destData){jarakKm=hav(pickupData.lat,pickupData.lng,destData.lat,destData.lng)}localStorage.setItem('order_aktif',JSON.stringify({dari:p,ke:d,jarakKm:jarakKm,waktu:new Date().toISOString()}));if(confirm('Mau yang mana? OK = PRIORITAS | Cancel = REGULER')){window.location.href='prioritas.html'}else{window.location.href='penumpang.html'}}
 </script>
 </body>
-</html>
+
+</html><script>
+function openMap(m){
+  mapMode=m;
+  document.getElementById('mapModal').classList.add('show');
+  setTimeout(()=>{
+    let la=gpsLat, lo=gpsLng;
+    if(m=='pickup' && pickupData){ la=pickupData.lat; lo=pickupData.lng; }
+    if(m=='dest' && destData){ la=destData.lat; lo=destData.lng; }
+    if(m=='dest' && !destData && pickupData){ la=pickupData.lat; lo=pickupData.lng; }
+    if(!map){
+      map=L.map('map').setView([la,lo],16);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
+      marker=L.marker([la,lo],{draggable:true}).addTo(map);
+      marker.on('dragend',()=>{ let p=marker.getLatLng(); setP(p.lat,p.lng) });
+    } else {
+      map.invalidateSize();
+      map.setView([la,lo],16);
+      marker.setLatLng([la,lo]);
+    }
+    setP(la,lo);
+  },200);
+}
+function confirmMap(){
+  let p=marker.getLatLng();
+  let alamat=document.getElementById('mapAddr').textContent;
+  if(mapMode=='pickup'){
+    pickupData={lat:p.lat,lng:p.lng,addr:alamat};
+    document.getElementById('pickup').value=alamat;
+  } else {
+    destData={lat:p.lat,lng:p.lng,addr:alamat};
+    document.getElementById('dest').value=alamat;
+  }
+  closeMap();
+}
+</script>
