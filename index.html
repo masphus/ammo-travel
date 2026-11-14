@@ -25,7 +25,6 @@ label{font-size:17px;font-weight:800;margin:14px 0 8px 38px;display:block}
 .sug{background:#fff;border-radius:14px;box-shadow:0 6px 22px rgba(0,0,0,.14);display:none;overflow:hidden;margin-top:10px}
 .sug button{width:100%;display:flex;gap:12px;text-align:left;background:#fff;border:0;padding:14px 16px;font-size:15px}
 .sug small{display:block;color:#777;font-size:12px}
-/* RADAR */
 .radar-box{background:#D9EEDF;border-radius:14px;padding:16px;margin-top:18px;display:flex;gap:14px;align-items:center}
 .radar{width:64px;height:64px;min-width:64px;border-radius:50%;background:#0DA54A;position:relative;overflow:hidden;border:3px solid #fff;box-shadow:0 0 0 2px #0DA54A}
 .radar:after{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,rgba(255,255,255,.95),transparent 80deg);animation:spin 1.2s linear infinite}
@@ -33,7 +32,6 @@ label{font-size:17px;font-weight:800;margin:14px 0 8px 38px;display:block}
 .radar-dot{position:absolute;left:50%;top:50%;width:8px;height:8px;background:#fff;border-radius:50%;transform:translate(-50%,-50%);z-index:2}
 @keyframes spin{to{transform:rotate(360deg)}}
 .btn-cek{width:100%;margin-top:14px;background:#0DA54A;color:#fff;border:0;border-radius:10px;padding:16px;font-weight:800;font-size:22px}
-.chat{position:fixed;bottom:92px;right:16px;width:56px;height:56px;background:#0DA54A;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;z-index:50}
 nav{position:fixed;bottom:0;width:100%;max-width:430px;background:#E9E9E9;display:flex;justify-content:space-around;padding:10px 0 12px}
 nav div{text-align:center;font-size:13px;color:#777}nav div.on{color:#0DA54A;font-weight:800}
 #mapModal{display:none;position:fixed;inset:0;background:#fff;z-index:100;flex-direction:column}
@@ -59,7 +57,6 @@ nav div{text-align:center;font-size:13px;color:#777}nav div.on{color:#0DA54A;fon
 <div class="radar-box"><div class="radar"><div class="radar-dot"></div></div><p><b>Sedang Mencari Driver...</b><br>Driver di sekitar kamu siap menjemput! Cek harga setelah isi lokasi</p></div>
 <button class="btn-cek" onclick="cekDriver()">Cek Driver & Lanjut</button>
 </main>
-<div class="chat" onclick="alert('Chat Admin Ammo Travel')">💬</div>
 <nav><div class="on">🏠<br>Beranda</div><div>🕐<br>Riwayat</div><div>🏷️<br>Promo</div><div>👤<br>Akun</div></nav>
 </div>
 <div id="mapModal"><div class="top"><span>📍 Pilih di Peta</span><span onclick="closeMap()" style="font-size:22px">✕</span></div><div id="map"></div><div class="bottom"><b>📍 Lokasi Terpilih:</b><div id="mapAddr">Klik di peta...</div><button class="btn-cek" style="font-size:16px;padding:12px" onclick="confirmMap()">Pilih Lokasi Ini</button></div></div>
@@ -67,86 +64,53 @@ nav div{text-align:center;font-size:13px;color:#777}nav div.on{color:#0DA54A;fon
 <script>
 let gpsLat=-6.9175,gpsLng=107.6191,map=null,marker=null,mapMode='pickup',mapLat=gpsLat,mapLng=gpsLng,mapAddr='',pickupData=null,destData=null;
 function hav(a,b,c,d){const R=6371,e=(c-a)*Math.PI/180,f=(d-b)*Math.PI/180;const g=Math.sin(e/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(f/2)**2;return R*2*Math.asin(Math.sqrt(g))}
-function rev(lat,lng,cb){
-  fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat='+lat+'&lon='+lng+'&accept-language=id&zoom=18')
-  .then(r=>r.json()).then(d=>cb(d.display_name||'')).catch(()=>cb(''));
-}
+function rev(lat,lng,cb){fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat='+lat+'&lon='+lng+'&accept-language=id&zoom=18').then(r=>r.json()).then(d=>cb(d.display_name||'')).catch(()=>cb(''))}
 function useGPS(){
-  const inp=document.getElementById('pickup');
-  inp.value='📍 Mencari GPS... Mohon izinkan lokasi...';
-  if(!navigator.geolocation){ inp.value='GPS tidak didukung di browser ini'; return; }
-  navigator.geolocation.getCurrentPosition(p=>{
-    gpsLat=p.coords.latitude; gpsLng=p.coords.longitude;
-    inp.value='📍 Mencari alamat...';
-    rev(gpsLat,gpsLng,a=>{
-      const addr=a||('Lokasi Saya - '+gpsLat.toFixed(6)+', '+gpsLng.toFixed(6));
-      inp.value=addr; pickupData={lat:gpsLat,lng:gpsLng,addr:addr};
-    });
-  },()=>{ inp.value=''; alert('Izin lokasi ditolak! Klik ikon gembok di address bar > Izinkan Lokasi, lalu coba lagi. Atau ketik manual aja.'); },{enableHighAccuracy:true,timeout:10000});
+  const inp=document.getElementById('pickup'); inp.value='📍 Mencari GPS... Mohon izinkan lokasi...';
+  if(!navigator.geolocation){inp.value='GPS tidak didukung';return}
+  navigator.geolocation.getCurrentPosition(p=>{gpsLat=p.coords.latitude;gpsLng=p.coords.longitude;inp.value='📍 Mencari alamat...';rev(gpsLat,gpsLng,a=>{const addr=a||('Lokasi Saya - '+gpsLat.toFixed(6)+', '+gpsLng.toFixed(6));inp.value=addr;pickupData={lat:gpsLat,lng:gpsLng,addr:addr}})},()=>{inp.value='';alert('Izin lokasi ditolak! Klik gembok di address bar > Izinkan Lokasi, lalu coba lagi.')},{enableHighAccuracy:true,timeout:10000});
 }
-// Auto coba GPS pas buka, tapi jangan maksa
-if(navigator.geolocation){
-  navigator.geolocation.getCurrentPosition(p=>{
-    gpsLat=p.coords.latitude; gpsLng=p.coords.longitude;
-    const inp=document.getElementById('pickup');
-    if(!inp.value){ inp.value='📍 Mencari alamat...'; rev(gpsLat,gpsLng,a=>{ if(a){ inp.value=a; pickupData={lat:gpsLat,lng:gpsLng,addr:a}; } else { inp.value=''; } }); }
-  },()=>{}, {enableHighAccuracy:true,timeout:8000});
-}
+if(navigator.geolocation){navigator.geolocation.getCurrentPosition(p=>{gpsLat=p.coords.latitude;gpsLng=p.coords.longitude;const inp=document.getElementById('pickup');if(!inp.value){inp.value='📍 Mencari alamat...';rev(gpsLat,gpsLng,a=>{if(a){inp.value=a;pickupData={lat:gpsLat,lng:gpsLng,addr:a}}else{inp.value=''}})}},()=>{},{enableHighAccuracy:true,timeout:8000})}
 let timer=null;
 function setup(id,boxId,isPick){
   const inp=document.getElementById(id),box=document.getElementById(boxId);
-  inp.addEventListener('input',()=>{
-    const q=inp.value.trim(); if(q.length<2){box.style.display='none';return}
-    clearTimeout(timer); timer=setTimeout(()=>search(q,box,isPick),350)
-  });
-  document.addEventListener('click',e=>{ if(!box.contains(e.target)&&e.target!==inp) box.style.display='none' });
+  inp.addEventListener('input',()=>{const q=inp.value.trim();if(q.length<2){box.style.display='none';return}clearTimeout(timer);timer=setTimeout(()=>search(q,box,isPick),350)});
+  document.addEventListener('click',e=>{if(!box.contains(e.target)&&e.target!==inp)box.style.display='none'});
 }
 function search(q,box,isPick){
-  const dLat=.25,dLng=.25,vb=(gpsLng-dLng)+','+(gpsLat+dLat)+','+(gpsLng+dLng)+','+(gpsLat-dLat);
-  fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=15&accept-language=id&viewbox='+vb+'&bounded=1&q='+encodeURIComponent(q)).then(r=>r.json()).then(l=>{
-    if(!l.length) return fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&accept-language=id&q='+encodeURIComponent(q)).then(r=>r.json()).then(l2=>render(l2,box,isPick));
-    l.forEach(x=>x._d=hav(gpsLat,gpsLng,parseFloat(x.lat),parseFloat(x.lon))); l.sort((a,b)=>a._d-b._d); render(l.slice(0,6),box,isPick)
-  })
+  // Cari 2x: 1. Deket GPS (kotak 50km), 2. Global - lalu gabung & urutkan dari terdekat!
+  const dLat=.45,dLng=.45;
+  const vb=(gpsLng-dLng)+','+(gpsLat+dLat)+','+(gpsLng+dLng)+','+(gpsLat-dLat);
+  const urlNear='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=15&accept-language=id&viewbox='+vb+'&bounded=1&q='+encodeURIComponent(q);
+  const urlAll='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=15&accept-language=id&countrycodes=id&q='+encodeURIComponent(q);
+  Promise.all([fetch(urlNear).then(r=>r.json()).catch(()=>[]),fetch(urlAll).then(r=>r.json()).catch(()=>[])]).then(([near,all])=>{
+    let gabung=[...near,...all];
+    // Buang duplikat
+    let seen={}; gabung=gabung.filter(x=>{let k=x.lat+','+x.lon; if(seen[k]) return false; seen[k]=1; return true});
+    gabung.forEach(x=>x._d=hav(gpsLat,gpsLng,parseFloat(x.lat),parseFloat(x.lon)));
+    gabung.sort((a,b)=>a._d-b._d);
+    // Kalau ada yang deket (<30km), tampilkan yang deket aja, yang Mojokerto kebuang!
+    let deket=gabung.filter(x=>x._d<30);
+    let hasil=deket.length?deket:gabung.slice(0,6);
+    render(hasil.slice(0,6),box,isPick);
+  });
 }
 function render(list,box,isPick){
   if(!list.length){box.style.display='none';return}
   box.innerHTML=list.map((x,i)=>'<button onclick="pickS('+isPick+','+i+')"><span>📍</span><span>'+x.display_name.split(',').slice(0,3).join(',')+'<small>'+x.display_name+(x._d?' • '+x._d.toFixed(1)+' km dari kamu':'')+'</small></span></button>').join('');
-  box._d=list; box.style.display='block'; window._b=box; window._p=isPick;
+  box._d=list;box.style.display='block';window._b=box;window._p=isPick;
 }
 function pickS(isPick,i){
   const it=window._b._d[i];
-  if(isPick){ document.getElementById('pickup').value=it.display_name; pickupData={lat:parseFloat(it.lat),lng:parseFloat(it.lon),addr:it.display_name}; document.getElementById('sugPickup').style.display='none'; }
-  else{ document.getElementById('dest').value=it.display_name; destData={lat:parseFloat(it.lat),lng:parseFloat(it.lon),addr:it.display_name}; document.getElementById('sugDest').style.display='none'; }
+  if(isPick){document.getElementById('pickup').value=it.display_name;pickupData={lat:parseFloat(it.lat),lng:parseFloat(it.lon),addr:it.display_name};document.getElementById('sugPickup').style.display='none'}
+  else{document.getElementById('dest').value=it.display_name;destData={lat:parseFloat(it.lat),lng:parseFloat(it.lon),addr:it.display_name};document.getElementById('sugDest').style.display='none'}
 }
-setup('pickup','sugPickup',1); setup('dest','sugDest',0);
-function openMap(m){
-  mapMode=m; document.getElementById('mapModal').classList.add('show');
-  setTimeout(()=>{
-    if(!map){ map=L.map('map').setView([gpsLat,gpsLng],14); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(map); map.on('click',e=>setP(e.latlng.lat,e.latlng.lng)); }
-    map.invalidateSize();
-    const cur=mapMode==='pickup'?pickupData:destData;
-    if(cur){ map.setView([cur.lat,cur.lng],15); setP(cur.lat,cur.lng); } else { map.setView([gpsLat,gpsLng],14); setP(gpsLat,gpsLng); }
-  },80);
-}
-function setP(lat,lng){
-  mapLat=lat; mapLng=lng; if(marker) map.removeLayer(marker); marker=L.marker([lat,lng]).addTo(map);
-  document.getElementById('mapAddr').innerText='Mencari alamat...';
-  rev(lat,lng,a=>{ mapAddr=a||('Pin - '+lat.toFixed(6)+', '+lng.toFixed(6)); document.getElementById('mapAddr').innerText=mapAddr; });
-}
-function closeMap(){ document.getElementById('mapModal').classList.remove('show'); }
-function confirmMap(){
-  const a=mapAddr||mapLat.toFixed(6)+', '+mapLng.toFixed(6);
-  if(mapMode==='pickup'){ document.getElementById('pickup').value=a; pickupData={lat:mapLat,lng:mapLng,addr:a}; }
-  else{ document.getElementById('dest').value=a; destData={lat:mapLat,lng:mapLng,addr:a}; }
-  closeMap();
-}
-function cekDriver(){
-  const p=document.getElementById('pickup').value.trim(),d=document.getElementById('dest').value.trim();
-  if(!p) return alert('Isi Penjemputan dulu ya');
-  if(!d) return alert('Isi Tujuan dulu ya');
-  const j=pickupData&&destData?hav(pickupData.lat,pickupData.lng,destData.lat,destData.lng).toFixed(1)+' km':'-';
-  alert('Siap!\nPenjemputan: '+p+'\nTujuan: '+d+'\nJarak: '+j);
-}
+setup('pickup','sugPickup',1);setup('dest','sugDest',0);
+function openMap(m){mapMode=m;document.getElementById('mapModal').classList.add('show');setTimeout(()=>{if(!map){map=L.map('map').setView([gpsLat,gpsLng],14);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(map);map.on('click',e=>setP(e.latlng.lat,e.latlng.lng))}map.invalidateSize();const cur=mapMode==='pickup'?pickupData:destData;if(cur){map.setView([cur.lat,cur.lng],15);setP(cur.lat,cur.lng)}else{map.setView([gpsLat,gpsLng],14);setP(gpsLat,gpsLng)}},80)}
+function setP(lat,lng){mapLat=lat;mapLng=lng;if(marker)map.removeLayer(marker);marker=L.marker([lat,lng]).addTo(map);document.getElementById('mapAddr').innerText='Mencari alamat...';rev(lat,lng,a=>{mapAddr=a||('Pin - '+lat.toFixed(6)+', '+lng.toFixed(6));document.getElementById('mapAddr').innerText=mapAddr})}
+function closeMap(){document.getElementById('mapModal').classList.remove('show')}
+function confirmMap(){const a=mapAddr||mapLat.toFixed(6)+', '+mapLng.toFixed(6);if(mapMode==='pickup'){document.getElementById('pickup').value=a;pickupData={lat:mapLat,lng:mapLng,addr:a}}else{document.getElementById('dest').value=a;destData={lat:mapLat,lng:mapLng,addr:a}}closeMap()}
+function cekDriver(){const p=document.getElementById('pickup').value.trim(),d=document.getElementById('dest').value.trim();if(!p)return alert('Isi Penjemputan dulu ya');if(!d)return alert('Isi Tujuan dulu ya');const j=pickupData&&destData?hav(pickupData.lat,pickupData.lng,destData.lat,destData.lng).toFixed(1)+' km':'-';alert('Siap!\nPenjemputan: '+p+'\nTujuan: '+d+'\nJarak: '+j)}
 </script>
 </body>
 </html>
