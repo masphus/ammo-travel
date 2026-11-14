@@ -112,7 +112,6 @@ let cekDriver = setInterval(async ()=>{
 }, 5000);
 
 function tampilkanDriver(d){
-  document.getElementById('statusTitle').innerText='DRIVER DITEMUKAN!';
   document.getElementById('belumKetemu').style.display='none';
   document.getElementById('sudahKetemu').style.display='block';
   document.getElementById('namaDriver').innerText=d.nama;
@@ -126,7 +125,6 @@ function kirimChat(){
   inp.value=''; log.scrollTop=log.scrollHeight;
 }
 function batalkanPesanan(){
-  if(!confirm('Yakin batalkan pesanan Prioritas?')) return;
   let list=JSON.parse(localStorage.getItem('pernah_batal')||'[]');
   list.push({dari:ASAL.nama, ke:TUJUAN.nama, ongkos:document.getElementById('ongkos').innerText, waktu:new Date().toISOString(), tipe:'prioritas'});
   localStorage.setItem('pernah_batal', JSON.stringify(list));
