@@ -7,7 +7,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,Arial,sans-serif}
 body{background:#000;display:flex;justify-content:center}
-.phone{width:100%;max-width:430px;background:#0A0A0A;color:#fff;min-height:100vh;padding-bottom:20px}
+.phone{width:100%;max-width:430px;background:#0A0A0A;color:#fff;min-height:100vh;padding-bottom:180px;position:relative}
 .topbar{border:1px solid #FFD700;margin:14px 16px 0;border-radius:10px;text-align:center;padding:10px;color:#FFD700;letter-spacing:2px;font-weight:800}
 .radar-wrap{text-align:center;padding:14px 0 6px}
 .radar{width:130px;height:130px;margin:auto;border:2px solid #FFD700;border-radius:50%;position:relative;overflow:hidden}
@@ -16,8 +16,7 @@ body{background:#000;display:flex;justify-content:center}
 .sweep{position:absolute;left:50%;top:50%;width:65px;height:65px;background:conic-gradient(from 0deg,rgba(255,215,0,.7),transparent 70deg);transform-origin:0 0;animation:spin 1.5s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .dot{position:absolute;width:8px;height:8px;background:#FFD700;border-radius:50%;right:22px;top:35px}
-.title{text-align:center;font-size:22px;color:#FFD700;margin-top:6px}
-.sub{text-align:center;font-size:15px;color:#FFD700;margin-top:4px}
+.title{text-align:center;font-size:22px;color:#FFD700;margin-top:6px;padding:0 12px}
 .sub2{text-align:center;font-size:12px;color:#C9B67A;padding:6px 20px 14px}
 .card{margin:0 16px 14px;border:1.5px solid #FFD700;border-radius:14px;padding:16px}
 .card h2{color:#FFD700;font-size:20px;text-align:center}
@@ -34,12 +33,14 @@ body{background:#000;display:flex;justify-content:center}
 .chat-input{display:flex;gap:8px;margin-top:8px}
 .chat-input input{flex:1;padding:10px;border-radius:8px;border:1px solid #333;background:#111;color:#fff}
 .chat-input button{background:#FFD700;color:#000;border:0;padding:0 14px;border-radius:8px;font-weight:700}
-.locked{background:#1A1A1A;border-radius:8px;padding:12px;display:flex;gap:10px;font-size:13px;margin-top:10px;color:#C9B67A}
-.btn-row{display:flex;gap:12px;margin:14px 16px 0}
+.locked{background:#1A1A1A;border-radius:8px;padding:12px;display:flex;gap:10px;font-size:13px;margin-top:10px;color:#C9B67A;justify-content:center}
+.btn-test{margin:12px 16px 0;background:#111;color:#FFD700;border:1px dashed #FFD700;width:calc(100% - 32px);padding:12px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer}
+.sticky-bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#0A0A0A;border-top:1px solid #333;padding:12px 16px 16px;z-index:99}
+.btn-row{display:flex;gap:12px}
 .btn-row button{flex:1;padding:14px;border-radius:10px;font-weight:800;font-size:16px;cursor:pointer}
 .btn-call{background:#FFD700;color:#000;border:0}
 .btn-wa{background:#000;color:#FFD700;border:1.5px solid #FFD700}
-.btn-batal{margin:14px 16px 0;background:#2A1111;color:#FF8A8A;border:1.5px solid #FF6B6B;width:calc(100% - 32px);padding:16px;border-radius:12px;font-weight:800;font-size:16px;cursor:pointer}
+.btn-batal{margin-top:12px;background:#2A1111;color:#FF8A8A;border:1.5px solid #FF6B6B;width:100%;padding:16px;border-radius:12px;font-weight:800;font-size:16px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -50,7 +51,7 @@ body{background:#000;display:flex;justify-content:center}
 <p class="sub2">Mohon menunggu sebentar hingga driver ditemukan</p>
 <div class="card">
 <h2>📍 Rute Perjalanan</h2>
-<div class="route"><small>Dari</small><br><b id="dari">Jl. Muara Timur, Bandung</b><br><br><small>Ke</small><br><b id="ke">Sape, NTB</b></div>
+<div class="route"><small>Dari</small><br><b>Jl. Muara Timur, Bandung</b><br><br><small>Ke</small><br><b>Sape, NTB</b></div>
 <div class="meta"><div>🛣️ Jarak<br><b id="jarak">~ 1.320 km</b></div><div>🕒 Estimasi<br><b id="estimasi">± 1 hari 1 jam</b></div></div>
 <div class="ongkos">💰 ONGKOS <span id="ongkos">Rp. 8.580.000</span></div>
 <div class="note">ⓘ Catatan: Biaya Parkir, Tol, dan Penyeberangan akan dibebankan kepada Penumpang bilamana ada</div>
@@ -63,4 +64,70 @@ body{background:#000;display:flex;justify-content:center}
 </div>
 <div id="sudahKetemu" style="display:none">
 <div class="driver-info">
-<img src="https://i.pravatar.cc/100?img=32"><div><b id="namaDriver">-</b><br><small id="platDriver">-</small> • ⭐ <span id="ratingDriver">-</span></div><span style="margin-left:auto
+<img id="fotoDriver" src="https://i.pravatar.cc/100?img=32"><div><b id="namaDriver">-</b><br><small id="platDriver">-</small> • ⭐ <span id="ratingDriver">-</span></div><span style="margin-left:auto;color:#FFD700;font-weight:700">● Prioritas</span>
+</div>
+<div style="margin-top:12px;text-align:left"><b style="color:#FFD700">💬 Chat dengan Driver</b><div class="chat-log" id="chatLog"><div>Driver: Halo, saya driver Prioritas, siap jemput 🙏</div></div><div class="chat-input"><input id="chatInput" placeholder="Kirim pesan ke driver..."><button onclick="kirimChat()">➤</button></div></div>
+</div>
+</div>
+<button class="btn-test" onclick="gantiDriverUjiCoba()">🔄 UJI COBA: Ganti Driver Lain</button>
+</div>
+<div class="sticky-bottom">
+<div class="btn-row">
+<button class="btn-call" onclick="window.location.href='tel:+6281234567890'">📞 Call CS</button>
+<button class="btn-wa" onclick="window.location.href='https://wa.me/6281234567890'">💬 WA CS</button>
+</div>
+<button class="btn-batal" onclick="batalkanPesanan()">✕ Batalkan Pesanan</button>
+</div>
+<script>
+const ASAL={nama:"Jl. Muara Timur, Bandung",lon:107.613,lat:-6.917};
+const TUJUAN={nama:"Sape, NTB",lon:119.0,lat:-8.55};
+const TARIF_PER_KM_PRIORITAS=6500;
+async function hitungRuteReal(){
+try{
+const res=await fetch(`https://router.project-osrm.org/route/v1/driving/${ASAL.lon},${ASAL.lat};${TUJUAN.lon},${TUJUAN.lat}?overview=false`);
+const data=await res.json();const r=data.routes[0];
+const jarakKm=r.distance/1000;const ongkos=Math.round(jarakKm*TARIF_PER_KM_PRIORITAS);
+document.getElementById('jarak').innerText=`~ ${jarakKm.toLocaleString('id-ID',{maximumFractionDigits:0})} km`;
+document.getElementById('estimasi').innerText=formatDurasi(r.duration);
+document.getElementById('ongkos').innerText=`Rp. ${ongkos.toLocaleString('id-ID')}`;
+}catch(e){}
+}
+function formatDurasi(d){const jam=Math.floor(d/3600);const hari=Math.floor(jam/24);const sisa=jam%24;return hari>0?`± ${hari} hari ${sisa} jam`:`± ${jam} jam`;}
+hitungRuteReal();
+const DRIVER_UJI=[
+{nama:"Andi Prioritas",plat:"D 9999 PR",rating:"5.0",foto:"https://i.pravatar.cc/100?img=32"},
+{nama:"Budi Santoso",plat:"D 1234 ABC",rating:"4.9",foto:"https://i.pravatar.cc/100?img=12"},
+{nama:"Rizky Pratama",plat:"D 7777 XY",rating:"4.8",foto:"https://i.pravatar.cc/100?img=59"}
+];
+let indexDriver=0;
+function tampilkanDriver(d){
+document.getElementById('statusTitle').innerText='DRIVER DITEMUKAN!';
+document.getElementById('belumKetemu').style.display='none';
+document.getElementById('sudahKetemu').style.display='block';
+document.getElementById('namaDriver').innerText=d.nama;
+document.getElementById('platDriver').innerText=d.plat;
+document.getElementById('ratingDriver').innerText=d.rating;
+document.getElementById('fotoDriver').src=d.foto;
+}
+function gantiDriverUjiCoba(){
+indexDriver=(indexDriver+1)%DRIVER_UJI.length;
+tampilkanDriver(DRIVER_UJI[indexDriver]);
+}
+setTimeout(()=>{tampilkanDriver(DRIVER_UJI[0]);},5000);
+function kirimChat(){
+const inp=document.getElementById('chatInput');if(!inp.value.trim())return;
+const log=document.getElementById('chatLog');
+log.innerHTML+=`<div style="text-align:right;margin-top:6px"><b>Kamu:</b> ${inp.value}</div>`;
+inp.value='';log.scrollTop=log.scrollHeight;
+}
+function batalkanPesanan(){
+if(!confirm('Yakin batalkan pesanan Prioritas?'))return;
+let list=JSON.parse(localStorage.getItem('pernah_batal')||'[]');
+list.push({dari:ASAL.nama,ke:TUJUAN.nama,ongkos:document.getElementById('ongkos').innerText,waktu:new Date().toISOString(),tipe:'prioritas'});
+localStorage.setItem('pernah_batal',JSON.stringify(list));
+localStorage.removeItem('order_aktif');
+window.location.href='index.html';
+}
+</script>
+</body>
+</html>
