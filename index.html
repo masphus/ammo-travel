@@ -8,48 +8,52 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans-serif}
-.phone{max-width:430px;width:100%;margin:0 auto;background:#fff;min-height:100vh;position:relative;padding-bottom:120px;overflow:hidden}
-.header{background:#00a651;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;gap:8px}
-.logo-left{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.phone{max-width:430px;width:100%;margin:0 auto;background:#fff;min-height:100vh;position:relative;padding-bottom:110px;overflow:hidden}
+.header{background:#00a651;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:14px 16px}
+.logo-left{display:flex;align-items:center;gap:10px;min-width:0}
 .logo-left img{width:44px;height:44px;border-radius:50%;background:#fff;object-fit:cover;flex-shrink:0}
-.logo-left b{font-size:23px;white-space:nowrap}
-.pilih-lokasi{display:flex;align-items:center;gap:4px;font-weight:bold;font-size:14px;white-space:nowrap;flex-shrink:0;cursor:pointer}
+.logo-left b{font-size:24px;white-space:nowrap}
+.pilih-lokasi{display:flex;align-items:center;gap:4px;font-weight:bold;font-size:15px;white-space:nowrap;flex-shrink:0;cursor:pointer}
 .title{padding:22px 16px 10px;text-align:center}
-.title h1{font-size:28px;line-height:1.2;color:#0a3d1f;word-break:break-word}
+.title h1{font-size:29px;line-height:1.2;color:#0a3d1f}
 .form{padding:0 16px;position:relative}
 .lbl{font-weight:bold;font-size:18px;color:#222;margin:0 0 6px 58px}
-.row{display:flex;align-items:center;gap:8px;background:#f2f2f2;border:1px solid #d0d0d0;border-radius:10px;padding:6px 6px 6px 8px;margin-bottom:8px;width:100%;min-width:0}
+.row{display:flex;align-items:center;gap:8px;background:#f2f2f2;border:1px solid #d0d0d0;border-radius:10px;padding:6px 6px 6px 8px;margin-bottom:8px;width:100%}
 .pin{font-size:26px;flex-shrink:0}
-.row input{flex:1;min-width:0;border:none;outline:none;background:transparent;font-size:15px;padding:8px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row input{flex:1;min-width:0;border:none;outline:none;background:transparent;font-size:15px;padding:8px 0}
 .btn-map{background:#00a651;color:#fff;border:none;border-radius:7px;padding:9px 10px;font-weight:bold;font-size:14px;white-space:nowrap;flex-shrink:0;cursor:pointer}
 .swap-wrap{display:flex;justify-content:flex-end;padding:0 0 8px}
 .swap-btn{width:42px;height:42px;border-radius:50%;border:2px solid #00a651;background:#fff;color:#00a651;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .swap-btn:disabled{opacity:.35;cursor:not-allowed}
-.saran-box{display:none;background:#fff;border:1px solid #ddd;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.18);margin:0 0 12px;padding:6px 0;position:relative;z-index:30;max-height:240px;overflow-y:auto}
-.saran-box div{padding:12px 14px;cursor:pointer;font-size:15px;border-bottom:1px solid #f0f0f0;white-space:normal;line-height:1.3}
+.saran-box{display:none;background:#fff;border:1px solid #ddd;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.12);margin:0 0 12px;padding:6px 0;position:relative;z-index:5;max-height:260px;overflow-y:auto}
+.saran-box div{padding:12px 14px;cursor:pointer;font-size:15px;border-bottom:1px solid #f0f0f0;line-height:1.3}
 .saran-box .loading{color:#777;text-align:center}
+.saran-box .jarak{color:#00a651;font-size:13px;font-weight:bold}
 .ongkos-preview{display:none;background:#d9ecd9;border-radius:12px;padding:14px;margin:4px 0 12px}
 .ongkos-preview h3{font-size:18px;color:#0a3d1f;margin-bottom:8px}
-.ongkos-preview .meta{display:flex;gap:16px;font-size:15px;color:#222;margin-bottom:8px;flex-wrap:wrap}
+.ongkos-preview .meta{display:flex;gap:16px;font-size:15px;color:#222;margin-bottom:8px}
 .ongkos-preview .meta b{display:block;font-size:16px}
 .ongkos-preview .total{font-size:22px;font-weight:bold;color:#0a3d1f}
-.info{display:flex;background:#d9ecd9;border-radius:12px;padding:16px;margin:4px 16px 0;gap:10px;align-items:flex-start}
-.info-icon{width:44px;height:44px;background:#00a651;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;color:#fff}
-.info p{font-size:16px;line-height:1.4;color:#222}
 .btn-cek{display:block;width:calc(100% - 32px);margin:14px 16px 0;background:#00a651;color:#fff;border:none;border-radius:10px;padding:16px;font-size:22px;font-weight:bold;cursor:pointer}
-.chat{position:absolute;top:170px;right:12px;width:52px;height:52px;background:#00a651;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;z-index:10;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.25)}
+.chat{position:fixed;bottom:100px;right:calc(50% - 215px + 16px);width:58px;height:58px;background:#00a651;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;z-index:20;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.25)}
 .chat i{position:absolute;top:6px;right:8px;width:12px;height:12px;background:red;border-radius:50%}
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#eee;display:flex;justify-content:space-around;padding:10px 0 12px;border-top:1px solid #ddd;z-index:20}
-.nav div{text-align:center;font-size:14px;color:#777;cursor:pointer;flex:1}
+.nav div{text-align:center;font-size:14px;color:#777;cursor:pointer}
 .nav div span{font-size:24px;display:block}
 .nav .on{color:#00a651;font-weight:bold}
-.map-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;align-items:flex-end;justify-content:center}
-.map-modal.show{display:flex}
-.map-box{width:100%;max-width:430px;background:#fff;border-radius:16px 16px 0 0;padding:14px}
+.map-modal,.chat-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;align-items:flex-end;justify-content:center}
+.map-modal.show,.chat-modal.show{display:flex}
+.map-box,.chat-box{width:100%;max-width:430px;background:#fff;border-radius:16px 16px 0 0;padding:14px}
 #map{width:100%;height:340px;border-radius:10px}
-.map-addr{font-size:14px;background:#f2f2f2;padding:10px;border-radius:8px;margin:10px 0;min-height:38px;line-height:1.3}
+.map-addr{font-size:14px;background:#f2f2f2;padding:10px;border-radius:8px;margin:10px 0;min-height:38px}
 .map-btns{display:flex;gap:10px}
 .map-btns button{flex:1;padding:12px;border-radius:10px;border:none;font-weight:bold;font-size:16px;cursor:pointer}
+.chat-box h3{font-size:20px;color:#0a3d1f;margin-bottom:12px;text-align:center}
+.chat-opt{display:flex;gap:10px;align-items:center;background:#f2f2f2;border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer}
+.chat-opt.lock{opacity:.6;cursor:not-allowed}
+.chat-opt b{font-size:16px;display:block}
+.chat-opt small{font-size:14px;color:#555}
+.chat-close{display:block;width:100%;margin-top:6px;padding:12px;border:none;border-radius:10px;background:#eee;font-weight:bold;font-size:16px;cursor:pointer}
 .wait-page{display:none;max-width:430px;width:100%;margin:0 auto;background:#fff;min-height:100vh;padding:14px 16px 30px}
 .wait-head{display:flex;align-items:center;gap:12px}
 .wait-head button{border:none;background:none;font-size:28px;color:#00a651;cursor:pointer}
@@ -66,7 +70,7 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 .route-line{display:flex;gap:10px}
 .route-line .dot{font-size:22px}
 .route-line small{color:#555;font-size:14px}
-.route-line b{font-size:19px;display:block;line-height:1.3;word-break:break-word}
+.route-line b{font-size:19px;display:block;line-height:1.3}
 .route-meta{display:flex;gap:14px;margin-top:14px;flex-wrap:wrap}
 .route-meta div{font-size:17px;color:#222}
 .route-meta b{display:block;font-size:19px}
@@ -89,7 +93,7 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 <div class="title"><h1>Mau Pergi Kemana Hari Ini?</h1></div>
 <div class="form">
 <div class="lbl">Penjemputan</div>
-<div class="row"><span class="pin">📍</span><input id="pickup" placeholder="Mendeteksi lokasi kamu..." autocomplete="off"><button class="btn-map" onclick="openMap('pickup')">📍 Pilih di Peta</button></div>
+<div class="row"><span class="pin">📍</span><input id="pickup" placeholder="Ketik / Pilih Lokasi Jemput..." autocomplete="off"><button class="btn-map" onclick="openMap('pickup')">📍 Pilih di Peta</button></div>
 <div id="saranPick" class="saran-box"></div>
 <div class="swap-wrap"><button id="swapBtn" class="swap-btn" onclick="swapLokasi()" disabled title="Tukar Penjemputan & Tujuan">⇅</button></div>
 <div class="lbl">Tujuan</div>
@@ -101,9 +105,7 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 <div class="total" id="prevOngkos">-</div>
 </div>
 </div>
-<div class="info" id="infoDriver"><div class="info-icon">🚗</div><p>Driver di sekitar kamu siap menjemput! Cek harga setelah isi lokasi</p></div>
 <button class="btn-cek" onclick="cekDriver()">Cek Driver & Lanjut</button>
-<div class="chat" id="chatBtn" onclick="alert('Chat Admin: 0812-3456-7890')">💬<i></i></div>
 </div>
 
 <div id="waitPage" class="wait-page">
@@ -129,29 +131,37 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 <button class="btn-batal" onclick="backHome()">Batalkan Pesanan</button>
 </div>
 </div>
-
+<div class="chat" id="chatBtn" onclick="openChat()">💬<i></i></div>
 <div class="nav" id="bottomNav">
 <div class="on"><span>🏠</span>Beranda</div>
 <div><span>🕒</span>Riwayat</div>
 <div><span>🏷️</span>Promo</div>
 <div><span>👤</span>Akun</div>
 </div>
+<div id="chatModal" class="chat-modal"><div class="chat-box">
+<h3>💬 Mau Chat Kemana?</h3>
+<div class="chat-opt" onclick="chatAdmin()"><span style="font-size:28px">🧑‍💼</span><div><b>Chat Admin</b><small>Tanya harga, jadwal, & bantuan</small></div></div>
+<div class="chat-opt lock" id="chatDriverOpt" onclick="chatDriver()"><span style="font-size:28px">🚗</span><div><b>Chat Driver</b><small id="chatDriverText">Terkunci - tunggu driver ditemukan</small></div></div>
+<button class="chat-close" onclick="closeChat()">Tutup</button>
+</div></div>
 <div id="mapModal" class="map-modal"><div class="map-box"><div id="map"></div><div id="mapAddr" class="map-addr">Memuat alamat...</div><div class="map-btns"><button style="background:#eee" onclick="closeMap()">Batal</button><button style="background:#00a651;color:#fff" onclick="confirmMap()">OK, Pakai Lokasi Ini</button></div></div></div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 let pickupCoord=null, destCoord=null, mapMode='pickup';
 let map=null, marker=null, tempLat=-7.7956, tempLng=110.3695, tempAddr='Lokasi Saya Saat Ini';
-let previewTimer=null, saranTimer=null;
+let previewTimer=null, saranTimer=null, driverDitemukan=false;
 const $=id=>document.getElementById(id);
 const fmtRp=n=>'Rp. '+Math.round(n).toLocaleString('id-ID');
 function fmtJarak(m){let km=m/1000;return km>=100?Math.round(km).toLocaleString('id-ID')+' km':km.toFixed(1).replace('.',',')+' km';}
 function fmtEstimasi(detik){let m=Math.round(detik/60);let h=Math.floor(m/60),hari=Math.floor(h/24);h=h%24;let sisa=m%60;if(hari>0)return hari+' hari '+(h>0?h+' jam':'');if(h>0)return h+' jam '+(sisa>0?sisa+' menit':'');return m+' menit';}
+function fmtJarakKe(km){if(km<1)return Math.round(km*1000)+' m';return km.toFixed(1).replace('.',',')+' km';}
+function haversine(a1,b1,a2,b2){let R=6371,dLat=(a2-a1)*Math.PI/180,dLon=(b2-b1)*Math.PI/180;let a=Math.sin(dLat/2)**2+Math.cos(a1*Math.PI/180)*Math.cos(a2*Math.PI/180)*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.sqrt(a));}
 function updateSwap(){ $('swapBtn').disabled=!($('pickup').value.trim() && $('dest').value.trim()); }
 
 // === ALAMAT PENDEK, BUKAN KOORDINAT ===
 function alamatPendek(d){
   if(!d) return 'Lokasi Saya Saat Ini';
-  if(d.display_name && d.display_name.includes(',')){
+  if(d.display_name){
     let a=d.address||{};
     let parts=[];
     if(a.road) parts.push(a.road);
@@ -164,36 +174,103 @@ function alamatPendek(d){
     if(parts.length>=2) return parts.join(', ');
     return d.display_name.split(',').slice(0,3).join(',').trim();
   }
+  if(d.Match_addr) return d.Match_addr;
   return 'Lokasi Saya Saat Ini';
 }
 async function reverseGeocode(lat,lng){
   try{
     let r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=id`);
     let d=await r.json();
-    return alamatPendek(d);
-  }catch(e){ return 'Lokasi Saya Saat Ini'; }
+    let s=alamatPendek(d);
+    if(s && s!=='Lokasi Saya Saat Ini' && !s.includes('107.') && !s.includes('-6.') && !s.includes('-7.')) return s;
+  }catch(e){}
+  try{
+    let r2=await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=id`);
+    let d2=await r2.json();
+    let parts=[];
+    if(d2.locality) parts.push(d2.locality);
+    if(d2.city && d2.city!==d2.locality) parts.push(d2.city);
+    if(d2.principalSubdivision) parts.push(d2.principalSubdivision);
+    if(parts.length) return parts.join(', ');
+  }catch(e){}
+  return 'Lokasi Saya Saat Ini';
 }
 async function geocodeAlamat(q){
-  try{
-    let bias='';
-    let pusat=pickupCoord||[-7.7956,110.3695];
-    let minLat=pusat[0]-0.5, maxLat=pusat[0]+0.5, minLng=pusat[1]-0.5, maxLng=pusat[1]+0.5;
-    bias=`&viewbox=${minLng},${maxLat},${maxLng},${minLat}&bounded=0`;
-    let r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=id&addressdetails=1&accept-language=id&q='+encodeURIComponent(q)+bias);
-    let d=await r.json(); if(d.length) return [parseFloat(d[0].lat),parseFloat(d[0].lon)];
-  }catch(e){}
+  let hasil=await cariGabung(q);
+  if(hasil.length) return [hasil[0].lat,hasil[0].lng];
   return null;
 }
 
-// === SARAN TUJUAN / JEMPUT - DIBIAS KE LOKASI TERDEKAT ===
+// === 3 LAPIS: ESRI + NOMINATIM + PHOTON, URUT TERDEKAT ===
+async function cariEsri(q, pusat){
+  try{
+    let qPendek=q.replace(/masjid|alfamart|indomaret|puskesmas|sekolah|kantor|toko/gi,'').trim()||q;
+    let url=`https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&SingleLine=${encodeURIComponent(q+', Indonesia')}&maxLocations=10&outFields=Match_addr,Addr_type&outSR=4326`;
+    let r=await fetch(url); let d=await r.json();
+    let out=[];
+    (d.candidates||[]).forEach(c=>{
+      if(!c.location) return;
+      out.push({nama:c.address||c.Match_addr, lat:c.location.y, lng:c.location.x, sumber:'esri'});
+    });
+    if(out.length) return out;
+    let r2=await fetch(`https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&SingleLine=${encodeURIComponent(qPendek+', Indonesia')}&maxLocations=10&outFields=Match_addr,Addr_type&outSR=4326`);
+    let d2=await r2.json();
+    (d2.candidates||[]).forEach(c=>{
+      if(!c.location) return;
+      out.push({nama:c.address||c.Match_addr, lat:c.location.y, lng:c.location.x, sumber:'esri'});
+    });
+    return out;
+  }catch(e){ return []; }
+}
+async function cariNominatim(q, pusat){
+  try{
+    let minLat=pusat[0]-0.8, maxLat=pusat[0]+0.8, minLng=pusat[1]-0.8, maxLng=pusat[1]+0.8;
+    let url=`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=10&countrycodes=id&addressdetails=1&accept-language=id&q=${encodeURIComponent(q)}&viewbox=${minLng},${maxLat},${maxLng},${minLat}&bounded=0`;
+    let r=await fetch(url); let d=await r.json();
+    return d.map(it=>({nama:alamatPendek(it), lat:parseFloat(it.lat), lng:parseFloat(it.lon), sumber:'nominatim'}));
+  }catch(e){ return []; }
+}
+async function cariPhoton(q, pusat){
+  try{
+    let url=`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=10&lat=${pusat[0]}&lon=${pusat[1]}&lang=en`;
+    let r=await fetch(url); let d=await r.json();
+    let out=[];
+    (d.features||[]).forEach(f=>{
+      let p=f.properties||{};
+      let nama=[p.name, p.city||p.town||p.village||'', p.state||''].filter(Boolean).join(', ');
+      if(!nama) return;
+      out.push({nama:nama, lat:f.geometry.coordinates[1], lng:f.geometry.coordinates[0], sumber:'photon'});
+    });
+    return out;
+  }catch(e){ return []; }
+}
+async function cariGabung(q){
+  let pusat=pickupCoord||[-7.7956,110.3695];
+  let [a,b,c]=await Promise.allSettled([cariEsri(q,pusat),cariNominatim(q,pusat),cariPhoton(q,pusat)]);
+  let gabung=[];
+  [a,b,c].forEach(r=>{ if(r.status==='fulfilled') gabung.push(...r.value); });
+  // Filter kata harus cocok semua
+  let kata=q.toLowerCase().split(/\s+/).filter(w=>w.length>1);
+  gabung=gabung.filter(it=>{
+    let n=it.nama.toLowerCase();
+    return kata.every(k=>n.includes(k) || n.includes(k.slice(0,4)));
+  });
+  // Hapus duplikat < 0,2 km
+  let unik=[];
+  gabung.forEach(it=>{
+    let dupe=unik.some(u=>haversine(u.lat,u.lng,it.lat,it.lng)<0.2);
+    if(!dupe) unik.push(it);
+  });
+  // Urut dari terdekat dulu
+  unik.forEach(it=>{ it.jarak=haversine(pusat[0],pusat[1],it.lat,it.lng); });
+  unik.sort((x,y)=>x.jarak-y.jarak);
+  return unik.slice(0,10);
+}
 $('pickup').addEventListener('input',()=>{updateSwap();jadwalSaran('pickup');jadwalPreview();});
 $('dest').addEventListener('input',()=>{updateSwap();jadwalSaran('dest');jadwalPreview();});
 $('pickup').addEventListener('focus',()=>{if($('pickup').value.trim().length>=2) jadwalSaran('pickup');});
 $('dest').addEventListener('focus',()=>{if($('dest').value.trim().length>=2) jadwalSaran('dest');});
-function jadwalSaran(tipe){
-  clearTimeout(saranTimer);
-  saranTimer=setTimeout(()=>cariSaran(tipe),300);
-}
+function jadwalSaran(tipe){ clearTimeout(saranTimer); saranTimer=setTimeout(()=>cariSaran(tipe),300); }
 async function cariSaran(tipe){
   let inp=tipe==='pickup'?$('pickup'):$('dest');
   let box=tipe==='pickup'?$('saranPick'):$('saranDest');
@@ -201,34 +278,20 @@ async function cariSaran(tipe){
   if(q.length<2){box.style.display='none';return;}
   box.innerHTML='<div class="loading">Mencari lokasi terdekat...</div>';
   box.style.display='block';
-  try{
-    let pusat=pickupCoord||[-7.7956,110.3695];
-    let minLat=pusat[0]-0.8, maxLat=pusat[0]+0.8, minLng=pusat[1]-0.8, maxLng=pusat[1]+0.8;
-    let url=`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&countrycodes=id&addressdetails=1&accept-language=id&q=${encodeURIComponent(q)}&viewbox=${minLng},${maxLat},${maxLng},${minLat}&bounded=0`;
-    let r=await fetch(url);
-    let d=await r.json();
-    if(!d.length){
-      // Coba lagi tanpa viewbox kalau di sekitar gak ketemu
-      let r2=await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&countrycodes=id&addressdetails=1&accept-language=id&q=${encodeURIComponent(q)}`);
-      d=await r2.json();
-    }
-    if(!d.length){box.innerHTML='<div class="loading">Tidak ketemu, coba ketik lebih lengkap / Pilih di Peta</div>';return;}
-    box.innerHTML='';
-    d.forEach(it=>{
-      let div=document.createElement('div');
-      div.textContent=alamatPendek(it);
-      div.title=it.display_name;
-      div.onclick=()=>{
-        inp.value=alamatPendek(it);
-        if(tipe==='pickup') pickupCoord=[parseFloat(it.lat),parseFloat(it.lon)];
-        else destCoord=[parseFloat(it.lat),parseFloat(it.lon)];
-        box.style.display='none'; updateSwap(); jadwalPreview(true);
-      };
-      box.appendChild(div);
-    });
-  }catch(e){
-    box.innerHTML='<div class="loading">Gagal load saran, coba Pilih di Peta</div>';
-  }
+  let hasil=await cariGabung(q);
+  if(!hasil.length){ box.innerHTML='<div class="loading">Tidak ketemu, coba ketik lebih lengkap / Pilih di Peta</div>'; return; }
+  box.innerHTML='';
+  hasil.forEach(it=>{
+    let div=document.createElement('div');
+    div.innerHTML=it.nama+' <span class="jarak">- '+fmtJarakKe(it.jarak)+'</span>';
+    div.onclick=()=>{
+      inp.value=it.nama;
+      if(tipe==='pickup') pickupCoord=[it.lat,it.lng];
+      else destCoord=[it.lat,it.lng];
+      box.style.display='none'; updateSwap(); jadwalPreview(true);
+    };
+    box.appendChild(div);
+  });
 }
 document.addEventListener('click',e=>{
   if(!e.target.closest('#saranPick') && !e.target.closest('#pickup'))$('saranPick').style.display='none';
@@ -254,6 +317,16 @@ async function isiPenjemputanOtomatis(){
     updateSwap(); jadwalPreview(true);
   },()=>{ $('pickup').placeholder='Ketik / Pilih Lokasi Jemput...'; },{enableHighAccuracy:true,timeout:8000});
 }
+// Timer 2,5 detik: benerin Penjemputan kalau masih koordinat / TEST / Lokasi Saya
+setInterval(async()=>{
+  let v=$('pickup').value.trim();
+  if(!v) return;
+  let jelek=v.includes('107.')||v.includes('-6.')||v.includes('-7.')||v.toLowerCase().includes('lokasi saya')||v.toLowerCase()==='test'||v.toLowerCase()==='astanaanyar';
+  if(jelek && pickupCoord){
+    let alamat=await reverseGeocode(pickupCoord[0],pickupCoord[1]);
+    if(alamat && alamat!=='Lokasi Saya Saat Ini') $('pickup').value=alamat;
+  }
+},2500);
 function openMap(tipe){
   mapMode=tipe;
   let cur=tipe==='pickup'?pickupCoord:destCoord;
@@ -288,17 +361,11 @@ function confirmMap(){
   else destCoord=[tempLat,tempLng];
   closeMap(); updateSwap(); jadwalPreview(true);
 }
-function jadwalPreview(langsung){
-  clearTimeout(previewTimer);
-  if(langsung) hitungPreview();
-  else previewTimer=setTimeout(hitungPreview,800);
-}
+function jadwalPreview(langsung){ clearTimeout(previewTimer); if(langsung) hitungPreview(); else previewTimer=setTimeout(hitungPreview,800); }
 async function hitungPreview(){
   let a=$('pickup').value.trim(), b=$('dest').value.trim();
-  // INFO DRIVER WAJIB TETAP TAMPIL, JANGAN DIHILANGKAN
-  $('infoDriver').style.display='flex';
   if(!a||!b){ $('ongkosPreview').style.display='none'; return; }
-  if(a.includes('-6.')||a.includes('107.')||b.includes('-6.')||b.includes('107.')) return;
+  if(a.includes('107.')||b.includes('107.')) return;
   $('ongkosPreview').style.display='block';
   $('prevJarak').textContent='Menghitung...';
   $('prevEstimasi').textContent='Menghitung...';
@@ -352,6 +419,7 @@ function cekDriver(){
   if(!a||!b){alert('Isi Penjemputan dan Tujuan dulu Bro!');return;}
   $('homePage').style.display='none';
   $('bottomNav').style.display='none';
+  $('chatBtn').style.display='none';
   $('waitPage').style.display='block';
   window.scrollTo(0,0);
   hitungRute();
@@ -360,8 +428,19 @@ function backHome(){
   $('waitPage').style.display='none';
   $('homePage').style.display='block';
   $('bottomNav').style.display='flex';
-  $('infoDriver').style.display='flex';
+  $('chatBtn').style.display='flex';
   window.scrollTo(0,0);
+}
+function openChat(){ $('chatModal').classList.add('show'); }
+function closeChat(){ $('chatModal').classList.remove('show'); }
+function chatAdmin(){
+  closeChat();
+  window.open('https://wa.me/6281234567890?text=Halo Admin Ammo Travel, saya mau tanya','_blank');
+}
+function chatDriver(){
+  if(!driverDitemukan){ alert('Chat Driver masih terkunci, tunggu driver ditemukan dulu ya Bro!'); return; }
+  closeChat();
+  alert('Chat Driver dibuka');
 }
 isiPenjemputanOtomatis();
 </script>
