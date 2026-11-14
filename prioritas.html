@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prioritas Premium</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,Arial,sans-serif}
+  body{background:#000;display:flex;justify-content:center}
+  .phone{width:100%;max-width:430px;background:#0A0A0A;color:#fff;min-height:100vh;padding-bottom:20px}
+  .topbar{border:1px solid #FFD700;margin:14px 16px 0;border-radius:10px;text-align:center;padding:10px;color:#FFD700;letter-spacing:2px;font-weight:800}
+  .radar-wrap{text-align:center;padding:14px 0 6px}
+  .radar{width:130px;height:130px;margin:auto;border:2px solid #FFD700;border-radius:50%;position:relative;overflow:hidden}
+  .radar:before{content:'';position:absolute;inset:0;border:1px solid #FFD700;border-radius:50%;transform:scale(.7)}
+  .radar:after{content:'';position:absolute;inset:0;border:1px solid #FFD700;border-radius:50%;transform:scale(.4)}
+  .sweep{position:absolute;left:50%;top:50%;width:65px;height:65px;background:conic-gradient(from 0deg,rgba(255,215,0,.7),transparent 70deg);transform-origin:0 0;animation:spin 1.5s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .dot{position:absolute;width:8px;height:8px;background:#FFD700;border-radius:50%;right:22px;top:35px}
+  .title{text-align:center;font-size:38px;color:#FFD700;letter-spacing:2px}
+  .sub{text-align:center;font-size:15px;color:#FFD700;margin-top:4px}
+  .sub2{text-align:center;font-size:12px;color:#C9B67A;padding:6px 20px 14px}
+  .card{margin:0 16px 14px;border:1.5px solid #FFD700;border-radius:14px;padding:16px}
+  .card h2{color:#FFD700;font-size:20px;text-align:center}
+  .route{margin:14px 0 0 4px;border-left:2px dashed #FFD700;padding-left:22px}
+  .route b{font-size:16px}
+  .route small{color:#C9B67A}
+  .meta{display:flex;justify-content:space-between;border-top:1px solid #333;padding:12px 0;font-size:14px}
+  .ongkos{border-top:1px solid #333;padding-top:12px;font-weight:800;color:#FFD700;font-size:19px}
+  .note{font-size:11px;color:#C9B67A;display:flex;gap:6px;margin-top:10px}
+  .driver-box{margin:0 16px;border:1.5px solid #FFD700;border-radius:14px;padding:16px;text-align:center}
+  .driver-info{display:flex;gap:12px;align-items:center;text-align:left}
+  .driver-info img{width:54px;height:54px;border-radius:50%;object-fit:cover;border:2px solid #FFD700}
+  .chat-log{background:#1A1A1A;border-radius:10px;padding:10px;height:120px;overflow:auto;font-size:13px;text-align:left;margin-top:10px}
+  .chat-input{display:flex;gap:8px;margin-top:8px}
+  .chat-input input{flex:1;padding:10px;border-radius:8px;border:1px solid #333;background:#111;color:#fff}
+  .chat-input button{background:#FFD700;color:#000;border:0;padding:0 14px;border-radius:8px;font-weight:700}
+  .locked{background:#1A1A1A;border-radius:8px;padding:12px;display:flex;gap:10px;font-size:13px;margin-top:10px;color:#C9B67A}
+  .btn-row{display:flex;gap:12px;margin:14px 16px 0}
+  .btn-row button{flex:1;padding:14px;border-radius:10px;font-weight:800;font-size:16px;cursor:pointer}
+  .btn-call{background:#FFD700;color:#000;border:0}
+  .btn-wa{background:#000;color:#FFD700;border:1.5px solid #FFD700}
+  .btn-batal{margin:10px 16px 0;background:transparent;color:#FF6B6B;border:0;width:calc(100% - 32px);padding:10px;font-size:13px;cursor:pointer;text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="topbar">PRIORITAS PREMIUM</div>
+  <div class="radar-wrap"><div class="radar"><div class="sweep"></div><div class="dot"></div></div></div>
+  <div style="text-align:center;font-size:22px">👑</div>
+  <div class="title" id="statusTitle">PRIORITAS</div>
+  <div class="sub">Sedang Mencari Driver Prioritas...</div>
+  <p class="sub2">Mohon menunggu sebentar hingga driver ditemukan</p>
+
+  <div class="card">
+    <h2>📍 Rute Perjalanan</h2>
+    <div class="route"><small>Dari</small><br><b id="dari">Jl. Muara Timur, Bandung</b><br><br><small>Ke</small><br><b id="ke">Sape, NTB</b></div>
+    <div class="meta"><div>🛣️ Jarak<br><b id="jarak">Menghitung rute real...</b></div><div>🕒 Estimasi<br><b id="estimasi">-</b></div></div>
+    <div class="ongkos">💰 ONGKOS <span id="ongkos">Rp. -</span></div>
+    <!-- TARIF PER-KM SENGAJA TIDAK DITAMPILKAN - DAPUR -->
+    <div class="note">ⓘ Catatan: Biaya Parkir, Tol, dan Penyeberangan akan dibebankan kepada Penumpang bilamana ada</div>
+  </div>
+
+  <div class="driver-box">
+    <div id="belumKetemu">
+      <h3 style="color:#FFD700">👤 Driver</h3>
+      <p style="font-size:13px;margin:8px 0;color:#aaa">Belum ada driver yang menerima</p>
+      <div class="locked">🔒 Chat dengan Driver akan aktif setelah driver ditemukan</div>
+    </div>
+    <div id="sudahKetemu" style="display:none">
+      <div class="driver-info">
+        <img src="https://i.pravatar.cc/100?img=32"><div><b id="namaDriver">-</b><br><small id="platDriver">-</small> • ⭐ <span id="ratingDriver">-</span></div><span style="margin-left:auto;color:#FFD700;font-weight:700">● Prioritas</span>
+      </div>
+      <div style="margin-top:12px;text-align:left"><b style="color:#FFD700">💬 Chat dengan Driver</b><div class="chat-log" id="chatLog"><div>Driver: Halo, saya driver Prioritas, siap jemput 🙏</div></div><div class="chat-input"><input id="chatInput" placeholder="Kirim pesan ke driver..."><button onclick="kirimChat()">➤</button></div></div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-call" onclick="window.location.href='tel:+6281234567890'">📞 Call CS</button>
+    <button class="btn-wa" onclick="window.location.href='https://wa.me/6281234567890'">💬 WA CS</button>
+  </div>
+  <button class="btn-batal" onclick="batalkanPesanan()">Batalkan Pesanan</button>
+</div>
+
+<script>
+const ASAL = { nama:"Jl. Muara Timur, Bandung", lon:107.613, lat:-6.917 };
+const TUJUAN = { nama:"Sape, NTB", lon:119.0, lat:-8.55 };
+// PRIORITAS: 6500/KM - HANYA UNTUK HITUNG DI DALAM CODE, JANGAN TAMPILKAN KE PENUMPANG!
+const TARIF_PER_KM_PRIORITAS = 6500;
+
+async function hitungRuteReal(){
+  try{
+    const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${ASAL.lon},${ASAL.lat};${TUJUAN.lon},${TUJUAN.lat}?overview=false`);
+    const data = await res.json(); const r = data.routes[0];
+    const jarakKm = r.distance/1000; const ongkos = Math.round(jarakKm * TARIF_PER_KM_PRIORITAS);
+    document.getElementById('jarak').innerText = `~ ${jarakKm.toLocaleString('id-ID',{maximumFractionDigits:0})} km`;
+    document.getElementById('estimasi').innerText = formatDurasi(r.duration);
+    document.getElementById('ongkos').innerText = `Rp. ${ongkos.toLocaleString('id-ID')}`;
+    localStorage.setItem('order_aktif', JSON.stringify({jarakKm, ongkos, tipe:'prioritas'}));
+  }catch(e){
+    document.getElementById('jarak').innerText = `~ 1.320 km`;
+    document.getElementById('estimasi').innerText = `± 1 hari 1 jam`;
+    document.getElementById('ongkos').innerText = `Rp. 8.580.000`;
+  }
+}
+function formatDurasi(d){ const jam=Math.floor(d/3600); const hari=Math.floor(jam/24); const sisa=jam%24; return hari>0?`± ${hari} hari ${sisa} jam`:`± ${jam} jam`; }
+hitungRuteReal();
+
+async function cariDriverOnline(){ return {nama:"Andi Prioritas", plat:"D 9999 PR", rating:"5.0"}; }
+let cekDriver = setInterval(async ()=>{
+  const driver = await cariDriverOnline();
+  if(driver){ clearInterval(cekDriver); tampilkanDriver(driver); }
+}, 5000);
+
+function tampilkanDriver(d){
+  document.getElementById('statusTitle').innerText='DRIVER DITEMUKAN!';
+  document.getElementById('belumKetemu').style.display='none';
+  document.getElementById('sudahKetemu').style.display='block';
+  document.getElementById('namaDriver').innerText=d.nama;
+  document.getElementById('platDriver').innerText=d.plat;
+  document.getElementById('ratingDriver').innerText=d.rating;
+}
+function kirimChat(){
+  const inp=document.getElementById('chatInput'); if(!inp.value.trim()) return;
+  const log=document.getElementById('chatLog');
+  log.innerHTML+=`<div style="text-align:right;margin-top:6px"><b>Kamu:</b> ${inp.value}</div>`;
+  inp.value=''; log.scrollTop=log.scrollHeight;
+}
+function batalkanPesanan(){
+  if(!confirm('Yakin batalkan pesanan Prioritas?')) return;
+  let list=JSON.parse(localStorage.getItem('pernah_batal')||'[]');
+  list.push({dari:ASAL.nama, ke:TUJUAN.nama, ongkos:document.getElementById('ongkos').innerText, waktu:new Date().toISOString(), tipe:'prioritas'});
+  localStorage.setItem('pernah_batal', JSON.stringify(list));
+  localStorage.removeItem('order_aktif');
+  window.location.href='index.html';
+}
+</script>
+</body>
+</html>
