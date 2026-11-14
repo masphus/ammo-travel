@@ -2,116 +2,23 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pilih Lokasi</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ammo Travel</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, Arial, sans-serif; }
-  body { display:flex; flex-direction:column; height:100vh; background:#fff; }
-  #map { flex:1; width:100%; z-index:1; background:#e8e8e8; }
-  .panel { padding:14px 14px 18px; background:#fff; box-shadow:0 -2px 12px rgba(0,0,0,0.12); z-index:10; }
-  .panel b { font-size:16px; }
-  #address { margin:8px 0 12px; font-size:15px; color:#222; min-height:20px; }
-  .label { font-size:12px; font-weight:bold; color:#555; margin:10px 0 4px; }
-  .row { display:flex; gap:8px; }
-  input { flex:1; padding:11px 12px; border:1px solid #ddd; border-radius:10px; font-size:14px; outline:none; background:#fff; }
-  input:focus { border-color:#25D366; }
-  button { padding:11px 16px; border:0; border-radius:10px; background:#25D366; color:#fff; font-weight:bold; font-size:14px; cursor:pointer; white-space:nowrap; }
-  button:active { opacity:0.85; }
-  button.secondary { background:#f0f0f0; color:#333; }
-  button.active { background:#111; color:#fff; }
-  #coords { margin-top:10px; font-size:12px; color:#888; }
-  .hint { font-size:12px; color:#888; margin-top:6px; }
-</style>
-</head>
-<body>
-
-<div id="map"></div>
-
-<div class="panel">
-  <b>📍 Lokasi Terpilih:</b>
-  <div id="address">Bandung, Jawa, Indonesia</div>
-
-  <div class="label">TITIK PENJEMPUTAN</div>
-  <div class="row">
-    <input id="pickupInput" type="text" readonly placeholder="Klik peta, lalu tap Set Penjemputan">
-    <button id="btnPickup" onclick="setMode('pickup')">Set Jemput</button>
-  </div>
-
-  <div class="label">TITIK TUJUAN</div>
-  <div class="row">
-    <input id="destInput" type="text" readonly placeholder="Klik peta, lalu tap Set Tujuan">
-    <button id="btnDest" onclick="setMode('dest')">Set Tujuan</button>
-  </div>
-
-  <div class="label">KOORDINAT</div>
-  <div class="row">
-    <input id="latlngInput" type="text" readonly value="-6.917500, 107.619100">
-    <button onclick="copyCoords()">Salin</button>
-  </div>
-
-  <div id="coords">Lat: -6.917500 | Lng: 107.619100</div>
-  <div class="hint">Cara pakai: Tap tombol Set Jemput / Set Tujuan dulu, baru klik peta.</div>
-</div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-  // AMAN: OpenStreetMap, tanpa API Key, tanpa Carto
-  var map = L.map('map').setView([-6.9175, 107.6191], 14);
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap contributors'
-  }).addTo(map);
-
-  var marker = null;
-  var pickupMarker = null;
-  var destMarker = null;
-  var mode = 'pickup';
-  var currentLat = -6.9175;
-  var currentLng = 107.6191;
-
-  function setMode(m) {
-    mode = m;
-    document.getElementById('btnPickup').className = m === 'pickup' ? 'active' : 'secondary';
-    document.getElementById('btnDest').className = m === 'dest' ? 'active' : 'secondary';
-  }
-  setMode('pickup');
-
-  function getAddress(lat, lng, cb) {
-    fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=' + lat + '&longitude=' + lng + '&localityLanguage=id')
-      .then(r => r.json())
-      .then(d => cb(d.display_name || ''))
-      .catch(() => cb(lat.toFixed(6) + ', ' + lng.toFixed(6)));
-  }
-
-  function updateLocation(lat, lng) {
-    currentLat = lat; currentLng = lng;
-    if (marker) map.removeLayer(marker);
-    marker = L.marker([lat, lng]).addTo(map);
-    document.getElementById('latlngInput').value = lat.toFixed(6) + ', ' + lng.toFixed(6);
-    document.getElementById('coords').innerText = 'Lat: ' + lat.toFixed(6) + ' | Lng: ' + lng.toFixed(6);
-    document.getElementById('address').innerText = 'Mencari alamat...';
-    getAddress(lat, lng, function(alamat){
-      document.getElementById('address').innerText = alamat || 'Alamat tidak ditemukan';
-      if (mode === 'pickup') document.getElementById('pickupInput').value = alamat;
-      else document.getElementById('destInput').value = alamat;
-    });
-  }
-
-  map.on('click', function(e) {
-    updateLocation(e.latlng.lat, e.latlng.lng);
-  });
-
-  function copyCoords() {
-    var input = document.getElementById('latlngInput');
-    input.select();
-    if (navigator.clipboard) navigator.clipboard.writeText(input.value);
-    else document.execCommand('copy');
-    alert('Tersalin: ' + input.value);
-  }
-
-  updateLocation(currentLat, currentLng);
-</script>
-</body>
-</html>
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+body{background:#f2f2f2;display:flex;justify-content:center}
+.phone{width:100%;max-width:430px;min-height:100vh;background:#fff;display:flex;flex-direction:column;position:relative;padding-bottom:78px;overflow-x:hidden}
+header{background:#0DA54A;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:14px 16px}
+.logo{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:800}
+.logo-icon{width:42px;height:42px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px}
+.pilih{font-size:15px;font-weight:700;display:flex;align-items:center;gap:4px}
+main{padding:22px 18px 10px}
+h1{text-align:center;font-size:28px;line-height:1.2;color:#0B3D22;font-weight:800}
+.car-center{text-align:center;font-size:32px;margin:6px 0 14px;color:#0DA54A}
+label{font-size:17px;font-weight:800;color:#222;margin:14px 0 8px 38px;display:block}
+.field{position:relative;margin-left:38px}
+.field:before{content:"📍";position:absolute;left:-36px;top:11px;font-size:24px;color:#0DA54A}
+.input-wrap{display:flex;align-items:center;background:#F3F3F3;border:1px solid #D9D9D9;border-radius:10px;padding:5px 5px 5px 12px;gap:6px}
+.input-wrap input{flex:1;border:0;outline:none;background:transparent;font-size:15px;padding:10px 0;min-width:0}
+.btn-peta{background:#0DA54A;color:#fff;border
