@@ -80,7 +80,7 @@ function setP(lat,lng){mapLat=lat;mapLng=lng;if(marker)map.removeLayer(marker);m
 function closeMap(){document.getElementById('mapModal').classList.remove('show')}
 function confirmMap(){if(!marker)return alert('Klik peta dulu untuk pilih lokasi ya');const a=mapAddr||mapLat.toFixed(6)+', '+mapLng.toFixed(6);if(mapMode==='pickup'){document.getElementById('pickup').value=a;pickupData={lat:mapLat,lng:mapLng,addr:a}}else{document.getElementById('dest').value=a;destData={lat:mapLat,lng:mapLng,addr:a}}closeMap()}
 function search(q,box,isPick){
-  let qq=q.replace(/recheese/gi,'Richeese').replace(/reche/gi,'Riche');
+let qq=q.replace(/recheese/gi,'Richeese').replace(/cimaung|cincau|cicau|cibau/gi,'Cimaung');
   let qPendek=qq.replace(/puskesmas|alfamart|indomaret|masjid|toko|warung/gi,'').trim() || qq;
   const uEsri='https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&outFields=LongLabel,Match_addr&SingleLine='+encodeURIComponent(qq+', Indonesia')+'&maxLocations=20&location='+gpsLng+','+gpsLat;
   const uEsri2='https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&outFields=LongLabel,Match_addr&SingleLine='+encodeURIComponent(qPendek+', Indonesia')+'&maxLocations=20&location='+gpsLng+','+gpsLat;
