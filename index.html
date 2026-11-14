@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
-<head>
+<html lang="id"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ammo Travel</title>
@@ -22,16 +21,12 @@ label{font-size:17px;font-weight:800;margin:14px 0 8px 38px;display:block}
 .btn{border:0;background:#0DA54A;color:#fff;border-radius:7px;padding:9px 8px;font-weight:700;font-size:13px;white-space:nowrap}
 .gpsbtn{margin:8px 0 0 38px;background:#E6F7EC;color:#0B7A35;border:1px solid #BDE8C8;border-radius:8px;padding:8px 10px;font-weight:700;width:calc(100% - 38px)}
 .sug{background:#fff;border-radius:14px;box-shadow:0 6px 22px rgba(0,0,0,.14);display:none;overflow:hidden;margin-top:10px}
-.sug button{width:100%;display:flex;gap:12px;text-align:left;background:#fff;border:0;padding:14px 16px;font-size:15px}
-.sug small{display:block;color:#777;font-size:12px}
 .radar-box{background:#D9EEDF;border-radius:14px;padding:16px;margin-top:18px;display:flex;gap:14px;align-items:center}
 .radar{width:64px;height:64px;min-width:64px;border-radius:50%;background:#0DA54A;position:relative;overflow:hidden;border:3px solid #fff}
 .radar:after{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,rgba(255,255,255,.95),transparent 80deg);animation:spin 1.2s linear infinite}
-.radar:before{content:"";position:absolute;inset:18px;border-radius:50%;border:2px solid rgba(255,255,255,.5)}
-.radar-dot{position:absolute;left:50%;top:50%;width:8px;height:8px;background:#fff;border-radius:50%;transform:translate(-50%,-50%);z-index:2}
 @keyframes spin{to{transform:rotate(360deg)}}
 .btn-cek{width:100%;margin-top:14px;background:#0DA54A;color:#fff;border:0;border-radius:10px;padding:16px;font-weight:800;font-size:22px}
-.chat{position:fixed;bottom:92px;right:16px;width:56px;height:56px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;z-index:50;text-decoration:none}
+.chat{position:fixed;bottom:92px;right:16px;width:56px;height:56px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;z-index:50;border:0;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25)} 
 nav{position:fixed;bottom:0;width:100%;max-width:430px;background:#E9E9E9;display:flex;justify-content:space-around;padding:10px 0 12px}
 nav div{text-align:center;font-size:13px;color:#777}
 nav div.on{color:#0DA54A;font-weight:800}
@@ -40,10 +35,20 @@ nav div.on{color:#0DA54A;font-weight:800}
 #mapModal .top{background:#0DA54A;color:#fff;padding:12px 14px;display:flex;justify-content:space-between;font-weight:800}
 #map{flex:1}
 #mapModal .bottom{padding:12px}
-#mapAddr{font-size:14px;margin:6px 0 10px}
-</style>
-</head>
-<body>
+#chatModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;justify-content:center}
+#chatModal.show{display:flex}
+.chatBox{background:#fff;width:100%;max-width:430px;border-radius:16px 16px 0 0;overflow:hidden;max-height:85vh;display:flex;flex-direction:column}
+.chatHead{background:#0DA54A;color:#fff;padding:14px;display:flex;justify-content:space-between;font-weight:800}
+.chatLog{padding:14px;height:300px;overflow:auto;font-size:14px;line-height:1.5;background:#F7F7F7}
+.chatLog .me{text-align:right;margin:8px 0}
+.chatLog .me span{background:#0DA54A;color:#fff;padding:8px 10px;border-radius:12px;display:inline-block;max-width:85%}
+.chatLog .bot span{background:#fff;padding:8px 10px;border-radius:12px;display:inline-block;max-width:85%;border:1px solid #eee}
+.chatFoot{display:flex;gap:8px;padding:10px;border-top:1px solid #eee}
+.chatFoot input{flex:1;padding:12px;border:1px solid #ddd;border-radius:10px;outline:none}
+.chatFoot button{background:#0DA54A;color:#fff;border:0;padding:0 16px;border-radius:10px;font-weight:800}
+.chatQuick{display:flex;gap:8px;padding:0 10px 10px;flex-wrap:wrap}
+.chatQuick button{background:#E6F7EC;border:1px solid #BDE8C8;color:#0B7A35;padding:8px 10px;border-radius:20px;font-size:12px;font-weight:700}
+</style></head><body>
 <div class="phone">
 <header><div class="logo"><img src="icon-512.png">Ammo Travel</div><div>📍 Pilih Lokasi</div></header>
 <main>
@@ -55,56 +60,38 @@ nav div.on{color:#0DA54A;font-weight:800}
 <label>Tujuan</label>
 <div class="field"><div class="wrap"><input id="dest" placeholder="Ketik / Pilih Tujuan..."><button class="btn" onclick="openMap('dest')">PETA</button></div></div>
 <div id="sugDest" class="sug"></div>
-<div class="radar-box"><div class="radar"><div class="radar-dot"></div></div><p><b>Sedang Mencari Driver...</b><br>Driver di sekitar kamu siap menjemput!</p></div>
+<div class="radar-box"><div class="radar"></div><p><b>Sedang Mencari Driver...</b><br>Driver di sekitar kamu siap menjemput!</p></div>
 <button class="btn-cek" onclick="cekDriver()">Cek Driver & Lanjut</button>
 </main>
-<a class="chat" href="#" onclick="alert('Chat Admin - Segera Hadir');return false">💬</a>
+<button class="chat" onclick="openChat()">💬</button>
 <nav><div class="on">🏠<br>Beranda</div><div>🕐<br>Riwayat</div><div>🏷️<br>Promo</div><div>👤<br>Akun</div></nav>
 </div>
 <div id="mapModal"><div class="top"><span>📍 Pilih di Peta</span><span onclick="closeMap()">✕</span></div><div id="map"></div><div class="bottom"><b>📍 Lokasi Terpilih:</b><div id="mapAddr">Klik di peta...</div><button class="btn-cek" style="font-size:16px;padding:12px" onclick="confirmMap()">Pilih Lokasi Ini</button></div></div>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script> 
-  <script>
-let gpsLat=-6.9175,gpsLng=107.6191,map=null,marker=null,mapMode='pickup',mapLat=gpsLat,mapLng=gpsLng,mapAddr='',pickupData=null,destData=null;
+<div id="chatModal"><div class="chatBox"><div class="chatHead"><span>💬 Chat Ammo Travel</span><span onclick="closeChat()" style="cursor:pointer">✕</span></div><div class="chatLog" id="chatLog"><div class="bot"><span>Halo! Mau pergi kemana? Ketik tujuan kamu.<br><br>Driver ketik <b>#sopir</b><br>Admin ketik <b>#admin</b></span></div></div><div class="chatQuick"><button onclick="isiChat('#sopir')">🔑 #sopir - Driver</button><button onclick="isiChat('#admin')">👑 #admin - Admin</button><button onclick="isiChat('Mau ke Lembang')">📍 Mau ke Lembang</button></div><div class="chatFoot"><input id="chatInput" placeholder="Ketik pesan..."><button onclick="kirimChatPintu()">➤</button></div></div></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+let gpsLat=-6.9175,gpsLng=107.6191,map=null,marker=null,mapMode='pickup',pickupData=null,destData=null;
 function hav(a,b,c,d){const R=6371,e=(c-a)*Math.PI/180,f=(d-b)*Math.PI/180;const g=Math.sin(e/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(f/2)**2;return R*2*Math.asin(Math.sqrt(g))}
 function rev(lat,lng,cb){fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat='+lat+'&lon='+lng+'&accept-language=id&zoom=18').then(r=>r.json()).then(d=>cb(d.display_name||'')).catch(()=>cb(''))}
-function useGPS(){const i=document.getElementById('pickup');i.value='📍 Mencari GPS...';navigator.geolocation.getCurrentPosition(p=>{gpsLat=p.coords.latitude;gpsLng=p.coords.longitude;i.value='📍 Mencari alamat...';rev(gpsLat,gpsLng,a=>{i.value=a||('Lokasi Saya - '+gpsLat.toFixed(6)+', '+gpsLng.toFixed(6));pickupData={lat:gpsLat,lng:gpsLng,addr:i.value}})},()=>{i.value='';alert('Gagal ambil GPS. Nyalakan Lokasi / GPS dulu ya')},{enableHighAccuracy:true,timeout:10000,maximumAge:0})}
-if(navigator.geolocation){navigator.geolocation.getCurrentPosition(p=>{gpsLat=p.coords.latitude;gpsLng=p.coords.longitude;const i=document.getElementById('pickup');if(!i.value){i.value='📍 Mencari alamat...';rev(gpsLat,gpsLng,a=>{if(a){i.value=a;pickupData={lat:gpsLat,lng:gpsLng,addr:a}}else{i.value='Lokasi Saya - '+gpsLat.toFixed(6)+', '+gpsLng.toFixed(6);pickupData={lat:gpsLat,lng:gpsLng,addr:i.value}}})}},()=>{},{enableHighAccuracy:true,timeout:10000})}
+function useGPS(){const i=document.getElementById('pickup');i.value='📍 Mencari GPS...';navigator.geolocation.getCurrentPosition(p=>{gpsLat=p.coords.latitude;gpsLng=p.coords.longitude;i.value='📍 Mencari alamat...';rev(gpsLat,gpsLng,a=>{i.value=a||('Lokasi Saya - '+gpsLat.toFixed(6)+', '+gpsLng.toFixed(6));pickupData={lat:gpsLat,lng:gpsLng,addr:i.value}})},()=>{i.value='';alert('Gagal ambil GPS')},{enableHighAccuracy:true,timeout:10000})}
 let timer=null;
 function setup(id,boxId,isPick){const inp=document.getElementById(id),box=document.getElementById(boxId);inp.addEventListener('input',()=>{const q=inp.value.trim();if(q.length<2){box.style.display='none';return}clearTimeout(timer);timer=setTimeout(()=>search(q,box,isPick),350)})}
-function search(q,box,isPick){const vb=(gpsLng-.45)+','+(gpsLat+.45)+','+(gpsLng+.45)+','+(gpsLat-.45);const u1='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=15&accept-language=id&addressdetails=1&viewbox='+vb+'&bounded=1&q='+encodeURIComponent(q);const u2='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=30&accept-language=id&addressdetails=1&countrycodes=id&q='+encodeURIComponent(q);Promise.all([fetch(u1).then(r=>r.json()),fetch(u2).then(r=>r.json())]).then(([n,a])=>{let g=[...n,...a],s={};g=g.filter(x=>{let k=x.display_name;if(s[k])return false;s[k]=1;return true});g.forEach(x=>{let ad=x.address||{};let full=[ad.road||ad.pedestrian,ad.village||ad.suburb||ad.neighbourhood,ad.city_district||ad.district||ad.county,ad.city||ad.town,ad.state].filter(Boolean).join(', ');if(full&&full.length>10)x.display_name=full+', Indonesia';x._d=hav(gpsLat,gpsLng,parseFloat(x.lat),parseFloat(x.lon));let nm=(x.display_name||'').toLowerCase();let qq=q.toLowerCase().trim();let kata=qq.split(' ').filter(w=>w.length>2&&nm.includes(w)).length;let semua=qq.split(' ').every(w=>nm.includes(w));x._s=semua?1000+kata*100-x._d*0.02:kata*100-x._d*0.5});g.sort((a,b)=>b._s-a._s);render(g.slice(0,10),box,isPick)})}
-function render(list,box,isPick){if(!list||!list.length){box.style.display='none';return}window._list=list;box.innerHTML=list.map((x,i)=>`<div onclick="pickS(${isPick},${i})" style="padding:8px;border-bottom:1px solid #ddd;cursor:pointer;white-space:normal;word-break:break-word;line-height:1.4">${x.display_name} - ${x._d.toFixed(1)} km</div>`).join('');box.style.display='block'}
+function search(q,box,isPick){const vb=(gpsLng-.45)+','+(gpsLat+.45)+','+(gpsLng+.45)+','+(gpsLat-.45);const u1='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=15&accept-language=id&viewbox='+vb+'&bounded=1&q='+encodeURIComponent(q);const u2='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=30&accept-language=id&countrycodes=id&q='+encodeURIComponent(q);Promise.all([fetch(u1).then(r=>r.json()),fetch(u2).then(r=>r.json())]).then(([n,a])=>{let g=[...n,...a],s={};g=g.filter(x=>{if(s[x.display_name])return false;s[x.display_name]=1;return true});g.forEach(x=>{x._d=hav(gpsLat,gpsLng,parseFloat(x.lat),parseFloat(x.lon))});g.sort((a,b)=>a._d-b._d);render(g.slice(0,10),box,isPick)})}
+function render(list,box,isPick){if(!list.length){box.style.display='none';return}window._list=list;box.innerHTML=list.map((x,i)=>`<div onclick="pickS(${isPick},${i})" style="padding:12px;border-bottom:1px solid #ddd;cursor:pointer">${x.display_name} - ${x._d.toFixed(1)} km</div>`).join('');box.style.display='block'}
 function pickS(isPick,i){const it=window._list[i];if(!it)return;if(isPick){pickupData={lat:parseFloat(it.lat),lng:parseFloat(it.lon),addr:it.display_name};document.getElementById('pickup').value=it.display_name;document.getElementById('sugPickup').style.display='none'}else{destData={lat:parseFloat(it.lat),lng:parseFloat(it.lon),addr:it.display_name};document.getElementById('dest').value=it.display_name;document.getElementById('sugDest').style.display='none'}}
-setup('pickup','sugPickup',1);setup('dest','sugDest',0);setTimeout(()=>{try{let el=document.getElementById('pickup');if(!el)return;let la=typeof gpsLat!=='undefined'?gpsLat:window.gpsLat;let lo=typeof gpsLng!=='undefined'?gpsLng:window.gpsLng;if(!la)return;if(el.value.includes('TEST')||el.value.includes('Astanaanyar')||el.value.includes('Lokasi Saya')||el.value.includes('-6.')||el.value.includes('107.')){fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat='+la+'&lon='+lo+'&zoom=18&accept-language=id&addressdetails=1').then(r=>r.json()).then(j=>{if(j&&j.display_name){let ad=j.address||{};let full=[ad.road,ad.village||ad.suburb,ad.city_district||ad.district||ad.county,ad.city||ad.town,ad.state].filter(Boolean).join(', ');let fin=full||j.display_name;pickupData={lat:la,lng:lo,addr:fin};el.value=fin}else{throw 0}}).catch(()=>{fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude='+la+'&longitude='+lo+'&localityLanguage=id').then(r=>r.json()).then(j=>{if(j){let a=[j.locality,j.city,j.principalSubdivision].filter(Boolean).join(', ');if(a)el.value=a}})})}}catch(e){}},2500);
-function openMap(m){try{let ev=window.event;let t=ev?ev.target||ev.srcElement:null;if(t){let el=t.closest? t.closest('div'):null;let h=el?el.innerHTML||'':'';let p=el;for(let i=0;i<4&&p;i++){if(p.querySelector&&p.querySelector('#dest')){m=0;break}if(p.querySelector&&p.querySelector('#pickup')){m=1;break}p=p.parentElement}}}catch(e){}mapMode=m;document.getElementById('mapModal').style.display='flex';setTimeout(()=>{let la=gpsLat,lo=gpsLng;if(m==1&&typeof pickupData!=='undefined'&&pickupData&&pickupData.lat){la=pickupData.lat;lo=pickupData.lng}if(m==0&&typeof destData!=='undefined'&&destData&&destData.lat){la=destData.lat;lo=destData.lng}if(!map){map=L.map('map',{dragging:true,scrollWheelZoom:true,doubleClickZoom:true,touchZoom:true}).setView([la,lo],16);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);marker=L.marker([la,lo],{draggable:true}).addTo(map);marker.on('dragend',()=>{let p=marker.getLatLng();setP(p.lat,p.lng)})}else{map.invalidateSize();map.setView([la,lo],16);marker.setLatLng([la,lo]);setP(la,lo);setTimeout(()=>map.invalidateSize(),100)}},200)}
-function setP(lat,lng){mapLat=lat;mapLng=lng;rev(lat,lng,a=>{document.getElementById('mapAddr').textContent=a||lat.toFixed(6)+','+lng.toFixed(6)})}
-function closeMap(){document.getElementById('mapModal').style.display='none'}
-function confirmMap(){if(!marker)return;let p=marker.getLatLng();if(mapMode==1){pickupData={lat:p.lat,lng:p.lng,addr:document.getElementById('mapAddr').textContent};document.getElementById('pickup').value=pickupData.addr}else{destData={lat:p.lat,lng:p.lng,addr:document.getElementById('mapAddr').textContent};document.getElementById('dest').value=destData.addr}closeMap()}
-if(false){
-  let qPendek=qq.replace(/puskesmas|alfamart|indomaret|masjid|toko|warung/gi,'').trim() || qq;
-  const uEsri='https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&outFields=LongLabel,Match_addr&SingleLine='+encodeURIComponent(qq+', Indonesia')+'&maxLocations=20&location='+gpsLng+','+gpsLat;
-  const uEsri2='https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&outFields=LongLabel,Match_addr&SingleLine='+encodeURIComponent(qPendek+', Indonesia')+'&maxLocations=20&location='+gpsLng+','+gpsLat;
-  const u2='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=20&accept-language=id&countrycodes=id&q='+encodeURIComponent(qq)+'&viewbox='+(gpsLng-0.5)+','+(gpsLat+0.5)+','+(gpsLng+0.5)+','+(gpsLat-0.5)+'&bounded=0';
-  const u2b='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=20&accept-language=id&countrycodes=id&q='+encodeURIComponent(qPendek)+'&viewbox='+(gpsLng-0.5)+','+(gpsLat+0.5)+','+(gpsLng+0.5)+','+(gpsLat-0.5)+'&bounded=0';
-  const u3='https://photon.komoot.io/api/?q='+encodeURIComponent(qq)+'&lat='+gpsLat+'&lon='+gpsLng+'&limit=20&lang=id';
-  Promise.all([fetch(uEsri).then(r=>r.json()).catch(()=>({candidates:[]})),fetch(uEsri2).then(r=>r.json()).catch(()=>({candidates:[]})),fetch(u2).then(r=>r.json()).catch(()=>[]),fetch(u2b).then(r=>r.json()).catch(()=>[]),fetch(u3).then(r=>r.json()).catch(()=>({features:[]}))]).then(([e,e2,n,n2,p])=>{
-    let es=(e.candidates||[]).map(c=>({display_name:(c.attributes && (c.attributes.LongLabel || c.attributes.Match_addr)) || c.address,lat:c.location.y,lon:c.location.x}));
-    let es2=(e2.candidates||[]).map(c=>({display_name:(c.attributes && (c.attributes.LongLabel || c.attributes.Match_addr)) || c.address,lat:c.location.y,lon:c.location.x}));
-    let ph=(p.features||[]).map(f=>({display_name:[f.properties.name,f.properties.street,f.properties.city,f.properties.state].filter(Boolean).join(', '),lat:f.geometry.coordinates[1],lon:f.geometry.coordinates[0]}));
-    let g=[...ph,...es,...es2,...n,...n2]; 
-    let qLow=qPendek.toLowerCase();
-let kata=qLow.split(/\s+/).filter(w=>w.length>=4);
-let exact=g.filter(x=>kata.every(k=>x.display_name.toLowerCase().includes(k)));
-if(exact.length>0) g=exact; 
-    g.forEach(x=>x._d=hav(gpsLat,gpsLng,parseFloat(x.lat),parseFloat(x.lon)));
-    g.sort((a,b)=>a._d-b._d);
-    let out=[];
-    for(let x of g){
-      let duplikat = out.some(y => hav(y.lat,y.lon,x.lat,x.lon) < 0.2);
-      if(!duplikat) out.push(x);
-      if(out.length>=10) break;
-    }
-    render(out,box,isPick)
-  })
-}
+setup('pickup','sugPickup',1);setup('dest','sugDest',0);
+function openMap(m){mapMode=m;document.getElementById('mapModal').classList.add('show');setTimeout(()=>{let la=gpsLat,lo=gpsLng;if(m==1&&pickupData){la=pickupData.lat;lo=pickupData.lng}if(m==0&&destData){la=destData.lat;lo=destData.lng}if(!map){map=L.map('map').setView([la,lo],16);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);marker=L.marker([la,lo],{draggable:true}).addTo(map);marker.on('dragend',()=>{let p=marker.getLatLng();setP(p.lat,p.lng)})}else{map.invalidateSize();map.setView([la,lo],16);marker.setLatLng([la,lo]);setP(la,lo)}},200)}
+function setP(lat,lng){rev(lat,lng,a=>{document.getElementById('mapAddr').textContent=a||lat.toFixed(6)+','+lng.toFixed(6)})}
+function closeMap(){document.getElementById('mapModal').classList.remove('show')}
+function confirmMap(){let p=marker.getLatLng();if(mapMode==1){pickupData={lat:p.lat,lng:p.lng,addr:document.getElementById('mapAddr').textContent};document.getElementById('pickup').value=pickupData.addr}else{destData={lat:p.lat,lng:p.lng,addr:document.getElementById('mapAddr').textContent};document.getElementById('dest').value=destData.addr}closeMap()}
+let modeChat='penumpang',nungguPIN='';
+function openChat(){document.getElementById('chatModal').classList.add('show')}
+function closeChat(){document.getElementById('chatModal').classList.remove('show')}
+function isiChat(t){document.getElementById('chatInput').value=t;document.getElementById('chatInput').focus()}
+function tambahChat(teks,siapa){const log=document.getElementById('chatLog');log.innerHTML+=`<div class="${siapa}"><span>${teks}</span></div>`;log.scrollTop=log.scrollHeight}
+function kirimChatPintu(){const inp=document.getElementById('chatInput');const teks=inp.value.trim();if(!teks)return;tambahChat(teks,'me');inp.value='';const t=teks.toLowerCase();if(nungguPIN){if(nungguPIN==='sopir'&&teks==='123456'){modeChat='driver';nungguPIN='';tambahChat('✅ Selamat datang Driver! Ketik <b>lihat orderan</b> atau <b>keluar</b>','bot');return}if(nungguPIN==='admin'&&teks==='999999'){modeChat='admin';nungguPIN='';tambahChat('👑 Selamat datang ADMIN! Ketik <b>lihat driver</b> / <b>keluar</b>','bot');return}tambahChat('❌ PIN salah. Coba lagi ya.','bot');return}if(t==='#sopir'||t.includes('#sopir')){nungguPIN='sopir';tambahChat('🔑 Masuk mode DRIVER. Masukkan PIN (123456):','bot');return}if(t==='#admin'||t.includes('#admin')){nungguPIN='admin';tambahChat('👑 Masuk mode ADMIN. Masukkan PIN:','bot');return}if(t==='keluar'||t==='exit'){modeChat='penumpang';nungguPIN='';tambahChat('👋 Sudah keluar. Balik jadi penumpang lagi ya.','bot');return}if(modeChat==='driver'){if(t.includes('lihat orderan')){tambahChat('📦 Orderan: Bandung - Lembang, 3 orang. Ketik <b>terima</b>','bot');return}if(t.includes('terima')){tambahChat('✅ Orderan diambil! Silakan jemput ya.','bot');return}tambahChat('🚗 Mode DRIVER aktif. Ketik <b>lihat orderan</b> atau <b>keluar</b>','bot');return}if(modeChat==='admin'){if(t.includes('lihat driver')){tambahChat('👥 Driver: 1. Andi - 0 putaran<br>2. Budi - 0 putaran','bot');return}if(t.includes('tambah driver')){tambahChat('➕ Ketik: <b>tambah Budi - PIN 445566</b>','bot');return}tambahChat('👑 Mode ADMIN aktif. Ketik <b>lihat driver</b> / <b>keluar</b>','bot');return}tambahChat('Siap! Saya catat: "'+teks+'".','bot')}
+document.getElementById('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')kirimChatPintu()});
+function cekDriver(){const p=document.getElementById('pickup').value.trim();const d=document.getElementById('dest').value.trim();if(!p||!d){alert('Isi dulu Penjemputan & Tujuan ya');return}localStorage.setItem('order_aktif',JSON.stringify({dari:p,ke:d,waktu:new Date().toISOString()}));if(confirm('Mau yang mana? OK = PRIORITAS | Cancel = REGULER')){window.location.href='prioritas.html'}else{window.location.href='penumpang.html'}}
 </script>
-</body> 
+</body>
+</html>
