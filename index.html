@@ -83,20 +83,25 @@ function cekDriver(){const p=document.getElementById('pickup').value.trim(),d=do
 </script> 
 <script>
 function search(q,box,isPick){
-  const uEsri='https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&outFields=LongLabel,Match_addr&SingleLine='+encodeURIComponent(q+', Indonesia')+'&maxLocations=10';
-  const u2='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=10&accept-language=id&countrycodes=id&q='+encodeURIComponent(q)+'&viewbox='+(gpsLng-0.3)+','+(gpsLat+0.3)+','+(gpsLng+0.3)+','+(gpsLat-0.3)+'&bounded=0';
-  const u3='https://photon.komoot.io/api/?q='+encodeURIComponent(q)+'&lat='+gpsLat+'&lon='+gpsLng+'&limit=10&lang=id';
-  Promise.all([fetch(uEsri).then(r=>r.json()).catch(()=>({candidates:[]})),fetch(u2).then(r=>r.json()).catch(()=>[]),fetch(u3).then(r=>r.json()).catch(()=>({features:[]}))]).then(([e,n,p])=>{
+  let qq=q.replace(/recheese/gi,'Richeese').replace(/reche/gi,'Riche');
+  let qPendek=qq.replace(/puskesmas|alfamart|indomaret|masjid|toko|warung/gi,'').trim() || qq;
+  const uEsri='https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&outFields=LongLabel,Match_addr&SingleLine='+encodeURIComponent(qq+', Indonesia')+'&maxLocations=20&location='+gpsLng+','+gpsLat;
+  const uEsri2='https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&outFields=LongLabel,Match_addr&SingleLine='+encodeURIComponent(qPendek+', Indonesia')+'&maxLocations=20&location='+gpsLng+','+gpsLat;
+  const u2='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=20&accept-language=id&countrycodes=id&q='+encodeURIComponent(qq)+'&viewbox='+(gpsLng-0.5)+','+(gpsLat+0.5)+','+(gpsLng+0.5)+','+(gpsLat-0.5)+'&bounded=0';
+  const u2b='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=20&accept-language=id&countrycodes=id&q='+encodeURIComponent(qPendek)+'&viewbox='+(gpsLng-0.5)+','+(gpsLat+0.5)+','+(gpsLng+0.5)+','+(gpsLat-0.5)+'&bounded=0';
+  const u3='https://photon.komoot.io/api/?q='+encodeURIComponent(qq)+'&lat='+gpsLat+'&lon='+gpsLng+'&limit=20&lang=id';
+  Promise.all([fetch(uEsri).then(r=>r.json()).catch(()=>({candidates:[]})),fetch(uEsri2).then(r=>r.json()).catch(()=>({candidates:[]})),fetch(u2).then(r=>r.json()).catch(()=>[]),fetch(u2b).then(r=>r.json()).catch(()=>[]),fetch(u3).then(r=>r.json()).catch(()=>({features:[]}))]).then(([e,e2,n,n2,p])=>{
     let es=(e.candidates||[]).map(c=>({display_name:(c.attributes && (c.attributes.LongLabel || c.attributes.Match_addr)) || c.address,lat:c.location.y,lon:c.location.x}));
+    let es2=(e2.candidates||[]).map(c=>({display_name:(c.attributes && (c.attributes.LongLabel || c.attributes.Match_addr)) || c.address,lat:c.location.y,lon:c.location.x}));
     let ph=(p.features||[]).map(f=>({display_name:[f.properties.name,f.properties.street,f.properties.city,f.properties.state].filter(Boolean).join(', '),lat:f.geometry.coordinates[1],lon:f.geometry.coordinates[0]}));
-    let g=[...ph,...es,...n];
+    let g=[...ph,...es,...es2,...n,...n2];
     g.forEach(x=>x._d=hav(gpsLat,gpsLng,parseFloat(x.lat),parseFloat(x.lon)));
     g.sort((a,b)=>a._d-b._d);
     let out=[];
     for(let x of g){
-      let duplikat = out.some(y => hav(y.lat,y.lon,x.lat,x.lon) < 0.5);
+      let duplikat = out.some(y => hav(y.lat,y.lon,x.lat,x.lon) < 0.2);
       if(!duplikat) out.push(x);
-      if(out.length>=6) break;
+      if(out.length>=10) break;
     }
     render(out,box,isPick)
   })
