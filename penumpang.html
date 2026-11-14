@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Penumpang - Menunggu Driver REGULER</title>
+<title>Penumpang - Menunggu Driver</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,Arial,sans-serif}
   body{background:#f2f2f2;display:flex;justify-content:center}
@@ -42,14 +42,14 @@
 </head>
 <body>
 <div class="phone">
-  <header><a href="index.html">←</a><h1>Menunggu Driver REGULER</h1></header>
+  <header><a href="index.html">←</a><h1>Menunggu Driver</h1></header>
   <div class="radar-wrap"><div class="radar"><div class="sweep"></div><div class="dot"></div></div></div>
   <div class="title" id="statusTitle">Mencari Driver...</div>
   <p class="sub">Kami sedang mencari driver terdekat untukmu • ± 1 - 3 menit</p>
 
   <div class="card">
     <h2>📍 Rute Perjalanan</h2>
-    <div class="route"><small>Dari</small><br><b id="dari">Jl. Muara Timur, Bandung</b><br><br><small>Ke</small><br><b id="ke">Sape, NTB</b></div>
+    <div class="route"><small>Dari</small><br><b id="dari">Memuat...</b><br><br><small>Ke</small><br><b id="ke">Memuat...</b></div>
     <div class="meta"><div>🛣️ Jarak<br><b id="jarak">Menghitung rute real...</b></div><div>🕒 Estimasi<br><b id="estimasi">-</b></div></div>
     <div class="ongkos">💵 ONGKOS<br><span id="ongkos">Rp. -</span></div>
     <div class="note">ⓘ Biaya Parkir, Tol, dan Penyeberangan akan dibebankan kepada Penumpang bilamana ada</div>
@@ -74,9 +74,16 @@
 </div>
 
 <script>
-const ASAL = { nama:"Jl. Muara Timur, Bandung", lon:107.613, lat:-6.917 };
-const TUJUAN = { nama:"Sape, NTB", lon:119.0, lat:-8.55 };
-const TARIF_PER_KM = 5000; // REGULER - dipakai untuk hitung, TIDAK ditampilkan per-km-nya
+const TEST_MODE = true; // TEST = true (10 detik), ASLI = ganti jadi false (10 menit)
+
+// AMBIL RUTE DARI INDEX - kalau gak ada, pakai default lama biar gak error
+const saved = JSON.parse(localStorage.getItem('masphus_order') || 'null');
+const ASAL = saved ? saved.asal : { nama:"Jl. Muara Timur, Bandung", lon:107.613, lat:-6.917 };
+const TUJUAN = saved ? saved.tujuan : { nama:"Sape, NTB", lon:119.0, lat:-8.55 };
+document.getElementById('dari').innerText = ASAL.nama;
+document.getElementById('ke').innerText = TUJUAN.nama;
+
+const TARIF_PER_KM = 5000;
 
 async function hitungRuteReal(){
   try{
@@ -96,14 +103,22 @@ async function hitungRuteReal(){
 function formatDurasi(d){ const jam=Math.floor(d/3600); const hari=Math.floor(jam/24); const sisa=jam%24; return hari>0?`± ${hari} hari ${sisa} jam`:`± ${jam} jam`; }
 hitungRuteReal();
 
-// CARI DRIVER ONLINE - ganti ke API/Firebase kamu
-async function cariDriverOnline(){ return {nama:"Budi Santoso", plat:"D 1234 ABC", rating:"4.9"}; }
+// CARI DRIVER - BUDI HANYA BUAT TEST
+let detikJalan = 0;
+async function cariDriverOnline(){
+  detikJalan += 5;
+  if(TEST_MODE && detikJalan < 15) return null; // biar tombol Prioritas sempat muncul dulu di detik 10
+  if(!TEST_MODE) return null; // ASLI: nunggu driver beneran dari API/Firebase
+  return {nama:"Budi Santoso (TEST)", plat:"D 1234 ABC", rating:"4.9"};
+}
 let cekDriver = setInterval(async ()=>{
   const driver = await cariDriverOnline();
   if(driver){ clearInterval(cekDriver); tampilkanDriver(driver); }
 }, 5000);
 
-setTimeout(()=>{ if(document.getElementById('sudahKetemu').style.display==='none'){ document.getElementById('btnPrioritas').style.display='block'; } }, 10*60*1000);
+// PRIORITAS: TEST = 10 detik, ASLI = 10 menit
+let delayPrioritas = TEST_MODE ? 10*1000 : 10*60*1000;
+setTimeout(()=>{ if(document.getElementById('sudahKetemu').style.display==='none'){ document.getElementById('btnPrioritas').style.display='block'; } }, delayPrioritas);
 
 function tampilkanDriver(d){
   document.getElementById('statusTitle').innerText='Driver Ditemukan!';
