@@ -1,69 +1,21 @@
 <!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Ammo Travel</title><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
-body{background:#f0f0f0;display:flex;justify-content:center}
-.phone{width:100%;max-width:430px;background:#fff;min-height:100vh;position:relative;padding-bottom:70px}
-header{background:#0DA54A;color:#fff;padding:14px;display:flex;justify-content:space-between;align-items:center}
-.logo{display:flex;align-items:center;gap:8px;font-weight:800}
-.logo img{width:32px;height:32px;border-radius:8px}
-main{padding:16px}
-h1{font-size:22px;margin-bottom:16px}
-label{display:block;font-weight:700;margin:12px 0 6px}
-.field{border:1px solid #ddd;border-radius:10px;padding:4px}
-.wrap{display:flex;gap:6px}
-.wrap input{flex:1;border:0;outline:none;padding:12px;font-size:15px}
-.btn{background:#0DA54A;color:#fff;border:0;padding:0 14px;border-radius:8px;font-weight:800}
-.gpsbtn{width:100%;margin-top:8px;background:#E6F7EC;border:1px solid #BDE8C8;color:#0B7A35;padding:10px;border-radius:10px;font-weight:700}
-.sug{display:none;border:1px solid #ddd;border-radius:10px;margin-top:6px;max-height:220px;overflow:auto;background:#fff}
-.sug div{padding:12px;border-bottom:1px solid #eee;cursor:pointer}
-.radar-box{background:#D9EEDF;border-radius:14px;padding:16px;margin-top:18px;display:flex;gap:14px;align-items:center}
-.radar{width:64px;height:64px;min-width:64px;border-radius:50%;background:#0DA54A;position:relative;overflow:hidden;border:3px solid #fff}
-.radar:after{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,rgba(255,255,255,.95),transparent 80deg);animation:spin 1.2s linear infinite}
-.radar:before{content:"";position:absolute;inset:18px;border-radius:50%;border:2px solid rgba(255,255,255,.5)}
-.radar-dot{position:absolute;left:50%;top:50%;width:8px;height:8px;background:#fff;border-radius:50%;transform:translate(-50%,-50%);z-index:2}
-@keyframes spin{to{transform:rotate(360deg)}}
-.btn-cek{width:100%;margin-top:14px;background:#0DA54A;color:#fff;border:0;border-radius:10px;padding:16px;font-weight:800;font-size:22px}
-.chat{position:fixed;bottom:92px;right:16px;width:56px;height:56px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;z-index:50;cursor:pointer;border:0}
-nav{position:fixed;bottom:0;width:100%;max-width:430px;background:#E9E9E9;display:flex;justify-content:space-around;padding:10px 0 12px}
-nav div{text-align:center;font-size:13px;color:#777}
-nav div.on{color:#0DA54A;font-weight:800}
-#mapModal{display:none;position:fixed;inset:0;background:#fff;z-index:100;flex-direction:column}
-#mapModal.show{display:flex}
-#mapModal .top{background:#0DA54A;color:#fff;padding:12px 14px;display:flex;justify-content:space-between;font-weight:800}
-#map{flex:1}
-#mapModal .bottom{padding:12px}
-#chatModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;justify-content:center}
-#chatModal.show{display:flex}
-.chatBox{background:#fff;width:100%;max-width:430px;border-radius:16px 16px 0 0;overflow:hidden;max-height:85vh;display:flex;flex-direction:column}
-.chatHead{background:#0DA54A;color:#fff;padding:14px;display:flex;justify-content:space-between;font-weight:800}
-.chatLog{padding:14px;height:300px;overflow:auto;font-size:14px;line-height:1.5;background:#F7F7F7}
-.chatLog .me{text-align:right;margin:8px 0}
-.chatLog .me span{background:#0DA54A;color:#fff;padding:8px 10px;border-radius:12px;display:inline-block;max-width:85%}
-.chatLog .bot span{background:#fff;padding:8px 10px;border-radius:12px;display:inline-block;max-width:85%;border:1px solid #eee}
-.chatFoot{display:flex;gap:8px;padding:10px;border-top:1px solid #eee}
-.chatFoot input{flex:1;padding:12px;border:1px solid #ddd;border-radius:10px;outline:none;font-size:16px}
-.chatFoot button{background:#0DA54A;color:#fff;border:0;padding:0 16px;border-radius:10px;font-weight:800}
-.chatQuick{display:flex;gap:8px;padding:0 10px 10px;flex-wrap:wrap}
-.chatQuick button{background:#E6F7EC;border:1px solid #BDE8C8;color:#0B7A35;padding:8px 10px;border-radius:20px;font-size:12px;font-weight:700}
-</style></head><body>
-<div class="phone">
-<header><div class="logo"><img src="icon-512.png">Ammo Travel</div><div>📍 Pilih Lokasi</div></header>
-<main>
-<h1>Mau Pergi Kemana Hari Ini?</h1>
-<label>Penjemputan</label>
-<div class="field"><div class="wrap"><input id="pickup" placeholder="Ketik / Pilih Lokasi Jemput..."><button class="btn" onclick="openMap('pickup')">PETA</button></div></div>
-<button class="gpsbtn" onclick="useGPS()">📍 Pakai GPS Saya</button>
-<div id="sugPickup" class="sug"></div>
-<label>Tujuan</label>
-<div class="field"><div class="wrap"><input id="dest" placeholder="Ketik / Pilih Tujuan..."><button class="btn" onclick="openMap('dest')">PETA</button></div></div>
-<div id="sugDest" class="sug"></div>
-<div class="radar-box"><div class="radar"><div class="radar-dot"></div></div><p><b>Sedang Mencari Driver...</b><br>Driver di sekitar kamu siap menjemput!</p></div>
-<button class="btn-cek" onclick="cekDriver()">Cek Driver & Lanjut</button>
-</main>
-<button class="chat" onclick="openChat()">💬</button>
-<nav><div class="on">🏠<br>Beranda</div><div>🕐<br>Riwayat</div><div>🏷️<br>Promo</div><div>👤<br>Akun</div></nav>
-</div>
+body{background:#EDEDED;display:flex;justify-content:center}
+.phone{width:100%;max-width:430px;background:#fff;min-height:100vh;position:relative;padding-bottom:95px}
+header{background:#0DA54A;color:#fff;padding:17px 16px;display:flex;justify-content:space-between;align-items:center}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:24px;letter-spacing:-.3px}
+.logo img{width:44px;height:44px;border-radius:50%;object-fit:cover;background:#fff}
+header .lok{font-size:15px;font-weight:700}
+main{padding:22px 16px 10px}
+h1{text-align:center;font-size:27px;color:#0B4D24;line-height:1.2;font-weight:800}
+.car{text-align:center;font-size:34px;margin:10px 0 16px;color:#0DA54A}
+label{display:block;font-weight:800;font-size:17px;margin:16px 0 8px 58px;color:#222}
+.field{display:flex;align-items:center;gap:10px}
+.pin{font-size:28px;color:#0DA54A}
+.box{flex:1;border:1px solid #CFCFCF;border-radius:11px;padding:4px;display:flex;gap:6px;background:#fff}
+.box input{flex:1
 <div id="mapModal"><div class="top"><span>📍 Pilih di Peta</span><span onclick="closeMap()">✕</span></div><div id="map"></div><div class="bottom"><b>📍 Lokasi Terpilih:</b><div id="mapAddr">Klik di peta...</div><button class="btn-cek" style="font-size:16px;padding:12px" onclick="confirmMap()">Pilih Lokasi Ini</button></div></div>
-<div id="chatModal"><div class="chatBox"><div class="chatHead"><span>💬 Chat Ammo Travel</span><span onclick="closeChat()" style="cursor:pointer">✕</span></div><div class="chatLog" id="chatLog"><div class="bot"><span>Halo! Mau pergi kemana? Ketik tujuan kamu.</span></div></div><div class="chatQuick"><button onclick="isiChat('Mau ke Lembang')">📍 Mau ke Lembang</button></div><div class="chatFoot"><input id="chatInput" placeholder="Ketik pesan..."><button onclick="kirimChatPintu()">➤</button></div></div></div>
+<div id="chatModal"><div class="chatBox"><div class="chatHead"><span>💬 Chat Ammo Travel</span><span onclick="closeChat()" style="cursor:pointer">✕</span></div><div class="chatLog" id="chatLog"><div class="bot"><span>Halo! Mau pergi kemana? Ketik tujuan kamu.</span></div></div><div class="chatFoot"><input id="chatInput" placeholder="Ketik pesan..."><button onclick="kirimChatPintu()">➤</button></div></div></div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 let gpsLat=-6.9175,gpsLng=107.6191,map=null,marker=null,mapMode='pickup',pickupData=null,destData=null;
@@ -72,11 +24,13 @@ function rev(lat,lng,cb){fetch('https://nominatim.openstreetmap.org/reverse?form
 function useGPS(){const i=document.getElementById('pickup');i.value='📍 Mencari GPS...';navigator.geolocation.getCurrentPosition(p=>{gpsLat=p.coords.latitude;gpsLng=p.coords.longitude;i.value='📍 Mencari alamat...';rev(gpsLat,gpsLng,a=>{i.value=a||('Lokasi Saya - '+gpsLat.toFixed(6)+', '+gpsLng.toFixed(6));pickupData={lat:gpsLat,lng:gpsLng,addr:i.value}})},()=>{i.value=''}, {enableHighAccuracy:true,timeout:10000})}
 if(navigator.geolocation){navigator.geolocation.getCurrentPosition(p=>{gpsLat=p.coords.latitude;gpsLng=p.coords.longitude;const i=document.getElementById('pickup');if(!i.value){i.value='📍 Mencari alamat...';rev(gpsLat,gpsLng,a=>{if(a){i.value=a;pickupData={lat:gpsLat,lng:gpsLng,addr:a}}else{i.value='Lokasi Saya - '+gpsLat.toFixed(6)+', '+gpsLng.toFixed(6);pickupData={lat:gpsLat,lng:gpsLng,addr:i.value}}})}},()=>{},{enableHighAccuracy:true,timeout:10000})}
 let timer=null;
-function setup(id,boxId,isPick){const inp=document.getElementById(id),box=document.getElementById(boxId);inp.addEventListener('input',()=>{const q=inp.value.trim();if(q.length<2){box.style.display='none';return}clearTimeout(timer);timer=setTimeout(()=>search(q,box,isPick),350)})}
+const saran=[{nama:'Bandara Soekarno Hatta, Tangerang',lat:-6.1256,lng:106.6559},{nama:'Stasiun Bandung, Bandung',lat:-6.9147,lng:107.6025},{nama:'Malioboro, Yogyakarta',lat:-7.7926,lng:110.3669}];
+function setup(id,boxId,isPick){const inp=document.getElementById(id),box=document.getElementById(boxId);inp.addEventListener('input',()=>{const q=inp.value.trim();if(q.length<1){box.style.display='none';return}clearTimeout(timer);timer=setTimeout(()=>{if(q.length<2){showSaran(saran,box,isPick)}else{search(q,box,isPick)}},250)});inp.addEventListener('focus',()=>{if(inp.value.trim().length<2)showSaran(saran,box,isPick)})}
+function showSaran(list,box,isPick){window._list=list;box.innerHTML=list.map((x,i)=>`<div onclick="pickS(${isPick},${i})"><b>📍</b>${x.nama}</div>`).join('');box.style.display='block'}
 function search(q,box,isPick){const vb=(gpsLng-.45)+','+(gpsLat+.45)+','+(gpsLng+.45)+','+(gpsLat-.45);const u1='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=15&accept-language=id&viewbox='+vb+'&bounded=1&q='+encodeURIComponent(q);const u2='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=30&accept-language=id&countrycodes=id&q='+encodeURIComponent(q);Promise.all([fetch(u1).then(r=>r.json()),fetch(u2).then(r=>r.json())]).then(([n,a])=>{let g=[...n,...a],s={};g=g.filter(x=>{if(s[x.display_name])return false;s[x.display_name]=1;return true});g.forEach(x=>{x._d=hav(gpsLat,gpsLng,parseFloat(x.lat),parseFloat(x.lon))});g.sort((a,b)=>a._d-b._d);render(g.slice(0,10),box,isPick)})}
-function render(list,box,isPick){if(!list.length){box.style.display='none';return}window._list=list;box.innerHTML=list.map((x,i)=>`<div onclick="pickS(${isPick},${i})" style="padding:12px;border-bottom:1px solid #ddd;cursor:pointer">${x.display_name} - ${x._d.toFixed(1)} km</div>`).join('');box.style.display='block'}
-function pickS(isPick,i){const it=window._list[i];if(!it)return;if(isPick){pickupData={lat:parseFloat(it.lat),lng:parseFloat(it.lon),addr:it.display_name};document.getElementById('pickup').value=it.display_name;document.getElementById('sugPickup').style.display='none'}else{destData={lat:parseFloat(it.lat),lng:parseFloat(it.lon),addr:it.display_name};document.getElementById('dest').value=it.display_name;document.getElementById('sugDest').style.display='none'}}
-setup('pickup','sugPickup',1);setup('dest','sugDest',0); 
+function render(list,box,isPick){if(!list.length){box.style.display='none';return}window._list=list;box.innerHTML=list.map((x,i)=>`<div onclick="pickS(${isPick},${i})"><b>📍</b>${x.display_name} - ${x._d.toFixed(1)} km</div>`).join('');box.style.display='block'}
+function pickS(isPick,i){const it=window._list[i];if(!it)return;let nama=it.nama||it.display_name;let la=it.lat?parseFloat(it.lat):it.lat;let lo=it.lng?parseFloat(it.lng):it.lon;if(isPick){pickupData={lat:la,lng:lo,addr:nama};document.getElementById('pickup').value=nama;document.getElementById('sugPickup').style.display='none'}else{destData={lat:la,lng:lo,addr:nama};document.getElementById('dest').value=nama;document.getElementById('sugDest').style.display='none'}}
+setup('pickup','sugPickup',1);setup('dest','sugDest',0);
 function openMap(m){mapMode=m;document.getElementById('mapModal').classList.add('show');setTimeout(()=>{let la=gpsLat,lo=gpsLng;if(m==1&&pickupData){la=pickupData.lat;lo=pickupData.lng}if(m==0&&destData){la=destData.lat;lo=destData.lng}if(!map){map=L.map('map').setView([la,lo],16);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);marker=L.marker([la,lo],{draggable:true}).addTo(map);marker.on('dragend',()=>{let p=marker.getLatLng();setP(p.lat,p.lng)})}else{map.invalidateSize();map.setView([la,lo],16);marker.setLatLng([la,lo]);setP(la,lo)}},200)}
 function setP(lat,lng){rev(lat,lng,a=>{document.getElementById('mapAddr').textContent=a||lat.toFixed(6)+','+lng.toFixed(6)})}
 function closeMap(){document.getElementById('mapModal').classList.remove('show')}
@@ -84,11 +38,10 @@ function confirmMap(){let p=marker.getLatLng();if(mapMode==1){pickupData={lat:p.
 let modeChat='penumpang',nungguPIN='';
 function openChat(){document.getElementById('chatModal').classList.add('show')}
 function closeChat(){document.getElementById('chatModal').classList.remove('show');modeChat='penumpang';nungguPIN='';let inp=document.getElementById('chatInput');inp.type='text';inp.setAttribute('inputmode','text');inp.placeholder='Ketik pesan...';inp.value='';document.getElementById('chatLog').innerHTML='<div class="bot"><span>Halo! Mau pergi kemana? Ketik tujuan kamu.</span></div>'}
-function isiChat(t){document.getElementById('chatInput').value=t;document.getElementById('chatInput').focus()}
 function tambahChat(teks,siapa){const log=document.getElementById('chatLog');log.innerHTML+=`<div class="${siapa}"><span>${teks}</span></div>`;log.scrollTop=log.scrollHeight}
 function kirimChatPintu(){const inp=document.getElementById('chatInput');const teks=inp.value.trim();if(!teks)return;tambahChat(teks,'me');inp.value='';const t=teks.toLowerCase();if(nungguPIN){if(nungguPIN==='sopir'&&teks==='123456'){tambahChat('✅ PIN benar, masuk ke halaman Driver...','bot');setTimeout(()=>{window.location.href='driver.html'},600);return}if(nungguPIN==='admin'&&teks==='999999'){tambahChat('👑 PIN benar, masuk ke halaman Admin...','bot');setTimeout(()=>{window.location.href='admin.html'},600);return}tambahChat('❌ PIN salah. Coba lagi ya.','bot');return}if(t==='#sopir'||t.includes('#sopir')){nungguPIN='sopir';inp.setAttribute('inputmode','numeric');inp.type='password';inp.placeholder='Masukkan PIN (angka)...';tambahChat('🔑 Masukkan PIN Driver:','bot');return}if(t==='#admin'||t.includes('#admin')){nungguPIN='admin';inp.setAttribute('inputmode','numeric');inp.type='password';inp.placeholder='Masukkan PIN (angka)...';tambahChat('👑 Masukkan PIN Admin:','bot');return}if(t==='keluar'||t==='exit'){modeChat='penumpang';nungguPIN='';tambahChat('👋 Sudah keluar. Balik jadi penumpang lagi ya.','bot');return}tambahChat('Siap! Saya catat: "'+teks+'".','bot')}
 document.getElementById('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')kirimChatPintu()});
-function cekDriver(){const p=document.getElementById('pickup').value.trim();const d=document.getElementById('dest').value.trim();if(!p||!d){alert('Isi dulu Penjemputan & Tujuan ya');return}localStorage.setItem('order_aktif',JSON.stringify({dari:p,ke:d,waktu:new Date().toISOString()}));if(confirm('Mau yang mana? OK = PRIORITAS | Cancel = REGULER')){window.location.href='prioritas.html'}else{window.location.href='penumpang.html'}}
+function cekDriver(){const p=document.getElementById('pickup').value.trim();const d=document.getElementById('dest').value.trim();if(!p||!d){alert('Isi dulu Penjemputan & Tujuan ya');return}let jarakKm=0;if(pickupData&&destData){jarakKm=hav(pickupData.lat,pickupData.lng,destData.lat,destData.lng)}localStorage.setItem('order_aktif',JSON.stringify({dari:p,ke:d,jarakKm:jarakKm,waktu:new Date().toISOString()}));if(confirm('Mau yang mana? OK = PRIORITAS | Cancel = REGULER')){window.location.href='prioritas.html'}else{window.location.href='penumpang.html'}}
 </script>
 </body>
 </html>
