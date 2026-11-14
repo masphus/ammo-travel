@@ -83,15 +83,20 @@ function cekDriver(){const p=document.getElementById('pickup').value.trim(),d=do
 </script> 
 <script>
 function search(q,box,isPick){
-  const uEsri='https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&SingleLine='+encodeURIComponent(q+', Indonesia')+'&maxLocations=10';
+  const uEsri='https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&outFields=LongLabel,Match_addr&SingleLine='+encodeURIComponent(q+', Indonesia')+'&maxLocations=10';
   const u2='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=10&accept-language=id&countrycodes=id&q='+encodeURIComponent(q);
   Promise.all([fetch(uEsri).then(r=>r.json()).catch(()=>({candidates:[]})),fetch(u2).then(r=>r.json()).catch(()=>[])]).then(([e,n])=>{
-    let es=(e.candidates||[]).map(c=>({display_name:c.address,lat:c.location.y,lon:c.location.x}));
-    let g=[...es,...n],s={};
-    g=g.filter(x=>{let k=(+x.lat).toFixed(5)+','+(+x.lon).toFixed(5);if(s[k])return false;s[k]=1;return true});
+    let es=(e.candidates||[]).map(c=>({display_name:(c.attributes && (c.attributes.LongLabel || c.attributes.Match_addr)) || c.address,lat:c.location.y,lon:c.location.x}));
+    let g=[...es,...n];
     g.forEach(x=>x._d=hav(gpsLat,gpsLng,parseFloat(x.lat),parseFloat(x.lon)));
     g.sort((a,b)=>a._d-b._d);
-    render(g.slice(0,6),box,isPick)
+    let out=[];
+    for(let x of g){
+      let duplikat = out.some(y => hav(y.lat,y.lon,x.lat,x.lon) < 0.5);
+      if(!duplikat) out.push(x);
+      if(out.length>=6) break;
+    }
+    render(out,box,isPick)
   })
 }
 </script>
