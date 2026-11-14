@@ -85,4 +85,20 @@ function cekDriver(){const p=document.getElementById('pickup').value.trim(),d=do
 <script>
 function search(q,box,isPick){const vb=(gpsLng-.45)+','+(gpsLat+.45)+','+(gpsLng+.45)+','+(gpsLat-.45);const u1='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=15&accept-language=id&viewbox='+vb+'&bounded=1&q='+encodeURIComponent(q);const u2='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=15&accept-language=id&countrycodes=id&q='+encodeURIComponent(q);Promise.all([fetch(u1).then(r=>r.json()),fetch(u2).then(r=>r.json())]).then(([n,a])=>{let g=[...n,...a],s={};g=g.filter(x=>{let k=x.lat+','+x.lon;if(s[k])return false;s[k]=1;return true});g.forEach(x=>x._d=hav(gpsLat,gpsLng,parseFloat(x.lat),parseFloat(x.lon)));g.sort((a,b)=>a._d-b._d);let h=g.slice(0,6);render(h.slice(0,6),box,isPick)})}
 </script>
+<script>
+function search(q,box,isPick){
+  const vb=(gpsLng-.45)+','+(gpsLat+.45)+','+(gpsLng+.45)+','+(gpsLat-.45);
+  const u1='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=15&accept-language=id&viewbox='+vb+'&bounded=1&q='+encodeURIComponent(q);
+  const u2='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=15&accept-language=id&countrycodes=id&q='+encodeURIComponent(q);
+  const u3='https://photon.komoot.io/api/?q='+encodeURIComponent(q)+'&lat='+gpsLat+'&lon='+gpsLng+'&limit=15&lang=id';
+  Promise.all([fetch(u1).then(r=>r.json()).catch(()=>[]),fetch(u2).then(r=>r.json()).catch(()=>[]),fetch(u3).then(r=>r.json()).catch(()=>({features:[]}))]).then(([n,a,p])=>{
+    let ph=(p.features||[]).map(f=>{let pr=f.properties||{};let nm=[pr.name,pr.street,pr.housenumber,pr.district,pr.city,pr.state].filter(Boolean).join(', ');return{display_name:nm||pr.name||q, lat:f.geometry.coordinates[1], lon:f.geometry.coordinates[0]}});
+    let g=[...n,...a,...ph],s={};
+    g=g.filter(x=>{let k=(+x.lat).toFixed(5)+','+(+x.lon).toFixed(5);if(s[k])return false;s[k]=1;return true});
+    g.forEach(x=>x._d=hav(gpsLat,gpsLng,parseFloat(x.lat),parseFloat(x.lon)));
+    g.sort((a,b)=>a._d-b._d);
+    render(g.slice(0,6),box,isPick)
+  })
+}
+</script>
 </html>
