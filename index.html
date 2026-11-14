@@ -84,10 +84,12 @@ function cekDriver(){const p=document.getElementById('pickup').value.trim(),d=do
 <script>
 function search(q,box,isPick){
   const uEsri='https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&outFields=LongLabel,Match_addr&SingleLine='+encodeURIComponent(q+', Indonesia')+'&maxLocations=10';
-  const u2='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=10&accept-language=id&countrycodes=id&q='+encodeURIComponent(q);
-  Promise.all([fetch(uEsri).then(r=>r.json()).catch(()=>({candidates:[]})),fetch(u2).then(r=>r.json()).catch(()=>[])]).then(([e,n])=>{
+  const u2='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=10&accept-language=id&countrycodes=id&q='+encodeURIComponent(q)+'&viewbox='+(gpsLng-0.3)+','+(gpsLat+0.3)+','+(gpsLng+0.3)+','+(gpsLat-0.3)+'&bounded=0';
+  const u3='https://photon.komoot.io/api/?q='+encodeURIComponent(q)+'&lat='+gpsLat+'&lon='+gpsLng+'&limit=10&lang=id';
+  Promise.all([fetch(uEsri).then(r=>r.json()).catch(()=>({candidates:[]})),fetch(u2).then(r=>r.json()).catch(()=>[]),fetch(u3).then(r=>r.json()).catch(()=>({features:[]}))]).then(([e,n,p])=>{
     let es=(e.candidates||[]).map(c=>({display_name:(c.attributes && (c.attributes.LongLabel || c.attributes.Match_addr)) || c.address,lat:c.location.y,lon:c.location.x}));
-    let g=[...es,...n];
+    let ph=(p.features||[]).map(f=>({display_name:[f.properties.name,f.properties.street,f.properties.city,f.properties.state].filter(Boolean).join(', '),lat:f.geometry.coordinates[1],lon:f.geometry.coordinates[0]}));
+    let g=[...ph,...es,...n];
     g.forEach(x=>x._d=hav(gpsLat,gpsLng,parseFloat(x.lat),parseFloat(x.lon)));
     g.sort((a,b)=>a._d-b._d);
     let out=[];
