@@ -95,8 +95,16 @@ document.getElementById('chatInput').addEventListener('keydown',e=>{if(e.key==='
 function cekDriver(){const p=document.getElementById('pickup').value.trim();const d=document.getElementById('dest').value.trim();if(!p||!d){alert('Isi dulu Penjemputan & Tujuan ya');return}let jarakKm=0;if(pickupData&&destData){jarakKm=hav(pickupData.lat,pickupData.lng,destData.lat,destData.lng)}localStorage.setItem('order_aktif',JSON.stringify({dari:p,ke:d,jarakKm:jarakKm,waktu:new Date().toISOString()}));if(confirm('Mau yang mana? OK = PRIORITAS | Cancel = REGULER')){window.location.href='prioritas.html'}else{window.location.href='penumpang.html'}}
 </script>
 </body>
-
-</html><script>
+<style>
+.car{display:none !important;}
+</style>
+<script>
+// Hapus saran bawaan Bandara / Stasiun, biar cuma dari ketikan aja
+function showSaran(list,box,isPick){
+  box.style.display='none';
+}
+</script>
+<script>
 function openMap(m){
   mapMode=m;
   document.getElementById('mapModal').classList.add('show');
@@ -131,3 +139,4 @@ function confirmMap(){
   closeMap();
 }
 </script>
+</html>
