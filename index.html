@@ -3,195 +3,84 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ammo Travel</title>
+<title>Pilih Lokasi</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
-*{box-sizing:border-box;font-family:system-ui,Arial,sans-serif}
-body{margin:0;background:#f5f5f5;padding-bottom:80px}
-.top{background:#0AA64A;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:30}
-.logo{display:flex;align-items:center;gap:10px}
-.logoIcon{width:40px;height:40px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
-.logoIcon img{width:100%;height:100%;object-fit:cover}
-.logo b{font-size:22px}
-.pilihLokasi{display:flex;align-items:center;gap:4px;font-size:14px;font-weight:600}
-.wrapPage{padding:0 16px;max-width:480px;margin:0 auto}
-h1{text-align:center;color:#0B3D1E;font-size:26px;line-height:1.2;margin:22px 0 10px}
-label{font-weight:700;color:#333;font-size:16px;display:block;margin:18px 0 8px;padding-left:38px}
-.field{position:relative;display:flex;align-items:center}
-.pinLeft{position:absolute;left:2px;font-size:26px;z-index:2}
-.inputBox{width:100%;background:#fff;border:1.5px solid #ccc;border-radius:12px;padding:6px 6px 6px 38px;display:flex;align-items:center;gap:6px}
-.inputBox input{flex:1;border:0;outline:none;font-size:15px;padding:10px 0;background:transparent;min-width:0}
-.btnPeta{flex-shrink:0;background:#0AA64A;color:#fff;border:0;padding:10px 10px;border-radius:9px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:4px;cursor:pointer;white-space:nowrap}
-.saran{position:absolute;left:38px;right:0;top:100%;background:#fff;border-radius:14px;box-shadow:0 10px 25px rgba(0,0,0,.15);z-index:25;display:none;overflow:hidden;margin-top:8px}
-.saran button{display:flex;gap:12px;width:100%;text-align:left;border:0;background:#fff;padding:14px 14px;cursor:pointer;font-size:16px;align-items:flex-start}
-.saran button:active{background:#E8F8EF}
-.saran small{color:#777;display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:400}
-.saran b{font-weight:500}
-.hint{font-size:12px;color:#888;margin:5px 0 0 38px}
-.swapRow{display:flex;justify-content:center;margin:8px 0 0}
-#swapBtn{width:44px;height:44px;border-radius:50%;border:2px solid #ddd;background:#fff;font-size:20px;cursor:pointer}
-#swapBtn:disabled{opacity:.35}
-.driverBox{background:#D8EEDF;border-radius:14px;padding:16px;margin-top:22px;display:flex;gap:12px;align-items:flex-start}
-.driverIcon{width:48px;height:48px;background:#0AA64A;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
-.driverIcon img{width:100%;height:100%;object-fit:cover}
-.driverBox p{margin:0;font-size:15px;color:#0B3D1E;line-height:1.4}
-.cek{width:100%;margin-top:14px;background:#0AA64A;color:#fff;border:0;padding:16px;border-radius:10px;font-size:20px;font-weight:800;cursor:pointer}
-.cek:disabled{background:#BDBDBD}
-.chatFab{position:fixed;right:16px;bottom:90px;width:58px;height:58px;background:#0AA64A;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;color:#fff;box-shadow:0 8px 20px rgba(0,0,0,.25);z-index:40;cursor:pointer}
-.chatFab i{position:absolute;top:4px;right:6px;width:12px;height:12px;background:#FF2D2D;border-radius:50%;border:2px solid #fff}
-.bottomNav{position:fixed;left:0;right:0;bottom:0;background:#EFEFEF;display:flex;justify-content:space-around;padding:10px 0 12px;z-index:30;border-top:1px solid #ddd}
-.bottomNav div{text-align:center;font-size:13px;color:#777;cursor:pointer}
-.bottomNav .active{color:#0AA64A;font-weight:700}
-.bottomNav span{font-size:24px;display:block}
-#mapSheet{position:fixed;left:0;right:0;bottom:0;height:58vh;background:#fff;border-radius:20px 20px 0 0;display:none;z-index:100;flex-direction:column;overflow:hidden;box-shadow:0 -10px 30px rgba(0,0,0,.3)}
-#mapSheet.open{display:flex}
-.sheet-head{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;background:#0AA64A;color:#fff}
-.sheet-head button{border:0;background:rgba(255,255,255,.25);color:#fff;padding:8px 12px;border-radius:8px}
-#map{flex:1;width:100%;background:#D8EEDF}
-.sheet-foot{padding:12px 16px}
-#mapAlamat{font-size:13px;color:#444;min-height:36px;margin-bottom:10px;background:#F5F5F5;padding:10px;border-radius:10px}
-#pakaiPin{width:100%;background:#0AA64A;color:#fff;border:0;padding:14px;border-radius:10px;font-weight:800}
-#overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:99}
-#overlay.show{display:block}
+    * { margin:0; padding:0; box-sizing:border-box; font-family: sans-serif; }
+  body { display:flex; flex-direction:column; height:100vh; }
+  #map { flex:1; width:100%; z-index:1; }
+  .panel { padding:14px; background:#fff; box-shadow:0 -2px 10px rgba(0,0,0,0.15); z-index:10; }
+  .panel b { font-size:14px; }
+  #address { margin:8px 0 12px; font-size:14px; color:#333; min-height:20px; }
+  .row { display:flex; gap:8px; }
+  input { flex:1; padding:10px; border:1px solid #ddd; border-radius:8px; font-size:13px; }
+  button { padding:10px 14px; border:0; border-radius:8px; background:#25D366; color:#fff; font-weight:bold; cursor:pointer; }
+  button:active { opacity:0.8; }
+  #coords { margin-top:8px; font-size:12px; color:#888; }
 </style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
 </head>
 <body>
-<div class="top"><div class="logo"><div class="logoIcon"><img src="icon-512.png" alt="Ammo"></div><b>Ammo Travel</b></div><div class="pilihLokasi">📍 Pilih Lokasi</div></div>
-<div class="wrapPage">
-<h1>Mau Pergi Kemana Hari Ini?</h1>
-<label>Penjemputan</label>
-<div class="field"><span class="pinLeft">📍</span>
-<div class="inputBox"><input id="jemput" placeholder="Ketik / Pilih Lokasi Jemput..." autocomplete="off"><button class="btnPeta" onclick="bukaPeta('jemput')">📍 Pilih di Peta</button></div>
-<div id="saranJemput" class="saran"></div>
+
+<div id="map"></div>
+
+<div class="panel">
+  <b>📍 Lokasi Terpilih:</b>
+  <div id="address">Klik di peta untuk pilih lokasi...</div>
+  <div class="row">
+    <input id="latlngInput" type="text" readonly placeholder="-6.9175, 107.6191">
+    <button onclick="copyCoords()">Salin</button>
+  </div>
+  <div id="coords">Bandung, Jawa Barat</div>
 </div>
-<div class="hint" id="hintJemput">Lokasi Anda saat ini, Berdasarkan GPS</div>
-<div class="swapRow"><button id="swapBtn" onclick="tukar()" disabled>⇅</button></div>
-<label>Tujuan</label>
-<div class="field"><span class="pinLeft">📍</span>
-<div class="inputBox"><input id="tujuan" placeholder="Ketik / Pilih Tujuan..." autocomplete="off"><button class="btnPeta" onclick="bukaPeta('tujuan')">📍 Pilih di Peta</button></div>
-<div id="saranTujuan" class="saran"></div>
-</div>
-<div class="hint">Silahkan ketik tujuan Anda disini 🙏</div>
-<div class="driverBox"><div class="driverIcon"><img src="icon-512.png" alt="Driver"></div><p><b>Driver di sekitar kamu siap menjemput!</b><br>Cek harga setelah isi lokasi</p></div>
-<button class="cek" id="cekBtn" onclick="cekDriver()" disabled>Cek Driver & Lanjut</button>
-</div>
-<div class="chatFab">💬<i></i></div>
-<div class="bottomNav"><div class="active"><span>🏠</span>Beranda</div><div><span>🕒</span>Riwayat</div><div><span>🏷️</span>Promo</div><div><span>👤</span>Akun</div></div>
-<div id="overlay" onclick="tutupPeta()"></div>
-<div id="mapSheet"><div class="sheet-head"><b id="mapJudul">Pilih di Peta</b><button onclick="tutupPeta()">✕ Tutup</button></div><div id="map"></div><div class="sheet-foot"><div id="mapAlamat">Geser pin atau ketuk peta.</div><button id="pakaiPin" onclick="pakaiPin()">Pakai Lokasi Ini ✅</button></div></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-let gps=null;let data={jemput:null,tujuan:null};let modePeta='tujuan';let map=null,marker=null,pinLatLng=null;
-let cacheSaran={};let cacheReverse={};
-function jarak(a,b,c,d){var R=6371,dl=(c-a)*Math.PI/180,dn=(d-b)*Math.PI/180;var x=Math.sin(dl/2)*Math.sin(dl/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dn/2)*Math.sin(dn/2);return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
-function updateTombol(){var j=document.getElementById('jemput').value.trim();var t=document.getElementById('tujuan').value.trim();var lengkap=j&&t;document.getElementById('swapBtn').disabled=!lengkap;document.getElementById('cekBtn').disabled=!lengkap;if(!j)data.jemput=null;if(!t)data.tujuan=null;}
-function tukar(){var ji=document.getElementById('jemput');var tu=document.getElementById('tujuan');var tmp=ji.value;ji.value=tu.value;tu.value=tmp;var tmp2=data.jemput;data.jemput=data.tujuan;data.tujuan=tmp2;updateTombol();}
-// === PENJEMPUTAN: JANGAN DIUBAH, SUDAH OK ===
-async function reverseAlamat(lat,lng){
-  var k=lat.toFixed(4)+','+lng.toFixed(4);
-  if(cacheReverse[k]) return cacheReverse[k];
-  var r=await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude='+lat+'&longitude='+lng+'&localityLanguage=id');
-  var j=await r.json();
-  var parts=[];
-  if(j.locality) parts.push(j.locality);
-  if(j.city && j.city!==j.locality) parts.push(j.city);
-  if(j.principalSubdivision) parts.push(j.principalSubdivision);
-  if(j.countryName) parts.push(j.countryName);
-  var alamat=parts.length?parts.join(', '):('Lokasi Pin ('+lat.toFixed(5)+', '+lng.toFixed(5)+')');
-  if(j.locality) alamat=j.locality+', '+alamat;
-  cacheReverse[k]=alamat;
-  return alamat;
-}
-function isiGPS(){if(!navigator.geolocation){document.getElementById('hintJemput').textContent='GPS tidak tersedia.';return;}navigator.geolocation.getCurrentPosition(async function(pos){gps={lat:pos.coords.latitude,lng:pos.coords.longitude};var inp=document.getElementById('jemput');try{var alamat=await reverseAlamat(gps.lat,gps.lng);if(!inp.value.trim()){inp.value=alamat;data.jemput={nama:alamat,lat:gps.lat,lng:gps.lng};}document.getElementById('hintJemput').textContent='GPS ditemukan. Bisa diedit untuk keluarga.';}catch(e){var fb='Lokasi Saya (GPS)';if(!inp.value.trim()){inp.value=fb;data.jemput={nama:fb,lat:gps.lat,lng:gps.lng};}document.getElementById('hintJemput').textContent='GPS ditemukan.';}updateTombol();},function(){document.getElementById('hintJemput').textContent='Izin lokasi ditolak. Ketik manual.';},{enableHighAccuracy:true,timeout:8000});}
-// === TUJUAN: INI SATU-SATUNYA YANG DIBENERIN ===
-function setupSaranTujuan(){
-  var inp=document.getElementById('tujuan');var box=document.getElementById('saranTujuan');var timer=null;
-  inp.addEventListener('input',function(){
-    updateTombol();
-    var q=inp.value.trim();
-    if(q.length<2){box.style.display='none';return;}
-    clearTimeout(timer);
-    timer=setTimeout(function(){
-      cariSaranTujuan(q).then(function(list){
-        if(list.length===0){box.innerHTML='<div style="padding:14px;font-size:14px;color:#888">Tidak ketemu, coba ketik lebih lengkap / pilih di Peta</div>';box.style.display='block';return;}
-        box.innerHTML='';
-        list.forEach(function(x){
-          var b=document.createElement('button');b.type='button';
-          b.innerHTML='<span style="font-size:22px">📍</span><span><b>'+x.nama+'</b><small>'+x.display_name+' • '+(x._j?x._j.toFixed(1)+' km':'')+'</small></span>';
-          b.onclick=function(){document.getElementById('tujuan').value=x.display_name;data.tujuan={nama:x.display_name,lat:x.lat,lng:x.lng};box.style.display='none';updateTombol();};
-          box.appendChild(b);
-        });
-        box.style.display='block';
-      }).catch(function(){box.innerHTML='<div style="padding:14px;font-size:14px;color:#888">Sinyal lagi lemot, coba ketik lagi / pilih di Peta</div>';box.style.display='block';});
-    },350);
-  });
-  document.addEventListener('click',function(e){if(!inp.closest('.field').contains(e.target))box.style.display='none';});
-}
-// Penjemputan tetap pakai cara lama yang sudah ok (Photon simple)
-function setupSaranJemput(){
-  var inp=document.getElementById('jemput');var box=document.getElementById('saranJemput');var timer=null;
-  inp.addEventListener('input',function(){
-    updateTombol();
-    var q=inp.value.trim();
-    if(q.length<2){box.style.display='none';return;}
-    clearTimeout(timer);
-    timer=setTimeout(function(){
-      cariSaranTujuan(q).then(function(list){
-        if(list.length===0){box.style.display='none';return;}
-        box.innerHTML='';
-        list.forEach(function(x){
-          var b=document.createElement('button');b.type='button';
-          b.innerHTML='<span style="font-size:22px">📍</span><span><b>'+x.nama+'</b><small>'+x.display_name+' • '+(x._j?x._j.toFixed(1)+' km':'')+'</small></span>';
-          b.onclick=function(){document.getElementById('jemput').value=x.display_name;data.jemput={nama:x.display_name,lat:x.lat,lng:x.lng};box.style.display='none';updateTombol();};
-          box.appendChild(b);
-        });
-        box.style.display='block';
+  // Peta Bandung - pake OpenStreetMap, GRATIS, tanpa API Key
+  var map = L.map('map').setView([-6.9175, 107.6191], 13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  var marker = null;
+  var currentLat = -6.9175;
+  var currentLng = 107.6191;
+
+  function updateLocation(lat, lng) {
+    currentLat = lat;
+    currentLng = lng;
+    if (marker) map.removeLayer(marker);
+    marker = L.marker([lat, lng]).addTo(map);
+    document.getElementById('latlngInput').value = lat.toFixed(6) + ', ' + lng.toFixed(6);
+    document.getElementById('coords').innerText = 'Lat: ' + lat.toFixed(6) + ' | Lng: ' + lng.toFixed(6);
+    document.getElementById('address').innerText = 'Mencari alamat...';
+
+    // Reverse Geocode gratis pake BigDataCloud
+    fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=' + lat + '&longitude=' + lng + '&localityLanguage=id')
+      .then(res => res.json())
+      .then(data => {
+        var alamat = data.display_name || (data.city + ', ' + data.principalSubdivision + ', ' + data.countryName);
+        document.getElementById('address').innerText = alamat || 'Alamat tidak ditemukan';
+      })
+      .catch(() => {
+        document.getElementById('address').innerText = lat.toFixed(6) + ', ' + lng.toFixed(6);
       });
-    },350);
-  });
-  document.addEventListener('click',function(e){if(!inp.closest('.field').contains(e.target))box.style.display='none';});
-}
-async function cariPhoton(q,pakaiLokasi){
-  var url='https://photon.komoot.io/api/?q='+encodeURIComponent(q)+'&limit=20&lang=id';
-  if(pakaiLokasi && gps) url+='&lat='+gps.lat+'&lon='+gps.lng;
-  var r=await fetch(url); var j=await r.json();
-  var list=(j.features||[]).map(function(f){
-    var p=f.properties||{}; var c=f.geometry.coordinates;
-    var parts=[]; if(p.name) parts.push(p.name); if(p.street) parts.push(p.street); if(p.city) parts.push(p.city); else if(p.county) parts.push(p.county); if(p.state) parts.push(p.state);
-    var display=parts.join(', ')||p.name||q;
-    return {nama:p.name||display, display_name:display, lat:c[1], lng:c[0], _j: gps?jarak(gps.lat,gps.lng,c[1],c[0]):0};
-  });
-  return list;
-}
-async function cariNominatim(q){
-  var url='https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(q)+'&format=json&limit=10&countrycodes=id&accept-language=id';
-  if(gps){var d=0.6; url+='&viewbox='+(gps.lng-d)+','+(gps.lat+d)+','+(gps.lng+d)+','+(gps.lat-d);}
-  var r=await fetch(url); var j=await r.json();
-  return j.map(function(x){return {nama:x.display_name.split(',')[0], display_name:x.display_name, lat:parseFloat(x.lat), lng:parseFloat(x.lon), _j: gps?jarak(gps.lat,gps.lng,parseFloat(x.lat),parseFloat(x.lon)):0};});
-}
+  }
 
-async function cariSaranTujuan(q){
-  var cacheKey='tujuan|'+q.toLowerCase()+'|'+(gps?gps.lat.toFixed(2)+','+gps.lng.toFixed(2):'nogps');
-  if(cacheSaran[cacheKey]) return cacheSaran[cacheKey];
-  var list=[];
-  try{ list=await cariPhoton(q,true); }catch(e){ list=[]; }
-  if(list.length===0){ try{ list=await cariPhoton(q,false); }catch(e){} }
-  if(list.length===0){ try{ list=await cariNominatim(q); }catch(e){} }
+  map.on('click', function(e) {
+    updateLocation(e.latlng.lat, e.latlng.lng);
+  });
 
-  var seen={}; var gabung=[];
-list.forEach(function(x){ if(!seen[x.display_name]){seen[x.display_name]=1; gabung.push(x);} });
-  if(gps) gabung.sort(function(a,b){return a._j-b._j;});
-  gabung=gabung.slice(0,6);
-  cacheSaran[cacheKey]=gabung;
-  return gabung;
-}
-setupSaranJemput();setupSaranTujuan();
-function bukaPeta(mode){modePeta=mode;document.getElementById('mapJudul').textContent=mode==='jemput'?'Pilih Penjemputan':'Pilih Tujuan';document.getElementById('mapSheet').classList.add('open');document.getElementById('overlay').classList.add('show');setTimeout(function(){if(typeof L==='undefined'){document.getElementById('map').innerHTML='<p style="padding:20px">Peta gagal dimuat, cek internet.</p>';return;}if(!map){var s=gps||{lat:-6.9175,lng:107.6191};map=L.map('map').setView([s.lat,s.lng],15);L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:19,subdomains:'abcd'}).addTo(map);map.on('click',function(e){setPin(e.latlng);});}map.invalidateSize();var cur=data[mode]||gps||{lat:-6.9175,lng:107.6191};map.setView([cur.lat,cur.lng],15);setPin({lat:cur.lat,lng:cur.lng});},100);}
-async function setPin(ll){pinLatLng=ll;if(marker)marker.setLatLng(ll);else{marker=L.marker(ll,{draggable:true}).addTo(map);marker.on('dragend',function(){setPin(marker.getLatLng());});}document.getElementById('mapAlamat').textContent='Memuat alamat...';try{var a=await reverseAlamat(ll.lat,ll.lng);document.getElementById('mapAlamat').textContent=a;document.getElementById('mapAlamat').dataset.nama=a.split(',').slice(0,4).join(',');}catch(e){document.getElementById('mapAlamat').textContent='Lokasi Pin ('+ll.lat.toFixed(5)+', '+ll.lng.toFixed(5)+')';document.getElementById('mapAlamat').dataset.nama='Lokasi Pin';}}
-function pakaiPin(){if(!pinLatLng)return;var alamat=document.getElementById('mapAlamat').dataset.nama||document.getElementById('mapAlamat').textContent;document.getElementById(modePeta==='jemput'?'jemput':'tujuan').value=alamat;data[modePeta]={nama:alamat,lat:pinLatLng.lat,lng:pinLatLng.lng};tutupPeta();updateTombol();}
-function tutupPeta(){document.getElementById('mapSheet').classList.remove('open');document.getElementById('overlay').classList.remove('show');}
-function cekDriver(){alert('Penjemputan: '+document.getElementById('jemput').value+'\nTujuan: '+document.getElementById('tujuan').value);}
-document.getElementById('jemput').addEventListener('input',updateTombol);document.getElementById('tujuan').addEventListener('input',updateTombol);window.addEventListener('load',isiGPS);
+  function copyCoords() {
+    var input = document.getElementById('latlngInput');
+    input.select();
+    document.execCommand('copy');
+    alert('Tersalin: ' + input.value);
+  }
+
+  // Tandai lokasi awal
+  updateLocation(currentLat, currentLng);
 </script>
 </body>
 </html>
