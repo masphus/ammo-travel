@@ -81,5 +81,8 @@ function closeMap(){document.getElementById('mapModal').classList.remove('show')
 function confirmMap(){const a=mapAddr||mapLat.toFixed(6)+', '+mapLng.toFixed(6);if(mapMode==='pickup'){document.getElementById('pickup').value=a;pickupData={lat:mapLat,lng:mapLng,addr:a}}else{document.getElementById('dest').value=a;destData={lat:mapLat,lng:mapLng,addr:a}}closeMap()}
 function cekDriver(){const p=document.getElementById('pickup').value.trim(),d=document.getElementById('dest').value.trim();if(!p)return alert('Isi Penjemputan dulu ya');if(!d)return alert('Isi Tujuan dulu ya');const j=pickupData&&destData?hav(pickupData.lat,pickupData.lng,destData.lat,destData.lng).toFixed(1)+' km':'-';alert('Siap!\nPenjemputan: '+p+'\nTujuan: '+d+'\nJarak: '+j)}
 </script>
-</body>
+</body> 
+<script>
+function search(q,box,isPick){const vb=(gpsLng-.45)+','+(gpsLat+.45)+','+(gpsLng+.45)+','+(gpsLat-.45);const u1='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=15&accept-language=id&viewbox='+vb+'&bounded=1&q='+encodeURIComponent(q);const u2='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=15&accept-language=id&countrycodes=id&q='+encodeURIComponent(q);Promise.all([fetch(u1).then(r=>r.json()),fetch(u2).then(r=>r.json())]).then(([n,a])=>{let g=[...n,...a],s={};g=g.filter(x=>{let k=x.lat+','+x.lon;if(s[k])return false;s[k]=1;return true});g.forEach(x=>x._d=hav(gpsLat,gpsLng,parseFloat(x.lat),parseFloat(x.lon)));g.sort((a,b)=>a._d-b._d);let h=g.slice(0,6);render(h.slice(0,6),box,isPick)})}
+</script>
 </html>
