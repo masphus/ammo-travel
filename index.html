@@ -6,17 +6,22 @@
 <title>Pilih Lokasi</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family: sans-serif; }
-  body { display:flex; flex-direction:column; height:100vh; }
-  #map { flex:1; width:100%; z-index:1; }
-  .panel { padding:14px; background:#fff; box-shadow:0 -2px 10px rgba(0,0,0,0.15); z-index:10; }
-  .panel b { font-size:14px; }
-  #address { margin:8px 0 12px; font-size:14px; color:#333; min-height:20px; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, Arial, sans-serif; }
+  body { display:flex; flex-direction:column; height:100vh; background:#fff; }
+  #map { flex:1; width:100%; z-index:1; background:#e8e8e8; }
+  .panel { padding:14px 14px 18px; background:#fff; box-shadow:0 -2px 12px rgba(0,0,0,0.12); z-index:10; }
+  .panel b { font-size:16px; }
+  #address { margin:8px 0 12px; font-size:15px; color:#222; min-height:20px; }
+  .label { font-size:12px; font-weight:bold; color:#555; margin:10px 0 4px; }
   .row { display:flex; gap:8px; }
-  input { flex:1; padding:10px; border:1px solid #ddd; border-radius:8px; font-size:13px; }
-  button { padding:10px 14px; border:0; border-radius:8px; background:#25D366; color:#fff; font-weight:bold; cursor:pointer; }
-  button:active { opacity:0.8; }
-  #coords { margin-top:8px; font-size:12px; color:#888; }
+  input { flex:1; padding:11px 12px; border:1px solid #ddd; border-radius:10px; font-size:14px; outline:none; background:#fff; }
+  input:focus { border-color:#25D366; }
+  button { padding:11px 16px; border:0; border-radius:10px; background:#25D366; color:#fff; font-weight:bold; font-size:14px; cursor:pointer; white-space:nowrap; }
+  button:active { opacity:0.85; }
+  button.secondary { background:#f0f0f0; color:#333; }
+  button.active { background:#111; color:#fff; }
+  #coords { margin-top:10px; font-size:12px; color:#888; }
+  .hint { font-size:12px; color:#888; margin-top:6px; }
 </style>
 </head>
 <body>
@@ -25,18 +30,34 @@
 
 <div class="panel">
   <b>📍 Lokasi Terpilih:</b>
-  <div id="address">Klik di peta untuk pilih lokasi...</div>
+  <div id="address">Bandung, Jawa, Indonesia</div>
+
+  <div class="label">TITIK PENJEMPUTAN</div>
   <div class="row">
-    <input id="latlngInput" type="text" readonly placeholder="-6.9175, 107.6191">
+    <input id="pickupInput" type="text" readonly placeholder="Klik peta, lalu tap Set Penjemputan">
+    <button id="btnPickup" onclick="setMode('pickup')">Set Jemput</button>
+  </div>
+
+  <div class="label">TITIK TUJUAN</div>
+  <div class="row">
+    <input id="destInput" type="text" readonly placeholder="Klik peta, lalu tap Set Tujuan">
+    <button id="btnDest" onclick="setMode('dest')">Set Tujuan</button>
+  </div>
+
+  <div class="label">KOORDINAT</div>
+  <div class="row">
+    <input id="latlngInput" type="text" readonly value="-6.917500, 107.619100">
     <button onclick="copyCoords()">Salin</button>
   </div>
-  <div id="coords">Bandung, Jawa Barat</div>
+
+  <div id="coords">Lat: -6.917500 | Lng: 107.619100</div>
+  <div class="hint">Cara pakai: Tap tombol Set Jemput / Set Tujuan dulu, baru klik peta.</div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-  // Peta Bandung - pake OpenStreetMap, GRATIS, tanpa API Key
-  var map = L.map('map').setView([-6.9175, 107.6191], 13);
+  // AMAN: OpenStreetMap, tanpa API Key, tanpa Carto
+  var map = L.map('map').setView([-6.9175, 107.6191], 14);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
@@ -44,28 +65,38 @@
   }).addTo(map);
 
   var marker = null;
+  var pickupMarker = null;
+  var destMarker = null;
+  var mode = 'pickup';
   var currentLat = -6.9175;
   var currentLng = 107.6191;
 
+  function setMode(m) {
+    mode = m;
+    document.getElementById('btnPickup').className = m === 'pickup' ? 'active' : 'secondary';
+    document.getElementById('btnDest').className = m === 'dest' ? 'active' : 'secondary';
+  }
+  setMode('pickup');
+
+  function getAddress(lat, lng, cb) {
+    fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=' + lat + '&longitude=' + lng + '&localityLanguage=id')
+      .then(r => r.json())
+      .then(d => cb(d.display_name || ''))
+      .catch(() => cb(lat.toFixed(6) + ', ' + lng.toFixed(6)));
+  }
+
   function updateLocation(lat, lng) {
-    currentLat = lat;
-    currentLng = lng;
+    currentLat = lat; currentLng = lng;
     if (marker) map.removeLayer(marker);
     marker = L.marker([lat, lng]).addTo(map);
     document.getElementById('latlngInput').value = lat.toFixed(6) + ', ' + lng.toFixed(6);
     document.getElementById('coords').innerText = 'Lat: ' + lat.toFixed(6) + ' | Lng: ' + lng.toFixed(6);
     document.getElementById('address').innerText = 'Mencari alamat...';
-
-    // Reverse Geocode gratis pake BigDataCloud
-    fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=' + lat + '&longitude=' + lng + '&localityLanguage=id')
-      .then(res => res.json())
-      .then(data => {
-        var alamat = data.display_name || (data.city + ', ' + data.principalSubdivision + ', ' + data.countryName);
-        document.getElementById('address').innerText = alamat || 'Alamat tidak ditemukan';
-      })
-      .catch(() => {
-        document.getElementById('address').innerText = lat.toFixed(6) + ', ' + lng.toFixed(6);
-      });
+    getAddress(lat, lng, function(alamat){
+      document.getElementById('address').innerText = alamat || 'Alamat tidak ditemukan';
+      if (mode === 'pickup') document.getElementById('pickupInput').value = alamat;
+      else document.getElementById('destInput').value = alamat;
+    });
   }
 
   map.on('click', function(e) {
@@ -75,11 +106,11 @@
   function copyCoords() {
     var input = document.getElementById('latlngInput');
     input.select();
-    document.execCommand('copy');
+    if (navigator.clipboard) navigator.clipboard.writeText(input.value);
+    else document.execCommand('copy');
     alert('Tersalin: ' + input.value);
   }
 
-  // Tandai lokasi awal
   updateLocation(currentLat, currentLng);
 </script>
 </body>
