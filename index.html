@@ -94,7 +94,11 @@ function search(q,box,isPick){
     let es=(e.candidates||[]).map(c=>({display_name:(c.attributes && (c.attributes.LongLabel || c.attributes.Match_addr)) || c.address,lat:c.location.y,lon:c.location.x}));
     let es2=(e2.candidates||[]).map(c=>({display_name:(c.attributes && (c.attributes.LongLabel || c.attributes.Match_addr)) || c.address,lat:c.location.y,lon:c.location.x}));
     let ph=(p.features||[]).map(f=>({display_name:[f.properties.name,f.properties.street,f.properties.city,f.properties.state].filter(Boolean).join(', '),lat:f.geometry.coordinates[1],lon:f.geometry.coordinates[0]}));
-    let g=[...ph,...es,...es2,...n,...n2];
+    let g=[...ph,...es,...es2,...n,...n2]; 
+    let qLow=qPendek.toLowerCase();
+let kata=qLow.split(/\s+/).filter(w=>w.length>=4);
+let exact=g.filter(x=>kata.every(k=>x.display_name.toLowerCase().includes(k)));
+if(exact.length>0) g=exact; 
     g.forEach(x=>x._d=hav(gpsLat,gpsLng,parseFloat(x.lat),parseFloat(x.lon)));
     g.sort((a,b)=>a._d-b._d);
     let out=[];
