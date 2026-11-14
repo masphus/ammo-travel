@@ -14,9 +14,8 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 .logo-left img{width:44px;height:44px;border-radius:50%;background:#fff;object-fit:cover;flex-shrink:0}
 .logo-left b{font-size:24px;white-space:nowrap}
 .pilih-lokasi{display:flex;align-items:center;gap:4px;font-weight:bold;font-size:15px;white-space:nowrap;flex-shrink:0;cursor:pointer}
-.title{padding:22px 16px 0;text-align:center}
+.title{padding:22px 16px 10px;text-align:center}
 .title h1{font-size:29px;line-height:1.2;color:#0a3d1f}
-.car{font-size:38px;margin:6px 0 14px}
 .form{padding:0 16px;position:relative}
 .lbl{font-weight:bold;font-size:18px;color:#222;margin:0 0 6px 58px}
 .row{display:flex;align-items:center;gap:8px;background:#f2f2f2;border:1px solid #d0d0d0;border-radius:10px;padding:6px 6px 6px 8px;margin-bottom:8px;width:100%}
@@ -28,6 +27,11 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 .swap-btn:disabled{opacity:.35;cursor:not-allowed}
 .saran-box{display:none;background:#fff;border:1px solid #ddd;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.12);margin:0 0 12px;padding:6px 0;position:relative;z-index:5}
 .saran-box div{padding:12px 14px;cursor:pointer;font-size:15px;border-bottom:1px solid #f0f0f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ongkos-preview{display:none;background:#d9ecd9;border-radius:12px;padding:14px;margin:4px 0 12px}
+.ongkos-preview h3{font-size:18px;color:#0a3d1f;margin-bottom:8px}
+.ongkos-preview .meta{display:flex;gap:16px;font-size:15px;color:#222;margin-bottom:8px}
+.ongkos-preview .meta b{display:block;font-size:16px}
+.ongkos-preview .total{font-size:22px;font-weight:bold;color:#0a3d1f}
 .info{background:#d9ecd9;border-radius:12px;padding:16px;margin:4px 16px 0;display:flex;gap:10px;align-items:flex-start}
 .info-icon{width:44px;height:44px;background:#00a651;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;color:#fff}
 .info p{font-size:16px;line-height:1.4;color:#222}
@@ -45,7 +49,6 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 .map-addr{font-size:14px;background:#f2f2f2;padding:10px;border-radius:8px;margin:10px 0;min-height:38px}
 .map-btns{display:flex;gap:10px}
 .map-btns button{flex:1;padding:12px;border-radius:10px;border:none;font-weight:bold;font-size:16px;cursor:pointer}
-/* HALAMAN MENUNGGU */
 .wait-page{display:none;max-width:430px;width:100%;margin:0 auto;background:#fff;min-height:100vh;padding:14px 16px 30px}
 .wait-head{display:flex;align-items:center;gap:12px}
 .wait-head button{border:none;background:none;font-size:28px;color:#00a651;cursor:pointer}
@@ -80,9 +83,9 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 <div id="homePage" class="phone">
 <div class="header">
 <div class="logo-left"><img src="icon-512.png" alt="Ammo Travel"><b>Ammo Travel</b></div>
-<div class="pilih-lokasi" onclick="openMap('pickup')">📍 Pilih Lokasi</div>
+<div class="pilih-lokasi" onclick="isiPenjemputanOtomatis();openMap('pickup')">📍 Pilih Lokasi</div>
 </div>
-<div class="title"><h1>Mau Pergi Kemana Hari Ini?</h1><div class="car">🚗</div></div>
+<div class="title"><h1>Mau Pergi Kemana Hari Ini?</h1></div>
 <div class="form">
 <div class="lbl">Penjemputan</div>
 <div class="row"><span class="pin">📍</span><input id="pickup" placeholder="Ketik / Pilih Lokasi Jemput..." autocomplete="off"><button class="btn-map" onclick="openMap('pickup')">📍 Pilih di Peta</button></div>
@@ -91,6 +94,11 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 <div class="lbl">Tujuan</div>
 <div class="row"><span class="pin">📍</span><input id="dest" placeholder="Ketik / Pilih Tujuan..." autocomplete="off"><button class="btn-map" onclick="openMap('dest')">📍 Pilih di Peta</button></div>
 <div id="saranDest" class="saran-box"></div>
+<div id="ongkosPreview" class="ongkos-preview">
+<h3>💰 Estimasi Ongkos</h3>
+<div class="meta"><div>Jarak<b id="prevJarak">-</b></div><div>Estimasi<b id="prevEstimasi">-</b></div></div>
+<div class="total" id="prevOngkos">-</div>
+</div>
 </div>
 <div class="info"><div class="info-icon">🚗</div><p>Driver di sekitar kamu siap menjemput! Cek harga setelah isi lokasi</p></div>
 <button class="btn-cek" onclick="cekDriver()">Cek Driver & Lanjut</button>
@@ -132,19 +140,20 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 <script>
 let pickupCoord=null, destCoord=null, mapMode='pickup';
 let map=null, marker=null, tempLat=-7.7956, tempLng=110.3695, tempAddr='';
+let previewTimer=null;
 const $=id=>document.getElementById(id);
 const fmtRp=n=>'Rp. '+Math.round(n).toLocaleString('id-ID');
 function fmtJarak(m){let km=m/1000;return km>=100?Math.round(km).toLocaleString('id-ID')+' km':km.toFixed(1).replace('.',',')+' km';}
 function fmtEstimasi(detik){let m=Math.round(detik/60);let h=Math.floor(m/60),hari=Math.floor(h/24);h=h%24;let sisa=m%60;if(hari>0)return hari+' hari '+(h>0?h+' jam':'');if(h>0)return h+' jam '+(sisa>0?sisa+' menit':'');return m+' menit';}
 function updateSwap(){ $('swapBtn').disabled=!($('pickup').value.trim() && $('dest').value.trim()); }
-$('pickup').addEventListener('input',()=>{updateSwap();cariSaran('pickup');});
-$('dest').addEventListener('input',()=>{updateSwap();cariSaran('dest');});
+$('pickup').addEventListener('input',()=>{updateSwap();cariSaran('pickup');jadwalPreview();});
+$('dest').addEventListener('input',()=>{updateSwap();cariSaran('dest');jadwalPreview();});
 function swapLokasi(){
   let a=$('pickup').value,b=$('dest').value;
   if(!a.trim()||!b.trim())return;
   $('pickup').value=b; $('dest').value=a;
   let c=pickupCoord; pickupCoord=destCoord; destCoord=c;
-  updateSwap();
+  updateSwap(); jadwalPreview(true);
 }
 async function cariSaran(tipe){
   let inp=tipe==='pickup'?$('pickup'):$('dest');
@@ -163,7 +172,7 @@ async function cariSaran(tipe){
         inp.value=it.display_name;
         if(tipe==='pickup')pickupCoord=[parseFloat(it.lat),parseFloat(it.lon)];
         else destCoord=[parseFloat(it.lat),parseFloat(it.lon)];
-        box.style.display='none'; updateSwap();
+        box.style.display='none'; updateSwap(); jadwalPreview(true);
       };
       box.appendChild(div);
     });
@@ -186,6 +195,19 @@ async function geocodeAlamat(q){
     let d=await r.json(); if(d.length)return [parseFloat(d[0].lat),parseFloat(d[0].lon)];
   }catch(e){}
   return null;
+}
+async function isiPenjemputanOtomatis(){
+  if($('pickup').value.trim()) return;
+  if(!navigator.geolocation) return;
+  $('pickup').placeholder='Mendeteksi lokasi kamu...';
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    let lat=pos.coords.latitude, lng=pos.coords.longitude;
+    pickupCoord=[lat,lng];
+    let alamat=await reverseGeocode(lat,lng);
+    $('pickup').value=alamat;
+    $('pickup').placeholder='Ketik / Pilih Lokasi Jemput...';
+    updateSwap(); jadwalPreview(true);
+  },()=>{ $('pickup').placeholder='Ketik / Pilih Lokasi Jemput...'; },{enableHighAccuracy:true,timeout:8000});
 }
 function openMap(tipe){
   mapMode=tipe;
@@ -219,7 +241,38 @@ function confirmMap(){
   inp.value=tempAddr;
   if(mapMode==='pickup')pickupCoord=[tempLat,tempLng];
   else destCoord=[tempLat,tempLng];
-  closeMap(); updateSwap();
+  closeMap(); updateSwap(); jadwalPreview(true);
+}
+function jadwalPreview(langsung){
+  clearTimeout(previewTimer);
+  if(langsung) hitungPreview();
+  else previewTimer=setTimeout(hitungPreview,800);
+}
+async function hitungPreview(){
+  let a=$('pickup').value.trim(), b=$('dest').value.trim();
+  if(!a||!b){ $('ongkosPreview').style.display='none'; return; }
+  $('ongkosPreview').style.display='block';
+  $('prevJarak').textContent='Menghitung...';
+  $('prevEstimasi').textContent='Menghitung...';
+  $('prevOngkos').textContent='Menghitung...';
+  if(!pickupCoord) pickupCoord=await geocodeAlamat(a);
+  if(!destCoord) destCoord=await geocodeAlamat(b);
+  if(!pickupCoord||!destCoord){
+    $('prevJarak').textContent='-'; $('prevEstimasi').textContent='-'; $('prevOngkos').textContent='-'; return;
+  }
+  try{
+    let url=`https://router.project-osrm.org/route/v1/driving/${pickupCoord[1]},${pickupCoord[0]};${destCoord[1]},${destCoord[0]}?overview=false`;
+    let r=await fetch(url); let d=await r.json();
+    if(d.routes&&d.routes.length){
+      let route=d.routes[0];
+      let km=route.distance/1000;
+      $('prevJarak').textContent='~ '+fmtJarak(route.distance);
+      $('prevEstimasi').textContent='± '+fmtEstimasi(route.duration);
+      $('prevOngkos').textContent='ONGKOS '+fmtRp(Math.round(km)*5000);
+    }
+  }catch(e){
+    $('prevJarak').textContent='-'; $('prevEstimasi').textContent='-'; $('prevOngkos').textContent='-';
+  }
 }
 async function hitungRute(){
   $('wDari').textContent=$('pickup').value;
@@ -240,8 +293,7 @@ async function hitungRute(){
       let km=route.distance/1000;
       $('wJarak').textContent='~ '+fmtJarak(route.distance);
       $('wEstimasi').textContent='± '+fmtEstimasi(route.duration);
-      let ongkos=Math.round(km)*5000;
-      $('wOngkos').textContent=fmtRp(ongkos);
+      $('wOngkos').textContent=fmtRp(Math.round(km)*5000);
     }else{$('wJarak').textContent='-';$('wEstimasi').textContent='-';$('wOngkos').textContent='-';}
   }catch(e){
     $('wJarak').textContent='Gagal hitung rute'; $('wEstimasi').textContent='-'; $('wOngkos').textContent='-';
@@ -264,6 +316,7 @@ function backHome(){
   $('chatBtn').style.display='flex';
   window.scrollTo(0,0);
 }
+isiPenjemputanOtomatis();
 </script>
 </body>
 </html>
