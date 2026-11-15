@@ -99,6 +99,24 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 .pass-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:19px;color:#888}
 .atau{display:flex;align-items:center;gap:12px;color:#888;font-size:13px;margin:16px 0 2px}
 .atau:before,.atau:after{content:'';flex:1;height:1px;background:#ddd}
+/* POPUP CANTIK - PENGGANTI alert/prompt/confirm BROWSER */
+.toast-wrap{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;align-items:flex-start;justify-content:center;padding-top:16px}
+.toast-wrap.show{display:flex}
+.toast{background:#fff;width:calc(100% - 32px);max-width:398px;border-radius:18px;padding:16px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.toast .ico{width:44px;height:44px;min-width:44px;border-radius:50%;background:#00a651;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:bold}
+.toast .ico.err{background:#e60000}
+.toast b{font-size:16px;color:#111;display:block;line-height:1.3}
+.toast p{font-size:14px;color:#555;margin-top:2px;line-height:1.4}
+.toast button{margin-left:auto;background:#00a651;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-weight:bold;cursor:pointer;flex-shrink:0}
+.center-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:310;align-items:center;justify-content:center;padding:16px}
+.center-modal.show{display:flex}
+.center-box{width:100%;max-width:360px;background:#fff;border-radius:22px;padding:24px;text-align:center;box-shadow:0 15px 40px rgba(0,0,0,.25)}
+.center-box h3{font-size:21px;line-height:1.3;color:#111}
+.center-box p{font-size:14px;color:#666;margin:10px 0 14px;line-height:1.5}
+.center-box label{display:block;text-align:left;font-size:14px;font-weight:700;color:#333;margin-bottom:6px}
+.center-box input{width:100%;padding:13px 14px;border:1px solid #ccc;border-radius:10px;font-size:16px;outline:none}
+.center-btns{display:flex;gap:10px;margin-top:16px}
+.center-btns button{flex:1;padding:13px;border:none;border-radius:10px;font-weight:bold;font-size:16px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -168,16 +186,14 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 
 <!-- MODAL AKUN - 2 KEADAAN -->
 <div id="akunModal" class="daftar-modal"><div class="daftar-box"><div class="daftar-handle"></div>
-<!-- KALO UDAH LOGIN -->
 <div id="akunSudahLogin" style="display:none">
 <div class="akun-foto"><span>👤</span></div>
 <div class="akun-nama" id="akunNama">Maspus</div>
 <div class="akun-sub" id="akunSub">0812xxxxxx - Penumpang<br>akun Google: maspus@gmail.com</div>
 <div class="akun-info"><div>⭐ Saldo Poin<b>250 Poin</b></div><div>📍 Perjalanan<b>5 Perjalanan</b></div></div>
-<button class="daftar-btn btn-logout" onclick="logoutAkun()">Logout</button>
+<button class="daftar-btn btn-logout" onclick="tanyaLogout()">Logout</button>
 <button class="daftar-btn btn-tutup" onclick="tutupAkun()">Tutup</button>
 </div>
-<!-- KALO BELUM LOGIN -->
 <div id="akunBelumLogin" style="display:none">
 <h2>Masuk Akun</h2>
 <div class="akun-foto"><span>👤</span></div>
@@ -193,8 +209,38 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 </div>
 </div></div>
 
-<!-- MODAL DAFTAR LAMA - BUAT JAGA-JAGA, DIPAKE ORDER NOW KALO BELUM LOGIN -->
 <div id="daftarModal" class="daftar-modal"><div class="daftar-box"><div class="daftar-handle"></div><h2>Daftar dulu yuk</h2><p>Akun penumpang kamu belum ketemu di database. Daftar dulu biar orderanmu kesimpen, abis itu otomatis ke Halaman Penumpang.</p><div><span class="daftar-label">Nama</span></div><input class="daftar-input" id="namaDaftar" placeholder="Maspus"><div><span class="daftar-label">Nomor WhatsApp</span></div><input class="daftar-input" id="hpDaftar" placeholder="No. WA, contoh 0812xxxx"><button class="daftar-btn daftar-google" onclick="daftarPenumpang('Google')"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G">Lanjut dengan Google</button><button class="daftar-btn daftar-sekarang" onclick="daftarPenumpang('WA')">Daftar Sekarang</button><button class="daftar-batal" onclick="tutupDaftar()">Batal</button><p class="daftar-syarat">Dengan lanjut, kamu setuju dengan Syarat &amp; Ketentuan Ammo Travel</p></div></div>
+
+<!-- POPUP NAMA CANTIK - PENGGANTI prompt() -->
+<div id="namaBaruModal" class="center-modal"><div class="center-box">
+<div style="font-size:36px">🙏</div>
+<h3>Tolong Masukkan nama terlebih dahulu 🙏🙏🙏</h3>
+<p>WA belum terdaftar, silakan isi nama kamu untuk daftar baru</p>
+<label>Nama Lengkap</label>
+<input id="inputNamaBaru" placeholder="Contoh: Masphus">
+<div class="center-btns"><button style="background:#eee;color:#333" onclick="tutupNamaBaru()">Batal</button><button style="background:#00a651;color:#fff" onclick="buatAkunDariNama()">Buat Akun</button></div>
+</div></div>
+
+<!-- POPUP WA BUAT GOOGLE -->
+<div id="waGoogleModal" class="center-modal"><div class="center-box">
+<div style="font-size:36px">📱</div>
+<h3>Masukkan No. WA kamu</h3>
+<p>Buat dihubungi driver ya, sekali aja.</p>
+<label>Nomor WhatsApp</label>
+<input id="inputWaGoogle" placeholder="0812xxxx" inputmode="numeric">
+<div class="center-btns"><button style="background:#eee;color:#333" onclick="tutupWaGoogle()">Nanti Aja</button><button style="background:#00a651;color:#fff" onclick="simpanWaGoogle()">Simpan</button></div>
+</div></div>
+
+<!-- POPUP LOGOUT CANTIK -->
+<div id="logoutModal" class="center-modal"><div class="center-box">
+<div style="font-size:36px">👋</div>
+<h3>Yakin mau logout?</h3>
+<p>Kamu harus login lagi untuk order.</p>
+<div class="center-btns"><button style="background:#eee;color:#333" onclick="tutupLogout()">Batal</button><button style="background:#ff6b81;color:#fff" onclick="logoutAkun()">Ya, Logout</button></div>
+</div></div>
+
+<!-- TOAST CANTIK -->
+<div id="toastWrap" class="toast-wrap"><div class="toast"><div class="ico" id="toastIco">✓</div><div style="flex:1"><b id="toastJudul">Berhasil</b><p id="toastIsi">-</p></div><button onclick="tutupToast()">OK</button></div></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
@@ -212,6 +258,7 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 let pickupCoord=null, destCoord=null, mapMode='pickup';
 let map=null, marker=null, tempLat=-6.9175, tempLng=107.6191, tempAddr='Lokasi Saya Saat Ini';
 let previewTimer=null, saranTimer=null;
+let pendingHP='', pendingPass='';
 const $=id=>document.getElementById(id);
 const fmtRp=n=>'Rp. '+Math.round(n).toLocaleString('id-ID');
 function fmtJarak(m){let km=m/1000;return km>=100?Math.round(km).toLocaleString('id-ID')+' km':km.toFixed(1).replace('.',',')+' km';}
@@ -220,6 +267,46 @@ function fmtJarakKe(km){if(km<1)return Math.round(km*1000)+' m';return km.toFixe
 function haversine(a1,b1,a2,b2){let R=6371,dLat=(a2-a1)*Math.PI/180,dLon=(b2-b1)*Math.PI/180;let a=Math.sin(dLat/2)**2+Math.cos(a1*Math.PI/180)*Math.cos(a2*Math.PI/180)*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.sqrt(a));}
 function hitungOngkos(km){let kmTagih=Math.max(Math.round(km),10);return {kmTagih:kmTagih, ongkos:kmTagih*5000};}
 function updateSwap(){ $('swapBtn').disabled=!($('pickup').value.trim() && $('dest').value.trim()); }
+// ===== TOAST + POPUP CANTIK, GAK PAKE alert/prompt/confirm LAGI =====
+let toastTimer=null;
+function showToast(judul, isi, isError){
+  $('toastJudul').textContent=judul; $('toastIsi').textContent=isi;
+  let ico=$('toastIco'); ico.textContent=isError?'!':'✓'; ico.className='ico'+(isError?' err':'');
+  $('toastWrap').classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(tutupToast, 3500);
+}
+function tutupToast(){ $('toastWrap').classList.remove('show'); }
+function tutupNamaBaru(){ $('namaBaruModal').classList.remove('show'); pendingHP=''; pendingPass=''; }
+function tutupWaGoogle(){ $('waGoogleModal').classList.remove('show'); }
+function tutupLogout(){ $('logoutModal').classList.remove('show'); }
+function tanyaLogout(){ tutupAkun(); $('logoutModal').classList.add('show'); }
+async function buatAkunDariNama(){
+  let namaBaru = $('inputNamaBaru').value.trim();
+  if(!namaBaru){ showToast('Nama Kosong','Tolong Masukkan nama terlebih dahulu 🙏🙏🙏', true); return; }
+  try{
+    let ins = await supabaseClient.from('penumpang').insert([{ nama: namaBaru, no_wa: pendingHP, cara_daftar: 'WA', status: 'aktif' }]).select().single();
+    let idBaru = ins.data ? ins.data.id : null;
+    let user = { nama: namaBaru, hp: pendingHP, via: 'WA' };
+    localStorage.setItem('ammo_sesi', JSON.stringify(user));
+    localStorage.setItem('ammo_last_hp', pendingHP);
+    if(idBaru) localStorage.setItem('ammo_supabase_penumpang_id', idBaru);
+    if(pendingPass) localStorage.setItem('ammo_pass_'+pendingHP, pendingPass);
+    $('namaBaruModal').classList.remove('show');
+    showToast('Akun Berhasil Dibuat','Selamat datang ' + namaBaru + '! 🙏', false);
+    pendingHP=''; pendingPass='';
+    if($('pickup').value.trim() && $('dest').value.trim()){ setTimeout(()=>simpanOrderDanLanjut(), 500); }
+    else { setTimeout(()=>location.reload(), 500); }
+  }catch(e){ console.log(e); showToast('Gagal Daftar','Gagal membuat akun, coba lagi ya.', true); }
+}
+async function simpanWaGoogle(){
+  let hp = $('inputWaGoogle').value.trim();
+  if(!hp){ showToast('No. WA Kosong','Isi No. WA dulu ya.', true); return; }
+  localStorage.setItem('ammo_last_hp', hp);
+  try{ let sesi=getSesi(); let namaGoogle = sesi ? sesi.nama : 'Penumpang'; await syncPenumpangKeSupabase(namaGoogle, hp, 'Google'); }catch(e){}
+  $('waGoogleModal').classList.remove('show');
+  showToast('Berhasil','No. WA tersimpan, lanjut order ya.', false);
+  setTimeout(()=>simpanOrderDanLanjut(), 500);
+}
 function alamatPendek(d){
   if(!d) return 'Lokasi Saya Saat Ini';
   if(d.display_name){
@@ -496,7 +583,7 @@ function simpanOrderDanLanjut(){
 }
 async function cekDriver(){
   let a=$('pickup').value.trim(), b=$('dest').value.trim();
-  if(!a||!b){alert('Isi Penjemputan dan Tujuan dulu Bro!');return;}
+  if(!a||!b){showToast('Lengkapi Dulu','Isi Penjemputan dan Tujuan dulu Bro!', true);return;}
   let lastHp = localStorage.getItem('ammo_last_hp')||'';
   let sesi = getSesi();
   let hpCek = sesi ? sesi.hp : lastHp;
@@ -526,8 +613,8 @@ async function daftarPenumpang(via){
   }
   let nama=$('namaDaftar').value.trim();
   let hp=$('hpDaftar').value.trim();
-  if(!nama){ alert('Isi Nama dulu ya'); return; }
-  if(!hp){ alert('Isi No. WA dulu ya'); return; }
+  if(!nama){ showToast('Nama Kosong','Tolong Masukkan nama terlebih dahulu 🙏🙏🙏', true); return; }
+  if(!hp){ showToast('No. WA Kosong','Isi No. WA dulu ya.', true); return; }
   let db=getDB();
   let user=db.find(u=>u.hp===hp);
   if(!user){ user={nama:nama, hp:hp, via:via, created:Date.now()}; db.push(user); saveDB(db); }
@@ -551,15 +638,14 @@ async function daftarPenumpang(via){
       if(pending){
         localStorage.removeItem('ammo_pending_order');
         if(!user.hp){
-          let hp = prompt('Masukin No. WA kamu sekali aja buat dihubungi driver ya:');
-          if(hp){ localStorage.setItem('ammo_last_hp', hp); await syncPenumpangKeSupabase(namaGoogle, hp, 'Google'); }
+          $('waGoogleModal').classList.add('show');
+          return;
         }
         simpanOrderDanLanjut();
       }
     }
   }catch(e){ console.log('cek google', e); }
 })();
-// === AKUN BARU SESUAI GAMBAR ===
 function bukaAkun(){
   let sesi = getSesi();
   let lastHp = localStorage.getItem('ammo_last_hp')||'';
@@ -586,8 +672,8 @@ function togglePass(){
 async function loginWA(){
   let hp = $('loginWA').value.trim();
   let pass = $('loginPass').value.trim();
-  if(!hp){ alert('Isi Nomor WA dulu ya'); return; }
-  if(!pass){ alert('Isi Password dulu ya'); return; }
+  if(!hp){ showToast('Nomor WA Kosong','Isi Nomor WA dulu ya.', true); return; }
+  if(!pass){ showToast('Password Kosong','Isi Password dulu ya.', true); return; }
   try{
     let cek = await supabaseClient.from('penumpang').select('id,nama,no_wa').eq('no_wa', hp).maybeSingle();
     if(cek.data){
@@ -597,39 +683,31 @@ async function loginWA(){
       localStorage.setItem('ammo_supabase_penumpang_id', cek.data.id);
       localStorage.setItem('ammo_pass_'+hp, pass);
       tutupAkun();
-      alert('Selamat datang kembali, ' + cek.data.nama + '!');
-      if($('pickup').value.trim() && $('dest').value.trim()){ simpanOrderDanLanjut(); }
-      else { location.reload(); }
+      showToast('Selamat Datang Kembali','Selamat datang kembali, ' + cek.data.nama + '!', false);
+      if($('pickup').value.trim() && $('dest').value.trim()){ setTimeout(()=>simpanOrderDanLanjut(), 500); }
+      else { setTimeout(()=>location.reload(), 500); }
       return;
     }else{
-      let namaBaru = prompt('WA belum terdaftar. Masukkan nama kamu buat daftar baru:');
-      if(!namaBaru) return;
-      let ins = await supabaseClient.from('penumpang').insert([{ nama: namaBaru, no_wa: hp, cara_daftar: 'WA', status: 'aktif' }]).select().single();
-      let idBaru = ins.data ? ins.data.id : null;
-      let user = { nama: namaBaru, hp: hp, via: 'WA' };
-      localStorage.setItem('ammo_sesi', JSON.stringify(user));
-      localStorage.setItem('ammo_last_hp', hp);
-      if(idBaru) localStorage.setItem('ammo_supabase_penumpang_id', idBaru);
-      localStorage.setItem('ammo_pass_'+hp, pass);
+      pendingHP=hp; pendingPass=pass;
       tutupAkun();
-      alert('Akun baru berhasil dibuat, selamat datang ' + namaBaru + '!');
-      if($('pickup').value.trim() && $('dest').value.trim()){ simpanOrderDanLanjut(); }
-      else { location.reload(); }
+      $('inputNamaBaru').value='';
+      $('namaBaruModal').classList.add('show');
+      setTimeout(()=>$('inputNamaBaru').focus(), 200);
     }
   }catch(e){
     console.log(e);
-    alert('Gagal login, coba lagi ya');
+    showToast('Gagal Login','Gagal login, coba lagi ya.', true);
   }
 }
 async function logoutAkun(){
-  if(confirm('Yakin mau logout?')){
-    try{ await supabaseClient.auth.signOut(); }catch(e){}
-    localStorage.removeItem('ammo_sesi');
-    localStorage.removeItem('ammo_last_hp');
-    localStorage.removeItem('ammo_supabase_penumpang_id');
-    tutupAkun();
-    location.reload();
-  }
+  $('logoutModal').classList.remove('show');
+  try{ await supabaseClient.auth.signOut(); }catch(e){}
+  localStorage.removeItem('ammo_sesi');
+  localStorage.removeItem('ammo_last_hp');
+  localStorage.removeItem('ammo_supabase_penumpang_id');
+  tutupAkun();
+  showToast('Logout Berhasil','Kamu sudah logout ya.', false);
+  setTimeout(()=>location.reload(), 600);
 }
 let pendingRole=null, pinVal="", waTimer=null;
 const PIN_DRIVER="123456";
@@ -690,7 +768,7 @@ setTimeout(function(){
 }, 500);
 isiPenjemputanOtomatis();
 </script>
-<!-- === AMMO x SUPABASE - JANGAN DIHAPUS === -->
+<!-- === AMMO x SUPABASE - JANGAN DIHAPUS, VERSI AMAN === -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
