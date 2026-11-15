@@ -23,9 +23,12 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 .pin{font-size:26px;flex-shrink:0}
 .row input{flex:1;min-width:0;border:none;outline:none;background:transparent;font-size:15px;padding:8px 0}
 .btn-map{background:#00a651;color:#fff;border:none;border-radius:7px;padding:9px 10px;font-weight:bold;font-size:14px;white-space:nowrap;flex-shrink:0;cursor:pointer}
-.swap-wrap{display:flex;justify-content:flex-end;padding:0 0 8px}
-.swap-btn{width:42px;height:42px;border-radius:50%;border:2px solid #00a651;background:#fff;color:#00a651;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+/* TOMBOL TUKAR - DIKUNCI: TENGAH, HITAM, PANAH EMAS TEBAL */
+.swap-wrap{display:flex;justify-content:center;padding:6px 0 10px}
+.swap-btn{width:58px;height:58px;border-radius:50%;border:none;background:#000;color:#D4AF37;font-size:32px;font-weight:900;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.swap-btn:active{transform:scale(.94)}
 .swap-btn:disabled{opacity:.35;cursor:not-allowed}
+.swap-btn svg{width:34px;height:34px}
 .saran-box{display:none;background:#fff;border:1px solid #ddd;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.12);margin:0 0 12px;padding:6px 0;position:relative;z-index:5;max-height:260px;overflow-y:auto}
 .saran-box div{padding:12px 14px;cursor:pointer;font-size:15px;border-bottom:1px solid #f0f0f0;line-height:1.3}
 .saran-box .loading{color:#777;text-align:center}
@@ -36,29 +39,29 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 .ongkos-preview .meta b{display:block;font-size:16px}
 .ongkos-preview .total{font-size:22px;font-weight:bold;color:#0a3d1f}
 .btn-cek{display:block;width:calc(100% - 32px);margin:14px 16px 0;background:#00a651;color:#fff;border:none;border-radius:10px;padding:16px;font-size:22px;font-weight:bold;cursor:pointer}
-.btn-akun{display:block;width:calc(100% - 32px);margin:10px 16px 0;background:#fff;color:#00a651;border:2px solid #00a651;border-radius:10px;padding:13px;font-size:17px;font-weight:bold;cursor:pointer}
 .chat{position:absolute;bottom:92px;right:16px;width:58px;height:58px;background:#00a651;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;z-index:20;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.25);border:2px solid #fff}
 .chat i{position:absolute;top:6px;right:8px;width:12px;height:12px;background:red;border-radius:50%}
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#eee;display:flex;justify-content:space-around;padding:10px 0 12px;border-top:1px solid #ddd;z-index:20}
 .nav div{text-align:center;font-size:14px;color:#777;cursor:pointer}
 .nav div span{font-size:24px;display:block}
 .nav .on{color:#00a651;font-weight:bold}
-.map-modal,.chat-modal,.akun-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;align-items:flex-end;justify-content:center}
-.map-modal.show,.chat-modal.show,.akun-modal.show{display:flex}
-.map-box,.chat-box,.akun-box{width:100%;max-width:430px;background:#fff;border-radius:16px 16px 0 0;padding:14px}
+.map-modal,.chat-modal,.akun-modal,.nama-modal,.toast-wrap{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;align-items:flex-end;justify-content:center}
+.map-modal.show,.chat-modal.show,.akun-modal.show,.nama-modal.show{display:flex}
+.map-box,.chat-box,.akun-box,.nama-box{width:100%;max-width:430px;background:#fff;border-radius:16px 16px 0 0;padding:16px}
 #map{width:100%;height:340px;border-radius:10px}
 .map-addr{font-size:14px;background:#f2f2f2;padding:10px;border-radius:8px;margin:10px 0;min-height:38px}
 .map-btns{display:flex;gap:10px}
 .map-btns button{flex:1;padding:12px;border-radius:10px;border:none;font-weight:bold;font-size:16px;cursor:pointer}
-.chat-box h3,.akun-box h3{font-size:20px;color:#0a3d1f;margin-bottom:12px;text-align:center}
-.chat-opt{display:flex;gap:10px;align-items:center;background:#f2f2f2;border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer}
-.chat-opt.lock{opacity:.6;cursor:not-allowed}
-.chat-opt b{font-size:16px;display:block}
+.chat-box h3,.akun-box h3,.nama-box h3{font-size:20px;color:#0a3d1f;margin-bottom:12px;text-align:center}
+.chat-opt{display:flex;gap:12px;align-items:center;background:#f2f2f2;border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer}
+.chat-opt b{font-size:17px;display:block}
 .chat-opt small{font-size:14px;color:#555}
 .chat-close{display:block;width:100%;margin-top:6px;padding:12px;border:none;border-radius:10px;background:#eee;font-weight:bold;font-size:16px;cursor:pointer}
-.akun-box label{font-weight:bold;font-size:15px;display:block;margin:10px 0 5px}
-.akun-box input{width:100%;padding:13px;border:1px solid #ddd;border-radius:10px;background:#f2f2f2;font-size:16px;outline:none}
+.akun-box label,.nama-box label{font-weight:bold;font-size:15px;display:block;margin:10px 0 5px}
+.akun-box input,.nama-box input{width:100%;padding:13px;border:1px solid #ddd;border-radius:10px;background:#f2f2f2;font-size:16px;outline:none}
 .akun-btn{width:100%;margin-top:16px;padding:14px;border:none;border-radius:10px;background:#00a651;color:#fff;font-weight:bold;font-size:18px;cursor:pointer}
+.nama-btns{display:flex;gap:10px;margin-top:16px}
+.nama-btns button{flex:1;padding:13px;border:none;border-radius:10px;font-weight:bold;font-size:16px;cursor:pointer}
 .wait-page{display:none;max-width:430px;width:100%;margin:0 auto;background:#fff;min-height:100vh;padding:14px 16px 30px}
 .wait-head{display:flex;align-items:center;gap:12px}
 .wait-head button{border:none;background:none;font-size:28px;color:#00a651;cursor:pointer}
@@ -85,8 +88,16 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 .driver-box{border:1.5px solid #eee;border-radius:14px;padding:16px;margin-top:14px}
 .driver-box h3{font-size:24px;line-height:1.2}
 .driver-box p{margin:10px 0;font-size:16px;line-height:1.4}
-.chat-lock{background:#eee;border-radius:8px;padding:12px;display:flex;gap:10px;align-items:center;font-size:16px;line-height:1.3}
 .btn-batal{display:block;width:100%;margin-top:14px;background:#e60000;color:#fff;border:none;border-radius:10px;padding:15px;font-size:22px;font-weight:bold;cursor:pointer}
+/* NOTIF CANTIK - PENGGANTI ALERT BROWSER */
+.toast-wrap{align-items:flex-start;padding-top:14px}
+.toast-wrap.show{display:flex}
+.toast{background:#fff;width:calc(100% - 32px);max-width:398px;border-radius:18px;padding:16px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.toast .ico{width:44px;height:44px;min-width:44px;border-radius:50%;background:#00a651;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:bold}
+.toast .ico.err{background:#e60000}
+.toast b{font-size:16px;color:#111;display:block;line-height:1.3}
+.toast p{font-size:14px;color:#555;margin-top:2px;line-height:1.4}
+.toast button{margin-left:auto;background:#00a651;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-weight:bold;cursor:pointer;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -100,7 +111,7 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 <div class="lbl">Penjemputan</div>
 <div class="row"><span class="pin">📍</span><input id="pickup" placeholder="Ketik / Pilih Lokasi Jemput..." autocomplete="off"><button class="btn-map" onclick="openMap('pickup')">📍 Pilih di Peta</button></div>
 <div id="saranPick" class="saran-box"></div>
-<div class="swap-wrap"><button id="swapBtn" class="swap-btn" onclick="swapLokasi()" disabled title="Tukar Penjemputan & Tujuan">⇅</button></div>
+<div class="swap-wrap"><button id="swapBtn" class="swap-btn" onclick="swapLokasi()" disabled title="Tukar Penjemputan & Tujuan"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 L18 9 L15.5 9 L15.5 15 L18 15 L12 21 L6 15 L8.5 15 L8.5 9 L6 9 Z" fill="#D4AF37" stroke="#D4AF37" stroke-width="1.5" stroke-linejoin="round"/></svg></button></div>
 <div class="lbl">Tujuan</div>
 <div class="row"><span class="pin">📍</span><input id="dest" placeholder="Ketik / Pilih Tujuan..." autocomplete="off"><button class="btn-map" onclick="openMap('dest')">📍 Pilih di Peta</button></div>
 <div id="saranDest" class="saran-box"></div>
@@ -111,7 +122,6 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 </div>
 </div>
 <button class="btn-cek" onclick="cekDriver()">Cek Driver & Lanjut</button>
-<button class="btn-akun" id="btnAkun" onclick="openAkun()">👤 Masuk / Daftar Akun</button>
 <div class="chat" id="chatBtn" onclick="openChat()">💬<i></i></div>
 </div>
 <div id="waitPage" class="wait-page">
@@ -133,7 +143,6 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 <div class="driver-box">
 <h3>👥 Belum ada driver yang menerima</h3>
 <p>Driver akan ditampilkan di sini setelah menerima pesananmu</p>
-<div class="chat-lock">🔒 Chat dengan Driver akan aktif setelah driver ditemukan</div>
 <button class="btn-batal" onclick="backHome()">Batalkan Pesanan</button>
 </div>
 </div>
@@ -145,21 +154,34 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 </div>
 <div id="akunModal" class="akun-modal"><div class="akun-box">
 <h3>👤 Masuk Akun</h3>
+<div id="akunLoginForm">
 <label>Nomor WhatsApp</label>
 <input id="loginWA" placeholder="08xxxxxxxxxx" inputmode="numeric">
 <label>Password</label>
 <input id="loginPass" type="password" placeholder="Buat / isi password">
 <button class="akun-btn" onclick="loginWA()">Masuk / Daftar</button>
-<p style="font-size:13px;color:#666;text-align:center;margin-top:10px;line-height:1.4">Kalau No WA belum terdaftar, otomatis dibuatkan akun baru dengan password ini.</p>
+<p style="font-size:13px;color:#666;text-align:center;margin-top:10px;line-height:1.4">Kalau No WA belum terdaftar, nanti diminta nama, langsung dibuatkan akun baru.</p>
+</div>
+<div id="akunSudahLogin" style="display:none;text-align:center">
+<p style="font-size:17px;margin:10px 0" id="akunNamaTampil">-</p>
+<button class="akun-btn" style="background:#e60000" onclick="tanyaLogout()">Logout</button>
+</div>
 <button class="chat-close" onclick="tutupAkun()">Tutup</button>
+</div></div>
+<div id="namaModal" class="nama-modal"><div class="nama-box">
+<h3>👋 Daftar Baru</h3>
+<p style="font-size:15px;color:#555;text-align:center;line-height:1.4">WA belum terdaftar.<br>Masukkan nama kamu:</p>
+<label>Nama Lengkap</label>
+<input id="inputNamaBaru" placeholder="Contoh: Masphus">
+<div class="nama-btns"><button style="background:#eee" onclick="tutupNama()">Batal</button><button style="background:#00a651;color:#fff" onclick="buatAkunBaru()">Buat Akun</button></div>
 </div></div>
 <div id="chatModal" class="chat-modal"><div class="chat-box">
 <h3>💬 Mau Chat Kemana?</h3>
 <div class="chat-opt" onclick="chatAdmin()"><span style="font-size:28px">🧑‍💼</span><div><b>Chat Admin</b><small>Tanya harga, jadwal, & bantuan</small></div></div>
-<div class="chat-opt lock" id="chatDriverOpt" onclick="chatDriver()"><span style="font-size:28px">🚗</span><div><b>Chat Driver</b><small id="chatDriverText">Terkunci - tunggu driver ditemukan</small></div></div>
 <button class="chat-close" onclick="closeChat()">Tutup</button>
 </div></div>
 <div id="mapModal" class="map-modal"><div class="map-box"><div id="map"></div><div id="mapAddr" class="map-addr">Memuat alamat...</div><div class="map-btns"><button style="background:#eee" onclick="closeMap()">Batal</button><button style="background:#00a651;color:#fff" onclick="confirmMap()">OK, Pakai Lokasi Ini</button></div></div></div>
+<div id="toastWrap" class="toast-wrap"><div class="toast"><div class="ico" id="toastIco">✓</div><div style="flex:1"><b id="toastJudul">Berhasil</b><p id="toastIsi">-</p></div><button onclick="tutupToast()">OK</button></div></div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 const SUPABASE_URL = "https://xxtgnohxdztsiuwbfxap.supabase.co";
@@ -167,7 +189,8 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let pickupCoord=null, destCoord=null, mapMode='pickup';
 let map=null, marker=null, tempLat=-7.7956, tempLng=110.3695, tempAddr='Lokasi Saya Saat Ini';
-let previewTimer=null, saranTimer=null, driverDitemukan=false;
+let previewTimer=null, saranTimer=null;
+let pendingHP='', pendingPass='';
 const $=id=>document.getElementById(id);
 const fmtRp=n=>'Rp. '+Math.round(n).toLocaleString('id-ID');
 function fmtJarak(m){let km=m/1000;return km>=100?Math.round(km).toLocaleString('id-ID')+' km':km.toFixed(1).replace('.',',')+' km';}
@@ -176,33 +199,51 @@ function fmtJarakKe(km){if(km<1)return Math.round(km*1000)+' m';return km.toFixe
 function haversine(a1,b1,a2,b2){let R=6371,dLat=(a2-a1)*Math.PI/180,dLon=(b2-b1)*Math.PI/180;let a=Math.sin(dLat/2)**2+Math.cos(a1*Math.PI/180)*Math.cos(a2*Math.PI/180)*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.sqrt(a));}
 function hitungOngkos(km){let kmTagih=Math.max(Math.round(km),10);return {kmTagih:kmTagih, ongkos:kmTagih*5000, min:km<10};}
 function updateSwap(){ $('swapBtn').disabled=!($('pickup').value.trim() && $('dest').value.trim()); }
+// ===== NOTIF CANTIK =====
+let toastTimer=null;
+function showToast(judul, isi, isError){
+  $('toastJudul').textContent=judul;
+  $('toastIsi').textContent=isi;
+  let ico=$('toastIco'); ico.textContent=isError?'!':'✓'; ico.className='ico'+(isError?' err':'');
+  $('toastWrap').classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(tutupToast, 4000);
+}
+function tutupToast(){ $('toastWrap').classList.remove('show'); }
+// ===== AKUN =====
 function openAkun(){
   let sesi = localStorage.getItem('ammo_sesi');
   if(sesi){
     let u = JSON.parse(sesi);
-    if(confirm('Kamu sudah login sebagai '+u.nama+' ('+u.hp+'). Mau logout?')){ localStorage.removeItem('ammo_sesi'); localStorage.removeItem('ammo_supabase_penumpang_id'); location.reload(); }
-    return;
+    $('akunLoginForm').style.display='none';
+    $('akunSudahLogin').style.display='block';
+    $('akunNamaTampil').textContent = u.nama + ' (' + u.hp + ')';
+  } else {
+    $('akunLoginForm').style.display='block';
+    $('akunSudahLogin').style.display='none';
+    let last = localStorage.getItem('ammo_last_hp'); if(last) $('loginWA').value = last;
   }
   $('akunModal').classList.add('show');
-  let last = localStorage.getItem('ammo_last_hp'); if(last) $('loginWA').value = last;
 }
 function tutupAkun(){ $('akunModal').classList.remove('show'); }
-function updateBtnAkun(){
-  let sesi = localStorage.getItem('ammo_sesi');
-  if(sesi){ let u = JSON.parse(sesi); $('btnAkun').textContent = '👤 ' + u.nama + ' - Logout'; }
+function tanyaLogout(){
+  tutupAkun();
+  showToast('Logout Berhasil','Kamu sudah keluar dari akun.', false);
+  localStorage.removeItem('ammo_sesi'); localStorage.removeItem('ammo_supabase_penumpang_id');
+  setTimeout(()=>location.reload(), 800);
 }
+function tutupNama(){ $('namaModal').classList.remove('show'); pendingHP=''; pendingPass=''; }
 async function loginWA(){
   let hp = $('loginWA').value.trim();
   let pass = $('loginPass').value.trim();
-  if(!hp){ alert('Isi Nomor WA dulu ya'); return; }
-  if(!pass){ alert('Isi Password dulu ya'); return; }
+  if(!hp){ showToast('Nomor WA Kosong','Isi Nomor WA dulu ya.', true); return; }
+  if(!pass){ showToast('Password Kosong','Isi Password dulu ya.', true); return; }
   try{
     let cek = await supabaseClient.from('penumpang').select('id,nama,no_wa,sandi').eq('no_wa', hp).maybeSingle();
     if(cek.data){
       if(!cek.data.sandi){
         await supabaseClient.from('penumpang').update({ sandi: pass }).eq('id', cek.data.id);
       } else if(cek.data.sandi !== pass){
-        alert('Password salah bro!');
+        showToast('Password Salah','Password yang kamu masukkan salah, coba lagi ya.', true);
         return;
       }
       let user = { nama: cek.data.nama, hp: cek.data.no_wa, via: 'WA' };
@@ -210,27 +251,33 @@ async function loginWA(){
       localStorage.setItem('ammo_last_hp', hp);
       localStorage.setItem('ammo_supabase_penumpang_id', cek.data.id);
       tutupAkun();
-      alert('Selamat datang kembali, ' + cek.data.nama + '!');
-      if($('pickup').value.trim() && $('dest').value.trim()){ simpanOrderDanLanjut(); }
-      else { updateBtnAkun(); }
+      showToast('Selamat Datang Kembali','Halo ' + cek.data.nama + ', selamat datang kembali!', false);
+      if($('pickup').value.trim() && $('dest').value.trim()){ setTimeout(()=>cekDriver(), 600); }
       return;
     } else {
-      let namaBaru = prompt('WA belum terdaftar. Masukkan nama kamu buat daftar baru:');
-      if(!namaBaru) return;
-      let ins = await supabaseClient.from('penumpang').insert([{ nama: namaBaru, no_wa: hp, sandi: pass, cara_daftar: 'WA', status: 'aktif' }]).select().single();
-      let idBaru = ins.data ? ins.data.id : null;
-      let user = { nama: namaBaru, hp: hp, via: 'WA' };
-      localStorage.setItem('ammo_sesi', JSON.stringify(user));
-      localStorage.setItem('ammo_last_hp', hp);
-      if(idBaru) localStorage.setItem('ammo_supabase_penumpang_id', idBaru);
+      pendingHP=hp; pendingPass=pass;
       tutupAkun();
-      alert('Akun baru berhasil dibuat, selamat datang ' + namaBaru + '!');
-      if($('pickup').value.trim() && $('dest').value.trim()){ simpanOrderDanLanjut(); }
-      else { updateBtnAkun(); }
+      $('inputNamaBaru').value='';
+      $('namaModal').classList.add('show');
+      setTimeout(()=>$('inputNamaBaru').focus(), 200);
     }
-  }catch(e){ console.log(e); alert('Gagal login, coba lagi ya'); }
+  }catch(e){ console.log(e); showToast('Gagal Login','Koneksi gagal, coba lagi ya.', true); }
 }
-function simpanOrderDanLanjut(){ cekDriver(); }
+async function buatAkunBaru(){
+  let namaBaru = $('inputNamaBaru').value.trim();
+  if(!namaBaru){ showToast('Nama Kosong','Isi nama kamu dulu ya.', true); return; }
+  try{
+    let ins = await supabaseClient.from('penumpang').insert([{ nama: namaBaru, no_wa: pendingHP, sandi: pendingPass, cara_daftar: 'WA', status: 'aktif' }]).select().single();
+    let idBaru = ins.data ? ins.data.id : null;
+    let user = { nama: namaBaru, hp: pendingHP, via: 'WA' };
+    localStorage.setItem('ammo_sesi', JSON.stringify(user));
+    localStorage.setItem('ammo_last_hp', pendingHP);
+    if(idBaru) localStorage.setItem('ammo_supabase_penumpang_id', idBaru);
+    tutupNama();
+    showToast('Akun Berhasil Dibuat','Selamat datang ' + namaBaru + '! Akun kamu sudah aktif.', false);
+    if($('pickup').value.trim() && $('dest').value.trim()){ setTimeout(()=>cekDriver(), 600); }
+  }catch(e){ console.log(e); showToast('Gagal Daftar','Gagal membuat akun, coba lagi ya.', true); }
+}
 function alamatPendek(d){
   if(!d) return 'Lokasi Saya Saat Ini';
   if(d.display_name){
@@ -370,6 +417,7 @@ function swapLokasi(){
   $('pickup').value=b; $('dest').value=a;
   let c=pickupCoord; pickupCoord=destCoord; destCoord=c;
   updateSwap(); jadwalPreview(true);
+  showToast('Lokasi Ditukar','Penjemputan dan Tujuan berhasil ditukar.', false);
 }
 async function isiPenjemputanOtomatis(){
   if($('pickup').value.trim() && $('pickup').value!=='Mendeteksi lokasi kamu...') return;
@@ -484,8 +532,8 @@ async function hitungRute(){
 }
 function cekDriver(){
   let a=$('pickup').value.trim(), b=$('dest').value.trim();
-  if(!a||!b){alert('Isi Penjemputan dan Tujuan dulu Bro!');return;}
-  if(!localStorage.getItem('ammo_sesi')){ openAkun(); alert('Login dulu ya bro, isi No WA + Password'); return; }
+  if(!a||!b){showToast('Lokasi Belum Lengkap','Isi Penjemputan dan Tujuan dulu ya.', true);return;}
+  if(!localStorage.getItem('ammo_sesi')){ openAkun(); showToast('Login Dulu Ya','Isi No WA + Password dulu untuk lanjut.', true); return; }
   $('homePage').style.display='none';
   $('bottomNav').style.display='none';
   $('waitPage').style.display='block';
@@ -504,12 +552,6 @@ function chatAdmin(){
   closeChat();
   window.open('https://wa.me/6281234567890?text=Halo Admin Ammo Travel, saya mau tanya','_blank');
 }
-function chatDriver(){
-  if(!driverDitemukan){ alert('Chat Driver masih terkunci, tunggu driver ditemukan dulu ya Bro!'); return; }
-  closeChat();
-  alert('Chat Driver dibuka');
-}
-updateBtnAkun();
 isiPenjemputanOtomatis();
 </script>
 </body>
