@@ -147,6 +147,7 @@ let etaInterval = null;
 let etaDetik = 0;
 let namaDriverAktif = 'Budi Santoso';
 let bolehKeluar = false;
+let lagiTampilNotif = false;
 document.getElementById('wDari').textContent = ASAL_NAMA;
 document.getElementById('wTujuan').textContent = TUJUAN_NAMA;
 document.getElementById('chatRute').textContent = ASAL_NAMA + ' → ' + TUJUAN_NAMA;
@@ -154,7 +155,6 @@ function buatTitikRadar(){
   let wrap = document.getElementById('titikWrap');
   if(!wrap) return;
   wrap.innerHTML = '';
-  // TITIKNYA CUMA 8 AJA BIAR GAK KEBANYAKAN
   for(let i=0;i<8;i++){
     let d = document.createElement('div');
     d.className = 'titik';
@@ -197,7 +197,8 @@ async function hitungRute(){
 hitungRute();
 function simpanDriver(nama, plat, foto, etaMenit, isPrioritas){
   let etaEnd = Date.now() + (etaMenit * 60 * 1000);
-  localStorage.setItem('masphus_driver', JSON.stringify({nama:nama, plat:plat, foto:foto, etaEnd:etaEnd, isPrioritas:isPrioritas||false}));
+  let orderKey = ASAL_NAMA + '|' + TUJUAN_NAMA;
+  localStorage.setItem('masphus_driver', JSON.stringify({nama:nama, plat:plat, foto:foto, etaEnd:etaEnd, isPrioritas:isPrioritas||false, orderKey:orderKey}));
 }
 function mulaiEtaDariDetik(detikAwal){
   if(etaInterval) clearInterval(etaInterval);
@@ -271,6 +272,11 @@ function tampilkanDriverKetemu(nama, plat, foto, etaMenit, isPrioritas, janganSi
   try{
     let d = JSON.parse(localStorage.getItem('masphus_driver') || 'null');
     if(!d) return;
+    let kunciOrderSekarang = ASAL_NAMA + '|' + TUJUAN_NAMA;
+    if(d.orderKey && d.orderKey !== kunciOrderSekarang){
+      localStorage.removeItem('masphus_driver');
+      return;
+    }
     let sisa = Math.floor((d.etaEnd - Date.now()) / 1000);
     if(sisa <= 0){ localStorage.removeItem('masphus_driver'); return; }
     let etaMenit = Math.ceil(sisa / 60);
@@ -333,11 +339,17 @@ function tampilkanNotifKembali(){
   else { document.getElementById('teksKembali').innerHTML = 'Kami masih mencari driver untukmu.<br>Yakin ingin membatalkan perjalanan ini?'; }
   document.getElementById('modalKembali').classList.add('show');
 }
-history.pushState({page:'penumpang'}, '', location.href);
-history.pushState({page:'penumpang-lock'}, '', location.href);
+function kunciBack(){
+  history.pushState({page:'penumpang-lock'}, '', location.href);
+  history.pushState({page:'penumpang-lock'}, '', location.href);
+  history.pushState({page:'penumpang-lock'}, '', location.href);
+}
+kunciBack();
 window.addEventListener('popstate', function(e){
   if(bolehKeluar) return;
-  history.pushState({page:'penumpang-lock'}, '', location.href);
+  kunciBack();
+  if(lagiTampilNotif) return;
+  lagiTampilNotif = true;
   tampilkanNotifKembali();
 });
 function kembaliKeIndex(){
@@ -346,10 +358,12 @@ function kembaliKeIndex(){
 }
 function konfirmasiKembaliLanjut(){
   document.getElementById('modalKembali').classList.remove('show');
-  history.pushState({page:'penumpang-lock'}, '', location.href);
+  lagiTampilNotif = false;
+  setTimeout(kunciBack, 50);
 }
 function konfirmasiKembaliYa(){
   document.getElementById('modalKembali').classList.remove('show');
+  lagiTampilNotif = false;
   jalankanPembatalan();
 }
 function batalkanPesanan(){ jalankanPembatalan(); }
