@@ -5,142 +5,158 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Penumpang - Menunggu Driver</title>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,Arial,sans-serif}
-  body{background:#f2f2f2;display:flex;justify-content:center}
-  .phone{width:100%;max-width:430px;background:#fff;min-height:100vh;padding-bottom:20px}
-  header{background:#0B7A3E;color:#fff;padding:14px 16px;display:flex;align-items:center;gap:14px}
-  header a{color:#fff;font-size:24px;text-decoration:none}
-  header h1{font-size:19px}
-  .radar-wrap{text-align:center;padding:18px 0 8px}
-  .radar{width:130px;height:130px;margin:auto;border:2px solid #0B7A3E;border-radius:50%;position:relative;overflow:hidden}
-  .radar:before{content:'';position:absolute;inset:0;border:1px solid #0B7A3E;border-radius:50%;transform:scale(.7)}
-  .radar:after{content:'';position:absolute;inset:0;border:1px solid #0B7A3E;border-radius:50%;transform:scale(.4)}
-  .sweep{position:absolute;left:50%;top:50%;width:65px;height:65px;background:conic-gradient(from 0deg,rgba(11,122,62,.6),transparent 70deg);transform-origin:0 0;animation:spin 1.5s linear infinite}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .dot{position:absolute;width:8px;height:8px;background:#0B7A3E;border-radius:50%;right:22px;top:35px}
-  .title{text-align:center;font-size:26px;color:#0A4D24;margin-top:8px}
-  .sub{text-align:center;font-size:12px;padding:6px 20px 14px}
-  .card{margin:0 16px 14px;border:1.5px solid #BDE5C8;border-radius:14px;padding:16px}
-  .card h2{color:#0A4D24;font-size:21px}
-  .route{margin:14px 0 0 4px;border-left:2px dashed #ccc;padding-left:22px}
-  .route b{font-size:17px}
-  .route small{color:#555}
-  .meta{display:flex;justify-content:space-between;border-top:1px solid #eee;padding:12px 0}
-  .ongkos{background:#8FE8A6;border:1.5px solid #2ECC71;border-radius:8px;padding:10px 12px;font-weight:800;color:#0A4D24;font-size:19px}
-  .note{font-size:11px;color:#333;display:flex;gap:6px;margin-top:8px}
-  .driver-box{margin:0 16px;border:1.5px solid #eee;border-radius:14px;padding:16px}
-  .driver-info{display:flex;gap:12px;align-items:center}
-  .driver-info img{width:54px;height:54px;border-radius:50%;object-fit:cover}
-  .chat-log{background:#f7f7f7;border-radius:10px;padding:10px;height:120px;overflow:auto;font-size:13px}
-  .chat-input{display:flex;gap:8px;margin-top:8px}
-  .chat-input input{flex:1;padding:10px;border-radius:8px;border:1px solid #ddd}
-  .chat-input button{background:#0B7A3E;color:#fff;border:0;padding:0 14px;border-radius:8px}
-  .locked{background:#E8E8E8;border-radius:8px;padding:12px;display:flex;gap:10px;font-size:13px;margin-top:10px}
-  .btn-batal{margin:14px 16px 0;background:#E11D2E;color:#fff;border:0;width:calc(100% - 32px);padding:14px;border-radius:10px;font-weight:700;font-size:16px;cursor:pointer}
-  .btn-prioritas{margin:10px 16px 0;background:#111;color:#FFD700;border:1px solid #FFD700;width:calc(100% - 32px);padding:12px;border-radius:10px;font-weight:700;display:none}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#f2f2f2;display:flex;justify-content:center}
+.phone{width:100%;max-width:430px;background:#fff;min-height:100vh;padding-bottom:20px}
+header{background:#00a651;color:#fff;padding:14px 16px;display:flex;align-items:center;gap:14px}
+header a{color:#fff;font-size:24px;text-decoration:none}
+header b{font-size:22px;color:#fff}
+.radar-wrap{text-align:center;padding:18px 0 8px}
+.radar{width:150px;height:150px;margin:auto;border:2px solid #00a651;border-radius:50%;position:relative;overflow:hidden}
+.radar:before,.radar:after{content:"";position:absolute;border:1px solid #00a651;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}
+.radar:before{width:100px;height:100px}
+.radar:after{width:50px;height:50px}
+.radar i{position:absolute;left:50%;top:50%;width:140px;height:2px;background:#00a651;transform-origin:left center;animation:spin 2s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.title{text-align:center;font-size:30px;color:#0a3d1f;margin-top:8px}
+.sub{text-align:center;font-size:14px;padding:6px 20px 14px;color:#555}
+.card{margin:0 16px 14px;border:1.5px solid #d9ecd9;border-radius:14px;padding:16px}
+.card h2{color:#0a3d1f;font-size:24px}
+.route{margin:14px 0 0 4px;border-left:2px dashed #ccc;padding-left:22px}
+.route b{font-size:19px;display:block;line-height:1.3}
+.route small{color:#555;font-size:14px}
+.meta{display:flex;gap:14px;border-top:1px solid #eee;padding:12px 0;flex-wrap:wrap}
+.meta div{font-size:17px}
+.meta b{display:block;font-size:19px}
+.ongkos{background:#a8e6a1;border-radius:8px;padding:12px;font-weight:bold;font-size:20px;color:#0a3d1f}
+.ongkos small{display:block;font-size:15px}
+.note{font-size:14px;color:#333;margin-top:10px;line-height:1.4}
+.driver-box{margin:0 16px;border:1.5px solid #eee;border-radius:14px;padding:16px}
+.driver-box h3{font-size:24px;line-height:1.2}
+.driver-box p{margin:10px 0;font-size:16px;line-height:1.4}
+.locked{background:#eee;border-radius:8px;padding:12px;display:flex;gap:10px;align-items:center;font-size:16px;line-height:1.3;margin-top:10px}
+.btn-batal{margin:14px 16px 0;background:#e60000;color:#fff;border:0;width:calc(100% - 32px);padding:15px;border-radius:10px;font-weight:bold;font-size:22px;cursor:pointer}
+/* === KODE PRIORITAS - HANYA DI FILE INI === */
+.debug-prioritas{background:#FFF3CD;border:1px solid #FFD700;border-radius:8px;padding:10px;margin:0 16px 14px;text-align:center;font-size:14px;font-weight:700;color:#333}
+.btn-prioritas{display:none;margin:12px 16px 0;background:#111;color:#FFD700;border:1px solid #FFD700;width:calc(100% - 32px);padding:14px;border-radius:10px;font-weight:800;font-size:19px;cursor:pointer}
+.driver-found{background:#E8F5E9;border:1px solid #00a651;border-radius:10px;padding:12px;margin-top:10px;display:none}
 </style>
 </head>
 <body>
 <div class="phone">
-  <header><a href="index.html">←</a><h1>Menunggu Driver</h1></header>
-  <div class="radar-wrap"><div class="radar"><div class="sweep"></div><div class="dot"></div></div></div>
-  <div class="title" id="statusTitle">Mencari Driver...</div>
-  <p class="sub">Kami sedang mencari driver terdekat untukmu • ± 1 - 3 menit</p>
+<header><a href="index.html">←</a><b>Menunggu Driver</b></header>
+<div class="radar-wrap"><div class="radar"><i></i></div></div>
+<div class="title" id="waitTitle">Mencari Driver...</div>
+<p class="sub">Kami sedang mencari driver terdekat untukmu</p>
 
-  <div class="card">
-    <h2>📍 Rute Perjalanan</h2>
-    <div class="route"><small>Dari</small><br><b id="dari">Memuat...</b><br><br><small>Ke</small><br><b id="ke">Memuat...</b></div>
-    <div class="meta"><div>🛣️ Jarak<br><b id="jarak">Menghitung rute real...</b></div><div>🕒 Estimasi<br><b id="estimasi">-</b></div></div>
-    <div class="ongkos">💵 ONGKOS<br><span id="ongkos">Rp. -</span></div>
-    <div class="note">ⓘ Biaya Parkir, Tol, dan Penyeberangan akan dibebankan kepada Penumpang bilamana ada</div>
-  </div>
+<!-- KODE PRIORITAS: TIMER -->
+<div class="debug-prioritas" id="debugTimer">⏳ Prioritas muncul dalam: 10 detik (MODE TEST)</div>
 
-  <div class="driver-box" id="driverBox">
-    <div id="belumKetemu">
-      <h3>👥 Belum ada driver yang menerima</h3>
-      <p style="font-size:13px;margin:8px 0">Driver akan ditampilkan di sini setelah menerima pesananmu</p>
-      <div class="locked">🔒 Chat dengan Driver akan aktif setelah driver ditemukan</div>
-    </div>
-    <div id="sudahKetemu" style="display:none">
-      <div class="driver-info">
-        <img src="https://i.pravatar.cc/100?img=12"><div><b id="namaDriver">-</b><br><small id="platDriver">-</small> • ⭐ <span id="ratingDriver">-</span></div><span style="margin-left:auto;color:green;font-weight:700">● Online</span>
-      </div>
-      <div style="margin-top:12px"><b>💬 Chat dengan Driver</b><div class="chat-log" id="chatLog"><div>Driver: Halo, saya OTW ke titik jemput ya 🙏</div></div><div class="chat-input"><input id="chatInput" placeholder="Kirim pesan ke driver..."><button onclick="kirimChat()">➤</button></div></div>
-    </div>
-  </div>
+<div class="card">
+<h2>📍 Rute Perjalanan</h2>
+<div class="route"><small>Dari</small><b id="wDari">Memuat...</b><br><br><small>Ke</small><b id="wTujuan">Memuat...</b></div>
+<div class="meta"><div>🅰️ Jarak<b id="wJarak">Menghitung...</b></div><div>🕒 Estimasi<b id="wEstimasi">Menghitung...</b></div></div>
+<div class="ongkos"><small>ONGKOS</small><span id="wOngkos">Menghitung...</span></div>
+<p class="note">ⓘ Biaya Parkir, Tol, dan Penyeberangan akan dibebankan kepada Penumpang bilamana ada</p>
+</div>
 
-  <button class="btn-batal" onclick="batalkanPesanan()">Batalkan Pesanan</button>
-  <button class="btn-prioritas" id="btnPrioritas" onclick="location.href='prioritas.html'">⚡ UPGRADE KE PRIORITAS</button>
+<div class="driver-box">
+<h3 id="driverTitle">👥 Belum ada driver yang menerima</h3>
+<p id="driverDesc">Driver akan ditampilkan di sini setelah menerima pesananmu</p>
+<div class="driver-found" id="driverFound">✅ <b>Budi Santoso (TEST)</b><br><small>D 1234 ABC • ⭐ 4.9</small></div>
+<div class="locked">🔒 Chat dengan Driver akan aktif setelah driver ditemukan</div>
+</div>
+
+<button class="btn-batal" onclick="batalkanPesanan()">Batalkan Pesanan</button>
+<!-- KODE PRIORITAS: TOMBOL -->
+<button class="btn-prioritas" id="btnPrioritas" onclick="upgradePrioritas()">⚡ UPGRADE KE PRIORITAS</button>
 </div>
 
 <script>
-const TEST_MODE = true; // TEST = true (10 detik), ASLI = ganti jadi false (10 menit)
-
-// AMBIL RUTE DARI INDEX - kalau gak ada, pakai default lama biar gak error
+const TEST_MODE = true; // true = 10 detik buat test, false = 10 menit asli
 const saved = JSON.parse(localStorage.getItem('masphus_order') || 'null');
-const ASAL = saved ? saved.asal : { nama:"Jl. Muara Timur, Bandung", lon:107.613, lat:-6.917 };
-const TUJUAN = saved ? saved.tujuan : { nama:"Sape, NTB", lon:119.0, lat:-8.55 };
-document.getElementById('dari').innerText = ASAL.nama;
-document.getElementById('ke').innerText = TUJUAN.nama;
+const ASAL_NAMA = saved ? saved.asal.nama : 'Pelindung Hewan, Kota Bandung';
+const TUJUAN_NAMA = saved ? saved.tujuan.nama : 'Bandar Jaya, Lampung';
+let ASAL_COORD = (saved && saved.asal.lat) ? [saved.asal.lat, saved.asal.lon] : null;
+let TUJUAN_COORD = (saved && saved.tujuan.lat) ? [saved.tujuan.lat, saved.tujuan.lon] : null;
 
-const TARIF_PER_KM = 5000;
+document.getElementById('wDari').textContent = ASAL_NAMA;
+document.getElementById('wTujuan').textContent = TUJUAN_NAMA;
 
-async function hitungRuteReal(){
+function fmtRp(n){ return 'Rp. ' + Math.round(n).toLocaleString('id-ID'); }
+function fmtJarak(m){ let km=m/1000; return km>=100 ? Math.round(km).toLocaleString('id-ID')+' km' : km.toFixed(1).replace('.',',')+' km'; }
+function fmtEstimasi(detik){ let m=Math.round(detik/60); let h=Math.floor(m/60), hari=Math.floor(h/24); h=h%24; let sisa=m%60; if(hari>0) return hari+' hari '+(h>0?h+' jam':''); if(h>0) return h+' jam '+(sisa>0?sisa+' menit':''); return m+' menit'; }
+
+async function geocodeAlamat(q){
   try{
-    const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${ASAL.lon},${ASAL.lat};${TUJUAN.lon},${TUJUAN.lat}?overview=false`);
-    const data = await res.json(); const r = data.routes[0];
-    const jarakKm = r.distance/1000; const ongkos = Math.round(jarakKm * TARIF_PER_KM);
-    document.getElementById('jarak').innerText = `~ ${jarakKm.toLocaleString('id-ID',{maximumFractionDigits:0})} km`;
-    document.getElementById('estimasi').innerText = formatDurasi(r.duration);
-    document.getElementById('ongkos').innerText = `Rp. ${ongkos.toLocaleString('id-ID')}`;
-    localStorage.setItem('order_aktif', JSON.stringify({jarakKm, ongkos, tipe:'reguler'}));
+    let r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=id&q=${encodeURIComponent(q)}`);
+    let d = await r.json();
+    if(d.length) return [parseFloat(d[0].lat), parseFloat(d[0].lon)];
+  }catch(e){}
+  return null;
+}
+
+async function hitungRute(){
+  if(!ASAL_COORD) ASAL_COORD = await geocodeAlamat(ASAL_NAMA);
+  if(!TUJUAN_COORD) TUJUAN_COORD = await geocodeAlamat(TUJUAN_NAMA);
+  if(!ASAL_COORD || !TUJUAN_COORD){ document.getElementById('wJarak').textContent='-'; return; }
+  try{
+    let url = `https://router.project-osrm.org/route/v1/driving/${ASAL_COORD[1]},${ASAL_COORD[0]};${TUJUAN_COORD[1]},${TUJUAN_COORD[0]}?overview=false`;
+    let r = await fetch(url); let d = await r.json();
+    if(d.routes && d.routes.length){
+      let route = d.routes[0];
+      let km = route.distance/1000;
+      let ongkos = Math.max(Math.round(km),10) * 5000;
+      document.getElementById('wJarak').textContent = '~ ' + fmtJarak(route.distance);
+      document.getElementById('wEstimasi').textContent = '± ' + fmtEstimasi(route.duration);
+      document.getElementById('wOngkos').textContent = fmtRp(ongkos);
+    }
   }catch(e){
-    document.getElementById('jarak').innerText = `~ 1.320 km`;
-    document.getElementById('estimasi').innerText = `± 1 hari 1 jam`;
-    document.getElementById('ongkos').innerText = `Rp. 6.600.000`;
+    document.getElementById('wJarak').textContent = 'Gagal hitung rute';
   }
 }
-function formatDurasi(d){ const jam=Math.floor(d/3600); const hari=Math.floor(jam/24); const sisa=jam%24; return hari>0?`± ${hari} hari ${sisa} jam`:`± ${jam} jam`; }
-hitungRuteReal();
+hitungRute();
 
-// CARI DRIVER - BUDI HANYA BUAT TEST
+// === KODE PRIORITAS: TIMER 10 DETIK / 10 MENIT ===
+let driverDitemukan = false;
+let sisa = TEST_MODE ? 10 : 600;
+let timerPrioritas = setInterval(()=>{
+  sisa--;
+  if(sisa > 0){
+    document.getElementById('debugTimer').textContent = '⏳ Prioritas muncul dalam: ' + sisa + ' detik (MODE TEST)';
+  } else {
+    clearInterval(timerPrioritas);
+    if(!driverDitemukan){
+      document.getElementById('btnPrioritas').style.display = 'block';
+      document.getElementById('debugTimer').textContent = '✅ Tombol Prioritas sudah muncul!';
+      document.getElementById('debugTimer').style.background = '#D4EDDA';
+    }
+  }
+}, 1000);
+
+// === BUDI TEST: MUNCUL DI DETIK 15 BIAR PRIORITAS SEMPET KELIATAN ===
 let detikJalan = 0;
-async function cariDriverOnline(){
+let timerDriver = setInterval(()=>{
   detikJalan += 5;
-  if(TEST_MODE && detikJalan < 15) return null; // biar tombol Prioritas sempat muncul dulu di detik 10
-  if(!TEST_MODE) return null; // ASLI: nunggu driver beneran dari API/Firebase
-  return {nama:"Budi Santoso (TEST)", plat:"D 1234 ABC", rating:"4.9"};
-}
-let cekDriver = setInterval(async ()=>{
-  const driver = await cariDriverOnline();
-  if(driver){ clearInterval(cekDriver); tampilkanDriver(driver); }
+  if(TEST_MODE && detikJalan < 15) return;
+  if(!TEST_MODE) return;
+  clearInterval(timerDriver);
+  driverDitemukan = true;
+  document.getElementById('waitTitle').textContent = 'Driver Ditemukan!';
+  document.getElementById('driverTitle').textContent = '✅ Driver Ditemukan!';
+  document.getElementById('driverDesc').textContent = 'Driver sedang OTW ke titik jemput';
+  document.getElementById('driverFound').style.display = 'block';
 }, 5000);
 
-// PRIORITAS: TEST = 10 detik, ASLI = 10 menit
-let delayPrioritas = TEST_MODE ? 10*1000 : 10*60*1000;
-setTimeout(()=>{ if(document.getElementById('sudahKetemu').style.display==='none'){ document.getElementById('btnPrioritas').style.display='block'; } }, delayPrioritas);
-
-function tampilkanDriver(d){
-  document.getElementById('statusTitle').innerText='Driver Ditemukan!';
-  document.getElementById('belumKetemu').style.display='none';
-  document.getElementById('sudahKetemu').style.display='block';
-  document.getElementById('namaDriver').innerText=d.nama;
-  document.getElementById('platDriver').innerText=d.plat;
-  document.getElementById('ratingDriver').innerText=d.rating;
-}
-function kirimChat(){
-  const inp=document.getElementById('chatInput'); if(!inp.value.trim()) return;
-  const log=document.getElementById('chatLog');
-  log.innerHTML+=`<div style="text-align:right;margin-top:6px"><b>Kamu:</b> ${inp.value}</div>`;
-  inp.value=''; log.scrollTop=log.scrollHeight;
+function upgradePrioritas(){
+  alert('⚡ Upgrade ke Prioritas! Driver prioritas akan dicari duluan. Biaya tambahan Rp. 25.000');
+  document.getElementById('btnPrioritas').textContent = '✅ SUDAH PRIORITAS - Mencari Driver Prioritas...';
+  document.getElementById('btnPrioritas').style.background = '#00a651';
+  document.getElementById('btnPrioritas').style.color = '#fff';
 }
 function batalkanPesanan(){
   if(!confirm('Yakin batalkan pesanan?')) return;
-  let list=JSON.parse(localStorage.getItem('pernah_batal')||'[]');
-  list.push({dari:ASAL.nama, ke:TUJUAN.nama, ongkos:document.getElementById('ongkos').innerText, waktu:new Date().toISOString(), tipe:'reguler'});
-  localStorage.setItem('pernah_batal', JSON.stringify(list));
-  localStorage.removeItem('order_aktif');
-  window.location.href='index.html';
+  window.location.href = 'index.html';
 }
 </script>
 </body>
