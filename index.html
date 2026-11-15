@@ -455,16 +455,25 @@ function simpanOrderDanLanjut(){
   sessionStorage.removeItem('ammo_must_clear_dest');
   window.location.href = 'penumpang.html';
 }
-function cekDriver(){
+async function cekDriver(){
   let a=$('pickup').value.trim(), b=$('dest').value.trim();
   if(!a||!b){alert('Isi Penjemputan dan Tujuan dulu Bro!');return;}
-  let sesi = getSesi();
-  if(sesi){ simpanOrderDanLanjut(); return; }
   let lastHp = localStorage.getItem('ammo_last_hp')||'';
-  if(lastHp){
-    let db = getDB();
-    let ketemu = db.find(u=>u.hp===lastHp);
-    if(ketemu){ localStorage.setItem('ammo_sesi', JSON.stringify(ketemu)); simpanOrderDanLanjut(); return; }
+  let sesi = getSesi();
+  let hpCek = sesi ? sesi.hp : lastHp;
+  if(hpCek){
+    try{
+      let cek = await supabaseClient.from('penumpang').select('id,nama,no_wa').eq('no_wa', hpCek).maybeSingle();
+      if(cek.data){
+        let user = { nama: cek.data.nama, hp: cek.data.no_wa };
+        localStorage.setItem('ammo_sesi', JSON.stringify(user));
+        localStorage.setItem('ammo_last_hp', hpCek);
+        localStorage.setItem('ammo_supabase_penumpang_id', cek.data.id);
+        simpanOrderDanLanjut();
+        return;
+      }
+      localStorage.removeItem('ammo_sesi');
+    }catch(e){ console.log('cek penumpang error', e); }
   }
   $('daftarModal').classList.add('show');
   if(lastHp) $('hpDaftar').value = lastHp;
@@ -547,7 +556,7 @@ isiPenjemputanOtomatis();
 <!-- === AMMO x SUPABASE - JANGAN DIHAPUS === -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL = "https://xxtgnohxdztsiuwbfxap.supabase.co";
+const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
 const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 async function syncPenumpangKeSupabase(nama, hp, via){
