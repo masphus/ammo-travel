@@ -11,13 +11,20 @@ body{background:#f2f2f2;display:flex;justify-content:center}
 header{background:#00a651;color:#fff;padding:14px 16px;display:flex;align-items:center;gap:14px}
 header a{color:#fff;font-size:24px;text-decoration:none}
 header b{font-size:22px;color:#fff}
-.radar-wrap{text-align:center;padding:18px 0 8px}
-.radar{width:150px;height:150px;margin:auto;border:2px solid #00a651;border-radius:50%;position:relative;overflow:hidden}
-.radar:before,.radar:after{content:"";position:absolute;border:1px solid #00a651;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}
-.radar:before{width:100px;height:100px}
-.radar:after{width:50px;height:50px}
-.radar i{position:absolute;left:50%;top:50%;width:140px;height:2px;background:#00a651;transform-origin:left center;animation:spin 2s linear infinite}
+.radar-wrap{text-align:center;padding:0;background:#000;overflow:hidden;position:relative}
+.radar{width:100%;height:220px;margin:auto;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000 70%)}
+.radar:before,.radar:after{content:"";position:absolute;border:1px solid rgba(255,215,0,.35);border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}
+.radar:before{width:300px;height:300px}
+.radar:after{width:180px;height:180px}
+.radar .lingkar3{position:absolute;width:90px;height:90px;border:1px solid rgba(255,215,0,.35);border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}
+.radar .garis-v{position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,215,0,.15)}
+.radar .garis-h{position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(255,215,0,.15)}
+.radar .sapu{position:absolute;left:50%;top:50%;width:50%;height:2px;background:linear-gradient(90deg, rgba(255,215,0,0) 0%, #FFD700 100%);transform-origin:left center;animation:spin 2.5s linear infinite;box-shadow:0 0 12px #FFD700}
+.radar .sapu-bayang{position:absolute;left:50%;top:50%;width:50%;height:110px;background:conic-gradient(from 0deg, rgba(255,215,0,.25) 0deg, rgba(255,215,0,0) 60deg);transform-origin:left top;animation:spin 2.5s linear infinite;clip-path:polygon(0 0, 100% 0, 0 100%)}
 @keyframes spin{to{transform:rotate(360deg)}}
+.titik{position:absolute;width:7px;height:7px;background:#FFD700;border-radius:50%;box-shadow:0 0 10px #FFD700;animation:kedip 2.5s infinite;opacity:0}
+@keyframes kedip{0%,100%{opacity:0;transform:scale(0.5)}20%{opacity:1;transform:scale(1.2)}40%{opacity:0.2}60%{opacity:1}}
+.radar-label{position:absolute;bottom:10px;left:0;right:0;text-align:center;color:#FFD700;font-size:12px;letter-spacing:3px;font-weight:bold}
 .driver-sukses{display:none;text-align:center;padding:18px 0 4px}
 .driver-sukses .foto-driver{width:130px;height:130px;margin:auto;border-radius:50%;border:4px solid #00a651;object-fit:cover;background:#eee}
 .driver-sukses .nama{font-size:22px;font-weight:bold;color:#0a3d1f;margin-top:10px}
@@ -69,7 +76,17 @@ header b{font-size:22px;color:#fff}
 <body>
 <div class="phone">
 <header><a href="javascript:void(0)" onclick="kembaliKeIndex()">←</a><b>Menunggu Driver</b></header>
-<div class="radar-wrap" id="radarWrap"><div class="radar"><i></i></div></div>
+<div class="radar-wrap" id="radarWrap">
+<div class="radar" id="radarEl">
+<div class="garis-v"></div>
+<div class="garis-h"></div>
+<div class="lingkar3"></div>
+<div class="sapu-bayang"></div>
+<div class="sapu"></div>
+<div id="titikWrap"></div>
+<div class="radar-label">● MENCARI DRIVER TERDEKAT...</div>
+</div>
+</div>
 <div class="driver-sukses" id="driverSukses">
 <img class="foto-driver" id="fotoDriver" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Driver">
 <div class="nama" id="namaDriverSukses">Budi Santoso</div>
@@ -90,7 +107,6 @@ header b{font-size:22px;color:#fff}
 </div>
 <button class="btn-batal" onclick="batalkanPesanan()">Batalkan Pesanan</button>
 </div>
-
 <div id="chatModal" class="chat-modal"><div class="chat-box">
 <div class="chat-head"><img id="chatFoto" src="https://randomuser.me/api/portraits/men/32.jpg" style="width:44px;height:44px;border-radius:50%;object-fit:cover"><div><b id="chatNama">Budi Santoso</b><br><small id="chatStatus" style="color:#00a651">● Online</small></div></div>
 <div id="chatIsi">
@@ -99,7 +115,6 @@ header b{font-size:22px;color:#fff}
 <div class="chat-input"><input id="chatInput" placeholder="Ketik pesan ke driver..."><button onclick="kirimChat()">➤</button></div>
 <button class="chat-close" onclick="tutupChat()">Tutup Chat</button>
 </div></div>
-
 <div id="modalKembali" class="notif-modal"><div class="notif-box">
 <div class="ikon">⚠️</div>
 <h3>Anda Masih Mempunyai Perjalanan</h3>
@@ -109,20 +124,17 @@ header b{font-size:22px;color:#fff}
 <button class="btn-lanjutkan" onclick="konfirmasiKembaliLanjut()">Lanjutkan Perjalanan</button>
 </div>
 </div></div>
-
 <div id="modalBatal" class="notif-modal"><div class="notif-box">
 <div class="spinner"></div>
 <h3>Membatalkan Perjalanan...</h3>
 <p id="teksBatal">Mengirim pemberitahuan pembatalan ke driver...<br>Driver akan diberitahu bahwa penumpang membatalkan perjalanan.</p>
 </div></div>
-
 <div id="modalBatalSukses" class="notif-modal"><div class="notif-box">
 <div class="ikon">✅</div>
 <h3>Perjalanan Dibatalkan</h3>
 <p>Driver sudah diberitahu bahwa kamu membatalkan perjalanan.<br>Terima kasih sudah menggunakan Ammo Travel.</p>
 <button class="btn-ok-notif" onclick="selesaiBatalKeIndex()">OK, Kembali ke Beranda</button>
 </div></div>
-
 <script>
 const TEST_MODE = true;
 const saved = JSON.parse(localStorage.getItem('masphus_order') || 'null');
@@ -138,6 +150,28 @@ let bolehKeluar = false;
 document.getElementById('wDari').textContent = ASAL_NAMA;
 document.getElementById('wTujuan').textContent = TUJUAN_NAMA;
 document.getElementById('chatRute').textContent = ASAL_NAMA + ' → ' + TUJUAN_NAMA;
+function buatTitikRadar(){
+  let wrap = document.getElementById('titikWrap');
+  if(!wrap) return;
+  wrap.innerHTML = '';
+  // TITIKNYA CUMA 8 AJA BIAR GAK KEBANYAKAN
+  for(let i=0;i<8;i++){
+    let d = document.createElement('div');
+    d.className = 'titik';
+    let x = 12 + Math.random()*76;
+    let y = 12 + Math.random()*68;
+    d.style.left = x + '%';
+    d.style.top = y + '%';
+    d.style.animationDelay = (Math.random()*3).toFixed(2) + 's';
+    d.style.animationDuration = (1.8 + Math.random()*2.5).toFixed(2) + 's';
+    let warna = ['#FFD700','#FFD700','#FFD700','#FFD700','#00FF88','#FFFFFF'][Math.floor(Math.random()*6)];
+    d.style.background = warna;
+    d.style.boxShadow = '0 0 10px ' + warna;
+    wrap.appendChild(d);
+  }
+}
+buatTitikRadar();
+setInterval(buatTitikRadar, 6000);
 function fmtRp(n){ return 'Rp. ' + Math.round(n).toLocaleString('id-ID'); }
 function fmtJarak(m){ let km=m/1000; return km>=100 ? Math.round(km).toLocaleString('id-ID')+' km' : km.toFixed(1).replace('.',',')+' km'; }
 function fmtEstimasi(detik){ let m=Math.round(detik/60); let h=Math.floor(m/60), hari=Math.floor(h/24); h=h%24; let sisa=m%60; if(hari>0) return hari+' hari '+(h>0?h+' jam':''); if(h>0) return h+' jam '+(sisa>0?sisa+' menit':''); return m+' menit'; }
@@ -161,9 +195,13 @@ async function hitungRute(){
   }catch(e){ document.getElementById('wJarak').textContent='Gagal hitung rute'; }
 }
 hitungRute();
-function mulaiEta(menitAwal){
+function simpanDriver(nama, plat, foto, etaMenit, isPrioritas){
+  let etaEnd = Date.now() + (etaMenit * 60 * 1000);
+  localStorage.setItem('masphus_driver', JSON.stringify({nama:nama, plat:plat, foto:foto, etaEnd:etaEnd, isPrioritas:isPrioritas||false}));
+}
+function mulaiEtaDariDetik(detikAwal){
   if(etaInterval) clearInterval(etaInterval);
-  etaDetik = menitAwal * 60;
+  etaDetik = detikAwal;
   updateEtaText();
   etaInterval = setInterval(()=>{
     etaDetik--;
@@ -176,6 +214,7 @@ function mulaiEta(menitAwal){
     updateEtaText();
   }, 1000);
 }
+function mulaiEta(menitAwal){ mulaiEtaDariDetik(menitAwal * 60); }
 function updateEtaText(){
   let m = Math.floor(etaDetik / 60);
   let d = etaDetik % 60;
@@ -184,39 +223,71 @@ function updateEtaText(){
   else teks = '⏱️ Tiba dalam ' + d + ' detik';
   document.getElementById('etaDriver').textContent = teks;
 }
-function tampilkanDriverKetemu(nama, plat, foto, etaMenit){
+function tampilkanDriverKetemu(nama, plat, foto, etaMenit, isPrioritas, janganSimpanLagi, sisaDetik){
+  driverDitemukan = true;
+  namaDriverAktif = nama;
   document.getElementById('radarWrap').style.display = 'none';
   document.getElementById('driverSukses').style.display = 'block';
   document.getElementById('namaDriverSukses').textContent = nama;
   document.getElementById('platDriverSukses').textContent = plat;
   document.getElementById('fotoDriver').src = foto;
   document.getElementById('chatFoto').src = foto;
+  document.getElementById('chatNama').textContent = nama + (isPrioritas ? '' : ' (TEST)');
   document.getElementById('waitTitle').style.display = 'none';
-  document.getElementById('waitSub').textContent = 'Driver sedang OTW ke titik jemputmu';
+  document.getElementById('waitSub').textContent = isPrioritas ? 'Driver prioritas sedang OTW ke titik jemputmu' : 'Driver sedang OTW ke titik jemputmu';
   document.getElementById('btnPrioritas').style.display = 'none';
-  document.getElementById('btnPrioritasFound').style.display = 'none';
-  document.getElementById('prioritasNote').style.display = 'none';
-  mulaiEta(etaMenit);
-  setTimeout(()=>{
-    document.getElementById('chatModal').classList.add('show');
+  if(isPrioritas){
+    let b2 = document.getElementById('btnPrioritasFound');
+    b2.style.display = 'block';
+    b2.textContent = '✅ SUDAH PRIORITAS';
+    b2.style.background = '#00a651';
+    b2.style.color = '#fff';
+    document.getElementById('prioritasNote').style.display = 'block';
+    document.getElementById('prioritasNote').textContent = 'Anda sekarang mendapatkan Pelayanan yang diutamakan';
+  } else {
+    document.getElementById('btnPrioritasFound').style.display = 'none';
+    document.getElementById('prioritasNote').style.display = 'none';
+  }
+  if(!janganSimpanLagi){ simpanDriver(nama, plat, foto, etaMenit, isPrioritas); }
+  if(sisaDetik !== undefined && sisaDetik !== null){ mulaiEtaDariDetik(sisaDetik); } else { mulaiEta(etaMenit); }
+  if(!janganSimpanLagi){
     setTimeout(()=>{
-      if(driverDitemukan){
-        document.getElementById('btnPrioritasFound').style.display = 'block';
-        document.getElementById('prioritasNote').style.display = 'block';
-      }
-    }, 10000);
-  }, 500);
+      document.getElementById('chatModal').classList.add('show');
+      setTimeout(()=>{
+        if(driverDitemukan && !isPrioritas){
+          document.getElementById('btnPrioritasFound').style.display = 'block';
+          document.getElementById('prioritasNote').style.display = 'block';
+        }
+      }, 10000);
+    }, 500);
+  } else {
+    if(!isPrioritas){
+      document.getElementById('btnPrioritasFound').style.display = 'block';
+      document.getElementById('prioritasNote').style.display = 'block';
+    }
+  }
 }
+(function cekDriverTersimpan(){
+  try{
+    let d = JSON.parse(localStorage.getItem('masphus_driver') || 'null');
+    if(!d) return;
+    let sisa = Math.floor((d.etaEnd - Date.now()) / 1000);
+    if(sisa <= 0){ localStorage.removeItem('masphus_driver'); return; }
+    let etaMenit = Math.ceil(sisa / 60);
+    tampilkanDriverKetemu(d.nama, d.plat, d.foto, etaMenit, d.isPrioritas, true, sisa);
+  }catch(e){}
+})();
 let detikJalan = 0;
-let timerDriver = setInterval(()=>{
-  detikJalan += 5;
-  if(TEST_MODE && detikJalan < 15) return;
-  if(!TEST_MODE) return;
-  clearInterval(timerDriver);
-  driverDitemukan = true;
-  document.getElementById('chatNama').textContent = 'Budi Santoso (TEST)';
-  tampilkanDriverKetemu('Budi Santoso', 'D 1234 ABC • ⭐ 4.9', 'https://randomuser.me/api/portraits/men/32.jpg', 8);
-}, 5000);
+let timerDriver = null;
+if(!driverDitemukan){
+  timerDriver = setInterval(()=>{
+    detikJalan += 5;
+    if(TEST_MODE && detikJalan < 15) return;
+    if(!TEST_MODE) return;
+    clearInterval(timerDriver);
+    tampilkanDriverKetemu('Budi Santoso', 'D 1234 ABC • ⭐ 4.9', 'https://randomuser.me/api/portraits/men/32.jpg', 8, false, false);
+  }, 5000);
+}
 function upgradePrioritas(){
   let btn1 = document.getElementById('btnPrioritas');
   let btn2 = document.getElementById('btnPrioritasFound');
@@ -235,6 +306,7 @@ function upgradePrioritas(){
       let isi = document.getElementById('chatIsi');
       isi.innerHTML += '<div class="chat-bubble driver">Halo! Saya <b>Andi Prioritas</b>, driver prioritas kamu ⚡ Saya langsung OTW, kamu diprioritaskan ya!</div>';
       document.getElementById('chatModal').classList.add('show');
+      simpanDriver('Andi Prioritas', 'D 9999 PR • ⭐ 5.0', 'https://randomuser.me/api/portraits/men/75.jpg', 3, true);
       mulaiEta(3);
     }, 2000);
     return;
@@ -253,40 +325,26 @@ function kirimChat(){
 document.getElementById('chatInput').addEventListener('keypress', function(e){ if(e.key==='Enter') kirimChat(); });
 function kirimNotifKeDriver(pesan){
   let isi = document.getElementById('chatIsi');
-  if(isi){
-    isi.innerHTML += '<div class="chat-bubble system">📢 ' + pesan + '</div>';
-  }
+  if(isi){ isi.innerHTML += '<div class="chat-bubble system">📢 ' + pesan + '</div>'; }
   console.log('[NOTIF KE DRIVER - ' + namaDriverAktif + ']: ' + pesan);
 }
-// === KUNCI BACK: PENUMPANG DICEGEAH KEMBALI SEBELUM MEMILIH ===
 function tampilkanNotifKembali(){
-  if(driverDitemukan){
-    document.getElementById('teksKembali').innerHTML = 'Driver <b>' + namaDriverAktif + '</b> sudah OTW ke titik jemputmu.<br>Yakin ingin membatalkan perjalanan ini?';
-  } else {
-    document.getElementById('teksKembali').innerHTML = 'Kami masih mencari driver untukmu.<br>Yakin ingin membatalkan perjalanan ini?';
-  }
+  if(driverDitemukan){ document.getElementById('teksKembali').innerHTML = 'Driver <b>' + namaDriverAktif + '</b> sudah OTW ke titik jemputmu.<br>Yakin ingin membatalkan perjalanan ini?'; }
+  else { document.getElementById('teksKembali').innerHTML = 'Kami masih mencari driver untukmu.<br>Yakin ingin membatalkan perjalanan ini?'; }
   document.getElementById('modalKembali').classList.add('show');
 }
-// Pas masuk halaman penumpang, langsung kunci history biar Back HP ketahan
 history.pushState({page:'penumpang'}, '', location.href);
 history.pushState({page:'penumpang-lock'}, '', location.href);
 window.addEventListener('popstate', function(e){
-  // Kalau user udah milih "Ya, Batalkan" / udah selesai batal, boleh keluar
   if(bolehKeluar) return;
-  // Kalau belum milih, TAHAN! Balikin lagi ke halaman penumpang + munculin notif
   history.pushState({page:'penumpang-lock'}, '', location.href);
   tampilkanNotifKembali();
 });
 function kembaliKeIndex(){
-  // Tombol ← di dalam aplikasi juga sama: tahan dulu, munculin notif
-  if(!saved && !driverDitemukan){
-    bersihkanDanKembali();
-    return;
-  }
+  if(!saved && !driverDitemukan){ bersihkanDanKembali(); return; }
   tampilkanNotifKembali();
 }
 function konfirmasiKembaliLanjut(){
-  // LANJUTKAN -> TUTUP NOTIF, TETEP DI HALAMAN PENUMPANG, KUNCI LAGI BIAR BACK BERIKUTNYA JUGA KETAHAN
   document.getElementById('modalKembali').classList.remove('show');
   history.pushState({page:'penumpang-lock'}, '', location.href);
 }
@@ -294,16 +352,11 @@ function konfirmasiKembaliYa(){
   document.getElementById('modalKembali').classList.remove('show');
   jalankanPembatalan();
 }
-function batalkanPesanan(){
-  jalankanPembatalan();
-}
+function batalkanPesanan(){ jalankanPembatalan(); }
 function jalankanPembatalan(){
   document.getElementById('modalBatal').classList.add('show');
-  if(driverDitemukan){
-    kirimNotifKeDriver('Penumpang membatalkan perjalanan ke ' + TUJUAN_NAMA + '. Maaf ya, perjalanan dibatalkan oleh penumpang.');
-  } else {
-    kirimNotifKeDriver('Penumpang membatalkan pencarian driver ke ' + TUJUAN_NAMA + '.');
-  }
+  if(driverDitemukan){ kirimNotifKeDriver('Penumpang membatalkan perjalanan ke ' + TUJUAN_NAMA + '. Maaf ya, perjalanan dibatalkan oleh penumpang.'); }
+  else { kirimNotifKeDriver('Penumpang membatalkan pencarian driver ke ' + TUJUAN_NAMA + '.'); }
   setTimeout(()=>{
     document.getElementById('modalBatal').classList.remove('show');
     document.getElementById('modalBatalSukses').classList.add('show');
@@ -316,6 +369,7 @@ function selesaiBatalKeIndex(){
 function bersihkanDanKembali(){
   bolehKeluar = true;
   localStorage.removeItem('masphus_order');
+  localStorage.removeItem('masphus_driver');
   sessionStorage.setItem('ammo_clear', '1');
   sessionStorage.setItem('ammo_must_clear_dest', '1');
   sessionStorage.removeItem('ammo_from_index');
