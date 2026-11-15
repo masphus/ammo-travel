@@ -13,7 +13,6 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 .logo-left{display:flex;align-items:center;gap:10px;min-width:0}
 .logo-left img{width:44px;height:44px;border-radius:50%;background:#fff;object-fit:cover;flex-shrink:0;border:2px solid #d4af37}
 .logo-left b{font-size:32px;white-space:nowrap;color:#d4af37;letter-spacing:.5px}
-.pilih-lokasi{display:flex;align-items:center;gap:4px;font-weight:bold;font-size:14px;white-space:nowrap;flex-shrink:0;cursor:pointer;color:#d4af37}
 .title{padding:18px 16px 6px;text-align:center}
 .title h1{font-size:22px;line-height:1.2;color:#fff;font-weight:400}
 .title h1 b{color:#d4af37}
@@ -124,7 +123,8 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 <body>
 <div id="homePage" class="phone">
 <div class="header">
-<div class="logo-left"><img src="icon-512.png" alt="Ammo Travel"><b>Ammo Travel</b></div></div>
+<div class="logo-left"><img src="icon-512.png" alt="Ammo Travel"><b>Ammo Travel</b></div>
+</div>
 <div class="title"><h1>Mau <b>kemana?</b></h1></div>
 <div class="form" autocomplete="off">
 <div class="lbl">Penjemputan</div>
@@ -240,6 +240,28 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 <div id="toastWrap" class="toast-wrap"><div class="toast"><div class="ico" id="toastIco">✓</div><div style="flex:1"><b id="toastJudul">Berhasil</b><p id="toastIsi">-</p></div><button onclick="tutupToast()">OK</button></div></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- === AMMO x SUPABASE - JANGAN DIHAPUS, VERSI AMAN - PINDAH KE ATAS BIAR GOOGLE BALIK LANGSUNG KENAL === -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
+const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+async function syncPenumpangKeSupabase(nama, hp, via){
+  if(!hp) return null;
+  try{
+    let cek = await supabaseClient.from('penumpang').select('id').eq('no_wa', hp).maybeSingle();
+    if(cek.data && cek.data.id){
+      await supabaseClient.from('penumpang').update({ nama: nama, cara_daftar: via || 'web', status: 'aktif' }).eq('id', cek.data.id);
+      localStorage.setItem('ammo_supabase_penumpang_id', cek.data.id);
+      return cek.data.id;
+    }
+    let ins = await supabaseClient.from('penumpang').insert([{ nama: nama, no_wa: hp, email: null, cara_daftar: via || 'web', status: 'aktif' }]).select().single();
+    if(ins.error) throw ins.error;
+    if(ins.data && ins.data.id) localStorage.setItem('ammo_supabase_penumpang_id', ins.data.id);
+    return ins.data ? ins.data.id : null;
+  }catch(e){ console.log('syncPenumpang error', e); return null; }
+}
+</script>
 <script>
 (function(){
   try{
@@ -607,7 +629,9 @@ async function daftarPenumpang(via){
   if(via === 'Google'){
     let a = $('pickup').value.trim(), b = $('dest').value.trim();
     localStorage.setItem('ammo_pending_order', JSON.stringify({asal: a, tujuan: b}));
-    await supabaseClient.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } });
+    let balikKe = window.location.origin + window.location.pathname;
+    let { error } = await supabaseClient.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: balikKe } });
+    if(error){ showToast('Google Belum Aktif','Login Google belum di setting di Supabase, pake WA dulu ya.', true); }
     return;
   }
   let nama=$('namaDaftar').value.trim();
@@ -771,30 +795,7 @@ setTimeout(function(){
   if(sessionStorage.getItem('ammo_clear')==='1' || sessionStorage.getItem('ammo_must_clear_dest')==='1') kosongkanTujuan();
 }, 500);
 isiPenjemputanOtomatis();
-// Set tanggal default hari ini
 try{ let t=$('tanggalBerangkat'); if(t && !t.value) t.value = new Date().toISOString().slice(0,10); }catch(e){}
-</script>
-<!-- === AMMO x SUPABASE - JANGAN DIHAPUS, VERSI AMAN === -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
-const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-async function syncPenumpangKeSupabase(nama, hp, via){
-  if(!hp) return null;
-  try{
-    let cek = await supabaseClient.from('penumpang').select('id').eq('no_wa', hp).maybeSingle();
-    if(cek.data && cek.data.id){
-      await supabaseClient.from('penumpang').update({ nama: nama, cara_daftar: via || 'web', status: 'aktif' }).eq('id', cek.data.id);
-      localStorage.setItem('ammo_supabase_penumpang_id', cek.data.id);
-      return cek.data.id;
-    }
-    let ins = await supabaseClient.from('penumpang').insert([{ nama: nama, no_wa: hp, email: null, cara_daftar: via || 'web', status: 'aktif' }]).select().single();
-    if(ins.error) throw ins.error;
-    if(ins.data && ins.data.id) localStorage.setItem('ammo_supabase_penumpang_id', ins.data.id);
-    return ins.data ? ins.data.id : null;
-  }catch(e){ console.log('syncPenumpang error', e); return null; }
-}
 </script>
 </body>
 </html>
