@@ -34,10 +34,9 @@ header b{font-size:22px;color:#fff}
 .driver-box{margin:0 16px;border:1.5px solid #eee;border-radius:14px;padding:16px}
 .driver-box h3{font-size:24px;line-height:1.2}
 .driver-box p{margin:10px 0;font-size:16px;line-height:1.4}
-.locked{background:#eee;border-radius:8px;padding:12px;display:flex;gap:10px;align-items:center;font-size:16px;line-height:1.3;margin-top:10px}
-.locked.ok{background:#D4EDDA;border:1px solid #00a651}
 .btn-batal{margin:14px 16px 0;background:#e60000;color:#fff;border:0;width:calc(100% - 32px);padding:15px;border-radius:10px;font-weight:bold;font-size:22px;cursor:pointer}
-.btn-prioritas{display:none;margin:12px 16px 0;background:#111;color:#FFD700;border:1px solid #FFD700;width:calc(100% - 32px);padding:14px;border-radius:10px;font-weight:800;font-size:19px;cursor:pointer}
+/* PRIORITAS - PINDAH KE BAWAH RADAR */
+.btn-prioritas{display:none;margin:0 16px 14px;background:#111;color:#FFD700;border:1px solid #FFD700;width:calc(100% - 32px);padding:14px;border-radius:10px;font-weight:800;font-size:19px;cursor:pointer}
 .driver-found{background:#E8F5E9;border:1px solid #00a651;border-radius:10px;padding:12px;margin-top:10px;display:none}
 .chat-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;align-items:flex-end;justify-content:center}
 .chat-modal.show{display:flex}
@@ -58,6 +57,10 @@ header b{font-size:22px;color:#fff}
 <div class="radar-wrap"><div class="radar"><i></i></div></div>
 <div class="title" id="waitTitle">Mencari Driver...</div>
 <p class="sub">Kami sedang mencari driver terdekat untukmu</p>
+
+<!-- PRIORITAS DI SINI BRO - DI BAWAH RADAR, SETELAH "Mencari Driver..." -->
+<button class="btn-prioritas" id="btnPrioritas" onclick="upgradePrioritas()">⚡ UPGRADE KE PRIORITAS</button>
+
 <div class="card">
 <h2>📍 Rute Perjalanan</h2>
 <div class="route"><small>Dari</small><b id="wDari">Memuat...</b><br><br><small>Ke</small><b id="wTujuan">Memuat...</b></div>
@@ -69,14 +72,13 @@ header b{font-size:22px;color:#fff}
 <h3 id="driverTitle">👥 Belum ada driver yang menerima</h3>
 <p id="driverDesc">Driver akan ditampilkan di sini setelah menerima pesananmu</p>
 <div class="driver-found" id="driverFound">✅ <b id="namaDriver">Budi Santoso (TEST)</b><br><small id="platDriver">D 1234 ABC • ⭐ 4.9</small></div>
-<div class="locked" id="chatLock">🔒 <span id="chatLockText">Chat dengan Driver akan aktif setelah driver ditemukan</span></div>
 <button onclick="bukaChat()" style="width:100%;margin-top:10px;padding:12px;border:1px solid #00a651;background:#fff;color:#00a651;border-radius:10px;font-weight:bold;font-size:16px;cursor:pointer">💬 Buka Chat Driver</button>
 </div>
 <button class="btn-batal" onclick="batalkanPesanan()">Batalkan Pesanan</button>
-<button class="btn-prioritas" id="btnPrioritas" onclick="upgradePrioritas()">⚡ UPGRADE KE PRIORITAS</button>
+<!-- PRIORITAS UDAH GAK DI BAWAH LAGI, UDAH PINDAH KE ATAS -->
 </div>
 <div id="chatModal" class="chat-modal"><div class="chat-box">
-<div class="chat-head"><div style="width:44px;height:44px;border-radius:50%;background:#00a651;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px">🚗</div><div><b id="chatNama">Budi Santoso</b><br><small id="chatStatus" style="color:#00a651">● Online - Terhubung</small></div></div>
+<div class="chat-head"><div style="width:44px;height:44px;border-radius:50%;background:#00a651;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px">🚗</div><div><b id="chatNama">Budi Santoso</b><br><small id="chatStatus" style="color:#00a651">● Online</small></div></div>
 <div id="chatIsi">
 <div class="chat-bubble driver">Halo! Saya <b>Budi</b>, driver kamu. Saya sudah OTW ke titik jemput ya 🙏<br><small id="chatRute">Jalan Peta, Pelindung Hewan → Soreang - Ciwidey</small></div>
 </div>
@@ -136,10 +138,7 @@ let timerDriver = setInterval(()=>{
   document.getElementById('driverTitle').textContent = '✅ Driver Ditemukan!';
   document.getElementById('driverDesc').textContent = 'Driver sedang OTW ke titik jemput';
   document.getElementById('driverFound').style.display = 'block';
-  document.getElementById('chatLock').classList.add('ok');
-  document.getElementById('chatLockText').textContent = '✅ Chat aktif - Terhubung dengan Budi Santoso';
   document.getElementById('chatNama').textContent = 'Budi Santoso (TEST)';
-  setTimeout(()=>{ bukaChat(); }, 1000);
 }, 5000);
 function upgradePrioritas(){
   let btn = document.getElementById('btnPrioritas');
@@ -157,22 +156,12 @@ function upgradePrioritas(){
       document.getElementById('driverFound').style.display = 'block';
       document.getElementById('namaDriver').textContent = 'Andi Prioritas (PRIORITAS)';
       document.getElementById('platDriver').textContent = 'D 9999 PR • ⭐ 5.0';
-      document.getElementById('chatLock').classList.add('ok');
-      document.getElementById('chatLockText').textContent = '✅ Chat aktif - Terhubung dengan Driver Prioritas';
       document.getElementById('chatNama').textContent = 'Andi Prioritas';
-      bukaChatPrioritas();
     }, 3000);
-  } else {
-    bukaChat();
   }
 }
 function bukaChat(){
   if(!driverDitemukan){ alert('Chat masih terkunci, tunggu driver ditemukan dulu ya!'); return; }
-  document.getElementById('chatModal').classList.add('show');
-}
-function bukaChatPrioritas(){
-  let isi = document.getElementById('chatIsi');
-  isi.innerHTML += '<div class="chat-bubble driver">Halo! Saya <b>Andi Prioritas</b>, driver prioritas kamu ⚡ Saya langsung OTW, kamu diprioritaskan ya!</div>';
   document.getElementById('chatModal').classList.add('show');
 }
 function tutupChat(){ document.getElementById('chatModal').classList.remove('show'); }
