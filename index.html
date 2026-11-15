@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Ammo Travel</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans-serif}
-.phone{max-width:430px;width:100%;margin:0 auto;background:#fff;position:relative;padding-bottom:16px;overflow:hidden}
+.phone{max-width:430px;width:100%;margin:0 auto;background:#fff;min-height:100vh;position:relative;padding-bottom:110px;overflow:hidden}
 .header{background:#00a651;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:14px 16px}
 .logo-left{display:flex;align-items:center;gap:10px;min-width:0}
 .logo-left img{width:44px;height:44px;border-radius:50%;background:#fff;object-fit:cover;flex-shrink:0}
@@ -22,8 +23,8 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 .pin{font-size:26px;flex-shrink:0}
 .row input{flex:1;min-width:0;border:none;outline:none;background:transparent;font-size:15px;padding:8px 0}
 .btn-map{background:#00a651;color:#fff;border:none;border-radius:7px;padding:9px 10px;font-weight:bold;font-size:14px;white-space:nowrap;flex-shrink:0;cursor:pointer}
-.swap-wrap{display:flex;justify-content:center;padding:0 0 8px}
-.swap-btn{width:48px;height:48px;border-radius:50%;border:2px solid #E31B23;background:#E31B23;color:#fff;font-size:26px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(227,27,35,.35)}
+.swap-wrap{display:flex;justify-content:flex-end;padding:0 0 8px}
+.swap-btn{width:42px;height:42px;border-radius:50%;border:2px solid #00a651;background:#fff;color:#00a651;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .swap-btn:disabled{opacity:.35;cursor:not-allowed}
 .saran-box{display:none;background:#fff;border:1px solid #ddd;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.12);margin:0 0 12px;padding:6px 0;position:relative;z-index:5;max-height:260px;overflow-y:auto}
 .saran-box div{padding:12px 14px;cursor:pointer;font-size:15px;border-bottom:1px solid #f0f0f0;line-height:1.3}
@@ -33,72 +34,59 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 .ongkos-preview h3{font-size:18px;color:#0a3d1f;margin-bottom:8px}
 .ongkos-preview .meta{display:flex;gap:16px;font-size:15px;color:#222;margin-bottom:8px}
 .ongkos-preview .meta b{display:block;font-size:16px}
-.ongkos-preview .total{font-size:22px;font-weight:bold;color:#0a3d1f;white-space:nowrap}
+.ongkos-preview .total{font-size:22px;font-weight:bold;color:#0a3d1f}
 .btn-cek{display:block;width:calc(100% - 32px);margin:14px 16px 0;background:#00a651;color:#fff;border:none;border-radius:10px;padding:16px;font-size:22px;font-weight:bold;cursor:pointer}
-.chat-row{display:flex;justify-content:flex-end;padding:12px 16px 0}
-.chat{width:58px;height:58px;background:#00a651;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.25);border:2px solid #fff;position:relative;flex-shrink:0}
+.btn-akun{display:block;width:calc(100% - 32px);margin:10px 16px 0;background:#fff;color:#00a651;border:2px solid #00a651;border-radius:10px;padding:13px;font-size:17px;font-weight:bold;cursor:pointer}
+.chat{position:absolute;bottom:92px;right:16px;width:58px;height:58px;background:#00a651;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;z-index:20;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.25);border:2px solid #fff}
 .chat i{position:absolute;top:6px;right:8px;width:12px;height:12px;background:red;border-radius:50%}
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#eee;display:flex;justify-content:space-around;padding:10px 0 12px;border-top:1px solid #ddd;z-index:20}
 .nav div{text-align:center;font-size:14px;color:#777;cursor:pointer}
 .nav div span{font-size:24px;display:block}
 .nav .on{color:#00a651;font-weight:bold}
-.map-modal,.chat-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;align-items:flex-end;justify-content:center}
-.map-modal.show,.chat-modal.show{display:flex}
-.map-box,.chat-box{width:100%;max-width:430px;background:#fff;border-radius:16px 16px 0 0;padding:14px}
+.map-modal,.chat-modal,.akun-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;align-items:flex-end;justify-content:center}
+.map-modal.show,.chat-modal.show,.akun-modal.show{display:flex}
+.map-box,.chat-box,.akun-box{width:100%;max-width:430px;background:#fff;border-radius:16px 16px 0 0;padding:14px}
 #map{width:100%;height:340px;border-radius:10px}
 .map-addr{font-size:14px;background:#f2f2f2;padding:10px;border-radius:8px;margin:10px 0;min-height:38px}
 .map-btns{display:flex;gap:10px}
 .map-btns button{flex:1;padding:12px;border-radius:10px;border:none;font-weight:bold;font-size:16px;cursor:pointer}
-.chat-box h3{font-size:20px;color:#0a3d1f;margin-bottom:12px;text-align:center}
+.chat-box h3,.akun-box h3{font-size:20px;color:#0a3d1f;margin-bottom:12px;text-align:center}
+.chat-opt{display:flex;gap:10px;align-items:center;background:#f2f2f2;border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer}
+.chat-opt.lock{opacity:.6;cursor:not-allowed}
+.chat-opt b{font-size:16px;display:block}
+.chat-opt small{font-size:14px;color:#555}
 .chat-close{display:block;width:100%;margin-top:6px;padding:12px;border:none;border-radius:10px;background:#eee;font-weight:bold;font-size:16px;cursor:pointer}
-.chatBubble{background:#f1f1f1;padding:12px 14px;border-radius:16px;margin:8px 0;max-width:88%;font-size:15px;line-height:1.4}
-.chatMe{background:#d9f2e3;margin-left:auto;text-align:right}
-#chatInputRow{display:flex;gap:8px;margin-top:10px}
-#chatInput{flex:1;border:1px solid #ddd;border-radius:999px;padding:11px 14px;font-size:15px;outline:none}
-#chatSend{border:none;background:#00a651;color:#fff;width:46px;height:46px;border-radius:50%;font-size:19px;cursor:pointer;flex-shrink:0}
-.waRow{display:none;gap:10px;margin-top:12px}
-.waRow.show{display:flex}
-.waBtn{flex:1;text-align:center;text-decoration:none;padding:12px 6px;border-radius:12px;font-weight:700;font-size:14px}
-.waAdmin{background:#00a651;color:#fff}
-.waCall{background:#111;color:#d4af37;border:2px solid #d4af37}
-#pinView{display:none;text-align:center}
-.pinTitle{font-weight:800;font-size:19px;margin:6px 0 14px}
-.pinBoxes{display:flex;gap:8px;justify-content:center;margin-bottom:14px}
-.pinBox{width:44px;height:52px;background:#111;border:2px solid #d4af37;border-radius:8px;color:#d4af37;font-size:24px;font-weight:800;display:flex;align-items:center;justify-content:center}
-.pinBox.filled{background:#d4af37;color:#111}
-.pinPad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:260px;margin:0 auto}
-.pinKey{background:#111;color:#d4af37;border:2px solid #d4af37;border-radius:10px;padding:14px 0;font-size:22px;font-weight:800;cursor:pointer}
-.pinKey:active{background:#d4af37;color:#111}
-#pinMsg{color:#c00;font-size:13px;min-height:18px;margin:8px 0}
-.pinBack{margin-top:14px;background:#eee;border:none;padding:11px 16px;border-radius:10px;font-weight:700;width:100%;cursor:pointer}
-.daftar-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:flex-end;justify-content:center}
-.daftar-modal.show{display:flex}
-.daftar-box{width:100%;max-width:430px;background:#fff;border-radius:20px 20px 0 0;padding:20px 22px 22px;position:relative;max-height:88vh;overflow-y:auto}
-.daftar-handle{width:60px;height:5px;background:#ddd;border-radius:99px;margin:0 auto 16px}
-.daftar-box h2{font-size:28px;color:#111;font-weight:800;letter-spacing:-.5px;text-align:center}
-.daftar-box p{font-size:14px;color:#111;margin-top:10px;line-height:1.5;text-align:center}
-.daftar-label{display:inline-block;background:#eee;border-radius:6px;padding:4px 8px;font-size:13px;font-weight:700;color:#111;margin-top:14px;margin-bottom:6px}
-.daftar-input{width:100%;padding:13px 14px;border:1px solid #bbb;border-radius:8px;font-size:16px;outline:none;color:#111}
-.daftar-input::placeholder{color:#888}
-.daftar-btn{width:100%;padding:14px;border-radius:10px;border:1px solid #bbb;font-size:17px;font-weight:600;margin-top:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
-.daftar-google{background:#fff;color:#222}
-.daftar-google img{width:28px;height:28px;object-fit:contain}
-.daftar-sekarang{background:#00a651;color:#fff;border:none!important;font-weight:700;font-size:18px;padding:16px}
-.daftar-batal{display:block;width:100%;margin-top:14px;padding:6px;border:none;background:transparent;color:#888;font-size:16px;cursor:pointer}
-.daftar-syarat{font-size:11px!important;color:#111!important;text-align:center;margin-top:16px!important;line-height:1.4}
-.akun-foto{width:96px;height:96px;border-radius:50%;background:#c9c9c9;display:flex;align-items:center;justify-content:center;margin:6px auto 10px;font-size:52px;color:#777;overflow:hidden}
-.akun-foto span{font-size:52px}
-.akun-nama{font-size:28px;font-weight:800;text-align:center;color:#111}
-.akun-sub{text-align:center;color:#555;font-size:14px;margin-top:4px;line-height:1.5}
-.akun-info{display:flex;gap:10px;margin-top:14px}
-.akun-info div{flex:1;background:#eef1ee;border-radius:10px;padding:10px;text-align:center;font-size:13px;color:#444}
-.akun-info b{display:block;font-size:16px;color:#111;margin-top:2px}
-.btn-logout{background:#ff6b81!important;color:#fff!important;border:none!important;font-weight:700;font-size:18px;padding:15px}
-.btn-tutup{background:#c9c9c9!important;color:#fff!important;border:none!important;font-weight:700;font-size:18px;padding:14px}
-.pass-wrap{position:relative}
-.pass-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:19px;color:#888}
-.atau{display:flex;align-items:center;gap:12px;color:#888;font-size:13px;margin:16px 0 2px}
-.atau:before,.atau:after{content:'';flex:1;height:1px;background:#ddd}
+.akun-box label{font-weight:bold;font-size:15px;display:block;margin:10px 0 5px}
+.akun-box input{width:100%;padding:13px;border:1px solid #ddd;border-radius:10px;background:#f2f2f2;font-size:16px;outline:none}
+.akun-btn{width:100%;margin-top:16px;padding:14px;border:none;border-radius:10px;background:#00a651;color:#fff;font-weight:bold;font-size:18px;cursor:pointer}
+.wait-page{display:none;max-width:430px;width:100%;margin:0 auto;background:#fff;min-height:100vh;padding:14px 16px 30px}
+.wait-head{display:flex;align-items:center;gap:12px}
+.wait-head button{border:none;background:none;font-size:28px;color:#00a651;cursor:pointer}
+.wait-head b{font-size:22px;color:#0a3d1f}
+.radar{width:150px;height:150px;margin:18px auto 10px;border-radius:50%;border:2px solid #00a651;position:relative;overflow:hidden}
+.radar:before,.radar:after{content:"";position:absolute;border:1px solid #00a651;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}
+.radar:before{width:100px;height:100px}
+.radar:after{width:50px;height:50px}
+.radar i{position:absolute;left:50%;top:50%;width:140px;height:2px;background:#00a651;transform-origin:left center;animation:spin 2s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.wait-page h2{text-align:center;color:#0a3d1f;font-size:30px}
+.route-box{border:1.5px solid #d9ecd9;border-radius:14px;padding:16px;margin-top:18px}
+.route-box h3{font-size:24px;color:#0a3d1f;margin-bottom:12px}
+.route-line{display:flex;gap:10px}
+.route-line .dot{font-size:22px}
+.route-line small{color:#555;font-size:14px}
+.route-line b{font-size:19px;display:block;line-height:1.3}
+.route-meta{display:flex;gap:14px;margin-top:14px;flex-wrap:wrap}
+.route-meta div{font-size:17px;color:#222}
+.route-meta b{display:block;font-size:19px}
+.ongkos{background:#a8e6a1;border-radius:8px;padding:12px;margin-top:14px;font-weight:bold;font-size:20px;color:#0a3d1f}
+.ongkos small{display:block;font-size:15px;font-weight:bold}
+.note{font-size:14px;margin-top:10px;line-height:1.4}
+.driver-box{border:1.5px solid #eee;border-radius:14px;padding:16px;margin-top:14px}
+.driver-box h3{font-size:24px;line-height:1.2}
+.driver-box p{margin:10px 0;font-size:16px;line-height:1.4}
+.chat-lock{background:#eee;border-radius:8px;padding:12px;display:flex;gap:10px;align-items:center;font-size:16px;line-height:1.3}
+.btn-batal{display:block;width:100%;margin-top:14px;background:#e60000;color:#fff;border:none;border-radius:10px;padding:15px;font-size:22px;font-weight:bold;cursor:pointer}
 </style>
 </head>
 <body>
@@ -108,13 +96,13 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 <div class="pilih-lokasi" onclick="isiPenjemputanOtomatis();openMap('pickup')">📍 Pilih Lokasi</div>
 </div>
 <div class="title"><h1>Mau Pergi Kemana Hari Ini?</h1></div>
-<div class="form" autocomplete="off">
+<div class="form">
 <div class="lbl">Penjemputan</div>
 <div class="row"><span class="pin">📍</span><input id="pickup" placeholder="Ketik / Pilih Lokasi Jemput..." autocomplete="off"><button class="btn-map" onclick="openMap('pickup')">📍 Pilih di Peta</button></div>
 <div id="saranPick" class="saran-box"></div>
 <div class="swap-wrap"><button id="swapBtn" class="swap-btn" onclick="swapLokasi()" disabled title="Tukar Penjemputan & Tujuan">⇅</button></div>
 <div class="lbl">Tujuan</div>
-<div class="row"><span class="pin">📍</span><input id="dest" placeholder="Ketik / Pilih Tujuan..." autocomplete="off" value=""><button class="btn-map" onclick="openMap('dest')">📍 Pilih di Peta</button></div>
+<div class="row"><span class="pin">📍</span><input id="dest" placeholder="Ketik / Pilih Tujuan..." autocomplete="off"><button class="btn-map" onclick="openMap('dest')">📍 Pilih di Peta</button></div>
 <div id="saranDest" class="saran-box"></div>
 <div id="ongkosPreview" class="ongkos-preview">
 <h3>💰 Estimasi Ongkos</h3>
@@ -122,104 +110,127 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 <div class="total" id="prevOngkos">-</div>
 </div>
 </div>
-<button class="btn-cek" onclick="cekDriver()">Order Now</button>
-<div class="chat-row"><div class="chat" id="chatBtn" onclick="openChat()">💬<i></i></div></div>
+<button class="btn-cek" onclick="cekDriver()">Cek Driver & Lanjut</button>
+<button class="btn-akun" id="btnAkun" onclick="openAkun()">👤 Masuk / Daftar Akun</button>
+<div class="chat" id="chatBtn" onclick="openChat()">💬<i></i></div>
+</div>
+<div id="waitPage" class="wait-page">
+<div class="wait-head"><button onclick="backHome()">←</button><b>Menunggu Driver</b></div>
+<div class="radar"><i></i></div>
+<h2>Mencari Driver...</h2>
+<div class="route-box">
+<h3>📍 Rute Perjalanan</h3>
+<div class="route-line"><span class="dot">🟢</span><div><small>Dari</small><b id="wDari">-</b></div></div>
+<div style="margin:4px 0 4px 10px;color:#999">⋮</div>
+<div class="route-line"><span class="dot">📍</span><div><small>Tujuan</small><b id="wTujuan">-</b></div></div>
+<div class="route-meta">
+<div>🅰️ Jarak<b id="wJarak">Menghitung...</b></div>
+<div>🕒 Estimasi<b id="wEstimasi">Menghitung...</b></div>
+</div>
+<div class="ongkos"><small>ONGKOS</small><span id="wOngkos">Menghitung...</span></div>
+<p class="note">ⓘ Biaya Parkir, Tol, dan Penyeberangan akan dibebankan kepada Penumpang bilamana ada</p>
+</div>
+<div class="driver-box">
+<h3>👥 Belum ada driver yang menerima</h3>
+<p>Driver akan ditampilkan di sini setelah menerima pesananmu</p>
+<div class="chat-lock">🔒 Chat dengan Driver akan aktif setelah driver ditemukan</div>
+<button class="btn-batal" onclick="backHome()">Batalkan Pesanan</button>
+</div>
 </div>
 <div class="nav" id="bottomNav">
-<div><span>🏠</span>Beranda</div>
+<div class="on"><span>🏠</span>Beranda</div>
 <div><span>🕒</span>Riwayat</div>
 <div><span>🏷️</span>Promo</div>
-<div onclick="bukaAkun()" style="cursor:pointer"><span>👤</span>Akun</div>
+<div onclick="openAkun()"><span>👤</span>Akun</div>
 </div>
+<div id="akunModal" class="akun-modal"><div class="akun-box">
+<h3>👤 Masuk Akun</h3>
+<label>Nomor WhatsApp</label>
+<input id="loginWA" placeholder="08xxxxxxxxxx" inputmode="numeric">
+<label>Password</label>
+<input id="loginPass" type="password" placeholder="Buat / isi password">
+<button class="akun-btn" onclick="loginWA()">Masuk / Daftar</button>
+<p style="font-size:13px;color:#666;text-align:center;margin-top:10px;line-height:1.4">Kalau No WA belum terdaftar, otomatis dibuatkan akun baru dengan password ini.</p>
+<button class="chat-close" onclick="tutupAkun()">Tutup</button>
+</div></div>
 <div id="chatModal" class="chat-modal"><div class="chat-box">
-<h3>💬 Chat dengan CS</h3>
-<div id="chatView">
-<div id="chatLog"><div class="chatBubble">Halo! Mau tanya apa?</div></div>
-<div id="chatInputRow"><input id="chatInput" placeholder="Ketik pesan..." autocomplete="off"><button id="chatSend">➤</button></div>
-<div style="font-size:12px;color:#888;margin-top:6px">Respon dalam ±10 detik • CS online</div>
-<div id="waRow" class="waRow">
-<a class="waBtn waAdmin" target="_blank" href="https://wa.me/6285890711111?text=Halo%20Admin%20Ammo%20Travel%2C%20mau%20tanya...">💬 WA Admin</a>
-<a class="waBtn waCall" target="_blank" href="https://wa.me/6285890711111?text=Halo%20Admin%2C%20mau%20telpon%20lewat%20WA...">📞 Call Admin via WA</a>
-</div>
+<h3>💬 Mau Chat Kemana?</h3>
+<div class="chat-opt" onclick="chatAdmin()"><span style="font-size:28px">🧑‍💼</span><div><b>Chat Admin</b><small>Tanya harga, jadwal, & bantuan</small></div></div>
+<div class="chat-opt lock" id="chatDriverOpt" onclick="chatDriver()"><span style="font-size:28px">🚗</span><div><b>Chat Driver</b><small id="chatDriverText">Terkunci - tunggu driver ditemukan</small></div></div>
 <button class="chat-close" onclick="closeChat()">Tutup</button>
-</div>
-<div id="pinView">
-<div class="pinTitle">Masukkan PIN</div>
-<div class="pinBoxes"><div class="pinBox"></div><div class="pinBox"></div><div class="pinBox"></div><div class="pinBox"></div><div class="pinBox"></div><div class="pinBox"></div></div>
-<div id="pinMsg"></div>
-<div class="pinPad">
-<button class="pinKey" onclick="pressPin('1')">1</button>
-<button class="pinKey" onclick="pressPin('2')">2</button>
-<button class="pinKey" onclick="pressPin('3')">3</button>
-<button class="pinKey" onclick="pressPin('4')">4</button>
-<button class="pinKey" onclick="pressPin('5')">5</button>
-<button class="pinKey" onclick="pressPin('6')">6</button>
-<button class="pinKey" onclick="pressPin('7')">7</button>
-<button class="pinKey" onclick="pressPin('8')">8</button>
-<button class="pinKey" onclick="pressPin('9')">9</button>
-<button class="pinKey" onclick="delPin()">⌫</button>
-<button class="pinKey" onclick="pressPin('0')">0</button>
-<button class="pinKey" onclick="clearPin()">C</button>
-</div>
-<button class="pinBack" onclick="backToChat()">← Kembali ke Chat</button>
-</div>
 </div></div>
 <div id="mapModal" class="map-modal"><div class="map-box"><div id="map"></div><div id="mapAddr" class="map-addr">Memuat alamat...</div><div class="map-btns"><button style="background:#eee" onclick="closeMap()">Batal</button><button style="background:#00a651;color:#fff" onclick="confirmMap()">OK, Pakai Lokasi Ini</button></div></div></div>
-
-<!-- MODAL AKUN - 2 KEADAAN -->
-<div id="akunModal" class="daftar-modal"><div class="daftar-box"><div class="daftar-handle"></div>
-<!-- KALO UDAH LOGIN -->
-<div id="akunSudahLogin" style="display:none">
-<div class="akun-foto"><span>👤</span></div>
-<div class="akun-nama" id="akunNama">Maspus</div>
-<div class="akun-sub" id="akunSub">0812xxxxxx - Penumpang<br>akun Google: maspus@gmail.com</div>
-<div class="akun-info"><div>⭐ Saldo Poin<b>250 Poin</b></div><div>📍 Perjalanan<b>5 Perjalanan</b></div></div>
-<button class="daftar-btn btn-logout" onclick="logoutAkun()">Logout</button>
-<button class="daftar-btn btn-tutup" onclick="tutupAkun()">Tutup</button>
-</div>
-<!-- KALO BELUM LOGIN -->
-<div id="akunBelumLogin" style="display:none">
-<h2>Masuk Akun</h2>
-<div class="akun-foto"><span>👤</span></div>
-<div><span class="daftar-label">Nomor WhatsApp</span></div>
-<input class="daftar-input" id="loginWA" placeholder="0812xxxx" inputmode="numeric">
-<div><span class="daftar-label">Password</span></div>
-<div class="pass-wrap"><input class="daftar-input" id="loginPass" type="password" placeholder="••••••"><span class="pass-eye" onclick="togglePass()">👁️</span></div>
-<button class="daftar-btn daftar-sekarang" onclick="loginWA()">Masuk</button>
-<div class="atau">atau</div>
-<button class="daftar-btn daftar-google" onclick="daftarPenumpang('Google')"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G">Lanjut dengan Google</button>
-<p class="daftar-syarat">Belum punya akun? Daftar otomatis saat masuk pertama kali.</p>
-<button class="daftar-batal" onclick="tutupAkun()">Tutup</button>
-</div>
-</div></div>
-
-<!-- MODAL DAFTAR LAMA - BUAT JAGA-JAGA, DIPAKE ORDER NOW KALO BELUM LOGIN -->
-<div id="daftarModal" class="daftar-modal"><div class="daftar-box"><div class="daftar-handle"></div><h2>Daftar dulu yuk</h2><p>Akun penumpang kamu belum ketemu di database. Daftar dulu biar orderanmu kesimpen, abis itu otomatis ke Halaman Penumpang.</p><div><span class="daftar-label">Nama</span></div><input class="daftar-input" id="namaDaftar" placeholder="Maspus"><div><span class="daftar-label">Nomor WhatsApp</span></div><input class="daftar-input" id="hpDaftar" placeholder="No. WA, contoh 0812xxxx"><button class="daftar-btn daftar-google" onclick="daftarPenumpang('Google')"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G">Lanjut dengan Google</button><button class="daftar-btn daftar-sekarang" onclick="daftarPenumpang('WA')">Daftar Sekarang</button><button class="daftar-batal" onclick="tutupDaftar()">Batal</button><p class="daftar-syarat">Dengan lanjut, kamu setuju dengan Syarat &amp; Ketentuan Ammo Travel</p></div></div>
-
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-(function(){
-  try{
-    var harusKosong = sessionStorage.getItem('ammo_clear')==='1' || sessionStorage.getItem('ammo_must_clear_dest')==='1' || sessionStorage.getItem('ammo_from_index')==='1' || localStorage.getItem('masphus_order') || (document.referrer && document.referrer.indexOf('penumpang')!==-1);
-    if(harusKosong){
-      var d = document.getElementById('dest');
-      if(d) d.value='';
-      var o = document.getElementById('ongkosPreview');
-      if(o) o.style.display='none';
-    }
-  }catch(e){}
-})();
+const SUPABASE_URL = "https://xxtgnohxdztsiuwbfxap.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh4dGdtb2h4ZHp0ZXNpdWJmeGFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQzNzg3OTAsImV4cCI6MjEwOTk1NDc5MH0.-5XQn4zlkbRITsaJzHA_76iZtz3InMQ4EWjD7bIPLVM";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let pickupCoord=null, destCoord=null, mapMode='pickup';
-let map=null, marker=null, tempLat=-6.9175, tempLng=107.6191, tempAddr='Lokasi Saya Saat Ini';
-let previewTimer=null, saranTimer=null;
+let map=null, marker=null, tempLat=-7.7956, tempLng=110.3695, tempAddr='Lokasi Saya Saat Ini';
+let previewTimer=null, saranTimer=null, driverDitemukan=false;
 const $=id=>document.getElementById(id);
 const fmtRp=n=>'Rp. '+Math.round(n).toLocaleString('id-ID');
 function fmtJarak(m){let km=m/1000;return km>=100?Math.round(km).toLocaleString('id-ID')+' km':km.toFixed(1).replace('.',',')+' km';}
 function fmtEstimasi(detik){let m=Math.round(detik/60);let h=Math.floor(m/60),hari=Math.floor(h/24);h=h%24;let sisa=m%60;if(hari>0)return hari+' hari '+(h>0?h+' jam':'');if(h>0)return h+' jam '+(sisa>0?sisa+' menit':'');return m+' menit';}
 function fmtJarakKe(km){if(km<1)return Math.round(km*1000)+' m';return km.toFixed(1).replace('.',',')+' km';}
 function haversine(a1,b1,a2,b2){let R=6371,dLat=(a2-a1)*Math.PI/180,dLon=(b2-b1)*Math.PI/180;let a=Math.sin(dLat/2)**2+Math.cos(a1*Math.PI/180)*Math.cos(a2*Math.PI/180)*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.sqrt(a));}
-function hitungOngkos(km){let kmTagih=Math.max(Math.round(km),10);return {kmTagih:kmTagih, ongkos:kmTagih*5000};}
+function hitungOngkos(km){let kmTagih=Math.max(Math.round(km),10);return {kmTagih:kmTagih, ongkos:kmTagih*5000, min:km<10};}
 function updateSwap(){ $('swapBtn').disabled=!($('pickup').value.trim() && $('dest').value.trim()); }
+function openAkun(){
+  let sesi = localStorage.getItem('ammo_sesi');
+  if(sesi){
+    let u = JSON.parse(sesi);
+    if(confirm('Kamu sudah login sebagai '+u.nama+' ('+u.hp+'). Mau logout?')){ localStorage.removeItem('ammo_sesi'); localStorage.removeItem('ammo_supabase_penumpang_id'); location.reload(); }
+    return;
+  }
+  $('akunModal').classList.add('show');
+  let last = localStorage.getItem('ammo_last_hp'); if(last) $('loginWA').value = last;
+}
+function tutupAkun(){ $('akunModal').classList.remove('show'); }
+function updateBtnAkun(){
+  let sesi = localStorage.getItem('ammo_sesi');
+  if(sesi){ let u = JSON.parse(sesi); $('btnAkun').textContent = '👤 ' + u.nama + ' - Logout'; }
+}
+async function loginWA(){
+  let hp = $('loginWA').value.trim();
+  let pass = $('loginPass').value.trim();
+  if(!hp){ alert('Isi Nomor WA dulu ya'); return; }
+  if(!pass){ alert('Isi Password dulu ya'); return; }
+  try{
+    let cek = await supabaseClient.from('penumpang').select('id,nama,no_wa,sandi').eq('no_wa', hp).maybeSingle();
+    if(cek.data){
+      if(!cek.data.sandi){
+        await supabaseClient.from('penumpang').update({ sandi: pass }).eq('id', cek.data.id);
+      } else if(cek.data.sandi !== pass){
+        alert('Password salah bro!');
+        return;
+      }
+      let user = { nama: cek.data.nama, hp: cek.data.no_wa, via: 'WA' };
+      localStorage.setItem('ammo_sesi', JSON.stringify(user));
+      localStorage.setItem('ammo_last_hp', hp);
+      localStorage.setItem('ammo_supabase_penumpang_id', cek.data.id);
+      tutupAkun();
+      alert('Selamat datang kembali, ' + cek.data.nama + '!');
+      if($('pickup').value.trim() && $('dest').value.trim()){ simpanOrderDanLanjut(); }
+      else { updateBtnAkun(); }
+      return;
+    } else {
+      let namaBaru = prompt('WA belum terdaftar. Masukkan nama kamu buat daftar baru:');
+      if(!namaBaru) return;
+      let ins = await supabaseClient.from('penumpang').insert([{ nama: namaBaru, no_wa: hp, sandi: pass, cara_daftar: 'WA', status: 'aktif' }]).select().single();
+      let idBaru = ins.data ? ins.data.id : null;
+      let user = { nama: namaBaru, hp: hp, via: 'WA' };
+      localStorage.setItem('ammo_sesi', JSON.stringify(user));
+      localStorage.setItem('ammo_last_hp', hp);
+      if(idBaru) localStorage.setItem('ammo_supabase_penumpang_id', idBaru);
+      tutupAkun();
+      alert('Akun baru berhasil dibuat, selamat datang ' + namaBaru + '!');
+      if($('pickup').value.trim() && $('dest').value.trim()){ simpanOrderDanLanjut(); }
+      else { updateBtnAkun(); }
+    }
+  }catch(e){ console.log(e); alert('Gagal login, coba lagi ya'); }
+}
+function simpanOrderDanLanjut(){ cekDriver(); }
 function alamatPendek(d){
   if(!d) return 'Lokasi Saya Saat Ini';
   if(d.display_name){
@@ -261,24 +272,20 @@ async function geocodeAlamat(q){
   if(hasil.length) return [hasil[0].lat,hasil[0].lng];
   return null;
 }
-async function getPusat(){
-  if(pickupCoord) return pickupCoord;
-  let txt = $('pickup').value.trim();
-  if(txt && txt.length>3 && !txt.includes('107.')){
-    try{
-      let r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=id&q=${encodeURIComponent(txt)}`);
-      let d = await r.json();
-      if(d.length) return [parseFloat(d[0].lat), parseFloat(d[0].lon)];
-    }catch(e){}
-  }
-  return [-6.9175, 107.6191];
-}
 async function cariEsri(q, pusat){
   try{
-    let url=`https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&SingleLine=${encodeURIComponent(q+', Indonesia')}&maxLocations=10&outFields=Match_addr,Addr_type&outSR=4326&location=${pusat[1]},${pusat[0]}`;
+    let qPendek=q.replace(/masjid|alfamart|indomaret|puskesmas|sekolah|kantor|toko/gi,'').trim()||q;
+    let url=`https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&SingleLine=${encodeURIComponent(q+', Indonesia')}&maxLocations=10&outFields=Match_addr,Addr_type&outSR=4326`;
     let r=await fetch(url); let d=await r.json();
     let out=[];
     (d.candidates||[]).forEach(c=>{
+      if(!c.location) return;
+      out.push({nama:c.address||c.Match_addr, lat:c.location.y, lng:c.location.x, sumber:'esri'});
+    });
+    if(out.length) return out;
+    let r2=await fetch(`https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&SingleLine=${encodeURIComponent(qPendek+', Indonesia')}&maxLocations=10&outFields=Match_addr,Addr_type&outSR=4326`);
+    let d2=await r2.json();
+    (d2.candidates||[]).forEach(c=>{
       if(!c.location) return;
       out.push({nama:c.address||c.Match_addr, lat:c.location.y, lng:c.location.x, sumber:'esri'});
     });
@@ -307,45 +314,23 @@ async function cariPhoton(q, pusat){
     return out;
   }catch(e){ return []; }
 }
-function cocokNama(nama, query){
-  let n = nama.toLowerCase();
-  let kataQ = query.toLowerCase().split(/\s+/).filter(w=>w.length>1);
-  let kataN = n.split(/[^a-z0-9]+/).filter(Boolean);
-  return kataQ.every(qw=>{
-    if(n.includes(qw)) return true;
-    return kataN.some(kn => kn.startsWith(qw) && qw.length>=3);
-  });
-}
-function hitungSkor(it, q, pusat){
-  let nama = it.nama.toLowerCase();
-  let qLow = q.toLowerCase().trim();
-  let skor = 0;
-  if(nama.startsWith(qLow)) skor += 100;
-  else if(nama.includes(' '+qLow) || nama.includes(qLow+',')) skor += 80;
-  else if(nama.includes(qLow)) skor += 40;
-  let kataPertama = nama.split(/[^a-z0-9]+/)[0] || '';
-  if(kataPertama === qLow) skor += 100;
-  return skor;
-}
 async function cariGabung(q){
-  let pusat = await getPusat();
+  let pusat=pickupCoord||[-7.7956,110.3695];
   let [a,b,c]=await Promise.allSettled([cariEsri(q,pusat),cariNominatim(q,pusat),cariPhoton(q,pusat)]);
   let gabung=[];
   [a,b,c].forEach(r=>{ if(r.status==='fulfilled') gabung.push(...r.value); });
-  gabung = gabung.filter(it => cocokNama(it.nama, q));
+  let kata=q.toLowerCase().split(/\s+/).filter(w=>w.length>1);
+  gabung=gabung.filter(it=>{
+    let n=it.nama.toLowerCase();
+    return kata.every(k=>n.includes(k) || n.includes(k.slice(0,4)));
+  });
   let unik=[];
   gabung.forEach(it=>{
     let dupe=unik.some(u=>haversine(u.lat,u.lng,it.lat,it.lng)<0.2);
     if(!dupe) unik.push(it);
   });
-  unik.forEach(it=>{
-    it.jarak=haversine(pusat[0],pusat[1],it.lat,it.lng);
-    it.skor=hitungSkor(it,q,pusat);
-  });
-  unik.sort((x,y)=>{
-    if(y.skor !== x.skor) return y.skor - x.skor;
-    return x.jarak - y.jarak;
-  });
+  unik.forEach(it=>{ it.jarak=haversine(pusat[0],pusat[1],it.lat,it.lng); });
+  unik.sort((x,y)=>x.jarak-y.jarak);
   return unik.slice(0,10);
 }
 $('pickup').addEventListener('input',()=>{updateSwap();jadwalSaran('pickup');jadwalPreview();});
@@ -399,6 +384,15 @@ async function isiPenjemputanOtomatis(){
     updateSwap(); jadwalPreview(true);
   },()=>{ $('pickup').placeholder='Ketik / Pilih Lokasi Jemput...'; },{enableHighAccuracy:true,timeout:8000});
 }
+setInterval(async()=>{
+  let v=$('pickup').value.trim();
+  if(!v) return;
+  let jelek=v.includes('107.')||v.includes('-6.')||v.includes('-7.')||v.toLowerCase().includes('lokasi saya')||v.toLowerCase()==='test'||v.toLowerCase()==='astanaanyar';
+  if(jelek && pickupCoord){
+    let alamat=await reverseGeocode(pickupCoord[0],pickupCoord[1]);
+    if(alamat && alamat!=='Lokasi Saya Saat Ini') $('pickup').value=alamat;
+  }
+},2500);
 function openMap(tipe){
   mapMode=tipe;
   let cur=tipe==='pickup'?pickupCoord:destCoord;
@@ -436,7 +430,7 @@ function confirmMap(){
 function jadwalPreview(langsung){ clearTimeout(previewTimer); if(langsung) hitungPreview(); else previewTimer=setTimeout(hitungPreview,800); }
 async function hitungPreview(){
   let a=$('pickup').value.trim(), b=$('dest').value.trim();
-  if(!a||!b){ destCoord=null; $('ongkosPreview').style.display='none'; $('prevJarak').textContent='-'; $('prevEstimasi').textContent='-'; $('prevOngkos').textContent='-'; return; }
+  if(!a||!b){ $('ongkosPreview').style.display='none'; return; }
   if(a.includes('107.')||b.includes('107.')) return;
   $('ongkosPreview').style.display='block';
   $('prevJarak').textContent='Menghitung...';
@@ -456,261 +450,67 @@ async function hitungPreview(){
       let h=hitungOngkos(km);
       $('prevJarak').textContent='~ '+fmtJarak(route.distance);
       $('prevEstimasi').textContent='± '+fmtEstimasi(route.duration);
-      $('prevOngkos').textContent='ONGKOS '+fmtRp(h.ongkos);
+      $('prevOngkos').textContent='ONGKOS '+fmtRp(h.ongkos)+(h.min?' • Min. 10 km':'');
     }
   }catch(e){
     $('prevJarak').textContent='-'; $('prevEstimasi').textContent='-'; $('prevOngkos').textContent='-';
   }
 }
-function getDB(){ try{ return JSON.parse(localStorage.getItem('ammo_penumpang_db')||'[]'); }catch(e){ return []; } }
-function saveDB(db){ localStorage.setItem('ammo_penumpang_db', JSON.stringify(db)); }
-function getSesi(){ try{ return JSON.parse(localStorage.getItem('ammo_sesi')||'null'); }catch(e){ return null; } }
-function simpanOrderDanLanjut(){
-  let a=$('pickup').value.trim(), b=$('dest').value.trim();
-  let jarakKm=null, totalHarga=null;
+async function hitungRute(){
+  $('wDari').textContent=$('pickup').value;
+  $('wTujuan').textContent=$('dest').value;
+  $('wJarak').textContent='Menghitung...';
+  $('wEstimasi').textContent='Menghitung...';
+  $('wOngkos').textContent='Menghitung...';
+  if(!pickupCoord)pickupCoord=await geocodeAlamat($('pickup').value);
+  if(!destCoord)destCoord=await geocodeAlamat($('dest').value);
+  if(!pickupCoord||!destCoord){
+    $('wJarak').textContent='-'; $('wEstimasi').textContent='-'; $('wOngkos').textContent='-'; return;
+  }
   try{
-    if(pickupCoord && destCoord){
-      let kmRaw = haversine(pickupCoord[0], pickupCoord[1], destCoord[0], destCoord[1]);
-      let h = hitungOngkos(kmRaw);
-      jarakKm = h.kmTagih;
-      totalHarga = h.ongkos;
-    }
-  }catch(e){}
-  let sesi = getSesi();
-  localStorage.setItem('masphus_order', JSON.stringify({
-    asal:{nama:a, lat: pickupCoord ? pickupCoord[0] : null, lon: pickupCoord ? pickupCoord[1] : null},
-    tujuan:{nama:b, lat: destCoord ? destCoord[0] : null, lon: destCoord ? destCoord[1] : null},
-    waktu: Date.now(),
-    jarak_km: jarakKm,
-    total_harga: totalHarga,
-    jenis_layanan: 'Travel Reguler',
-    tanggal_berangkat: new Date().toISOString().slice(0,10),
-    nama_penumpang: sesi ? sesi.nama : null,
-    no_wa: sesi ? sesi.hp : null,
-    penumpang_id: localStorage.getItem('ammo_supabase_penumpang_id') || null
-  }));
-  sessionStorage.setItem('ammo_from_index', '1');
-  sessionStorage.removeItem('ammo_clear');
-  sessionStorage.removeItem('ammo_must_clear_dest');
-  window.location.href = 'penumpang.html';
+    let url=`https://router.project-osrm.org/route/v1/driving/${pickupCoord[1]},${pickupCoord[0]};${destCoord[1]},${destCoord[0]}?overview=false`;
+    let r=await fetch(url); let d=await r.json();
+    if(d.routes&&d.routes.length){
+      let route=d.routes[0];
+      let km=route.distance/1000;
+      let h=hitungOngkos(km);
+      $('wJarak').textContent='~ '+fmtJarak(route.distance);
+      $('wEstimasi').textContent='± '+fmtEstimasi(route.duration);
+      $('wOngkos').textContent=fmtRp(h.ongkos)+(h.min?' (Min. 10 km)':'');
+    }else{$('wJarak').textContent='-';$('wEstimasi').textContent='-';$('wOngkos').textContent='-';}
+  }catch(e){
+    $('wJarak').textContent='Gagal hitung rute'; $('wEstimasi').textContent='-'; $('wOngkos').textContent='-';
+  }
 }
-async function cekDriver(){
+function cekDriver(){
   let a=$('pickup').value.trim(), b=$('dest').value.trim();
   if(!a||!b){alert('Isi Penjemputan dan Tujuan dulu Bro!');return;}
-  let lastHp = localStorage.getItem('ammo_last_hp')||'';
-  let sesi = getSesi();
-  let hpCek = sesi ? sesi.hp : lastHp;
-  if(hpCek){
-    try{
-      let cek = await supabaseClient.from('penumpang').select('id,nama,no_wa').eq('no_wa', hpCek).maybeSingle();
-      if(cek.data){
-        let user = { nama: cek.data.nama, hp: cek.data.no_wa };
-        localStorage.setItem('ammo_sesi', JSON.stringify(user));
-        localStorage.setItem('ammo_last_hp', hpCek);
-        localStorage.setItem('ammo_supabase_penumpang_id', cek.data.id);
-        simpanOrderDanLanjut();
-        return;
-      }
-      localStorage.removeItem('ammo_sesi');
-    }catch(e){ console.log('cek penumpang error', e); }
-  }
-  bukaAkun();
+  if(!localStorage.getItem('ammo_sesi')){ openAkun(); alert('Login dulu ya bro, isi No WA + Password'); return; }
+  $('homePage').style.display='none';
+  $('bottomNav').style.display='none';
+  $('waitPage').style.display='block';
+  window.scrollTo(0,0);
+  hitungRute();
 }
-function tutupDaftar(){ $('daftarModal').classList.remove('show'); }
-async function daftarPenumpang(via){
-  if(via === 'Google'){
-    let a = $('pickup').value.trim(), b = $('dest').value.trim();
-    localStorage.setItem('ammo_pending_order', JSON.stringify({asal: a, tujuan: b}));
-    await supabaseClient.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } });
-    return;
-  }
-  let nama=$('namaDaftar').value.trim();
-  let hp=$('hpDaftar').value.trim();
-  if(!nama){ alert('Isi Nama dulu ya'); return; }
-  if(!hp){ alert('Isi No. WA dulu ya'); return; }
-  let db=getDB();
-  let user=db.find(u=>u.hp===hp);
-  if(!user){ user={nama:nama, hp:hp, via:via, created:Date.now()}; db.push(user); saveDB(db); }
-  else { user.nama=nama; user.via=via; saveDB(db); }
-  localStorage.setItem('ammo_sesi', JSON.stringify(user));
-  localStorage.setItem('ammo_last_hp', hp);
-  tutupDaftar();
-  try{ await syncPenumpangKeSupabase(nama, hp, via); }catch(e){ console.log('Supabase penumpang gagal:', e); }
-  simpanOrderDanLanjut();
+function backHome(){
+  $('waitPage').style.display='none';
+  $('homePage').style.display='block';
+  $('bottomNav').style.display='flex';
+  window.scrollTo(0,0);
 }
-(async function cekBalikanGoogle(){
-  try{
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if(session && session.user){
-      let namaGoogle = session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Penumpang';
-      let emailGoogle = session.user.email;
-      let user = { nama: namaGoogle, hp: localStorage.getItem('ammo_last_hp') || '', email: emailGoogle, via: 'Google' };
-      localStorage.setItem('ammo_sesi', JSON.stringify(user));
-      if(user.hp){ try{ await syncPenumpangKeSupabase(namaGoogle, user.hp, 'Google'); }catch(e){} }
-      let pending = localStorage.getItem('ammo_pending_order');
-      if(pending){
-        localStorage.removeItem('ammo_pending_order');
-        if(!user.hp){
-          let hp = prompt('Masukin No. WA kamu sekali aja buat dihubungi driver ya:');
-          if(hp){ localStorage.setItem('ammo_last_hp', hp); await syncPenumpangKeSupabase(namaGoogle, hp, 'Google'); }
-        }
-        simpanOrderDanLanjut();
-      }
-    }
-  }catch(e){ console.log('cek google', e); }
-})();
-// === AKUN BARU SESUAI GAMBAR ===
-function bukaAkun(){
-  let sesi = getSesi();
-  let lastHp = localStorage.getItem('ammo_last_hp')||'';
-  if(sesi && (sesi.nama || sesi.hp || lastHp)){
-    let nama = sesi.nama || 'Penumpang';
-    let hp = sesi.hp || lastHp || '-';
-    let email = sesi.email ? 'akun Google: ' + sesi.email : (sesi.via==='Google' ? 'akun Google: ' + (sesi.email||'-') : 'Login via WhatsApp');
-    $('akunNama').innerText = nama;
-    $('akunSub').innerHTML = hp + ' - Penumpang<br>' + email;
-    $('akunSudahLogin').style.display='block';
-    $('akunBelumLogin').style.display='none';
-  }else{
-    $('akunSudahLogin').style.display='none';
-    $('akunBelumLogin').style.display='block';
-    if(lastHp) $('loginWA').value = lastHp;
-  }
-  $('akunModal').classList.add('show');
+function openChat(){ $('chatModal').classList.add('show'); }
+function closeChat(){ $('chatModal').classList.remove('show'); }
+function chatAdmin(){
+  closeChat();
+  window.open('https://wa.me/6281234567890?text=Halo Admin Ammo Travel, saya mau tanya','_blank');
 }
-function tutupAkun(){ $('akunModal').classList.remove('show'); }
-function togglePass(){
-  let p = $('loginPass');
-  p.type = p.type==='password' ? 'text' : 'password';
+function chatDriver(){
+  if(!driverDitemukan){ alert('Chat Driver masih terkunci, tunggu driver ditemukan dulu ya Bro!'); return; }
+  closeChat();
+  alert('Chat Driver dibuka');
 }
-async function loginWA(){
-  let hp = $('loginWA').value.trim();
-  let pass = $('loginPass').value.trim();
-  if(!hp){ alert('Isi Nomor WA dulu ya'); return; }
-  if(!pass){ alert('Isi Password dulu ya'); return; }
-  try{
-    let cek = await supabaseClient.from('penumpang').select('id,nama,no_wa').eq('no_wa', hp).maybeSingle();
-    if(cek.data){
-      let user = { nama: cek.data.nama, hp: cek.data.no_wa, via: 'WA' };
-      localStorage.setItem('ammo_sesi', JSON.stringify(user));
-      localStorage.setItem('ammo_last_hp', hp);
-      localStorage.setItem('ammo_supabase_penumpang_id', cek.data.id);
-      localStorage.setItem('ammo_pass_'+hp, pass);
-      tutupAkun();
-      alert('Selamat datang kembali, ' + cek.data.nama + '!');
-      if($('pickup').value.trim() && $('dest').value.trim()){ simpanOrderDanLanjut(); }
-      else { location.reload(); }
-      return;
-    }else{
-      let namaBaru = prompt('WA belum terdaftar. Masukkan nama kamu buat daftar baru:');
-      if(!namaBaru) return;
-      let ins = await supabaseClient.from('penumpang').insert([{ nama: namaBaru, no_wa: hp, cara_daftar: 'WA', status: 'aktif' }]).select().single();
-      let idBaru = ins.data ? ins.data.id : null;
-      let user = { nama: namaBaru, hp: hp, via: 'WA' };
-      localStorage.setItem('ammo_sesi', JSON.stringify(user));
-      localStorage.setItem('ammo_last_hp', hp);
-      if(idBaru) localStorage.setItem('ammo_supabase_penumpang_id', idBaru);
-      localStorage.setItem('ammo_pass_'+hp, pass);
-      tutupAkun();
-      alert('Akun baru berhasil dibuat, selamat datang ' + namaBaru + '!');
-      if($('pickup').value.trim() && $('dest').value.trim()){ simpanOrderDanLanjut(); }
-      else { location.reload(); }
-    }
-  }catch(e){
-    console.log(e);
-    alert('Gagal login, coba lagi ya');
-  }
-}
-async function logoutAkun(){
-  if(confirm('Yakin mau logout?')){
-    try{ await supabaseClient.auth.signOut(); }catch(e){}
-    localStorage.removeItem('ammo_sesi');
-    localStorage.removeItem('ammo_last_hp');
-    localStorage.removeItem('ammo_supabase_penumpang_id');
-    tutupAkun();
-    location.reload();
-  }
-}
-let pendingRole=null, pinVal="", waTimer=null;
-const PIN_DRIVER="123456";
-const PIN_ADMIN="258000";
-function openChat(){ $('chatModal').classList.add('show'); $('chatView').style.display='block'; $('pinView').style.display='none'; }
-function closeChat(){ $('chatModal').classList.remove('show'); clearTimeout(waTimer); if($('waRow')) $('waRow').classList.remove('show'); backToChat(); }
-function sendChat(){
-  const inp=$('chatInput'); const txt=inp.value.trim(); if(!txt) return;
-  const log=$('chatLog'); const me=document.createElement('div'); me.className='chatBubble chatMe'; me.textContent=txt; log.appendChild(me); inp.value='';
-  const low=txt.toLowerCase();
-  if(low==='#driver'){ pendingRole='driver'; showPin(); return; }
-  if(low==='#admin'){ pendingRole='admin'; showPin(); return; }
-  clearTimeout(waTimer); $('waRow').classList.remove('show');
-  waTimer=setTimeout(()=>{ $('waRow').classList.add('show'); const b=document.createElement('div'); b.className='chatBubble'; b.textContent='CS lagi sibuk, silahkan hubungi Admin lewat WA ya.'; log.appendChild(b); },10000);
-}
-function showPin(){ pinVal=""; renderPin(); $('pinMsg').textContent=''; $('chatView').style.display='none'; $('pinView').style.display='block'; }
-function backToChat(){ pendingRole=null; pinVal=""; renderPin(); $('pinView').style.display='none'; $('chatView').style.display='block'; }
-function renderPin(){ document.querySelectorAll('.pinBox').forEach((el,i)=>{ el.textContent=pinVal[i]?'•':''; el.classList.toggle('filled',!!pinVal[i]); }); }
-function pressPin(n){ if(pinVal.length>=6) return; pinVal+=n; renderPin(); if(pinVal.length===6) checkPin(); }
-function delPin(){ pinVal=pinVal.slice(0,-1); renderPin(); }
-function clearPin(){ pinVal=""; renderPin(); }
-function checkPin(){
-  const ok=(pendingRole==='driver' && pinVal===PIN_DRIVER)||(pendingRole==='admin' && pinVal===PIN_ADMIN);
-  if(ok){ if(pendingRole==='driver') window.location.href='driver.html'; else window.location.href='admin.html'; }
-  else{ $('pinMsg').textContent='PIN salah, coba lagi.'; setTimeout(()=>{ pinVal=""; renderPin(); $('pinMsg').textContent=''; },600); }
-}
-if($('chatSend')) $('chatSend').onclick=sendChat;
-if($('chatInput')) $('chatInput').addEventListener('keydown',e=>{ if(e.key==='Enter') sendChat(); });
-if($('chatModal')) $('chatModal').addEventListener('click',e=>{ if(e.target.id==='chatModal') closeChat(); });
-function kosongkanTujuan(){
-  $('dest').value = '';
-  destCoord = null;
-  $('saranDest').style.display = 'none';
-  $('ongkosPreview').style.display = 'none';
-  localStorage.removeItem('masphus_order');
-  updateSwap();
-}
-function resetIndex(){
-  let harusKosong = sessionStorage.getItem('ammo_clear')==='1' || sessionStorage.getItem('ammo_must_clear_dest')==='1' || sessionStorage.getItem('ammo_from_index')==='1' || localStorage.getItem('masphus_order') || (document.referrer && document.referrer.indexOf('penumpang')!==-1);
-  if(harusKosong){
-    kosongkanTujuan();
-    sessionStorage.removeItem('ammo_clear');
-    sessionStorage.removeItem('ammo_must_clear_dest');
-    sessionStorage.removeItem('ammo_from_index');
-  }
-}
-resetIndex();
-window.addEventListener('pageshow', function(){
-  kosongkanTujuan();
-  sessionStorage.removeItem('ammo_clear');
-  sessionStorage.removeItem('ammo_must_clear_dest');
-  sessionStorage.removeItem('ammo_from_index');
-  if(!$('pickup').value.trim()) isiPenjemputanOtomatis();
-});
-setTimeout(kosongkanTujuan, 100);
-setTimeout(function(){
-  if(sessionStorage.getItem('ammo_clear')==='1' || sessionStorage.getItem('ammo_must_clear_dest')==='1') kosongkanTujuan();
-}, 500);
+updateBtnAkun();
 isiPenjemputanOtomatis();
-</script>
-<!-- === AMMO x SUPABASE - JANGAN DIHAPUS === -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
-const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-async function syncPenumpangKeSupabase(nama, hp, via){
-  if(!hp) return null;
-  try{
-    let cek = await supabaseClient.from('penumpang').select('id').eq('no_wa', hp).maybeSingle();
-    if(cek.data && cek.data.id){
-      await supabaseClient.from('penumpang').update({ nama: nama, cara_daftar: via || 'web', status: 'aktif' }).eq('id', cek.data.id);
-      localStorage.setItem('ammo_supabase_penumpang_id', cek.data.id);
-      return cek.data.id;
-    }
-    let ins = await supabaseClient.from('penumpang').insert([{ nama: nama, no_wa: hp, email: null, cara_daftar: via || 'web', status: 'aktif' }]).select().single();
-    if(ins.error) throw ins.error;
-    if(ins.data && ins.data.id) localStorage.setItem('ammo_supabase_penumpang_id', ins.data.id);
-    return ins.data ? ins.data.id : null;
-  }catch(e){ console.log('syncPenumpang error', e); return null; }
-}
 </script>
 </body>
 </html>
