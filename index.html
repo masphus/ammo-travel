@@ -36,7 +36,7 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 .ongkos-preview .total{font-size:22px;font-weight:bold;color:#0a3d1f;white-space:nowrap}
 .btn-cek{display:block;width:calc(100% - 32px);margin:14px 16px 0;background:#00a651;color:#fff;border:none;border-radius:10px;padding:16px;font-size:22px;font-weight:bold;cursor:pointer}
 .chat-row{display:flex;justify-content:flex-end;padding:12px 16px 0}
-.chat{position:static;width:58px;height:58px;background:#00a651;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.25);border:2px solid #fff;position:relative;flex-shrink:0}
+.chat{width:58px;height:58px;background:#00a651;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.25);border:2px solid #fff;position:relative;flex-shrink:0}
 .chat i{position:absolute;top:6px;right:8px;width:12px;height:12px;background:red;border-radius:50%}
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#eee;display:flex;justify-content:space-around;padding:10px 0 12px;border-top:1px solid #ddd;z-index:20}
 .nav div{text-align:center;font-size:14px;color:#777;cursor:pointer}
@@ -332,11 +332,9 @@ async function hitungPreview(){
     $('prevJarak').textContent='-'; $('prevEstimasi').textContent='-'; $('prevOngkos').textContent='-';
   }
 }
-// === PINDAH KE PENUMPANG - CUMA INI AJA, GAK ADA PRIORITAS DI SINI ===
 function cekDriver(){
   let a=$('pickup').value.trim(), b=$('dest').value.trim();
   if(!a||!b){alert('Isi Penjemputan dan Tujuan dulu Bro!');return;}
-  // Simpan rute biar penumpang.html bisa baca
   localStorage.setItem('masphus_order', JSON.stringify({
     asal:{nama:a, lat: pickupCoord ? pickupCoord[0] : null, lon: pickupCoord ? pickupCoord[1] : null},
     tujuan:{nama:b, lat: destCoord ? destCoord[0] : null, lon: destCoord ? destCoord[1] : null},
@@ -353,6 +351,24 @@ function chatAdmin(){
 function chatDriver(){
   alert('Chat Driver masih terkunci, tunggu driver ditemukan dulu ya Bro!');
 }
+// === RESET INDEX: BALIK DARI PENUMPANG, TUJUAN HARUS KOSONG ===
+function resetIndex(){
+  if(sessionStorage.getItem('ammo_clear') === '1'){
+    sessionStorage.removeItem('ammo_clear');
+    localStorage.removeItem('masphus_order');
+    $('dest').value = '';
+    destCoord = null;
+    $('pickup').value = '';
+    pickupCoord = null;
+    $('ongkosPreview').style.display = 'none';
+    updateSwap();
+    isiPenjemputanOtomatis();
+  } else {
+    localStorage.removeItem('masphus_order');
+    if(!$('dest').value){ $('dest').value=''; destCoord=null; }
+  }
+}
+resetIndex();
 isiPenjemputanOtomatis();
 </script>
 </body>
