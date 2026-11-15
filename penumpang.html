@@ -78,13 +78,9 @@ header b{font-size:22px;color:#fff}
 </div>
 <div class="title" id="waitTitle">Mencari Driver...</div>
 <p class="sub" id="waitSub">Kami sedang mencari driver terdekat untukmu</p>
-
-<!-- TOMBOL PRIORITAS - TULISAN CUKUP SEGINI -->
 <button class="btn-prioritas" id="btnPrioritas" onclick="upgradePrioritas()">⚡ UPGRADE KE PRIORITAS</button>
 <button class="btn-prioritas-found" id="btnPrioritasFound" onclick="upgradePrioritas()">⚡ UPGRADE KE PRIORITAS</button>
-<!-- KETERANGAN DI BAWAH TOMBOL PRIORITAS -->
 <p class="prioritas-note" id="prioritasNote">Dengan Upgrade ke Prioritas Anda akan mendapatkan Pelayanan yang diutamakan</p>
-
 <div class="card">
 <h2>📍 Rute Perjalanan</h2>
 <div class="route"><small>Dari</small><b id="wDari">Memuat...</b><br><br><small>Ke</small><b id="wTujuan">Memuat...</b></div>
@@ -138,6 +134,7 @@ let driverDitemukan = false;
 let etaInterval = null;
 let etaDetik = 0;
 let namaDriverAktif = 'Budi Santoso';
+let bolehKeluar = false;
 document.getElementById('wDari').textContent = ASAL_NAMA;
 document.getElementById('wTujuan').textContent = TUJUAN_NAMA;
 document.getElementById('chatRute').textContent = ASAL_NAMA + ' → ' + TUJUAN_NAMA;
@@ -261,11 +258,8 @@ function kirimNotifKeDriver(pesan){
   }
   console.log('[NOTIF KE DRIVER - ' + namaDriverAktif + ']: ' + pesan);
 }
-function kembaliKeIndex(){
-  if(!saved && !driverDitemukan){
-    bersihkanDanKembali();
-    return;
-  }
+// === KUNCI BACK: PENUMPANG DICEGEAH KEMBALI SEBELUM MEMILIH ===
+function tampilkanNotifKembali(){
   if(driverDitemukan){
     document.getElementById('teksKembali').innerHTML = 'Driver <b>' + namaDriverAktif + '</b> sudah OTW ke titik jemputmu.<br>Yakin ingin membatalkan perjalanan ini?';
   } else {
@@ -273,8 +267,28 @@ function kembaliKeIndex(){
   }
   document.getElementById('modalKembali').classList.add('show');
 }
+// Pas masuk halaman penumpang, langsung kunci history biar Back HP ketahan
+history.pushState({page:'penumpang'}, '', location.href);
+history.pushState({page:'penumpang-lock'}, '', location.href);
+window.addEventListener('popstate', function(e){
+  // Kalau user udah milih "Ya, Batalkan" / udah selesai batal, boleh keluar
+  if(bolehKeluar) return;
+  // Kalau belum milih, TAHAN! Balikin lagi ke halaman penumpang + munculin notif
+  history.pushState({page:'penumpang-lock'}, '', location.href);
+  tampilkanNotifKembali();
+});
+function kembaliKeIndex(){
+  // Tombol ← di dalam aplikasi juga sama: tahan dulu, munculin notif
+  if(!saved && !driverDitemukan){
+    bersihkanDanKembali();
+    return;
+  }
+  tampilkanNotifKembali();
+}
 function konfirmasiKembaliLanjut(){
+  // LANJUTKAN -> TUTUP NOTIF, TETEP DI HALAMAN PENUMPANG, KUNCI LAGI BIAR BACK BERIKUTNYA JUGA KETAHAN
   document.getElementById('modalKembali').classList.remove('show');
+  history.pushState({page:'penumpang-lock'}, '', location.href);
 }
 function konfirmasiKembaliYa(){
   document.getElementById('modalKembali').classList.remove('show');
@@ -300,6 +314,7 @@ function selesaiBatalKeIndex(){
   bersihkanDanKembali();
 }
 function bersihkanDanKembali(){
+  bolehKeluar = true;
   localStorage.removeItem('masphus_order');
   sessionStorage.setItem('ammo_clear', '1');
   sessionStorage.setItem('ammo_must_clear_dest', '1');
