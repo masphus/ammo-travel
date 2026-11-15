@@ -423,10 +423,27 @@ function saveDB(db){ localStorage.setItem('ammo_penumpang_db', JSON.stringify(db
 function getSesi(){ try{ return JSON.parse(localStorage.getItem('ammo_sesi')||'null'); }catch(e){ return null; } }
 function simpanOrderDanLanjut(){
   let a=$('pickup').value.trim(), b=$('dest').value.trim();
+  let jarakKm=null, totalHarga=null;
+  try{
+    if(pickupCoord && destCoord){
+      let kmRaw = haversine(pickupCoord[0], pickupCoord[1], destCoord[0], destCoord[1]);
+      let h = hitungOngkos(kmRaw);
+      jarakKm = h.kmTagih;
+      totalHarga = h.ongkos;
+    }
+  }catch(e){}
+  let sesi = getSesi();
   localStorage.setItem('masphus_order', JSON.stringify({
     asal:{nama:a, lat: pickupCoord ? pickupCoord[0] : null, lon: pickupCoord ? pickupCoord[1] : null},
     tujuan:{nama:b, lat: destCoord ? destCoord[0] : null, lon: destCoord ? destCoord[1] : null},
-    waktu: Date.now()
+    waktu: Date.now(),
+    jarak_km: jarakKm,
+    total_harga: totalHarga,
+    jenis_layanan: 'Travel Reguler',
+    tanggal_berangkat: new Date().toISOString().slice(0,10),
+    nama_penumpang: sesi ? sesi.nama : null,
+    no_wa: sesi ? sesi.hp : null,
+    penumpang_id: localStorage.getItem('ammo_supabase_penumpang_id') || null
   }));
   sessionStorage.setItem('ammo_from_index', '1');
   sessionStorage.removeItem('ammo_clear');
@@ -448,7 +465,7 @@ function cekDriver(){
   if(lastHp) $('hpDaftar').value = lastHp;
 }
 function tutupDaftar(){ $('daftarModal').classList.remove('show'); }
-function daftarPenumpang(via){
+async function daftarPenumpang(via){
   let nama=$('namaDaftar').value.trim();
   let hp=$('hpDaftar').value.trim();
   if(!nama){ alert('Isi Nama dulu ya'); return; }
@@ -456,10 +473,11 @@ function daftarPenumpang(via){
   let db=getDB();
   let user=db.find(u=>u.hp===hp);
   if(!user){ user={nama:nama, hp:hp, via:via, created:Date.now()}; db.push(user); saveDB(db); }
-  else { user.nama=nama; saveDB(db); }
+  else { user.nama=nama; user.via=via; saveDB(db); }
   localStorage.setItem('ammo_sesi', JSON.stringify(user));
   localStorage.setItem('ammo_last_hp', hp);
   tutupDaftar();
+  try{ await syncPenumpangKeSupabase(nama, hp, via); }catch(e){ console.log('Supabase penumpang gagal:', e); }
   simpanOrderDanLanjut();
 }
 let pendingRole=null, pinVal="", waTimer=null;
@@ -520,6 +538,28 @@ setTimeout(function(){
   if(sessionStorage.getItem('ammo_clear')==='1' || sessionStorage.getItem('ammo_must_clear_dest')==='1') kosongkanTujuan();
 }, 500);
 isiPenjemputanOtomatis();
+</script>
+<!-- === AMMO x SUPABASE - JANGAN DIHAPUS === -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://xxtgnohxdztsiuwbfxap.supabase.co";
+const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+async function syncPenumpangKeSupabase(nama, hp, via){
+  if(!hp) return null;
+  try{
+    let cek = await supabaseClient.from('penumpang').select('id').eq('no_wa', hp).maybeSingle();
+    if(cek.data && cek.data.id){
+      await supabaseClient.from('penumpang').update({ nama: nama, cara_daftar: via || 'web', status: 'aktif' }).eq('id', cek.data.id);
+      localStorage.setItem('ammo_supabase_penumpang_id', cek.data.id);
+      return cek.data.id;
+    }
+    let ins = await supabaseClient.from('penumpang').insert([{ nama: nama, no_wa: hp, email: null, cara_daftar: via || 'web', status: 'aktif' }]).select().single();
+    if(ins.error) throw ins.error;
+    if(ins.data && ins.data.id) localStorage.setItem('ammo_supabase_penumpang_id', ins.data.id);
+    return ins.data ? ins.data.id : null;
+  }catch(e){ console.log('syncPenumpang error', e); return null; }
+}
 </script>
 </body>
 </html>
