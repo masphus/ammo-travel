@@ -55,6 +55,27 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 .chat-opt b{font-size:16px;display:block}
 .chat-opt small{font-size:14px;color:#555}
 .chat-close{display:block;width:100%;margin-top:6px;padding:12px;border:none;border-radius:10px;background:#eee;font-weight:bold;font-size:16px;cursor:pointer}
+/* === BARU: CHAT DENGAN CS + PIN EMAS HITAM === */
+.chatBubble{background:#f1f1f1;padding:12px 14px;border-radius:16px;margin:8px 0;max-width:88%;font-size:15px;line-height:1.4}
+.chatMe{background:#d9f2e3;margin-left:auto;text-align:right}
+#chatInputRow{display:flex;gap:8px;margin-top:10px}
+#chatInput{flex:1;border:1px solid #ddd;border-radius:999px;padding:11px 14px;font-size:15px;outline:none}
+#chatSend{border:none;background:#00a651;color:#fff;width:46px;height:46px;border-radius:50%;font-size:19px;cursor:pointer;flex-shrink:0}
+.waRow{display:none;gap:10px;margin-top:12px}
+.waRow.show{display:flex}
+.waBtn{flex:1;text-align:center;text-decoration:none;padding:12px 6px;border-radius:12px;font-weight:700;font-size:14px}
+.waAdmin{background:#00a651;color:#fff}
+.waCall{background:#111;color:#d4af37;border:2px solid #d4af37}
+#pinView{display:none;text-align:center}
+.pinTitle{font-weight:800;font-size:19px;margin:6px 0 14px}
+.pinBoxes{display:flex;gap:8px;justify-content:center;margin-bottom:14px}
+.pinBox{width:44px;height:52px;background:#111;border:2px solid #d4af37;border-radius:8px;color:#d4af37;font-size:24px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.pinBox.filled{background:#d4af37;color:#111}
+.pinPad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:260px;margin:0 auto}
+.pinKey{background:#111;color:#d4af37;border:2px solid #d4af37;border-radius:10px;padding:14px 0;font-size:22px;font-weight:800;cursor:pointer}
+.pinKey:active{background:#d4af37;color:#111}
+#pinMsg{color:#c00;font-size:13px;min-height:18px;margin:8px 0}
+.pinBack{margin-top:14px;background:#eee;border:none;padding:11px 16px;border-radius:10px;font-weight:700;width:100%;cursor:pointer}
 </style>
 </head>
 <body>
@@ -88,10 +109,37 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 <div><span>👤</span>Akun</div>
 </div>
 <div id="chatModal" class="chat-modal"><div class="chat-box">
-<h3>💬 Mau Chat Kemana?</h3>
-<div class="chat-opt" onclick="chatAdmin()"><span style="font-size:28px">🧑‍💼</span><div><b>Chat Admin</b><small>Tanya harga, jadwal, & bantuan</small></div></div>
-<div class="chat-opt lock" id="chatDriverOpt" onclick="chatDriver()"><span style="font-size:28px">🚗</span><div><b>Chat Driver</b><small id="chatDriverText">Terkunci - tunggu driver ditemukan</small></div></div>
+<h3>💬 Chat dengan CS</h3>
+<div id="chatView">
+<div id="chatLog"><div class="chatBubble">Halo! Mau tanya apa?</div></div>
+<div id="chatInputRow"><input id="chatInput" placeholder="Ketik pesan..." autocomplete="off"><button id="chatSend">➤</button></div>
+<div style="font-size:12px;color:#888;margin-top:6px">Respon dalam ±10 detik • CS online</div>
+<div id="waRow" class="waRow">
+<a class="waBtn waAdmin" target="_blank" href="https://wa.me/6285890711111?text=Halo%20Admin%20Ammo%20Travel%2C%20mau%20tanya...">💬 WA Admin</a>
+<a class="waBtn waCall" target="_blank" href="https://wa.me/6285890711111?text=Halo%20Admin%2C%20mau%20telpon%20lewat%20WA...">📞 Call Admin via WA</a>
+</div>
 <button class="chat-close" onclick="closeChat()">Tutup</button>
+</div>
+<div id="pinView">
+<div class="pinTitle">Masukkan PIN</div>
+<div class="pinBoxes"><div class="pinBox"></div><div class="pinBox"></div><div class="pinBox"></div><div class="pinBox"></div><div class="pinBox"></div><div class="pinBox"></div></div>
+<div id="pinMsg"></div>
+<div class="pinPad">
+<button class="pinKey" onclick="pressPin('1')">1</button>
+<button class="pinKey" onclick="pressPin('2')">2</button>
+<button class="pinKey" onclick="pressPin('3')">3</button>
+<button class="pinKey" onclick="pressPin('4')">4</button>
+<button class="pinKey" onclick="pressPin('5')">5</button>
+<button class="pinKey" onclick="pressPin('6')">6</button>
+<button class="pinKey" onclick="pressPin('7')">7</button>
+<button class="pinKey" onclick="pressPin('8')">8</button>
+<button class="pinKey" onclick="pressPin('9')">9</button>
+<button class="pinKey" onclick="delPin()">⌫</button>
+<button class="pinKey" onclick="pressPin('0')">0</button>
+<button class="pinKey" onclick="clearPin()">C</button>
+</div>
+<button class="pinBack" onclick="backToChat()">← Kembali ke Chat</button>
+</div>
 </div></div>
 <div id="mapModal" class="map-modal"><div class="map-box"><div id="map"></div><div id="mapAddr" class="map-addr">Memuat alamat...</div><div class="map-btns"><button style="background:#eee" onclick="closeMap()">Batal</button><button style="background:#00a651;color:#fff" onclick="confirmMap()">OK, Pakai Lokasi Ini</button></div></div></div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -374,15 +422,35 @@ function cekDriver(){
   sessionStorage.removeItem('ammo_must_clear_dest');
   window.location.href = 'penumpang.html';
 }
-function openChat(){ $('chatModal').classList.add('show'); }
-function closeChat(){ $('chatModal').classList.remove('show'); }
-function chatAdmin(){
-  closeChat();
-  window.open('https://wa.me/6281234567890?text=Halo Admin Ammo Travel, saya mau tanya','_blank');
+/* === PINTU RAHASIA - CUMA CHAT YANG DIUBAH === */
+let pendingRole=null, pinVal="", waTimer=null;
+const PIN_DRIVER="123456";
+const PIN_ADMIN="258000";
+function openChat(){ $('chatModal').classList.add('show'); $('chatView').style.display='block'; $('pinView').style.display='none'; }
+function closeChat(){ $('chatModal').classList.remove('show'); clearTimeout(waTimer); if($('waRow')) $('waRow').classList.remove('show'); backToChat(); }
+function sendChat(){
+  const inp=$('chatInput'); const txt=inp.value.trim(); if(!txt) return;
+  const log=$('chatLog'); const me=document.createElement('div'); me.className='chatBubble chatMe'; me.textContent=txt; log.appendChild(me); inp.value='';
+  const low=txt.toLowerCase();
+  if(low==='#driver'){ pendingRole='driver'; showPin(); return; }
+  if(low==='#admin'){ pendingRole='admin'; showPin(); return; }
+  clearTimeout(waTimer); $('waRow').classList.remove('show');
+  waTimer=setTimeout(()=>{ $('waRow').classList.add('show'); const b=document.createElement('div'); b.className='chatBubble'; b.textContent='CS lagi sibuk, silahkan hubungi Admin lewat WA ya.'; log.appendChild(b); },10000);
 }
-function chatDriver(){
-  alert('Chat Driver masih terkunci, tunggu driver ditemukan dulu ya Bro!');
+function showPin(){ pinVal=""; renderPin(); $('pinMsg').textContent=''; $('chatView').style.display='none'; $('pinView').style.display='block'; }
+function backToChat(){ pendingRole=null; pinVal=""; renderPin(); $('pinView').style.display='none'; $('chatView').style.display='block'; }
+function renderPin(){ document.querySelectorAll('.pinBox').forEach((el,i)=>{ el.textContent=pinVal[i]?'•':''; el.classList.toggle('filled',!!pinVal[i]); }); }
+function pressPin(n){ if(pinVal.length>=6) return; pinVal+=n; renderPin(); if(pinVal.length===6) checkPin(); }
+function delPin(){ pinVal=pinVal.slice(0,-1); renderPin(); }
+function clearPin(){ pinVal=""; renderPin(); }
+function checkPin(){
+  const ok=(pendingRole==='driver' && pinVal===PIN_DRIVER)||(pendingRole==='admin' && pinVal===PIN_ADMIN);
+  if(ok){ if(pendingRole==='driver') window.location.href='driver.html'; else window.location.href='admin.html'; }
+  else{ $('pinMsg').textContent='PIN salah, coba lagi.'; setTimeout(()=>{ pinVal=""; renderPin(); $('pinMsg').textContent=''; },600); }
 }
+if($('chatSend')) $('chatSend').onclick=sendChat;
+if($('chatInput')) $('chatInput').addEventListener('keydown',e=>{ if(e.key==='Enter') sendChat(); });
+if($('chatModal')) $('chatModal').addEventListener('click',e=>{ if(e.target.id==='chatModal') closeChat(); });
 function kosongkanTujuan(){
   $('dest').value = '';
   destCoord = null;
@@ -402,7 +470,6 @@ function resetIndex(){
 }
 resetIndex();
 window.addEventListener('pageshow', function(){
-  // Balik dari penumpang via Back HP / BFCache -> Tujuan WAJIB KOSONG
   kosongkanTujuan();
   sessionStorage.removeItem('ammo_clear');
   sessionStorage.removeItem('ammo_must_clear_dest');
