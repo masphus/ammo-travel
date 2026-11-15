@@ -64,13 +64,13 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 <div class="pilih-lokasi" onclick="isiPenjemputanOtomatis();openMap('pickup')">📍 Pilih Lokasi</div>
 </div>
 <div class="title"><h1>Mau Pergi Kemana Hari Ini?</h1></div>
-<div class="form">
+<div class="form" autocomplete="off">
 <div class="lbl">Penjemputan</div>
 <div class="row"><span class="pin">📍</span><input id="pickup" placeholder="Ketik / Pilih Lokasi Jemput..." autocomplete="off"><button class="btn-map" onclick="openMap('pickup')">📍 Pilih di Peta</button></div>
 <div id="saranPick" class="saran-box"></div>
 <div class="swap-wrap"><button id="swapBtn" class="swap-btn" onclick="swapLokasi()" disabled title="Tukar Penjemputan & Tujuan">⇅</button></div>
 <div class="lbl">Tujuan</div>
-<div class="row"><span class="pin">📍</span><input id="dest" placeholder="Ketik / Pilih Tujuan..." autocomplete="off"><button class="btn-map" onclick="openMap('dest')">📍 Pilih di Peta</button></div>
+<div class="row"><span class="pin">📍</span><input id="dest" placeholder="Ketik / Pilih Tujuan..." autocomplete="off" value=""><button class="btn-map" onclick="openMap('dest')">📍 Pilih di Peta</button></div>
 <div id="saranDest" class="saran-box"></div>
 <div id="ongkosPreview" class="ongkos-preview">
 <h3>💰 Estimasi Ongkos</h3>
@@ -96,8 +96,20 @@ html,body{width:100%;overflow-x:hidden;background:#f2f2f2;font-family:Arial,sans
 <div id="mapModal" class="map-modal"><div class="map-box"><div id="map"></div><div id="mapAddr" class="map-addr">Memuat alamat...</div><div class="map-btns"><button style="background:#eee" onclick="closeMap()">Batal</button><button style="background:#00a651;color:#fff" onclick="confirmMap()">OK, Pakai Lokasi Ini</button></div></div></div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+// === PALING PENTING: KOSONGKAN TUJUAN SEBELUM BROWSER RESTORE ===
+(function(){
+  try{
+    var harusKosong = sessionStorage.getItem('ammo_clear')==='1' || sessionStorage.getItem('ammo_must_clear_dest')==='1' || sessionStorage.getItem('ammo_from_index')==='1' || localStorage.getItem('masphus_order') || (document.referrer && document.referrer.indexOf('penumpang')!==-1);
+    if(harusKosong){
+      var d = document.getElementById('dest');
+      if(d) d.value='';
+      var o = document.getElementById('ongkosPreview');
+      if(o) o.style.display='none';
+    }
+  }catch(e){}
+})();
 let pickupCoord=null, destCoord=null, mapMode='pickup';
-let map=null, marker=null, tempLat=-7.7956, tempLng=110.3695, tempAddr='Lokasi Saya Saat Ini';
+let map=null, marker=null, tempLat=-6.9175, tempLng=107.6191, tempAddr='Lokasi Saya Saat Ini';
 let previewTimer=null, saranTimer=null;
 const $=id=>document.getElementById(id);
 const fmtRp=n=>'Rp. '+Math.round(n).toLocaleString('id-ID');
@@ -148,20 +160,24 @@ async function geocodeAlamat(q){
   if(hasil.length) return [hasil[0].lat,hasil[0].lng];
   return null;
 }
+async function getPusat(){
+  if(pickupCoord) return pickupCoord;
+  let txt = $('pickup').value.trim();
+  if(txt && txt.length>3 && !txt.includes('107.')){
+    try{
+      let r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=id&q=${encodeURIComponent(txt)}`);
+      let d = await r.json();
+      if(d.length) return [parseFloat(d[0].lat), parseFloat(d[0].lon)];
+    }catch(e){}
+  }
+  return [-6.9175, 107.6191];
+}
 async function cariEsri(q, pusat){
   try{
-    let qPendek=q.replace(/masjid|alfamart|indomaret|puskesmas|sekolah|kantor|toko/gi,'').trim()||q;
-    let url=`https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&SingleLine=${encodeURIComponent(q+', Indonesia')}&maxLocations=10&outFields=Match_addr,Addr_type&outSR=4326`;
+    let url=`https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&SingleLine=${encodeURIComponent(q+', Indonesia')}&maxLocations=10&outFields=Match_addr,Addr_type&outSR=4326&location=${pusat[1]},${pusat[0]}`;
     let r=await fetch(url); let d=await r.json();
     let out=[];
     (d.candidates||[]).forEach(c=>{
-      if(!c.location) return;
-      out.push({nama:c.address||c.Match_addr, lat:c.location.y, lng:c.location.x, sumber:'esri'});
-    });
-    if(out.length) return out;
-    let r2=await fetch(`https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&SingleLine=${encodeURIComponent(qPendek+', Indonesia')}&maxLocations=10&outFields=Match_addr,Addr_type&outSR=4326`);
-    let d2=await r2.json();
-    (d2.candidates||[]).forEach(c=>{
       if(!c.location) return;
       out.push({nama:c.address||c.Match_addr, lat:c.location.y, lng:c.location.x, sumber:'esri'});
     });
@@ -190,23 +206,45 @@ async function cariPhoton(q, pusat){
     return out;
   }catch(e){ return []; }
 }
+function cocokNama(nama, query){
+  let n = nama.toLowerCase();
+  let kataQ = query.toLowerCase().split(/\s+/).filter(w=>w.length>1);
+  let kataN = n.split(/[^a-z0-9]+/).filter(Boolean);
+  return kataQ.every(qw=>{
+    if(n.includes(qw)) return true;
+    return kataN.some(kn => kn.startsWith(qw) && qw.length>=3);
+  });
+}
+function hitungSkor(it, q, pusat){
+  let nama = it.nama.toLowerCase();
+  let qLow = q.toLowerCase().trim();
+  let skor = 0;
+  if(nama.startsWith(qLow)) skor += 100;
+  else if(nama.includes(' '+qLow) || nama.includes(qLow+',')) skor += 80;
+  else if(nama.includes(qLow)) skor += 40;
+  let kataPertama = nama.split(/[^a-z0-9]+/)[0] || '';
+  if(kataPertama === qLow) skor += 100;
+  return skor;
+}
 async function cariGabung(q){
-  let pusat=pickupCoord||[-7.7956,110.3695];
+  let pusat = await getPusat();
   let [a,b,c]=await Promise.allSettled([cariEsri(q,pusat),cariNominatim(q,pusat),cariPhoton(q,pusat)]);
   let gabung=[];
   [a,b,c].forEach(r=>{ if(r.status==='fulfilled') gabung.push(...r.value); });
-  let kata=q.toLowerCase().split(/\s+/).filter(w=>w.length>1);
-  gabung=gabung.filter(it=>{
-    let n=it.nama.toLowerCase();
-    return kata.every(k=>n.includes(k) || n.includes(k.slice(0,4)));
-  });
+  gabung = gabung.filter(it => cocokNama(it.nama, q));
   let unik=[];
   gabung.forEach(it=>{
     let dupe=unik.some(u=>haversine(u.lat,u.lng,it.lat,it.lng)<0.2);
     if(!dupe) unik.push(it);
   });
-  unik.forEach(it=>{ it.jarak=haversine(pusat[0],pusat[1],it.lat,it.lng); });
-  unik.sort((x,y)=>x.jarak-y.jarak);
+  unik.forEach(it=>{
+    it.jarak=haversine(pusat[0],pusat[1],it.lat,it.lng);
+    it.skor=hitungSkor(it,q,pusat);
+  });
+  unik.sort((x,y)=>{
+    if(y.skor !== x.skor) return y.skor - x.skor;
+    return x.jarak - y.jarak;
+  });
   return unik.slice(0,10);
 }
 $('pickup').addEventListener('input',()=>{updateSwap();jadwalSaran('pickup');jadwalPreview();});
@@ -260,15 +298,6 @@ async function isiPenjemputanOtomatis(){
     updateSwap(); jadwalPreview(true);
   },()=>{ $('pickup').placeholder='Ketik / Pilih Lokasi Jemput...'; },{enableHighAccuracy:true,timeout:8000});
 }
-setInterval(async()=>{
-  let v=$('pickup').value.trim();
-  if(!v) return;
-  let jelek=v.includes('107.')||v.includes('-6.')||v.includes('-7.')||v.toLowerCase().includes('lokasi saya')||v.toLowerCase()==='test'||v.toLowerCase()==='astanaanyar';
-  if(jelek && pickupCoord){
-    let alamat=await reverseGeocode(pickupCoord[0],pickupCoord[1]);
-    if(alamat && alamat!=='Lokasi Saya Saat Ini') $('pickup').value=alamat;
-  }
-},2500);
 function openMap(tipe){
   mapMode=tipe;
   let cur=tipe==='pickup'?pickupCoord:destCoord;
@@ -340,6 +369,9 @@ function cekDriver(){
     tujuan:{nama:b, lat: destCoord ? destCoord[0] : null, lon: destCoord ? destCoord[1] : null},
     waktu: Date.now()
   }));
+  sessionStorage.setItem('ammo_from_index', '1');
+  sessionStorage.removeItem('ammo_clear');
+  sessionStorage.removeItem('ammo_must_clear_dest');
   window.location.href = 'penumpang.html';
 }
 function openChat(){ $('chatModal').classList.add('show'); }
@@ -351,24 +383,36 @@ function chatAdmin(){
 function chatDriver(){
   alert('Chat Driver masih terkunci, tunggu driver ditemukan dulu ya Bro!');
 }
-// === RESET INDEX: BALIK DARI PENUMPANG, TUJUAN HARUS KOSONG ===
+function kosongkanTujuan(){
+  $('dest').value = '';
+  destCoord = null;
+  $('saranDest').style.display = 'none';
+  $('ongkosPreview').style.display = 'none';
+  localStorage.removeItem('masphus_order');
+  updateSwap();
+}
 function resetIndex(){
-  if(sessionStorage.getItem('ammo_clear') === '1'){
+  let harusKosong = sessionStorage.getItem('ammo_clear')==='1' || sessionStorage.getItem('ammo_must_clear_dest')==='1' || sessionStorage.getItem('ammo_from_index')==='1' || localStorage.getItem('masphus_order') || (document.referrer && document.referrer.indexOf('penumpang')!==-1);
+  if(harusKosong){
+    kosongkanTujuan();
     sessionStorage.removeItem('ammo_clear');
-    localStorage.removeItem('masphus_order');
-    $('dest').value = '';
-    destCoord = null;
-    $('pickup').value = '';
-    pickupCoord = null;
-    $('ongkosPreview').style.display = 'none';
-    updateSwap();
-    isiPenjemputanOtomatis();
-  } else {
-    localStorage.removeItem('masphus_order');
-    if(!$('dest').value){ $('dest').value=''; destCoord=null; }
+    sessionStorage.removeItem('ammo_must_clear_dest');
+    sessionStorage.removeItem('ammo_from_index');
   }
 }
 resetIndex();
+window.addEventListener('pageshow', function(){
+  // Balik dari penumpang via Back HP / BFCache -> Tujuan WAJIB KOSONG
+  kosongkanTujuan();
+  sessionStorage.removeItem('ammo_clear');
+  sessionStorage.removeItem('ammo_must_clear_dest');
+  sessionStorage.removeItem('ammo_from_index');
+  if(!$('pickup').value.trim()) isiPenjemputanOtomatis();
+});
+setTimeout(kosongkanTujuan, 100);
+setTimeout(function(){
+  if(sessionStorage.getItem('ammo_clear')==='1' || sessionStorage.getItem('ammo_must_clear_dest')==='1') kosongkanTujuan();
+}, 500);
 isiPenjemputanOtomatis();
 </script>
 </body>
