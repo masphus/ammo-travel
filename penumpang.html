@@ -46,34 +46,40 @@ header b{font-size:22px;color:#fff}
 .chat-bubble{background:#f2f2f2;border-radius:12px;padding:10px 12px;margin:8px 0;font-size:15px;line-height:1.4;max-width:85%}
 .chat-bubble.driver{background:#D9ECD9}
 .chat-bubble.me{background:#00a651;color:#fff;margin-left:auto}
+.chat-bubble.system{background:#FFF3CD;border:1px solid #FFD700;text-align:center;margin:10px auto;font-size:14px;color:#856404;max-width:95%}
 .chat-input{display:flex;gap:8px;margin-top:10px}
 .chat-input input{flex:1;padding:12px;border:1px solid #ddd;border-radius:20px;outline:none;font-size:15px}
 .chat-input button{background:#00a651;color:#fff;border:none;border-radius:50%;width:44px;height:44px;font-size:20px;cursor:pointer}
 .chat-close{display:block;width:100%;margin-top:10px;padding:12px;border:none;border-radius:10px;background:#eee;font-weight:bold;font-size:16px;cursor:pointer}
+/* NOTIF MELAYANG - KAYAK CHAT */
+.notif-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:120;align-items:flex-end;justify-content:center}
+.notif-modal.show{display:flex}
+.notif-box{width:100%;max-width:430px;background:#fff;border-radius:16px 16px 0 0;padding:20px 16px 16px;text-align:center}
+.notif-box .ikon{font-size:48px;margin-bottom:8px}
+.notif-box h3{font-size:20px;color:#0a3d1f;margin-bottom:8px;line-height:1.3}
+.notif-box p{font-size:15px;color:#555;line-height:1.5;margin-bottom:16px}
+.notif-btns{display:flex;gap:10px}
+.notif-btns button{flex:1;padding:14px;border-radius:10px;border:none;font-weight:bold;font-size:16px;cursor:pointer}
+.btn-ya-batal{background:#e60000;color:#fff}
+.btn-lanjutkan{background:#00a651;color:#fff}
+.btn-ok-notif{background:#00a651;color:#fff;width:100%;padding:14px;border-radius:10px;border:none;font-weight:bold;font-size:16px;cursor:pointer}
+.spinner{width:36px;height:36px;border:3px solid #eee;border-top:3px solid #e60000;border-radius:50%;margin:0 auto 10px;animation:spin 0.8s linear infinite}
 </style>
 </head>
 <body>
 <div class="phone">
 <header><a href="javascript:void(0)" onclick="kembaliKeIndex()">←</a><b>Menunggu Driver</b></header>
-
 <div class="radar-wrap" id="radarWrap"><div class="radar"><i></i></div></div>
-
 <div class="driver-sukses" id="driverSukses">
 <img class="foto-driver" id="fotoDriver" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Driver">
 <div class="nama" id="namaDriverSukses">Budi Santoso</div>
 <div class="plat" id="platDriverSukses">D 1234 ABC • ⭐ 4.9</div>
 <div class="eta" id="etaDriver">⏱️ Tiba dalam 8 menit</div>
 </div>
-
 <div class="title" id="waitTitle">Mencari Driver...</div>
 <p class="sub" id="waitSub">Kami sedang mencari driver terdekat untukmu</p>
-
-<!-- PRIORITAS PAS LAGI NYARI - SEKARANG GAK DIPAKE DULU, NANTI MUNCUL SETELAH DRIVER KETEMU -->
 <button class="btn-prioritas" id="btnPrioritas" onclick="upgradePrioritas()">⚡ UPGRADE KE PRIORITAS</button>
-
-<!-- PRIORITAS SETELAH DRIVER KETEMU - MUNCUL 10 DETIK SETELAH CHAT KEBUKA -->
 <button class="btn-prioritas-found" id="btnPrioritasFound" onclick="upgradePrioritas()">⚡ UPGRADE KE PRIORITAS - KELAMAAN? GANTI DRIVER PRIORITAS</button>
-
 <div class="card">
 <h2>📍 Rute Perjalanan</h2>
 <div class="route"><small>Dari</small><b id="wDari">Memuat...</b><br><br><small>Ke</small><b id="wTujuan">Memuat...</b></div>
@@ -81,11 +87,10 @@ header b{font-size:22px;color:#fff}
 <div class="ongkos"><small>ONGKOS</small><span id="wOngkos">Menghitung...</span></div>
 <p class="note">ⓘ Biaya Parkir, Tol, dan Penyeberangan akan dibebankan kepada Penumpang bilamana ada</p>
 </div>
-
-<!-- KOTAK "BELUM ADA DRIVER YANG MENERIMA" + TOMBOL "BUKA CHAT DRIVER" UDAH DIHAPUS TOTAL -->
-
 <button class="btn-batal" onclick="batalkanPesanan()">Batalkan Pesanan</button>
 </div>
+
+<!-- CHAT DRIVER -->
 <div id="chatModal" class="chat-modal"><div class="chat-box">
 <div class="chat-head"><img id="chatFoto" src="https://randomuser.me/api/portraits/men/32.jpg" style="width:44px;height:44px;border-radius:50%;object-fit:cover"><div><b id="chatNama">Budi Santoso</b><br><small id="chatStatus" style="color:#00a651">● Online</small></div></div>
 <div id="chatIsi">
@@ -94,6 +99,33 @@ header b{font-size:22px;color:#fff}
 <div class="chat-input"><input id="chatInput" placeholder="Ketik pesan ke driver..."><button onclick="kirimChat()">➤</button></div>
 <button class="chat-close" onclick="tutupChat()">Tutup Chat</button>
 </div></div>
+
+<!-- NOTIF MELAYANG 1: KEMBALI - MASIH ADA PERJALANAN -->
+<div id="modalKembali" class="notif-modal"><div class="notif-box">
+<div class="ikon">⚠️</div>
+<h3>Anda Masih Mempunyai Perjalanan</h3>
+<p id="teksKembali">Driver sudah OTW ke titik jemputmu.<br>Yakin ingin membatalkan perjalanan ini?</p>
+<div class="notif-btns">
+<button class="btn-ya-batal" onclick="konfirmasiKembaliYa()">Ya, Batalkan</button>
+<button class="btn-lanjutkan" onclick="konfirmasiKembaliLanjut()">Lanjutkan Perjalanan</button>
+</div>
+</div></div>
+
+<!-- NOTIF MELAYANG 2: BATAL - LAGI NGASIH TAU DRIVER -->
+<div id="modalBatal" class="notif-modal"><div class="notif-box">
+<div class="spinner"></div>
+<h3>Membatalkan Perjalanan...</h3>
+<p id="teksBatal">Mengirim pemberitahuan pembatalan ke driver...<br>Driver akan diberitahu bahwa penumpang membatalkan perjalanan.</p>
+</div></div>
+
+<!-- NOTIF MELAYANG 3: BATAL BERHASIL - DRIVER UDAH DIBERITAHU -->
+<div id="modalBatalSukses" class="notif-modal"><div class="notif-box">
+<div class="ikon">✅</div>
+<h3>Perjalanan Dibatalkan</h3>
+<p>Driver sudah diberitahu bahwa kamu membatalkan perjalanan.<br>Terima kasih sudah menggunakan Ammo Travel.</p>
+<button class="btn-ok-notif" onclick="selesaiBatalKeIndex()">OK, Kembali ke Beranda</button>
+</div></div>
+
 <script>
 const TEST_MODE = true;
 const saved = JSON.parse(localStorage.getItem('masphus_order') || 'null');
@@ -104,6 +136,7 @@ let TUJUAN_COORD = (saved && saved.tujuan.lat) ? [saved.tujuan.lat, saved.tujuan
 let driverDitemukan = false;
 let etaInterval = null;
 let etaDetik = 0;
+let namaDriverAktif = 'Budi Santoso';
 document.getElementById('wDari').textContent = ASAL_NAMA;
 document.getElementById('wTujuan').textContent = TUJUAN_NAMA;
 document.getElementById('chatRute').textContent = ASAL_NAMA + ' → ' + TUJUAN_NAMA;
@@ -162,14 +195,11 @@ function tampilkanDriverKetemu(nama, plat, foto, etaMenit){
   document.getElementById('chatFoto').src = foto;
   document.getElementById('waitTitle').style.display = 'none';
   document.getElementById('waitSub').textContent = 'Driver sedang OTW ke titik jemputmu';
-  // PRIORITAS GAK LANGSUNG MUNCUL - NUNGGU 10 DETIK SETELAH CHAT KEBUKA
   document.getElementById('btnPrioritas').style.display = 'none';
   document.getElementById('btnPrioritasFound').style.display = 'none';
   mulaiEta(etaMenit);
-  // 1. CHAT LANGSUNG KEBUKA OTOMATIS PAS DRIVER KETEMU
   setTimeout(()=>{
     document.getElementById('chatModal').classList.add('show');
-    // 2. 10 DETIK SETELAH CHAT KEBUKA, BARU MUNCUL TOMBOL PRIORITAS
     setTimeout(()=>{
       if(driverDitemukan) document.getElementById('btnPrioritasFound').style.display = 'block';
     }, 10000);
@@ -193,6 +223,7 @@ function upgradePrioritas(){
   if(driverDitemukan){
     document.getElementById('waitSub').textContent = 'Mengganti ke driver prioritas yang lebih cepat...';
     setTimeout(()=>{
+      namaDriverAktif = 'Andi Prioritas';
       document.getElementById('namaDriverSukses').textContent = 'Andi Prioritas';
       document.getElementById('platDriverSukses').textContent = 'D 9999 PR • ⭐ 5.0';
       document.getElementById('fotoDriver').src = 'https://randomuser.me/api/portraits/men/75.jpg';
@@ -200,7 +231,6 @@ function upgradePrioritas(){
       document.getElementById('chatNama').textContent = 'Andi Prioritas';
       document.getElementById('waitSub').textContent = 'Driver prioritas sedang OTW ke titik jemputmu';
       btn2.textContent = '✅ KAMU SUDAH PRIORITAS';
-      // CHAT PRIORITAS JUGA KEBUKA LAGI OTOMATIS
       let isi = document.getElementById('chatIsi');
       isi.innerHTML += '<div class="chat-bubble driver">Halo! Saya <b>Andi Prioritas</b>, driver prioritas kamu ⚡ Saya langsung OTW, kamu diprioritaskan ya!</div>';
       document.getElementById('chatModal').classList.add('show');
@@ -208,10 +238,6 @@ function upgradePrioritas(){
     }, 2000);
     return;
   }
-}
-function bukaChat(){
-  if(!driverDitemukan){ return; }
-  document.getElementById('chatModal').classList.add('show');
 }
 function tutupChat(){ document.getElementById('chatModal').classList.remove('show'); }
 function kirimChat(){
@@ -224,17 +250,80 @@ function kirimChat(){
   setTimeout(()=>{ isi.innerHTML += '<div class="chat-bubble driver">Siap, saya sudah OTW ya, ditunggu di titik jemput 🙏</div>'; }, 1500);
 }
 document.getElementById('chatInput').addEventListener('keypress', function(e){ if(e.key==='Enter') kirimChat(); });
+
+// === FUNGSI KIRIM NOTIF KE DRIVER (SIMULASI - NANTI TINGGAL GANTI KE API ASLI) ===
+function kirimNotifKeDriver(pesan){
+  // 1. Masukkin ke chat biar keliatan driver dikasih tau
+  let isi = document.getElementById('chatIsi');
+  if(isi){
+    isi.innerHTML += '<div class="chat-bubble system">📢 ' + pesan + '</div>';
+  }
+  // 2. Log buat nanti disambung ke API / WhatsApp driver
+  console.log('[NOTIF KE DRIVER - ' + namaDriverAktif + ']: ' + pesan);
+  // TODO NANTI: fetch('https://api-ammo-travel.../notif-driver', {method:'POST', body: JSON.stringify({driver: namaDriverAktif, pesan: pesan})})
+}
+
+// === KEMBALI (←) - MUNCUL NOTIF MELAYANG ===
 function kembaliKeIndex(){
-  localStorage.removeItem('masphus_order');
-  sessionStorage.setItem('ammo_clear', '1');
-  window.location.href = 'index.html';
+  // Kalau belum ada perjalanan sama sekali, langsung balik aja
+  if(!saved && !driverDitemukan){
+    bersihkanDanKembali();
+    return;
+  }
+  // Kalau masih ada perjalanan, munculin notif melayang kayak chat
+  if(driverDitemukan){
+    document.getElementById('teksKembali').innerHTML = 'Driver <b>' + namaDriverAktif + '</b> sudah OTW ke titik jemputmu.<br>Yakin ingin membatalkan perjalanan ini?';
+  } else {
+    document.getElementById('teksKembali').innerHTML = 'Kami masih mencari driver untukmu.<br>Yakin ingin membatalkan perjalanan ini?';
+  }
+  document.getElementById('modalKembali').classList.add('show');
 }
+function konfirmasiKembaliLanjut(){
+  // LANJUTKAN -> TUTUP NOTIF, TETEP DI HALAMAN PENUMPANG, PERJALANAN JALAN TERUS
+  document.getElementById('modalKembali').classList.remove('show');
+}
+function konfirmasiKembaliYa(){
+  // YA, BATALKAN -> KASIH TAU DRIVER, TERUS KE INDEX
+  document.getElementById('modalKembali').classList.remove('show');
+  jalankanPembatalan();
+}
+
+// === BATALKAN PESANAN - LANGSUNG KASIH TAU DRIVER ===
 function batalkanPesanan(){
-  if(!confirm('Yakin batalkan pesanan?')) return;
+  // Gak pake confirm() jelek lagi, pake notif melayang
+  jalankanPembatalan();
+}
+function jalankanPembatalan(){
+  // 1. Munculin notif "Mengirim pemberitahuan ke driver..."
+  document.getElementById('modalBatal').classList.add('show');
+  // 2. Kirim notif ke driver
+  if(driverDitemukan){
+    kirimNotifKeDriver('Penumpang membatalkan perjalanan ke ' + TUJUAN_NAMA + '. Maaf ya, perjalanan dibatalkan oleh penumpang.');
+  } else {
+    kirimNotifKeDriver('Penumpang membatalkan pencarian driver ke ' + TUJUAN_NAMA + '.');
+  }
+  // 3. Setelah 2 detik, bilang driver udah diberitahu
+  setTimeout(()=>{
+    document.getElementById('modalBatal').classList.remove('show');
+    document.getElementById('modalBatalSukses').classList.add('show');
+  }, 2000);
+}
+function selesaiBatalKeIndex(){
+  document.getElementById('modalBatalSukses').classList.remove('show');
+  bersihkanDanKembali();
+}
+function bersihkanDanKembali(){
   localStorage.removeItem('masphus_order');
   sessionStorage.setItem('ammo_clear', '1');
+  sessionStorage.setItem('ammo_must_clear_dest', '1');
+  sessionStorage.removeItem('ammo_from_index');
   window.location.href = 'index.html';
 }
+// Kalau user pencet Back HP, tetep kasih perintah kosong tujuan
+window.addEventListener('beforeunload', function(){
+  // Jangan langsung hapus kalau masih di halaman ini, cuma set flag aja
+  // Biar kalau user beneran keluar, indexnya tau harus kosongin tujuan
+});
 </script>
 </body>
 </html>
