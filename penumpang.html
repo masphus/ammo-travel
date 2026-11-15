@@ -18,10 +18,11 @@ header b{font-size:22px;color:#fff}
 .radar:after{width:50px;height:50px}
 .radar i{position:absolute;left:50%;top:50%;width:140px;height:2px;background:#00a651;transform-origin:left center;animation:spin 2s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-/* DRIVER KETEMU - GANTIN RADAR */
-.driver-sukses{display:none;text-align:center;padding:18px 0 8px}
-.driver-sukses .cek{width:120px;height:120px;margin:auto;background:#00a651;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:64px}
-.driver-sukses .foto{width:90px;height:90px;margin:-18px auto 0;background:#fff;border:4px solid #00a651;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:44px;position:relative;z-index:2}
+.driver-sukses{display:none;text-align:center;padding:18px 0 4px}
+.driver-sukses .foto-driver{width:130px;height:130px;margin:auto;border-radius:50%;border:4px solid #00a651;object-fit:cover;background:#eee}
+.driver-sukses .nama{font-size:22px;font-weight:bold;color:#0a3d1f;margin-top:10px}
+.driver-sukses .plat{font-size:15px;color:#555}
+.driver-sukses .eta{font-size:17px;font-weight:bold;color:#00a651;margin-top:6px;background:#E8F5E9;display:inline-block;padding:6px 14px;border-radius:20px}
 .title{text-align:center;font-size:30px;color:#0a3d1f;margin-top:8px}
 .sub{text-align:center;font-size:14px;padding:6px 20px 14px;color:#555}
 .card{margin:0 16px 14px;border:1.5px solid #d9ecd9;border-radius:14px;padding:16px}
@@ -35,12 +36,9 @@ header b{font-size:22px;color:#fff}
 .ongkos{background:#a8e6a1;border-radius:8px;padding:12px;font-weight:bold;font-size:20px;color:#0a3d1f}
 .ongkos small{display:block;font-size:15px}
 .note{font-size:14px;color:#333;margin-top:10px;line-height:1.4}
-.driver-box{margin:0 16px;border:1.5px solid #eee;border-radius:14px;padding:16px}
-.driver-box h3{font-size:24px;line-height:1.2}
-.driver-box p{margin:10px 0;font-size:16px;line-height:1.4}
 .btn-batal{margin:14px 16px 0;background:#e60000;color:#fff;border:0;width:calc(100% - 32px);padding:15px;border-radius:10px;font-weight:bold;font-size:22px;cursor:pointer}
 .btn-prioritas{display:none;margin:0 16px 14px;background:#111;color:#FFD700;border:1px solid #FFD700;width:calc(100% - 32px);padding:14px;border-radius:10px;font-weight:800;font-size:19px;cursor:pointer}
-.driver-found{background:#E8F5E9;border:1px solid #00a651;border-radius:10px;padding:12px;margin-top:10px;display:none}
+.btn-prioritas-found{display:none;margin:8px 16px 14px;background:#111;color:#FFD700;border:1px solid #FFD700;width:calc(100% - 32px);padding:14px;border-radius:10px;font-weight:800;font-size:19px;cursor:pointer}
 .chat-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;align-items:flex-end;justify-content:center}
 .chat-modal.show{display:flex}
 .chat-box{width:100%;max-width:430px;background:#fff;border-radius:16px 16px 0 0;padding:14px;max-height:85vh;overflow-y:auto}
@@ -58,20 +56,24 @@ header b{font-size:22px;color:#fff}
 <div class="phone">
 <header><a href="javascript:void(0)" onclick="kembaliKeIndex()">←</a><b>Menunggu Driver</b></header>
 
-<!-- RADAR - CUMA MUNCUL PAS LAGI NYARI -->
 <div class="radar-wrap" id="radarWrap"><div class="radar"><i></i></div></div>
 
-<!-- KALAU UDAH KETEMU, RADAR HILANG, GANTI INI -->
 <div class="driver-sukses" id="driverSukses">
-<div class="cek">✓</div>
-<div class="foto" id="fotoDriverSukses">🚗</div>
-<div style="font-size:18px;font-weight:bold;color:#0a3d1f;margin-top:8px" id="namaDriverSukses">Budi Santoso</div>
-<div style="font-size:14px;color:#555" id="platDriverSukses">D 1234 ABC • ⭐ 4.9 • OTW ke kamu!</div>
+<img class="foto-driver" id="fotoDriver" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Driver">
+<div class="nama" id="namaDriverSukses">Budi Santoso</div>
+<div class="plat" id="platDriverSukses">D 1234 ABC • ⭐ 4.9</div>
+<div class="eta" id="etaDriver">⏱️ Tiba dalam 8 menit</div>
 </div>
 
 <div class="title" id="waitTitle">Mencari Driver...</div>
 <p class="sub" id="waitSub">Kami sedang mencari driver terdekat untukmu</p>
+
+<!-- PRIORITAS PAS LAGI NYARI - SEKARANG GAK DIPAKE DULU, NANTI MUNCUL SETELAH DRIVER KETEMU -->
 <button class="btn-prioritas" id="btnPrioritas" onclick="upgradePrioritas()">⚡ UPGRADE KE PRIORITAS</button>
+
+<!-- PRIORITAS SETELAH DRIVER KETEMU - MUNCUL 10 DETIK SETELAH CHAT KEBUKA -->
+<button class="btn-prioritas-found" id="btnPrioritasFound" onclick="upgradePrioritas()">⚡ UPGRADE KE PRIORITAS - KELAMAAN? GANTI DRIVER PRIORITAS</button>
+
 <div class="card">
 <h2>📍 Rute Perjalanan</h2>
 <div class="route"><small>Dari</small><b id="wDari">Memuat...</b><br><br><small>Ke</small><b id="wTujuan">Memuat...</b></div>
@@ -79,16 +81,13 @@ header b{font-size:22px;color:#fff}
 <div class="ongkos"><small>ONGKOS</small><span id="wOngkos">Menghitung...</span></div>
 <p class="note">ⓘ Biaya Parkir, Tol, dan Penyeberangan akan dibebankan kepada Penumpang bilamana ada</p>
 </div>
-<div class="driver-box">
-<h3 id="driverTitle">👥 Belum ada driver yang menerima</h3>
-<p id="driverDesc">Driver akan ditampilkan di sini setelah menerima pesananmu</p>
-<div class="driver-found" id="driverFound">✅ <b id="namaDriver">Budi Santoso (TEST)</b><br><small id="platDriver">D 1234 ABC • ⭐ 4.9</small></div>
-<button onclick="bukaChat()" style="width:100%;margin-top:10px;padding:12px;border:1px solid #00a651;background:#fff;color:#00a651;border-radius:10px;font-weight:bold;font-size:16px;cursor:pointer">💬 Buka Chat Driver</button>
-</div>
+
+<!-- KOTAK "BELUM ADA DRIVER YANG MENERIMA" + TOMBOL "BUKA CHAT DRIVER" UDAH DIHAPUS TOTAL -->
+
 <button class="btn-batal" onclick="batalkanPesanan()">Batalkan Pesanan</button>
 </div>
 <div id="chatModal" class="chat-modal"><div class="chat-box">
-<div class="chat-head"><div style="width:44px;height:44px;border-radius:50%;background:#00a651;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px">🚗</div><div><b id="chatNama">Budi Santoso</b><br><small id="chatStatus" style="color:#00a651">● Online</small></div></div>
+<div class="chat-head"><img id="chatFoto" src="https://randomuser.me/api/portraits/men/32.jpg" style="width:44px;height:44px;border-radius:50%;object-fit:cover"><div><b id="chatNama">Budi Santoso</b><br><small id="chatStatus" style="color:#00a651">● Online</small></div></div>
 <div id="chatIsi">
 <div class="chat-bubble driver">Halo! Saya <b>Budi</b>, driver kamu. Saya sudah OTW ke titik jemput ya 🙏<br><small id="chatRute">Jalan Peta, Pelindung Hewan → Soreang - Ciwidey</small></div>
 </div>
@@ -103,6 +102,8 @@ const TUJUAN_NAMA = saved ? saved.tujuan.nama : 'Jalan Raya Soreang - Ciwidey, S
 let ASAL_COORD = (saved && saved.asal.lat) ? [saved.asal.lat, saved.asal.lon] : null;
 let TUJUAN_COORD = (saved && saved.tujuan.lat) ? [saved.tujuan.lat, saved.tujuan.lon] : null;
 let driverDitemukan = false;
+let etaInterval = null;
+let etaDetik = 0;
 document.getElementById('wDari').textContent = ASAL_NAMA;
 document.getElementById('wTujuan').textContent = TUJUAN_NAMA;
 document.getElementById('chatRute').textContent = ASAL_NAMA + ' → ' + TUJUAN_NAMA;
@@ -129,23 +130,51 @@ async function hitungRute(){
   }catch(e){ document.getElementById('wJarak').textContent='Gagal hitung rute'; }
 }
 hitungRute();
-// FUNGSI BARU: RADAR HILANG, DRIVER MUNCUL
-function tampilkanDriverKetemu(nama, plat, foto){
+function mulaiEta(menitAwal){
+  if(etaInterval) clearInterval(etaInterval);
+  etaDetik = menitAwal * 60;
+  updateEtaText();
+  etaInterval = setInterval(()=>{
+    etaDetik--;
+    if(etaDetik <= 0){
+      clearInterval(etaInterval);
+      document.getElementById('etaDriver').textContent = '✅ Driver sudah sampai di titik jemput!';
+      document.getElementById('waitSub').textContent = 'Driver sudah sampai, silakan naik!';
+      return;
+    }
+    updateEtaText();
+  }, 1000);
+}
+function updateEtaText(){
+  let m = Math.floor(etaDetik / 60);
+  let d = etaDetik % 60;
+  let teks = '';
+  if(m > 0) teks = '⏱️ Tiba dalam ' + m + ' menit ' + d + ' detik';
+  else teks = '⏱️ Tiba dalam ' + d + ' detik';
+  document.getElementById('etaDriver').textContent = teks;
+}
+function tampilkanDriverKetemu(nama, plat, foto, etaMenit){
   document.getElementById('radarWrap').style.display = 'none';
   document.getElementById('driverSukses').style.display = 'block';
   document.getElementById('namaDriverSukses').textContent = nama;
-  document.getElementById('platDriverSukses').textContent = plat + ' • OTW ke kamu!';
-  if(foto) document.getElementById('fotoDriverSukses').textContent = foto;
+  document.getElementById('platDriverSukses').textContent = plat;
+  document.getElementById('fotoDriver').src = foto;
+  document.getElementById('chatFoto').src = foto;
+  document.getElementById('waitTitle').style.display = 'none';
+  document.getElementById('waitSub').textContent = 'Driver sedang OTW ke titik jemputmu';
+  // PRIORITAS GAK LANGSUNG MUNCUL - NUNGGU 10 DETIK SETELAH CHAT KEBUKA
   document.getElementById('btnPrioritas').style.display = 'none';
+  document.getElementById('btnPrioritasFound').style.display = 'none';
+  mulaiEta(etaMenit);
+  // 1. CHAT LANGSUNG KEBUKA OTOMATIS PAS DRIVER KETEMU
+  setTimeout(()=>{
+    document.getElementById('chatModal').classList.add('show');
+    // 2. 10 DETIK SETELAH CHAT KEBUKA, BARU MUNCUL TOMBOL PRIORITAS
+    setTimeout(()=>{
+      if(driverDitemukan) document.getElementById('btnPrioritasFound').style.display = 'block';
+    }, 10000);
+  }, 500);
 }
-let sisa = TEST_MODE ? 10 : 600;
-let timerPrioritas = setInterval(()=>{
-  sisa--;
-  if(sisa <= 0){
-    clearInterval(timerPrioritas);
-    if(!driverDitemukan) document.getElementById('btnPrioritas').style.display = 'block';
-  }
-}, 1000);
 let detikJalan = 0;
 let timerDriver = setInterval(()=>{
   detikJalan += 5;
@@ -153,41 +182,35 @@ let timerDriver = setInterval(()=>{
   if(!TEST_MODE) return;
   clearInterval(timerDriver);
   driverDitemukan = true;
-  document.getElementById('waitTitle').textContent = 'Driver Ditemukan!';
-  document.getElementById('waitSub').textContent = 'Driver sedang OTW ke titik jemputmu';
-  document.getElementById('driverTitle').textContent = '✅ Driver Ditemukan!';
-  document.getElementById('driverDesc').textContent = 'Driver sedang OTW ke titik jemput';
-  document.getElementById('driverFound').style.display = 'block';
   document.getElementById('chatNama').textContent = 'Budi Santoso (TEST)';
-  // RADAR HILANG DI SINI BRO!
-  tampilkanDriverKetemu('Budi Santoso', 'D 1234 ABC • ⭐ 4.9', '🚗');
+  tampilkanDriverKetemu('Budi Santoso', 'D 1234 ABC • ⭐ 4.9', 'https://randomuser.me/api/portraits/men/32.jpg', 8);
 }, 5000);
 function upgradePrioritas(){
-  let btn = document.getElementById('btnPrioritas');
-  btn.textContent = '✅ SUDAH PRIORITAS - Mencari Driver Prioritas...';
-  btn.style.background = '#00a651';
-  btn.style.color = '#fff';
-  btn.style.border = '1px solid #00a651';
-  if(!driverDitemukan){
-    document.getElementById('waitTitle').textContent = 'Mencari Driver Prioritas...';
-    document.getElementById('waitSub').textContent = 'Mencari driver prioritas terdekat untukmu...';
+  let btn2 = document.getElementById('btnPrioritasFound');
+  btn2.textContent = '✅ SUDAH PRIORITAS - Mengganti ke Driver Prioritas...';
+  btn2.style.background = '#00a651';
+  btn2.style.color = '#fff';
+  if(driverDitemukan){
+    document.getElementById('waitSub').textContent = 'Mengganti ke driver prioritas yang lebih cepat...';
     setTimeout(()=>{
-      driverDitemukan = true;
-      document.getElementById('waitTitle').textContent = 'Driver Prioritas Ditemukan!';
-      document.getElementById('waitSub').textContent = 'Driver prioritas sedang OTW ke titik jemputmu';
-      document.getElementById('driverTitle').textContent = '✅ Driver Prioritas Ditemukan!';
-      document.getElementById('driverDesc').textContent = 'Driver prioritas sedang OTW - Diprioritaskan untukmu';
-      document.getElementById('driverFound').style.display = 'block';
-      document.getElementById('namaDriver').textContent = 'Andi Prioritas (PRIORITAS)';
-      document.getElementById('platDriver').textContent = 'D 9999 PR • ⭐ 5.0';
+      document.getElementById('namaDriverSukses').textContent = 'Andi Prioritas';
+      document.getElementById('platDriverSukses').textContent = 'D 9999 PR • ⭐ 5.0';
+      document.getElementById('fotoDriver').src = 'https://randomuser.me/api/portraits/men/75.jpg';
+      document.getElementById('chatFoto').src = 'https://randomuser.me/api/portraits/men/75.jpg';
       document.getElementById('chatNama').textContent = 'Andi Prioritas';
-      // RADAR HILANG JUGA BUAT PRIORITAS
-      tampilkanDriverKetemu('Andi Prioritas', 'D 9999 PR • ⭐ 5.0', '⚡');
-    }, 3000);
+      document.getElementById('waitSub').textContent = 'Driver prioritas sedang OTW ke titik jemputmu';
+      btn2.textContent = '✅ KAMU SUDAH PRIORITAS';
+      // CHAT PRIORITAS JUGA KEBUKA LAGI OTOMATIS
+      let isi = document.getElementById('chatIsi');
+      isi.innerHTML += '<div class="chat-bubble driver">Halo! Saya <b>Andi Prioritas</b>, driver prioritas kamu ⚡ Saya langsung OTW, kamu diprioritaskan ya!</div>';
+      document.getElementById('chatModal').classList.add('show');
+      mulaiEta(3);
+    }, 2000);
+    return;
   }
 }
 function bukaChat(){
-  if(!driverDitemukan){ alert('Chat masih terkunci, tunggu driver ditemukan dulu ya!'); return; }
+  if(!driverDitemukan){ return; }
   document.getElementById('chatModal').classList.add('show');
 }
 function tutupChat(){ document.getElementById('chatModal').classList.remove('show'); }
