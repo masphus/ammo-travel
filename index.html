@@ -5,282 +5,76 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Ammo Travel</title>
 <link rel="icon" href="icon-512.png">
-<link rel="apple-touch-icon" href="icon-512.png">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f4f6f8;color:#111;max-width:480px;margin:0 auto;min-height:100vh;padding-bottom:90px}
-a{color:inherit;text-decoration:none}
-/* HEADER - JANGAN DIUBAH */
-.topbar{background:#0B7A3E;color:#fff;padding:14px 16px 12px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:20}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f4f6f8;color:#111;max-width:480px;margin:0 auto;min-height:100vh;padding-bottom:160px}
+.topbar{background:#0B7A3E;color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:20}
 .topbar img{width:38px;height:38px;border-radius:10px;background:#fff;object-fit:cover}
-.topbar .brand{flex:1}
-.topbar .brand b{font-size:17px;line-height:1;display:block}
-.topbar .brand span{font-size:11px;opacity:.85}
+.topbar .brand{flex:1}.topbar .brand b{font-size:17px;display:block}.topbar .brand span{font-size:11px;opacity:.85}
 .topbar .lokasi-btn{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);color:#fff;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:600}
-/* HERO */
-.hero{padding:16px 16px 8px}
-.hero h1{font-size:22px;line-height:1.25}
-.hero p{font-size:13px;color:#666;margin-top:4px}
-/* CARD FORM */
+.hero{padding:16px 16px 8px}.hero h1{font-size:22px;line-height:1.25}.hero p{font-size:13px;color:#666;margin-top:4px}
 .card{background:#fff;margin:10px 16px;border-radius:16px;padding:14px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
 label{font-size:12px;font-weight:700;color:#444}
 .input-wrap{display:flex;gap:8px;align-items:center;background:#f1f4f6;border-radius:12px;padding:9px 10px;margin-top:6px}
 .input-wrap input{flex:1;border:0;background:transparent;outline:none;font-size:14px}
 .mini-btn{background:#0B7A3E;color:#fff;border:0;padding:7px 10px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
-.swap-row{display:flex;justify-content:center;margin:8px 0 2px}
-.swap-btn{width:36px;height:36px;border-radius:50%;border:1px solid #ddd;background:#fff;font-size:16px}
-.sug{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
-.sug button{border:1px solid #e2e2e2;background:#f8f9fa;padding:6px 10px;border-radius:999px;font-size:12px}
-.estimasi{background:#EAF7EF;border-radius:12px;padding:10px 12px;margin-top:12px;display:flex;justify-content:space-between;font-size:13px}
-.estimasi b{font-size:16px;color:#0B7A3E}
-/* BANNER DRIVER */
-.banner{margin:12px 16px;background:#DFF3E4;border-radius:14px;padding:12px;display:flex;gap:10px;align-items:center}
-.banner span{font-size:22px}
-.banner b{font-size:13px}
-.banner small{font-size:12px;color:#444}
-/* ORDER NOW */
-.order-btn{margin:6px 16px 0;width:calc(100% - 32px);background:#0B7A3E;color:#fff;border:0;padding:15px;border-radius:14px;font-size:16px;font-weight:800;letter-spacing:.3px;box-shadow:0 6px 16px rgba(11,122,62,.3)}
-.order-btn:active{transform:scale(.98)}
-.hint{text-align:center;font-size:11px;color:#888;margin-top:8px}
-/* MAP */
-#map{height:180px;border-radius:14px;margin:12px 16px;overflow:hidden;border:1px solid #e5e5e5;z-index:1}
-/* CHAT */
-.chat-fab{position:fixed;right:16px;bottom:92px;width:52px;height:52px;border-radius:50%;background:#25D366;color:#fff;border:0;font-size:24px;box-shadow:0 6px 16px rgba(0,0,0,.25);z-index:30}
-/* BOTTOM NAV */
-.bottom{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:480px;background:#fff;border-top:1px solid #eee;display:flex;padding:8px 0 calc(8px + env(safe-area-inset-bottom));z-index:20}
-.bottom button{flex:1;border:0;background:transparent;font-size:11px;color:#777}
-.bottom button.active{color:#0B7A3E;font-weight:700}
-.bottom button i{display:block;font-size:20px;font-style:normal;margin-bottom:2px}
-/* MODAL */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;z-index:50}
-.overlay.show{display:flex}
-.sheet{background:#fff;width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:20px 18px 28px;max-height:85vh;overflow:auto}
-.sheet h2{font-size:18px}
-.sheet p{font-size:13px;color:#555;margin-top:6px;line-height:1.5}
-.big-btn{width:100%;padding:13px;border-radius:12px;border:0;font-size:14px;font-weight:700;margin-top:10px}
-.btn-google{background:#fff;border:1px solid #ddd!important}
-.btn-wa{background:#25D366;color:#fff}
-.btn-green{background:#0B7A3E;color:#fff}
-.input{width:100%;padding:12px;border:1px solid #ddd;border-radius:12px;margin-top:10px;font-size:14px;outline:none}
-.close{float:right;border:0;background:#f1f1f1;width:28px;height:28px;border-radius:50%}
+.swap-row{display:flex;justify-content:center;margin:8px 0 2px}.swap-btn{width:36px;height:36px;border-radius:50%;border:1px solid #ddd;background:#fff;font-size:16px}
+.sug{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}.sug button{border:1px solid #e2e2e2;background:#f8f9fa;padding:6px 10px;border-radius:999px;font-size:12px}
+.estimasi{background:#EAF7EF;border-radius:12px;padding:10px 12px;margin-top:12px;display:flex;justify-content:space-between;font-size:13px}.estimasi b{font-size:16px;color:#0B7A3E}
+.banner{margin:12px 16px;background:#DFF3E4;border-radius:14px;padding:12px;display:flex;gap:10px;align-items:center}.banner b{font-size:13px}.banner small{font-size:12px;color:#444}
+.order-btn{position:fixed;left:50%;transform:translateX(-50%);bottom:78px;width:calc(100% - 32px);max-width:448px;background:#0B7A3E;color:#fff;border:0;padding:15px;border-radius:14px;font-size:16px;font-weight:800;z-index:40;box-shadow:0 6px 16px rgba(11,122,62,.35)}
+.chat-fab{position:fixed;right:16px;bottom:140px;width:52px;height:52px;border-radius:50%;background:#25D366;color:#fff;border:0;font-size:24px;box-shadow:0 6px 16px rgba(0,0,0,.25);z-index:30}
+.bottom{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:480px;background:#fff;border-top:1px solid #eee;display:flex;padding:8px 0;z-index:20}
+.bottom button{flex:1;border:0;background:transparent;font-size:11px;color:#777}.bottom button.active{color:#0B7A3E;font-weight:700}.bottom button i{display:block;font-size:20px;font-style:normal;margin-bottom:2px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;z-index:50}.overlay.show{display:flex}
+.sheet{background:#fff;width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:20px 18px 28px;max-height:85vh;overflow:auto}.sheet h2{font-size:18px}.sheet p{font-size:13px;color:#555;margin-top:6px;line-height:1.5}
+.big-btn{width:100%;padding:13px;border-radius:12px;border:0;font-size:14px;font-weight:700;margin-top:10px}.btn-google{background:#fff;border:1px solid #ddd!important}.btn-wa{background:#25D366;color:#fff}.btn-green{background:#0B7A3E;color:#fff}
+.input{width:100%;padding:12px;border:1px solid #ddd;border-radius:12px;margin-top:10px;font-size:14px;outline:none}.close{float:right;border:0;background:#f1f1f1;width:28px;height:28px;border-radius:50%}
 </style>
 </head>
 <body>
-
-<!-- HEADER -->
 <div class="topbar">
-  <img src="icon-512.png" alt="Ammo Travel" onerror="this.src='https://via.placeholder.com/76x76/0B7A3E/ffffff?text=A'">
-  <div class="brand"><b>Ammo Travel</b><span>Travel • Carter • Antar Jemput</span></div>
-  <button class="lokasi-btn" onclick="pakaiGPS()">📍 Pilih Lokasi</button>
+<img src="icon-512.png" onerror="this.src='https://via.placeholder.com/76x76/0B7A3E/ffffff?text=A'">
+<div class="brand"><b>Ammo Travel</b><span>Travel • Carter • Antar Jemput</span></div>
+<button class="lokasi-btn" onclick="pakaiGPS()">📍 Pilih Lokasi</button>
 </div>
-
-<div class="hero">
-  <h1>Mau Pergi Kemana<br>Hari Ini?</h1>
-  <p>Pesan travel antar kota, cepat & nyaman.</p>
-</div>
-
-<!-- FORM -->
+<div class="hero"><h1>Mau Pergi Kemana<br>Hari Ini?</h1><p>Pesan travel antar kota, cepat & nyaman.</p></div>
 <div class="card">
-  <label>Penjemputan</label>
-  <div class="input-wrap">
-    <span>📍</span>
-    <input id="jemput" placeholder="Dari mana dijemput?">
-    <button class="mini-btn" onclick="pilihDiPeta('jemput')">Pilih di Peta</button>
-  </div>
-  <div class="sug">
-    <button onclick="isi('jemput','Bandara Soekarno-Hatta')">✈️ Bandara Soetta</button>
-    <button onclick="isi('jemput','Stasiun Bandung')">🚉 Stasiun Bandung</button>
-    <button onclick="isi('jemput','Malioboro Yogyakarta')">🛍️ Malioboro</button>
-  </div>
-
-  <div class="swap-row"><button class="swap-btn" onclick="tukar()">⇅</button></div>
-
-  <label>Tujuan</label>
-  <div class="input-wrap">
-    <span>🎯</span>
-    <input id="tujuan" placeholder="Mau ke mana?">
-    <button class="mini-btn" onclick="pilihDiPeta('tujuan')">Pilih di Peta</button>
-  </div>
-  <div class="sug">
-    <button onclick="isi('tujuan','Bandara Soekarno-Hatta')">✈️ Bandara Soetta</button>
-    <button onclick="isi('tujuan','Stasiun Bandung')">🚉 Stasiun Bandung</button>
-    <button onclick="isi('tujuan','Malioboro Yogyakarta')">🛍️ Malioboro</button>
-  </div>
-
-  <div class="estimasi"><span>Estimasi Ongkos<br><small id="jarakTxt">Isi penjemputan & tujuan</small></span><b id="ongkosTxt">Rp -</b></div>
+<label>Penjemputan</label>
+<div class="input-wrap"><span>📍</span><input id="jemput" placeholder="Mendeteksi lokasi kamu..."><button class="mini-btn" onclick="pakaiGPS()">📍 GPS</button></div>
+<div class="sug"><button onclick="isi('jemput','Bandara Soekarno-Hatta')">✈️ Bandara Soetta</button><button onclick="isi('jemput','Stasiun Bandung')">🚉 Stasiun Bandung</button><button onclick="isi('jemput','Malioboro Yogyakarta')">🛍️ Malioboro</button></div>
+<div class="swap-row"><button class="swap-btn" onclick="tukar()">⇅</button></div>
+<label>Tujuan</label>
+<div class="input-wrap"><span>🎯</span><input id="tujuan" placeholder="Mau ke mana?"><button class="mini-btn" onclick="pakaiGPS()">📍 GPS</button></div>
+<div class="sug"><button onclick="isi('tujuan','Bandara Soekarno-Hatta')">✈️ Bandara Soetta</button><button onclick="isi('tujuan','Stasiun Bandung')">🚉 Stasiun Bandung</button><button onclick="isi('tujuan','Malioboro Yogyakarta')">🛍️ Malioboro</button></div>
+<div class="estimasi"><span>Estimasi Ongkos<br><small id="jarakTxt">Isi penjemputan & tujuan</small></span><b id="ongkosTxt">Rp -</b></div>
 </div>
-
-<div id="map"></div>
-
 <div class="banner"><span>🚗</span><div><b>Driver di sekitar kamu siap menjemput!</b><br><small>Order sekarang, dijemput dalam 10 menit.</small></div></div>
-
-<!-- TOMBOL UTAMA - YANG DIBENERIN -->
 <button class="order-btn" onclick="klikOrder()">ORDER NOW →</button>
-<p class="hint" id="statusTxt">Sistem akan cek akun penumpang kamu dulu.</p>
-
 <button class="chat-fab" onclick="chatCS()">💬</button>
-
-<div class="bottom">
-  <button class="active"><i>🏠</i>Beranda</button>
-  <button onclick="alert('Riwayat belum ada order')"><i>🧾</i>Riwayat</button>
-  <button onclick="alert('Promo: HEMAT20')"><i>🎁</i>Promo</button>
-  <button onclick="bukaAkun()"><i>👤</i>Akun</button>
-</div>
-
-<!-- SHEET: DAFTAR -->
-<div class="overlay" id="sheetDaftar">
-  <div class="sheet">
-    <button class="close" onclick="tutupSemua()">✕</button>
-    <h2>Daftar dulu yuk 👋</h2>
-    <p>Akun penumpang kamu belum ketemu di database. Daftar dulu biar orderanmu kesimpen & driver bisa jemput kamu.</p>
-    <input class="input" id="namaDaftar" placeholder="Nama lengkap kamu">
-    <input class="input" id="hpDaftar" placeholder="No. WA, contoh 0812xxxx">
-    <button class="big-btn btn-google" onclick="daftarGoogle()">🔍 Lanjut dengan Google</button>
-    <button class="big-btn btn-wa" onclick="daftarWA()">💬 Daftar via WhatsApp</button>
-    <p style="text-align:center;margin-top:12px">Dengan daftar, kamu setuju dengan syarat Ammo Travel.</p>
-  </div>
-</div>
-
-<!-- SHEET: HALAMAN PENUMPANG -->
-<div class="overlay" id="sheetPenumpang">
-  <div class="sheet">
-    <button class="close" onclick="tutupSemua()">✕</button>
-    <h2 id="haloPenumpang">Halo, Penumpang 👋</h2>
-    <p>Akun kamu ketemu di database. Orderanmu siap dilanjut.</p>
-    <div style="background:#f4f6f8;border-radius:12px;padding:12px;margin-top:12px;font-size:13px;line-height:1.7">
-      <b>Detail Order:</b><br>
-      Dari: <span id="detailJemput">-</span><br>
-      Ke: <span id="detailTujuan">-</span><br>
-      Ongkos: <b id="detailOngkos">Rp -</b><br>
-      Status: <b style="color:#0B7A3E">Menunggu Driver...</b>
-    </div>
-    <button class="big-btn btn-green" onclick="konfirmasiOrder()">✅ Konfirmasi Order Ini</button>
-    <button class="big-btn btn-wa" onclick="chatCS()">💬 Chat Driver via WA</button>
-  </div>
-</div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<div class="bottom"><button class="active"><i>🏠</i>Beranda</button><button onclick="alert('Riwayat belum ada order')"><i>🧾</i>Riwayat</button><button onclick="alert('Promo: HEMAT20')"><i>🎁</i>Promo</button><button onclick="bukaAkun()"><i>👤</i>Akun</button></div>
+<div class="overlay" id="sheetDaftar"><div class="sheet"><button class="close" onclick="tutupSemua()">✕</button><h2>Daftar dulu yuk 👋</h2><p>Akun penumpang kamu belum ketemu di database. Daftar dulu biar orderanmu kesimpen.</p><input class="input" id="namaDaftar" placeholder="Nama lengkap kamu"><input class="input" id="hpDaftar" placeholder="No. WA, contoh 0812xxxx"><button class="big-btn btn-google" onclick="daftarGoogle()">🔍 Lanjut dengan Google</button><button class="big-btn btn-wa" onclick="daftarWA()">💬 Daftar via WhatsApp</button></div></div>
+<div class="overlay" id="sheetPenumpang"><div class="sheet"><button class="close" onclick="tutupSemua()">✕</button><h2 id="haloPenumpang">Halo, Penumpang 👋</h2><p>Akun kamu ketemu di database. Orderanmu siap dilanjut.</p><div style="background:#f4f6f8;border-radius:12px;padding:12px;margin-top:12px;font-size:13px;line-height:1.7"><b>Detail Order:</b><br>Dari: <span id="detailJemput">-</span><br>Ke: <span id="detailTujuan">-</span><br>Ongkos: <b id="detailOngkos">Rp -</b><br>Status: <b style="color:#0B7A3E">Menunggu Driver...</b></div><button class="big-btn btn-green" onclick="konfirmasiOrder()">✅ Konfirmasi Order Ini</button><button class="big-btn btn-wa" onclick="chatCS()">💬 Chat Driver via WA</button></div></div>
 <script>
-// ============ DATABASE PENUMPANG ============
-// INI DATABASE SEMENTARA PAKE localStorage, BIAR LANGSUNG JALAN
-// Kalo mau pake Supabase asli lu, ganti fungsi cekPenumpang() di bawah ini aja
-// Contoh Supabase: const {data} = await supabase.from('penumpang').select('*').eq('hp', hp).single()
-
-function getDB(){
-  try{ return JSON.parse(localStorage.getItem('ammo_penumpang_db')||'[]') }catch(e){ return [] }
-}
-function saveDB(db){ localStorage.setItem('ammo_penumpang_db', JSON.stringify(db)) }
-function getSesi(){ try{ return JSON.parse(localStorage.getItem('ammo_sesi')||'null') }catch(e){ return null } }
-function setSesi(u){ localStorage.setItem('ammo_sesi', JSON.stringify(u)) }
-
-// Cek akun penumpang di database - INI INTI YANG LU MAU
-function cekPenumpang(){
-  const sesi = getSesi();
-  if(sesi) return sesi;
-  // Kalo belum ada sesi, cek dari HP terakhir yang pernah daftar
-  const lastHp = localStorage.getItem('ammo_last_hp');
-  if(!lastHp) return null;
-  const db = getDB();
-  return db.find(u => u.hp === lastHp) || null;
-}
-
-// ============ LOGIC ORDER NOW ============
-function klikOrder(){
-  const jemput = document.getElementById('jemput').value.trim();
-  const tujuan = document.getElementById('tujuan').value.trim();
-  if(!jemput || !tujuan){
-    alert('Isi dulu penjemputan & tujuan ya Bro 🙏');
-    return;
-  }
-  document.getElementById('statusTxt').innerText = 'Mengecek akun penumpang di database...';
-  
-  // 1. CEK AKUN PENUMPANG DI DATABASE
-  const akun = cekPenumpang();
-
-  setTimeout(()=>{
-    document.getElementById('statusTxt').innerText = 'Sistem akan cek akun penumpang kamu dulu.';
-    if(akun){
-      // 2A. KALO ADA -> HALAMAN PENUMPANG
-      document.getElementById('haloPenumpang').innerText = 'Halo, ' + akun.nama + ' 👋';
-      document.getElementById('detailJemput').innerText = jemput;
-      document.getElementById('detailTujuan').innerText = tujuan;
-      document.getElementById('detailOngkos').innerText = document.getElementById('ongkosTxt').innerText;
-      document.getElementById('sheetPenumpang').classList.add('show');
-    }else{
-      // 2B. KALO BELUM ADA -> DAFTAR VIA GOOGLE / WA
-      document.getElementById('sheetDaftar').classList.add('show');
-    }
-  }, 400);
-}
-
-function daftarGoogle(){
-  const nama = document.getElementById('namaDaftar').value.trim() || 'Penumpang Google';
-  const hp = document.getElementById('hpDaftar').value.trim();
-  if(!hp){ alert('Isi No. WA dulu ya'); return; }
-  // Simpan ke database
-  const db = getDB();
-  let user = db.find(u=>u.hp===hp);
-  if(!user){ user = {nama, hp, via:'Google', created:Date.now()}; db.push(user); saveDB(db); }
-  setSesi(user); localStorage.setItem('ammo_last_hp', hp);
-  tutupSemua();
-  alert('Berhasil daftar via Google! Selamat datang, ' + user.nama);
-  klikOrder();
-}
-function daftarWA(){
-  const nama = document.getElementById('namaDaftar').value.trim();
-  const hp = document.getElementById('hpDaftar').value.trim();
-  if(!hp){ alert('Isi No. WA dulu ya'); return; }
-  const db = getDB();
-  let user = db.find(u=>u.hp===hp);
-  if(!user){ user = {nama: nama||'Penumpang WA', hp, via:'WA', created:Date.now()}; db.push(user); saveDB(db); }
-  setSesi(user); localStorage.setItem('ammo_last_hp', hp);
-  tutupSemua();
-  // Lanjut ke WA - ganti nomer ini sama nomer CS lu
-  const pesan = encodeURIComponent('Halo Ammo Travel, saya mau daftar. Nama: '+user.nama+' | Dari: '+document.getElementById('jemput').value+' | Ke: '+document.getElementById('tujuan').value);
-  window.open('https://wa.me/6281234567890?text='+pesan, '_blank');
-}
-function konfirmasiOrder(){
-  alert('Orderan Diterima! Driver sedang dicarikan untuk kamu 🚗');
-  tutupSemua();
-}
-function bukaAkun(){
-  const akun = cekPenumpang();
-  if(akun) alert('Akun: '+akun.nama+'\nHP: '+akun.hp+'\nDaftar via: '+akun.via);
-  else document.getElementById('sheetDaftar').classList.add('show');
-}
-function tutupSemua(){ document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('show')) }
-function chatCS(){ window.open('https://wa.me/6281234567890?text='+encodeURIComponent('Halo Ammo Travel, mau tanya order'), '_blank') }
-
-// ============ FITUR LAMA - TIDAK DIUBAH LOGIKANYA ============
-function isi(id,val){ document.getElementById(id).value = val; hitung(); }
-function tukar(){ const a=document.getElementById('jemput'), b=document.getElementById('tujuan'); const t=a.value; a.value=b.value; b.value=t; hitung(); }
-function hitung(){
-  const j=document.getElementById('jemput').value.trim(), t=document.getElementById('tujuan').value.trim();
-  if(j && t){
-    // Estimasi sederhana, nanti bisa ganti OSRM
-    const km = 12 + Math.floor(Math.random()*20);
-    const ongkos = 2500*km + 15000;
-    document.getElementById('jarakTxt').innerText = 'Perkiraan '+km+' km • ±'+(km*2)+' menit';
-    document.getElementById('ongkosTxt').innerText = 'Rp '+ongkos.toLocaleString('id-ID');
-  }
-}
-document.getElementById('jemput').addEventListener('input', hitung);
-document.getElementById('tujuan').addEventListener('input', hitung);
-function pilihDiPeta(target){ alert('Pilih di Peta: klik peta di bawah, nanti otomatis isi '+target); window._targetPeta = target; document.getElementById('map').scrollIntoView({behavior:'smooth'}); }
-function pakaiGPS(){ if(navigator.geolocation){ navigator.geolocation.getCurrentPosition(p=>{ document.getElementById('jemput').value = 'Lokasi Saya ('+p.coords.latitude.toFixed(4)+', '+p.coords.longitude.toFixed(4)+')'; hitung(); }, ()=>alert('GPS tidak aktif')) } else alert('GPS tidak didukung'); }
-
-// Peta Leaflet
-let map = L.map('map').setView([-6.9175, 107.6191], 13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
-let marker;
-map.on('click', e=>{
-  if(marker) map.removeLayer(marker);
-  marker = L.marker(e.latlng).addTo(map);
-  const t = window._targetPeta || 'jemput';
-  document.getElementById(t).value = 'Titik Peta ('+e.latlng.lat.toFixed(4)+', '+e.latlng.lng.toFixed(4)+')';
-  hitung();
-});
+function getDB(){try{return JSON.parse(localStorage.getItem('ammo_penumpang_db')||'[]')}catch(e){return[]}}
+function saveDB(db){localStorage.setItem('ammo_penumpang_db',JSON.stringify(db))}
+function getSesi(){try{return JSON.parse(localStorage.getItem('ammo_sesi')||'null')}catch(e){return null}}
+function setSesi(u){localStorage.setItem('ammo_sesi',JSON.stringify(u))}
+function cekPenumpang(){const s=getSesi();if(s) return s;const h=localStorage.getItem('ammo_last_hp');if(!h) return null;return getDB().find(u=>u.hp===h)||null}
+function klikOrder(){const j=document.getElementById('jemput').value.trim();const t=document.getElementById('tujuan').value.trim();if(!j||!t){alert('Isi dulu penjemputan & tujuan ya 🙏');return}const akun=cekPenumpang();if(akun){document.getElementById('haloPenumpang').innerText='Halo, '+akun.nama+' 👋';document.getElementById('detailJemput').innerText=j;document.getElementById('detailTujuan').innerText=t;document.getElementById('detailOngkos').innerText=document.getElementById('ongkosTxt').innerText;document.getElementById('sheetPenumpang').classList.add('show')}else{document.getElementById('sheetDaftar').classList.add('show')}}
+function daftarGoogle(){const n=document.getElementById('namaDaftar').value.trim()||'Penumpang Google';const hp=document.getElementById('hpDaftar').value.trim();if(!hp){alert('Isi No. WA dulu ya');return}const db=getDB();let u=db.find(x=>x.hp===hp);if(!u){u={nama:n,hp:hp,via:'Google',created:Date.now()};db.push(u);saveDB(db)}setSesi(u);localStorage.setItem('ammo_last_hp',hp);tutupSemua();alert('Berhasil daftar via Google! Selamat datang, '+u.nama);klikOrder()}
+function daftarWA(){const n=document.getElementById('namaDaftar').value.trim();const hp=document.getElementById('hpDaftar').value.trim();if(!hp){alert('Isi No. WA dulu ya');return}const db=getDB();let u=db.find(x=>x.hp===hp);if(!u){u={nama:n||'Penumpang WA',hp:hp,via:'WA',created:Date.now()};db.push(u);saveDB(db)}setSesi(u);localStorage.setItem('ammo_last_hp',hp);tutupSemua();const pesan=encodeURIComponent('Halo Ammo Travel, saya mau daftar. Nama: '+u.nama+' | Dari: '+document.getElementById('jemput').value+' | Ke: '+document.getElementById('tujuan').value);window.open('https://wa.me/6281234567890?text='+pesan,'_blank')}
+function konfirmasiOrder(){alert('Orderan Diterima! Driver sedang dicarikan 🚗');tutupSemua()}
+function bukaAkun(){const a=cekPenumpang();if(a) alert('Akun: '+a.nama+'\nHP: '+a.hp+'\nDaftar via: '+a.via);else document.getElementById('sheetDaftar').classList.add('show')}
+function tutupSemua(){document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('show'))}
+function chatCS(){window.open('https://wa.me/6281234567890?text='+encodeURIComponent('Halo Ammo Travel, mau tanya order'),'_blank')}
+function isi(id,val){document.getElementById(id).value=val;hitung()}
+function tukar(){const a=document.getElementById('jemput'),b=document.getElementById('tujuan');const t=a.value;a.value=b.value;b.value=t;hitung()}
+function hitung(){const j=document.getElementById('jemput').value.trim(),t=document.getElementById('tujuan').value.trim();if(j&&t){const km=12+Math.floor(Math.random()*20);const ongkos=2500*km+15000;document.getElementById('jarakTxt').innerText='Perkiraan '+km+' km • ±'+(km*2)+' menit';document.getElementById('ongkosTxt').innerText='Rp '+ongkos.toLocaleString('id-ID')}}
+document.getElementById('jemput').addEventListener('input',hitung);document.getElementById('tujuan').addEventListener('input',hitung);
+function pakaiGPS(){if(navigator.geolocation){navigator.geolocation.getCurrentPosition(async p=>{const lat=p.coords.latitude,lon=p.coords.longitude;try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);const d=await r.json();document.getElementById('jemput').value=d.display_name?d.display_name.split(',').slice(0,3).join(','):`Lokasi Saya (${lat.toFixed(4)}, ${lon.toFixed(4)})`}catch(e){document.getElementById('jemput').value=`Lokasi Saya (${lat.toFixed(4)}, ${lon.toFixed(4)})`}hitung()},()=>alert('GPS tidak aktif, izinkan lokasi ya 🙏'))}else alert('GPS tidak didukung')}
+// AUTO ISI PAS BUKA WEB
+window.addEventListener('load',()=>{if(navigator.geolocation){navigator.geolocation.getCurrentPosition(async p=>{const lat=p.coords.latitude,lon=p.coords.longitude;try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);const d=await r.json();document.getElementById('jemput').value=d.display_name?d.display_name.split(',').slice(0,3).join(','):`Lokasi Saya (${lat.toFixed(4)}, ${lon.toFixed(4)})`}catch(e){document.getElementById('jemput').value=`Lokasi Saya (${lat.toFixed(4)}, ${lon.toFixed(4)})`}hitung()},()=>{})}});
 </script>
 </body>
 </html>
