@@ -136,21 +136,21 @@ textarea{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#11
     </div>
     <div class="box"><div class="box-head"><h3>Antrian Belum Terjawab - Perlu Dijawab! <small style="font-size:12px;color:#aaa;font-weight:400">👆 Klik untuk jawab</small></h3></div><div id="dashAntrian">Memuat...</div></div>
     <div class="box" style="margin-top:15px"><div class="box-head"><h3>Daftar Driver Menunggu Verifikasi</h3></div>
-      <table><thead><tr><th>Nama</th><th>Mobil / Plat</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="driverTable"><tr><td colspan="4">Memuat...</td></tr></tbody></table>
+      <table><thead><tr><th>Nama</th><th>Mobil / Plat</th><th>Kode / PIN</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="driverTable"><tr><td colspan="5">Memuat...</td></tr></tbody></table>
     </div>
   </div>
 
   <div id="page-penumpang" class="page"><div class="box"><h3>👤 Data Penumpang - REAL dari tabel penumpang</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Total order dihitung dari tabel <b>bookings</b> pake <b>penumpang_id</b>.</p><table><thead><tr><th>Nama</th><th>No WA</th><th>Total Booking</th><th>Status</th></tr></thead><tbody id="penumpangTable"></tbody></table></div></div>
-  <div id="page-driver" class="page"><div class="box"><h3>🧑‍✈️ Semua Driver - REAL dari tabel drivers</h3><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="inNamaDrv" placeholder="Nama Driver"><input id="inWaDrv" placeholder="No WA"><input id="inPlatDrv" placeholder="Plat - contoh: F 1234 AB"><input id="inJenisDrv" placeholder="Jenis Mobil - Avanza"><button class="btn btn-terima" onclick="tambahDriver()">+ Tambah Driver</button></div><table><thead><tr><th>Nama</th><th>Mobil / Plat</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="driverTable2"></tbody></table></div></div>
+  <div id="page-driver" class="page"><div class="box"><h3>🧑‍✈️ Semua Driver - REAL dari tabel drivers</h3><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="inNamaDrv" placeholder="Nama Driver"><input id="inWaDrv" placeholder="No WA"><input id="inPlatDrv" placeholder="Plat - contoh: F 1234 AB"><input id="inKodeDrv" placeholder="Kode - contoh: #driver1"><input id="inPinDrv" placeholder="PIN - contoh: 123456" inputmode="numeric"><input id="inJenisDrv" placeholder="Jenis Mobil - Avanza"><button class="btn btn-terima" onclick="tambahDriver()">+ Tambah Driver</button></div><table><thead><tr><th>Nama</th><th>Mobil / Plat</th><th>Kode / PIN</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="driverTable2"></tbody></table></div></div>
   <div id="page-order" class="page"><div class="box"><h3>📋 Semua Order - REAL dari tabel bookings</h3><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="inDari" placeholder="Dari Lokasi"><input id="inTujuan" placeholder="Ke Lokasi"><input id="inHarga" type="number" placeholder="Total Harga Rp"><button class="btn btn-terima" onclick="tambahOrder()">+ Buat Booking</button></div><div id="allOrderList">Memuat...</div></div></div>
   <div id="page-penghasilan" class="page"><div class="box"><h3>💰 Penghasilan - REAL dari tabel payments</h3><p style="margin:12px 0;font-size:20px">Hari ini: <b id="penghasilanHariIni">Rp 0</b></p><p style="color:#ccc;font-size:13px">Dihitung dari <b>payments.nominal</b> yang statusnya lunas / paid / sukses hari ini. Kalau di DB lu statusnya beda, gue hitung semua payments hari ini.</p><div id="penghasilanList" style="margin-top:12px"></div><div style="margin-top:16px"><h3>💰 Tarif Aktif - REAL dari tabel tarif</h3><div id="tarifList"></div></div></div></div>
 
   <div id="page-antrian" class="page"><div class="box"><h3>🔥 Antrian - Pertanyaan yang Bot Gak Tau</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Kalau user nanya yang bot gak tau, masuk kesini. Jawab disini, jawaban otomatis masuk ke tabel <b>bot</b> juga, biar besok bot bisa jawab sendiri. Kalau jawabannya SALAH, klik <b>🗑️ Hapus</b> lalu pilih <b>Hapus Antrian + Bot</b>, biar bot gak jawab ngawur lagi. Gak usah buka database.</p><div id="antrianList">Memuat...</div></div></div>
 
   <div id="page-chat" class="page">
-    <div class="box"><h3>💬 Chat Penumpang + Ajari Bot</h3><p style="color:#ccc;font-size:13px;margin-top:5px">REAL dari tabel <b>chats</b>. Chat di index lu itu <b>anonim</b>, jadi penumpang_id bisa <b>NULL</b> - chat anonim dikumpulin jadi grup <b>Tamu Anonim</b>. Centang "Simpan ke Bot" aktif, jawaban kamu masuk tabel <b>bot</b>.</p></div>
+    <div class="box"><h3>💬 Chat Penumpang + Ajari Bot</h3><p style="color:#ccc;font-size:13px;margin-top:5px">REAL dari tabel <b>chats</b>. Chat di index lu itu <b>anonim</b>, jadi penumpang_id bisa <b>NULL</b> - chat anonim dikumpulin jadi grup <b>Tamu Anonim</b>. Centang "Simpan ke Bot" aktif, jawaban kamu masuk tabel <b>bot</b> juga.</p></div>
     <div class="chat-wrap" style="margin-top:15px">
-      <div class="chat-list" id="userList">Memuat...</div>
+      <div class="chat-list" id="userList"></div>
       <div class="chat-main">
         <div style="padding:12px;background:#000;border-bottom:1px solid #d4af37;display:flex;justify-content:space-between;align-items:center;gap:8px"><b id="chatTitle">Pilih penumpang...</b><label class="toggle"><input type="checkbox" id="saveToBot" checked> Simpan ke Bot 🤖</label></div>
         <div id="chatBox"><p style="color:#888;text-align:center;margin-top:50px">Pilih chat di kiri dulu</p></div>
@@ -191,7 +191,6 @@ document.addEventListener('focusin', e=>{
   }
 });
 document.addEventListener('focusout', e=>{
-  // Kasih jeda dikit, karena di HP focusout sering kepanggil pas keyboard pindah
   setTimeout(()=>{ if(document.activeElement.tagName!=='INPUT' && document.activeElement.tagName!=='TEXTAREA') sedangNgetik=false; }, 500);
 });
 document.addEventListener('input', e=>{
@@ -304,11 +303,11 @@ async function loadAll(){
     pins.innerHTML = aktif.slice(0,8).map((d,i)=>`<span class="pin" style="left:${pos[i][0]}%;top:${pos[i][1]}%" title="${d.nama}">📍</span>`).join('') || '<p style="color:#888;padding:10px">Belum ada driver aktif</p>';
     const menunggu = cacheDrivers.filter(d=>['menunggu','pending','baru','waiting'].includes(String(d.status||'').toLowerCase()));
     const dt = document.getElementById('driverTable');
-    if(!menunggu.length) dt.innerHTML='<tr><td colspan="4">Tidak ada driver menunggu ✅</td></tr>';
-    else dt.innerHTML = menunggu.map(d=>`<tr><td>${d.nama||'-'}</td><td>${d.jenis_mobil||'-'} • ${d.plat_mobil||'-'}</td><td><span class="badge">Menunggu</span></td><td><button class="btn btn-terima" onclick="verifikasiDriver(${d.id},'aktif')">Terima</button> <button class="btn btn-tolak" onclick="verifikasiDriver(${d.id},'ditolak')">Tolak</button></td></tr>`).join('');
+    if(!menunggu.length) dt.innerHTML='<tr><td colspan="5">Tidak ada driver menunggu ✅</td></tr>';
+    else dt.innerHTML = menunggu.map(d=>`<tr><td>${d.nama||'-'}</td><td>${d.jenis_mobil||'-'} • ${d.plat_mobil||'-'}</td><td><b>${d.kode||'-'}</b><br><small style="color:#aaa">PIN: ${d.pin||'-'}</small></td><td><span class="badge">Menunggu</span></td><td><button class="btn btn-terima" onclick="verifikasiDriver(${d.id},'aktif')">Terima</button> <button class="btn btn-tolak" onclick="verifikasiDriver(${d.id},'ditolak')">Tolak</button></td></tr>`).join('');
     const dt2 = document.getElementById('driverTable2');
-    if(!cacheDrivers.length) dt2.innerHTML='<tr><td colspan="4">Belum ada driver.</td></tr>';
-    else dt2.innerHTML = cacheDrivers.map(d=>`<tr><td>${d.nama||'-'}<br><small style="color:#aaa">${d.no_wa||''}</small></td><td>${d.jenis_mobil||'-'} • ${d.plat_mobil||'-'}</td><td><span class="badge ${d.status==='aktif'?'':'outline'}">${d.status}</span></td><td>${['menunggu','pending'].includes(String(d.status||'').toLowerCase())?`<button class="btn btn-terima" onclick="verifikasiDriver(${d.id},'aktif')">Terima</button> <button class="btn btn-tolak" onclick="verifikasiDriver(${d.id},'ditolak')">Tolak</button>`:`<button class="btn btn-tolak" onclick="hapusDriver(${d.id})">Hapus</button>`}</td></tr>`).join('');
+    if(!cacheDrivers.length) dt2.innerHTML='<tr><td colspan="5">Belum ada driver.</td></tr>';
+    else dt2.innerHTML = cacheDrivers.map(d=>`<tr><td>${d.nama||'-'}<br><small style="color:#aaa">${d.no_wa||''}</small></td><td>${d.jenis_mobil||'-'} • ${d.plat_mobil||'-'}</td><td><b>${d.kode||'-'}</b><br><small style="color:#aaa">PIN: ${d.pin||'-'}</small></td><td><span class="badge ${d.status==='aktif'?'':'outline'}">${d.status}</span></td><td>${['menunggu','pending'].includes(String(d.status||'').toLowerCase())?`<button class="btn btn-terima" onclick="verifikasiDriver(${d.id},'aktif')">Terima</button> <button class="btn btn-tolak" onclick="verifikasiDriver(${d.id},'ditolak')">Tolak</button>`:`<button class="btn btn-tolak" onclick="hapusDriver(${d.id})">Hapus</button>`}</td></tr>`).join('');
     const pt = document.getElementById('penumpangTable');
     if(!cachePenumpang.length) pt.innerHTML='<tr><td colspan="4">Belum ada penumpang.</td></tr>';
     else pt.innerHTML = cachePenumpang.map(p=>{
@@ -339,10 +338,14 @@ async function loadAll(){
 
 async function tambahDriver(){
   const nama=document.getElementById('inNamaDrv').value.trim(), no_wa=document.getElementById('inWaDrv').value.trim(), plat_mobil=document.getElementById('inPlatDrv').value.trim(), jenis_mobil=document.getElementById('inJenisDrv').value.trim();
+  let kode=document.getElementById('inKodeDrv').value.trim(), pin=document.getElementById('inPinDrv').value.trim();
   if(!nama) return showPopup('Belum Lengkap 😅','Isi nama driver dulu ya bro.','📝',[{text:'Oke, Isi Dulu',cls:'btn-terima',close:true}]);
-  const {error}=await sb.from('drivers').insert([{nama,no_wa,plat_mobil,jenis_mobil,status:'menunggu'}]);
+  if(!kode) return showPopup('Kode Kosong 😅','Isi kode driver dulu, contoh: #driver1','📝',[{text:'Oke, Isi Dulu',cls:'btn-terima',close:true}]);
+  if(!kode.startsWith('#')) kode='#'+kode;
+  if(!pin) return showPopup('PIN Kosong 😅','Isi PIN driver dulu, contoh: 123456','📝',[{text:'Oke, Isi Dulu',cls:'btn-terima',close:true}]);
+  const {error}=await sb.from('drivers').insert([{nama,no_wa,plat_mobil,jenis_mobil,kode,pin,status:'menunggu'}]);
   if(error) return showError(error.message);
-  document.getElementById('inNamaDrv').value='';document.getElementById('inWaDrv').value='';document.getElementById('inPlatDrv').value='';document.getElementById('inJenisDrv').value=''; loadAll(); showSukses('Driver ditambah, status Menunggu.');
+  document.getElementById('inNamaDrv').value='';document.getElementById('inWaDrv').value='';document.getElementById('inPlatDrv').value='';document.getElementById('inJenisDrv').value='';document.getElementById('inKodeDrv').value='';document.getElementById('inPinDrv').value=''; loadAll(); showSukses('Driver ditambah, Kode '+kode+' PIN '+pin);
 }
 async function verifikasiDriver(id,status){ const {error}=await sb.from('drivers').update({status}).eq('id',id); if(error) return showError(error.message); loadAll(); showSukses('Driver '+status); }
 async function hapusDriver(id){ showConfirm('Hapus Driver?','Yakin mau hapus driver ini? Data gak bisa dibalikin loh.', async ()=>{ await sb.from('drivers').delete().eq('id',id); loadAll(); showSukses('Driver udah dihapus.'); }); }
@@ -385,7 +388,8 @@ async function hapusAntrian(id, pertanyaan){
       if(error) return showError(error.message);
       loadAll(); showSukses('Antriannya aja yang kehapus. Bot-nya tetep aman, masih bisa jawab.');
     }},
-    {text:'🗑️ Hapus Antrian + Bot',cls:'btn-terima',close:true,onClick: async ()=>{
+    {text:'🗑️ Hapus Antrian + Bot',
+     cls:'btn-terima',close:true,onClick: async ()=>{
       const {error}=await sb.from('antrian').delete().eq('id',id);
       if(error) return showError(error.message);
       await sb.from('bot').delete().eq('kunci', pertanyaan.toLowerCase());
@@ -395,7 +399,7 @@ async function hapusAntrian(id, pertanyaan){
 }
 async function tambahBlacklist(){
   const no_wa=document.getElementById('inBlWa').value.trim(), alasan=document.getElementById('inBlAlasan').value.trim(), jumlah_cancel=parseInt(document.getElementById('inBlCancel').value||'1');
-  if(!no_wa) return showPopup('Belum Lengkap 😅','Isi No WA dulu ya bro.','📝',[{text:'Oke',cls:'btn-terima',close:true}]);
+  if(!no_wa) return showPopup('Belum Lengkap 😅','Isi No WA dulu ya bro.','📝',[{text:'Oke, Isi Dulu',cls:'btn-terima',close:true}]);
   const {error}=await sb.from('blacklist').insert([{no_wa, alasan, jumlah_cancel, status:'blacklist'}]);
   if(error) return showError(error.message);
   document.getElementById('inBlWa').value='';document.getElementById('inBlAlasan').value='';document.getElementById('inBlCancel').value=''; loadAll(); showSukses('Penumpang nakal masuk blacklist.');
