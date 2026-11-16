@@ -18,7 +18,7 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 .title h1 b{color:#d4af37}
 .form{padding:0 16px;position:relative}
 .lbl{font-weight:bold;font-size:16px;color:#d4af37;margin:0 0 6px 6px}
-.row{display:flex;align-items:center;gap:8px;background:#1a1a1a;border:1px solid #d4af37;border-radius:14px;padding:6px 6px 6px 8px;margin-bottom:8px;width:100%}
+.row{display:flex;align-items:center;gap:8px;background:#1a1a1a;border:1px solid #d4af37;border-radius:14px;padding:6px 6px 6px 12px;margin-bottom:8px;width:100%}
 .pin{font-size:26px;flex-shrink:0;color:#d4af37}
 .row input{flex:1;min-width:0;border:none;outline:none;background:transparent;font-size:15px;padding:10px 0;color:#fff}
 .row input::placeholder{color:#888}
@@ -123,11 +123,11 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 <div class="title"><h1>Mau Diantar <b>Kemana?</b></h1></div>
 <div class="form" autocomplete="off">
 <div class="lbl">Dari</div>
-<div class="row"><span class="pin">📍</span><input id="pickup" placeholder="Ketik / Pilih Lokasi Jemput..." autocomplete="off"><button class="btn-map" onclick="openMap('pickup')">📍 Peta</button></div>
+<div class="row"><input id="pickup" placeholder="Ketik / Pilih Lokasi Jemput..." autocomplete="off"><button class="btn-map" onclick="openMap('pickup')">📍 Peta</button></div>
 <div id="saranPick" class="saran-box"></div>
 <div class="swap-wrap"><button id="swapBtn" class="swap-btn" onclick="swapLokasi()" disabled title="Tukar Penjemputan & Tujuan">⇅</button></div>
 <div class="lbl">Tujuan</div>
-<div class="row"><span class="pin">📍</span><input id="dest" placeholder="Ketik / Pilih Tujuan..." autocomplete="off" value=""><button class="btn-map" onclick="openMap('dest')">📍 Peta</button></div>
+<div class="row"><input id="dest" placeholder="Ketik / Pilih Tujuan..." autocomplete="off" value=""><button class="btn-map" onclick="openMap('dest')">📍 Peta</button></div>
 <div id="saranDest" class="saran-box"></div>
 <div class="lbl">Berapa Orang</div>
 <div class="orang-wrap">
@@ -272,6 +272,7 @@ let toastTimer=null;
 function showToast(judul,isi,error){$('toastJudul').textContent=judul;$('toastIsi').textContent=isi;$('toastIco').textContent=error?'!':'✓';$('toastWrap').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(tutupToast,3000);}
 function tutupToast(){$('toastWrap').classList.remove('show');}
 function bukaVoucher(){showToast('Voucher','Voucher kamu: Rp '+(localStorage.getItem('ammo_voucher')||0)+' - Berlaku selamanya');}
+function sembunyikanHarga(){$('ongkosPreview').style.display='none';$('prevJarak').textContent='-';$('prevEstimasi').textContent='-';$('prevOngkos').textContent='-';$('prevVoucher').textContent='Voucher didapat: -';}
 document.addEventListener('click',function(e){let b=e.target.closest('.orang-btn');if(!b)return;jumlahOrang=parseInt(b.dataset.orang);document.querySelectorAll('.orang-btn').forEach(x=>x.classList.remove('aktif'));b.classList.add('aktif');jadwalPreview(true);});
 function swapLokasi(){let a=$('pickup').value,b=$('dest').value;$('pickup').value=b;$('dest').value=a;let tc=pickupCoord;pickupCoord=destCoord;destCoord=tc;updateSwap();jadwalPreview(true);showToast('Ditukar','Dari & Tujuan berhasil ditukar');}
 async function geocodeAlamat(q){try{let r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(q));let d=await r.json();if(d&&d[0])return [parseFloat(d[0].lat),parseFloat(d[0].lon)];}catch(e){}return null;}
@@ -280,13 +281,10 @@ function isiPenjemputanOtomatis(){if($('pickup').value.trim())return;if(navigato
 function jadwalPreview(langsung){clearTimeout(previewTimer);if(langsung)hitungPreview();else previewTimer=setTimeout(hitungPreview,800);}
 async function hitungPreview(){
 let a=$('pickup').value.trim(), b=$('dest').value.trim();
-if(!a||!b){destCoord=null;$('ongkosPreview').style.display='none';$('prevJarak').textContent='-';$('prevEstimasi').textContent='-';$('prevOngkos').textContent='-';return;}
-if(a.includes('107.')||b.includes('107.'))return;
+if(!a||!b){sembunyikanHarga();return;}
+if(!pickupCoord||!destCoord){sembunyikanHarga();return;}
 $('ongkosPreview').style.display='block';
 $('prevJarak').textContent='Menghitung...';$('prevEstimasi').textContent='Menghitung...';$('prevOngkos').textContent='Menghitung...';
-if(!pickupCoord)pickupCoord=await geocodeAlamat(a);
-if(!destCoord)destCoord=await geocodeAlamat(b);
-if(!pickupCoord||!destCoord){$('prevJarak').textContent='-';$('prevEstimasi').textContent='-';$('prevOngkos').textContent='Pilih dari saran / peta ya';return;}
 try{
 let url=`https://router.project-osrm.org/route/v1/driving/${pickupCoord[1]},${pickupCoord[0]};${destCoord[1]},${destCoord[0]}?overview=false`;
 let r=await fetch(url);let d=await r.json();
@@ -297,8 +295,40 @@ $('prevEstimasi').textContent='± '+fmtEstimasi(route.duration);
 $('prevOngkos').textContent='ONGKOS '+fmtRp(h.ongkos);
 $('prevVoucher').textContent='Voucher didapat: + '+fmtRp(h.voucher);
 }
-}catch(e){$('prevJarak').textContent='-';$('prevEstimasi').textContent='-';$('prevOngkos').textContent='-';}
+}catch(e){sembunyikanHarga();}
 }
+async function cariSaran(q, boxEl, inputEl, isPickup){
+  if(!q || q.length < 3){ boxEl.style.display='none'; return; }
+  boxEl.style.display='block';
+  boxEl.innerHTML='<div class="loading">Mencari saran...</div>';
+  try{
+    let r = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=6&countrycodes=id&q='+encodeURIComponent(q));
+    let d = await r.json();
+    if(!d || !d.length){ boxEl.innerHTML='<div class="loading">Tidak ketemu, coba kata lain / pilih dari Peta</div>'; return; }
+    boxEl.innerHTML='';
+    d.forEach(function(item){
+      let div=document.createElement('div');
+      let namaPendek=item.display_name.split(',').slice(0,3).join(',');
+      div.innerHTML='📍 '+namaPendek+'<div class="jarak">'+item.display_name.split(',').slice(3,5).join(',')+'</div>';
+      div.onclick=function(){
+        inputEl.value=item.display_name;
+        let coord=[parseFloat(item.lat), parseFloat(item.lon)];
+        if(isPickup){ pickupCoord=coord; } else { destCoord=coord; }
+        boxEl.style.display='none';
+        updateSwap(); jadwalPreview(true);
+      };
+      boxEl.appendChild(div);
+    });
+  }catch(e){ boxEl.innerHTML='<div class="loading">Gagal cari saran, coba lagi / pakai Peta</div>'; }
+}
+function jadwalSaran(inputEl, boxEl, isPickup){
+  clearTimeout(saranTimer);
+  saranTimer=setTimeout(function(){ cariSaran(inputEl.value.trim(), boxEl, inputEl, isPickup); }, 400);
+}
+document.addEventListener('click', function(e){
+  if(!$('saranPick').contains(e.target) && e.target.id!=='pickup') $('saranPick').style.display='none';
+  if(!$('saranDest').contains(e.target) && e.target.id!=='dest') $('saranDest').style.display='none';
+});
 function getDB(){try{return JSON.parse(localStorage.getItem('ammo_penumpang_db')||'[]');}catch(e){return [];}}
 function saveDB(db){localStorage.setItem('ammo_penumpang_db',JSON.stringify(db));}
 function getSesi(){try{let s=JSON.parse(localStorage.getItem('ammo_sesi')||'null');if(s&&(s.nama||s.hp||s.email))return s;return null;}catch(e){return null;}}
@@ -315,6 +345,7 @@ let h=hitungOngkos(kmRaw);
 jarakKm=h.kmTagih;totalHarga=h.ongkos;voucherDapat=h.voucher;
 }
 }catch(e){}
+if(!pickupCoord||!destCoord){showToast('Pilih Dulu','Pilih Dari & Tujuan dari saran / peta dulu ya, jangan cuma diketik',true);return;}
 let sesi=getSesi();
 let voucherLama=parseInt(localStorage.getItem('ammo_voucher')||'0');
 localStorage.setItem('ammo_voucher', voucherLama+voucherDapat);
@@ -449,7 +480,7 @@ function kosongkanTujuan(){
 $('dest').value='';
 destCoord=null;
 $('saranDest').style.display='none';
-$('ongkosPreview').style.display='none';
+sembunyikanHarga();
 localStorage.removeItem('masphus_order');
 updateSwap();
 }
@@ -476,8 +507,8 @@ if(sessionStorage.getItem('ammo_clear')==='1'||sessionStorage.getItem('ammo_must
 },500);
 isiPenjemputanOtomatis();
 try{let t=$('tanggalBerangkat');if(t&&!t.value)t.value=new Date().toISOString().slice(0,10);}catch(e){}
-$('pickup').addEventListener('input',()=>{updateSwap();jadwalPreview(false);});
-$('dest').addEventListener('input',()=>{updateSwap();jadwalPreview(false);});
+$('pickup').addEventListener('input',()=>{pickupCoord=null;updateSwap();sembunyikanHarga();jadwalSaran($('pickup'),$('saranPick'),true);});
+$('dest').addEventListener('input',()=>{destCoord=null;updateSwap();sembunyikanHarga();jadwalSaran($('dest'),$('saranDest'),false);});
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
