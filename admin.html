@@ -48,6 +48,7 @@ table{width:100%;border-collapse:collapse}th{text-align:left;padding:10px;border
 .toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:#fff;white-space:nowrap}.toggle input{accent-color:#f5d67b;width:18px;height:18px}
 .page{display:none}.page.active{display:block}
 input,select{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#111;color:#fff;width:100%}
+textarea{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#111;color:#fff;width:100%;font-family:inherit}
 #btnMenu{display:none;background:#f5d67b;border:none;padding:8px 12px;border-radius:8px;font-weight:800;cursor:pointer}
 @media(max-width:900px) and (orientation:portrait){
   .sidebar{display:none}.main{margin-left:0}
@@ -96,8 +97,10 @@ input,select{padding:11px;border-radius:10px;border:1px solid #d4af37;background
     <a data-page="driver"><span class="mi">🧑‍✈️</span> Driver</a>
     <a data-page="order"><span class="mi">📋</span> Order</a>
     <a data-page="penghasilan"><span class="mi">💰</span> Penghasilan</a>
+    <a data-page="antrian"><span class="mi">🔥</span> Antrian <span class="badge" id="antrianNotif" style="display:none">0</span></a>
     <a data-page="chat"><span class="mi">💬</span> Chat <span class="badge" id="chatNotif" style="display:none">0</span></a>
     <a data-page="bot"><span class="mi">🤖</span> Data Bot</a>
+    <a data-page="blacklist"><span class="mi">🚫</span> Blacklist</a>
     <a data-page="pengaturan"><span class="mi">⚙️</span> Pengaturan</a>
   </div>
   <div style="padding:20px;color:#888;font-size:12px">Login sebagai:<br><b style="color:#f5d67b;font-size:15px">Sari Lestari - Super Admin</b><br><br><button class="btn btn-tolak" onclick="alert('Logout')">Keluar</button></div>
@@ -119,7 +122,8 @@ input,select{padding:11px;border-radius:10px;border:1px solid #d4af37;background
         <div class="map"><img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80"><div id="pins"></div><div class="ctrl"><button>−</button><button>+</button></div></div>
       </div>
     </div>
-    <div class="box"><div class="box-head"><h3>Daftar Driver Menunggu Verifikasi</h3></div>
+    <div class="box"><div class="box-head"><h3>Antrian Belum Terjawab - Perlu Dijawab!</h3></div><div id="dashAntrian">Memuat...</div></div>
+    <div class="box" style="margin-top:15px"><div class="box-head"><h3>Daftar Driver Menunggu Verifikasi</h3></div>
       <table><thead><tr><th>Nama</th><th>Mobil / Plat</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="driverTable"><tr><td colspan="4">Memuat...</td></tr></tbody></table>
     </div>
   </div>
@@ -129,8 +133,10 @@ input,select{padding:11px;border-radius:10px;border:1px solid #d4af37;background
   <div id="page-order" class="page"><div class="box"><h3>📋 Semua Order - REAL dari tabel bookings</h3><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="inDari" placeholder="Dari Lokasi"><input id="inTujuan" placeholder="Ke Lokasi"><input id="inHarga" type="number" placeholder="Total Harga Rp"><button class="btn btn-terima" onclick="tambahOrder()">+ Buat Booking</button></div><div id="allOrderList">Memuat...</div></div></div>
   <div id="page-penghasilan" class="page"><div class="box"><h3>💰 Penghasilan - REAL dari tabel payments</h3><p style="margin:12px 0;font-size:20px">Hari ini: <b id="penghasilanHariIni">Rp 0</b></p><p style="color:#ccc;font-size:13px">Dihitung dari <b>payments.nominal</b> yang statusnya lunas / paid / sukses hari ini. Kalau di DB lu statusnya beda, gue hitung semua payments hari ini.</p><div id="penghasilanList" style="margin-top:12px"></div><div style="margin-top:16px"><h3>💰 Tarif Aktif - REAL dari tabel tarif</h3><div id="tarifList"></div></div></div></div>
 
+  <div id="page-antrian" class="page"><div class="box"><h3>🔥 Antrian - Pertanyaan yang Bot Gak Tau</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Kalau user nanya yang bot gak tau, masuk kesini. Jawab disini, jawaban otomatis masuk ke tabel <b>bot</b> juga, biar besok bot bisa jawab sendiri. Status: <b>terjawab</b> = udah ada jawaban, <b>dijawab</b> = masih nunggu jawaban lu.</p><div id="antrianList">Memuat...</div></div></div>
+
   <div id="page-chat" class="page">
-    <div class="box"><h3>💬 Chat Penumpang + Ajari Bot</h3><p style="color:#ccc;font-size:13px;margin-top:5px">REAL dari tabel <b>chats</b> (group by <b>penumpang_id</b>). Centang "Simpan ke Bot" aktif, jawaban kamu masuk tabel <b>bot</b>.</p></div>
+    <div class="box"><h3>💬 Chat Penumpang + Ajari Bot</h3><p style="color:#ccc;font-size:13px;margin-top:5px">REAL dari tabel <b>chats</b>. Chat di index lu itu <b>anonim</b>, jadi penumpang_id bisa <b>NULL</b> - chat anonim dikumpulin jadi grup <b>Tamu Anonim</b>. Centang "Simpan ke Bot" aktif, jawaban kamu masuk tabel <b>bot</b>.</p></div>
     <div class="chat-wrap" style="margin-top:15px">
       <div class="chat-list" id="userList">Memuat...</div>
       <div class="chat-main">
@@ -142,6 +148,9 @@ input,select{padding:11px;border-radius:10px;border:1px solid #d4af37;background
   </div>
 
   <div id="page-bot" class="page"><div class="box"><h3>🤖 Data Bot - REAL dari tabel bot</h3><p style="color:#ccc;font-size:13px">Tabel bot lu gak ada id, jadi hapus pake <b>kunci</b>.</p><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="newKunci" placeholder="Kunci / Pertanyaan"><input id="newJawaban" placeholder="Jawaban Bot"><button class="btn btn-terima" onclick="tambahBot()">+ Tambah</button></div><table><thead><tr><th>Kunci</th><th>Jawaban</th><th>Aksi</th></tr></thead><tbody id="botTable"></tbody></table></div></div>
+
+  <div id="page-blacklist" class="page"><div class="box"><h3>🚫 Blacklist - Penumpang Nakal (Sering Cancel)</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Buat nandain penumpang yang udah order tapi sering dibatalkan.</p><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="inBlWa" placeholder="No WA Penumpang"><input id="inBlAlasan" placeholder="Alasan - cth: 3x cancel mendadak"><input id="inBlCancel" type="number" placeholder="Jumlah Cancel"><button class="btn btn-terima" onclick="tambahBlacklist()">+ Masukkan Blacklist</button></div><table><thead><tr><th>No WA</th><th>Alasan</th><th>Jumlah Cancel</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="blacklistTable"></tbody></table></div></div>
+
   <div id="page-pengaturan" class="page"><div class="box"><h3>⚙️ Pengaturan</h3><p style="color:#ccc;margin:10px 0">Nama Admin</p><input id="namaAdmin" value="Sari Lestari"><p style="color:#ccc;margin:10px 0">Tarif Aktif (dari tabel tarif)</p><div id="tarifSetting"></div><br><button class="btn btn-terima" onclick="alert('Pengaturan tersimpan! (masih lokal)')">💾 Simpan Pengaturan</button><p style="color:#888;font-size:12px;margin-top:14px">Supabase: https://xxtgmohxdztesiubfxap.supabase.co • Status: <span id="statusSupabase" style="color:#25D366">Menghubungkan...</span></p></div></div>
 </div>
 
@@ -149,8 +158,8 @@ input,select{padding:11px;border-radius:10px;border:1px solid #d4af37;background
 const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-let currentUser=null, lastUserMsg="";
-let cacheBookings=[], cacheDrivers=[], cachePenumpang=[], cachePayments=[], cacheTarif=[];
+let currentUser=null, lastUserMsg="", currentUserLabel="";
+let cacheBookings=[], cacheDrivers=[], cachePenumpang=[], cachePayments=[], cacheTarif=[], cacheAntrian=[];
 
 document.querySelectorAll('.menu a').forEach(a=>{
   a.onclick=()=>{document.querySelectorAll('.menu a').forEach(x=>x.classList.remove('active'));a.classList.add('active');
@@ -159,84 +168,92 @@ document.querySelectorAll('.menu a').forEach(a=>{
   if(window.innerWidth<=900 && window.matchMedia('(orientation: portrait)').matches) document.querySelector('.sidebar').style.display='none';}
 });
 function rp(n){ return 'Rp ' + (Number(n)||0).toLocaleString('id-ID'); }
-function esc(s){ return String(s||'').replace(/'/g,"\\'"); }
+function esc(s){ return String(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
 function todayStr(){ return new Date().toISOString().slice(0,10); }
 
 async function loadAll(){
   try{
-    const [pen, drv, book, pay, tarif] = await Promise.all([
+    const [pen, drv, book, pay, tarif, ant, black] = await Promise.all([
       sb.from('penumpang').select('*').order('created_at',{ascending:false}),
       sb.from('drivers').select('*').order('created_at',{ascending:false}),
       sb.from('bookings').select('*').order('created_at',{ascending:false}),
       sb.from('payments').select('*').order('created_at',{ascending:false}),
-      sb.from('tarif').select('*').order('id',{ascending:true})
+      sb.from('tarif').select('*').order('id',{ascending:true}),
+      sb.from('antrian').select('*').order('id',{ascending:false}).limit(50),
+      sb.from('blacklist').select('*').order('created_at',{ascending:false}).limit(50)
     ]);
     if(pen.error) throw pen.error; if(drv.error) throw drv.error; if(book.error) throw book.error; if(pay.error) throw pay.error;
-    cachePenumpang = pen.data||[]; cacheDrivers = drv.data||[]; cacheBookings = book.data||[]; cachePayments = pay.data||[]; cacheTarif = tarif.data||[];
-    document.getElementById('statusSupabase').innerText='Terhubung ✅ - REAL (bookings/payments/tarif)';
+    cachePenumpang = pen.data||[]; cacheDrivers = drv.data||[]; cacheBookings = book.data||[]; cachePayments = pay.data||[]; cacheTarif = tarif.data||[]; cacheAntrian = ant.data||[];
+    document.getElementById('statusSupabase').innerText='Terhubung ✅ - REAL';
     document.getElementById('statusSupabase').style.color='#25D366';
 
-    // 1. STATISTIK REAL - sesuai kolom asli lu
     document.getElementById('statPenumpang').innerText = cachePenumpang.length.toLocaleString('id-ID');
-    // Driver aktif: status bisa 'aktif', 'active', 'online' - kita hitung yg mengandung aktif/active/online
     const aktif = cacheDrivers.filter(d=>['aktif','active','online','tersedia'].includes(String(d.status||'').toLowerCase()));
     document.getElementById('statDriver').innerText = aktif.length;
     document.getElementById('driverOnline').innerText = '📍 • '+aktif.length+' Driver Online';
     const today = todayStr();
     const todayBookings = cacheBookings.filter(o=>(o.created_at||'').slice(0,10)===today);
     document.getElementById('statOrder').innerText = todayBookings.length;
-    // Pendapatan: dari payments hari ini yg status lunas/paid/sukses, kalau gak ada yg lunas hitung semua payments hari ini
     const payToday = cachePayments.filter(p=>(p.created_at||'').slice(0,10)===today);
     const payLunas = payToday.filter(p=>['lunas','paid','sukses','success','selesai','completed'].includes(String(p.status||'').toLowerCase()));
     const totalPendapatan = (payLunas.length?payLunas:payToday).reduce((s,p)=>s+(Number(p.nominal)||0),0);
     document.getElementById('statPendapatan').innerText = rp(totalPendapatan);
     document.getElementById('penghasilanHariIni').innerText = rp(totalPendapatan);
 
-    // 2. ORDER LIVE - dari bookings
     const aktifOrder = cacheBookings.filter(o=>!['selesai','completed','batal','cancelled'].includes(String(o.status||'').toLowerCase()));
     document.getElementById('orderAktif').innerText = '• '+aktifOrder.length+' Pesanan Aktif';
     const listEl = document.getElementById('orderList');
     if(!cacheBookings.length) listEl.innerHTML='<p style="color:#888">Belum ada booking. Data dari index lu akan muncul di sini.</p>';
     else listEl.innerHTML = cacheBookings.slice(0,3).map(o=>`<div class="order"><div><b>BKG-${o.id}</b><br><small>${o.nama_penumpang||'-'} • ${o.dari_lokasi||'-'} → ${o.ke_lokasi||'-'}</small></div><span class="badge ${o.status==='selesai'?'outline':''}">${o.status||'Baru'}</span></div>`).join('');
 
-    // 3. SEMUA BOOKINGS
     const allEl = document.getElementById('allOrderList');
     if(!cacheBookings.length) allEl.innerHTML='<p style="color:#888">Belum ada booking.</p>';
-    else allEl.innerHTML = cacheBookings.map(o=>`<div class="order"><div><b>BKG-${o.id}</b><br><small>${o.nama_penumpang||'-'} (${o.no_wa||'-'}) • ${o.dari_lokasi||'-'} → ${o.ke_lokasi||'-'} • ${o.jenis_layanan||''} • ${o.tanggal_berangkat||''} • ${new Date(o.created_at).toLocaleString('id-ID')}</small></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><b>${rp(o.total_harga)}</b><span class="badge ${o.status==='selesai'?'outline':''}">${o.status}</span><button class="btn btn-terima" onclick="selesaiOrder(${o.id})">Selesai</button><button class="btn btn-tolak" onclick="hapusOrder(${o.id})">Hapus</button></div></div>`).join('');
+    else allEl.innerHTML = cacheBookings.map(o=>`<div class="order"><div><b>BKG-${o.id}</b><br><small>${o.nama_penumpang||'-'} (${o.no_wa||'-'}) • ${o.dari_lokasi||'-'} → ${o.ke_lokasi||'-'} • ${o.jenis_layanan||''} • ${o.tanggal_berangkat||''} • ${o.created_at?new Date(o.created_at).toLocaleString('id-ID'):''}</small></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><b>${rp(o.total_harga)}</b><span class="badge ${o.status==='selesai'?'outline':''}">${o.status}</span><button class="btn btn-terima" onclick="selesaiOrder(${o.id})">Selesai</button><button class="btn btn-tolak" onclick="hapusOrder(${o.id})">Hapus</button></div></div>`).join('');
 
-    // 4. PENGHASILAN - dari payments
     const pengEl = document.getElementById('penghasilanList');
     if(!cachePayments.length) pengEl.innerHTML='<p style="color:#888">Belum ada payments. Payment dari index akan muncul di sini.</p>';
-    else pengEl.innerHTML = cachePayments.slice(0,20).map(p=>`<div class="order"><div><b>Payment #${p.id} • Booking #${p.booking_id}</b><br><small>${p.metode||'-'} • ${new Date(p.created_at).toLocaleString('id-ID')}</small></div><div><b>${rp(p.nominal)}</b> <span class="badge ${p.status==='lunas'?'':'outline'}">${p.status}</span></div></div>`).join('');
+    else pengEl.innerHTML = cachePayments.slice(0,20).map(p=>`<div class="order"><div><b>Payment #${p.id} • Booking #${p.booking_id}</b><br><small>${p.metode||'-'} • ${p.created_at?new Date(p.created_at).toLocaleString('id-ID'):''}</small></div><div><b>${rp(p.nominal)}</b> <span class="badge ${p.status==='lunas'?'':'outline'}">${p.status}</span></div></div>`).join('');
 
-    // Tarif
     const tarifHtml = cacheTarif.length ? cacheTarif.map(t=>`<div class="order"><div><b>${t.jenis}</b></div><b>${rp(t.harga_per_km)} / KM ${t.is_active?'✅ Aktif':''}</b></div>`).join('') : '<p style="color:#888">Belum ada tarif</p>';
     document.getElementById('tarifList').innerHTML = tarifHtml;
     document.getElementById('tarifSetting').innerHTML = tarifHtml;
 
-    // 5. PIN PETA - dari driver aktif beneran
     const pins = document.getElementById('pins');
     const pos = [[18,25],[38,18],[55,15],[48,48],[62,55],[75,35],[70,70],[35,65]];
     pins.innerHTML = aktif.slice(0,8).map((d,i)=>`<span class="pin" style="left:${pos[i][0]}%;top:${pos[i][1]}%" title="${d.nama}">📍</span>`).join('') || '<p style="color:#888;padding:10px">Belum ada driver aktif</p>';
 
-    // 6. DRIVER MENUNGGU VERIFIKASI
     const menunggu = cacheDrivers.filter(d=>['menunggu','pending','baru','waiting'].includes(String(d.status||'').toLowerCase()));
     const dt = document.getElementById('driverTable');
     if(!menunggu.length) dt.innerHTML='<tr><td colspan="4">Tidak ada driver menunggu ✅</td></tr>';
     else dt.innerHTML = menunggu.map(d=>`<tr><td>${d.nama||'-'}</td><td>${d.jenis_mobil||'-'} • ${d.plat_mobil||'-'}</td><td><span class="badge">Menunggu</span></td><td><button class="btn btn-terima" onclick="verifikasiDriver(${d.id},'aktif')">Terima</button> <button class="btn btn-tolak" onclick="verifikasiDriver(${d.id},'ditolak')">Tolak</button></td></tr>`).join('');
 
-    // 7. SEMUA DRIVER
     const dt2 = document.getElementById('driverTable2');
     if(!cacheDrivers.length) dt2.innerHTML='<tr><td colspan="4">Belum ada driver.</td></tr>';
     else dt2.innerHTML = cacheDrivers.map(d=>`<tr><td>${d.nama||'-'}<br><small style="color:#aaa">${d.no_wa||''}</small></td><td>${d.jenis_mobil||'-'} • ${d.plat_mobil||'-'}</td><td><span class="badge ${d.status==='aktif'?'':'outline'}">${d.status}</span></td><td>${['menunggu','pending'].includes(String(d.status||'').toLowerCase())?`<button class="btn btn-terima" onclick="verifikasiDriver(${d.id},'aktif')">Terima</button> <button class="btn btn-tolak" onclick="verifikasiDriver(${d.id},'ditolak')">Tolak</button>`:`<button class="btn btn-tolak" onclick="hapusDriver(${d.id})">Hapus</button>`}</td></tr>`).join('');
 
-    // 8. PENUMPANG - hitung booking by penumpang_id (uuid)
     const pt = document.getElementById('penumpangTable');
     if(!cachePenumpang.length) pt.innerHTML='<tr><td colspan="4">Belum ada penumpang.</td></tr>';
     else pt.innerHTML = cachePenumpang.map(p=>{
       const jml = cacheBookings.filter(o=>o.penumpang_id===p.id).length;
       return `<tr><td>${p.nama||'-'}</td><td>${p.no_wa||'-'}</td><td>${jml} booking</td><td><span class="badge">${p.status||'Aktif'}</span></td></tr>`;
     }).join('');
+
+    // ANTRIAN - yg belum terjawab = jawaban null
+    const belum = cacheAntrian.filter(a=>!a.jawaban);
+    const antNotif = document.getElementById('antrianNotif');
+    antNotif.innerText = belum.length; antNotif.style.display = belum.length?'inline':'none';
+    const dashAnt = document.getElementById('dashAntrian');
+    if(!belum.length) dashAnt.innerHTML='<p style="color:#888">Semua antrian sudah terjawab ✅</p>';
+    else dashAnt.innerHTML = belum.slice(0,3).map(a=>`<div class="order"><div><b>${a.pertanyaan}</b><br><small>${a.waktu||''} • ${a.status}</small></div><span class="badge outline">Belum Jawab</span></div>`).join('');
+    const antList = document.getElementById('antrianList');
+    if(!cacheAntrian.length) antList.innerHTML='<p style="color:#888">Belum ada antrian.</p>';
+    else antList.innerHTML = cacheAntrian.map(a=>`<div class="order" style="align-items:flex-start;flex-direction:column"><div><b>${a.pertanyaan}</b><br><small>${a.waktu||''} • Status: ${a.status}</small></div>${a.jawaban?`<div style="margin-top:8px;color:#f5d67b">Jawaban: ${a.jawaban}</div>`: `<div style="display:flex;gap:8px;width:100%;margin-top:10px;flex-wrap:wrap"><textarea id="jawab-${a.id}" placeholder="Tulis jawaban lu, gaya santai kayak bot lu..." style="flex:1"></textarea><button class="btn btn-terima" onclick="jawabAntrian('${a.id}','${esc(a.pertanyaan)}')">Jawab & Ajari Bot</button></div>`}</div>`).join('');
+
+    // BLACKLIST
+    const bl = document.getElementById('blacklistTable');
+    const blackData = black.data||[];
+    if(!blackData.length) bl.innerHTML='<tr><td colspan="5">Belum ada blacklist. Bagus, berarti belum ada penumpang nakal.</td></tr>';
+    else bl.innerHTML = blackData.map(b=>`<tr><td>${b.no_wa||'-'}</td><td>${b.alasan||'-'}</td><td>${b.jumlah_cancel||0}x</td><td><span class="badge outline">${b.status||'blacklist'}</span></td><td><button class="btn btn-tolak" onclick="hapusBlacklist(${b.id})">Hapus</button></td></tr>`).join('');
 
   }catch(e){
     document.getElementById('statusSupabase').innerText='GAGAL: '+e.message;
@@ -246,7 +263,6 @@ async function loadAll(){
   loadBot(); loadUsers();
 }
 
-// ===== CRUD REAL - SESUAI KOLOM ASLI =====
 async function tambahDriver(){
   const nama=document.getElementById('inNamaDrv').value.trim(), no_wa=document.getElementById('inWaDrv').value.trim(), plat_mobil=document.getElementById('inPlatDrv').value.trim(), jenis_mobil=document.getElementById('inJenisDrv').value.trim();
   if(!nama) return alert('Isi nama dulu');
@@ -266,6 +282,25 @@ async function tambahOrder(){
 async function selesaiOrder(id){ const {error}=await sb.from('bookings').update({status:'selesai'}).eq('id',id); if(error) return alert(error.message); loadAll(); }
 async function hapusOrder(id){ if(!confirm('Hapus booking ini?')) return; await sb.from('bookings').delete().eq('id',id); loadAll(); }
 
+async function jawabAntrian(id, pertanyaan){
+  const el=document.getElementById('jawab-'+id); const jawaban=el.value.trim();
+  if(!jawaban) return alert('Isi jawaban dulu bro');
+  const {error}=await sb.from('antrian').update({jawaban:jawaban, status:'terjawab'}).eq('id',id);
+  if(error) return alert(error.message);
+  // Masukkan ke bot biar besok auto jawab, cek dulu biar gak duplikat
+  const {data:cek}=await sb.from('bot').select('*').eq('kunci',pertanyaan.toLowerCase());
+  if(!cek||!cek.length) await sb.from('bot').insert([{kunci:pertanyaan.toLowerCase(), jawaban:jawaban}]);
+  alert('✅ Udah kejawab + udah masuk ke Bot!'); loadAll();
+}
+async function tambahBlacklist(){
+  const no_wa=document.getElementById('inBlWa').value.trim(), alasan=document.getElementById('inBlAlasan').value.trim(), jumlah_cancel=parseInt(document.getElementById('inBlCancel').value||'1');
+  if(!no_wa) return alert('Isi No WA dulu');
+  const {error}=await sb.from('blacklist').insert([{no_wa, alasan, jumlah_cancel, status:'blacklist'}]);
+  if(error) return alert(error.message);
+  document.getElementById('inBlWa').value='';document.getElementById('inBlAlasan').value='';document.getElementById('inBlCancel').value=''; loadAll(); alert('Masuk blacklist ✅');
+}
+async function hapusBlacklist(id){ if(!confirm('Hapus dari blacklist?')) return; await sb.from('blacklist').delete().eq('id',id); loadAll(); }
+
 async function loadBot(){
   const {data,error}=await sb.from('bot').select('*').order('kunci',{ascending:true});
   if(error){ document.getElementById('botTable').innerHTML='<tr><td colspan="3">Error: '+error.message+'</td></tr>'; return; }
@@ -284,34 +319,49 @@ async function hapusBot(kunci){ if(confirm('Hapus data bot ini?')){await sb.from
 async function loadUsers(){
   const {data,error}=await sb.from('chats').select('*').order('created_at',{ascending:false});
   if(error||!data||!data.length){ document.getElementById('userList').innerHTML='<p style="color:#888;padding:12px">Belum ada chat. Chat dari index akan masuk sini.</p>'; document.getElementById('chatNotif').style.display='none'; return; }
-  const users=[...new Map(data.map(c=>[c.penumpang_id||'anon',c])).values()];
-  // Tampilkan nama penumpang kalau ketemu
-  document.getElementById('userList').innerHTML=users.map(u=>{
-    const p = cachePenumpang.find(x=>x.id===u.penumpang_id);
-    const label = p ? (p.nama+' • '+p.no_wa) : String(u.penumpang_id).slice(0,8);
-    return `<div class="chat-user" onclick="bukaChat('${u.penumpang_id}','${esc(label)}')"><b>${label}</b><small>${(u.message||'').slice(0,40)}</small></div>`;
+  // FIX ANONIM: penumpang_id NULL dikumpulin jadi 1 grup "Tamu Anonim", bukan dihilangin
+  const map=new Map();
+  data.forEach(c=>{
+    const key=c.penumpang_id||'anon';
+    if(!map.has(key)) map.set(key,c);
+  });
+  const users=[...map.entries()];
+  document.getElementById('userList').innerHTML=users.map(([key,u])=>{
+    let label, sub;
+    if(key==='anon'){ label='Tamu Anonim (Tanpa Login)'; sub='Chat tanpa daftar - penumpang_id NULL'; }
+    else { const p = cachePenumpang.find(x=>x.id===key); label = p ? (p.nama+' • '+p.no_wa) : String(key).slice(0,8); sub=(u.message||'').slice(0,40); }
+    return `<div class="chat-user" onclick="bukaChat('${key}','${esc(label)}')"><b>${label}</b><small>${sub}</small></div>`;
   }).join('');
   document.getElementById('chatNotif').innerText=users.length; document.getElementById('chatNotif').style.display='inline';
 }
 async function bukaChat(penumpangId,nama){
-  currentUser=penumpangId; document.getElementById('chatTitle').innerText='Chat: '+nama;
-  const {data}=await sb.from('chats').select('*').eq('penumpang_id',penumpangId).order('created_at',{ascending:true});
+  currentUser=penumpangId; currentUserLabel=nama; document.getElementById('chatTitle').innerText='Chat: '+nama;
+  let q;
+  if(penumpangId==='anon') q=sb.from('chats').select('*').is('penumpang_id',null).order('created_at',{ascending:true});
+  else q=sb.from('chats').select('*').eq('penumpang_id',penumpangId).order('created_at',{ascending:true});
+  const {data}=await q;
   const box=document.getElementById('chatBox');
   if(!data||!data.length){box.innerHTML='<p style="color:#888;text-align:center">Belum ada chat</p>';return;}
-  box.innerHTML=data.map(c=>`<div class="msg ${c.sender==='admin'?'admin':'user'}">${c.message}<small>${c.sender==='admin'?'Sari Lestari - Admin':'Penumpang'} • ${new Date(c.created_at).toLocaleString('id-ID')}</small></div>`).join('');
+  box.innerHTML=data.map(c=>{
+    const cls = c.sender==='admin' ? 'admin' : 'user';
+    const who = c.sender==='admin' ? 'Sari Lestari - Admin' : (c.sender==='bot' ? 'Bot' : 'Penumpang');
+    return `<div class="msg ${cls}">${c.message}<small>${who} • ${c.created_at?new Date(c.created_at).toLocaleString('id-ID'):''}</small></div>`;
+  }).join('');
   box.scrollTop=box.scrollHeight;
-  const lastUser=[...data].reverse().find(c=>c.sender!=='admin'); lastUserMsg=lastUser?lastUser.message:"";
+  const lastUser=[...data].reverse().find(c=>c.sender==='user'); lastUserMsg=lastUser?lastUser.message:"";
 }
 async function kirimPesan(){
   const input=document.getElementById('chatInput'); const pesan=input.value.trim();
   if(!pesan||!currentUser) return alert('Pilih penumpang dulu & ketik pesan');
-  const {error}=await sb.from('chats').insert([{penumpang_id:currentUser, sender:'admin', message:pesan}]);
+  // Kalau anon, penumpang_id tetap NULL biar nyambung ke chat anonim di index
+  const payload = currentUser==='anon' ? {penumpang_id:null, sender:'admin', message:pesan} : {penumpang_id:currentUser, sender:'admin', message:pesan};
+  const {error}=await sb.from('chats').insert([payload]);
   if(error) return alert(error.message);
   if(document.getElementById('saveToBot').checked && lastUserMsg){
     const {data:cek}=await sb.from('bot').select('*').eq('kunci',lastUserMsg);
     if(!cek||!cek.length){ await sb.from('bot').insert([{kunci:lastUserMsg, jawaban:pesan}]); alert('✅ Tersimpan! Jawaban kamu udah masuk ke Bot.'); loadBot(); }
   }
-  input.value=''; bukaChat(currentUser, currentUser);
+  input.value=''; bukaChat(currentUser, currentUserLabel);
 }
 document.getElementById('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter') kirimPesan();});
 loadAll();
