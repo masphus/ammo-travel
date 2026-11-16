@@ -44,14 +44,17 @@
   #toast.show{transform:translateX(-50%) translateY(0)}
   #toast.err{border-left-color:#ef4444;border-color:#ef4444}
   .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:99;align-items:flex-end;justify-content:center}
-  .modal-box{background:#1c1c1c;border-top:2px solid #d4af5a;padding:22px;border-radius:20px 20px 0 0;width:100%;max-width:420px;padding-bottom:30px}
+  .modal-box{background:#1c1c1c;border-top:2px solid #d4af5a;padding:22px;border-radius:20px 20px 0 0;width:100%;max-width:420px;padding-bottom:30px;max-height:90vh;overflow-y:auto}
   .modal-box h3{margin-bottom:12px;color:#e8c87a;font-size:18px}
+  .qris-box{background:#fff;border-radius:14px;padding:14px;text-align:center;color:#000}
+  .qris-box img{width:100%;max-width:260px;object-fit:contain;border-radius:10px}
+  .rek-box{background:#111;border:1px dashed #d4af5a;border-radius:12px;padding:12px;margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .btn-copy{background:#d4af5a;border:none;padding:8px 14px;border-radius:8px;font-weight:bold;cursor:pointer}
 </style>
 </head>
 <body>
 <div id="toast"></div>
 <div class="phone">
-  <!-- LOGIN / DAFTAR -->
   <div id="boxLogin" class="login-card">
     <div class="badge"><span>👑 Ammo Travel</span></div>
     <div class="tabs">
@@ -76,7 +79,6 @@
     </div>
   </div>
 
-  <!-- AKUN -->
   <div id="boxAkun" style="display:none">
     <div class="badge"><span>👑 Member Gold</span></div>
     <div class="avatar" onclick="gantiAvatar()">
@@ -85,7 +87,6 @@
     </div>
     <div class="joined" id="tampilGabung">Bergabung sejak -</div>
 
-    <!-- PILIH FOTO -->
     <div id="boxAvatar" style="display:none;background:#1a1a1a;border:1px solid #d4af5a;border-radius:14px;padding:14px;text-align:center;margin-bottom:14px">
       <p style="margin-bottom:10px;color:#e8c87a;font-weight:bold">Pilih Foto Profil Kamu</p>
       <div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px">
@@ -110,11 +111,10 @@
       <div class="row"><div class="icon">🎟️</div><div class="left">Voucher</div><div class="right" id="tampilVoucher">0 Voucher Tersedia</div><div class="arrow">›</div></div>
       <div class="row"><div class="icon">💳</div><div class="left">Saldo</div><div class="right" id="tampilSaldo">Rp 0</div></div>
     </div>
-    <button class="btn-gold" onclick="topup()">Top Up Saldo</button>
+    <button class="btn-gold" onclick="bukaTopup()">Top Up Saldo</button>
   </div>
 </div>
 
-<!-- BAWAH - CUMA 4, GAK ADA AKUN -->
 <div class="bottom" id="navBawah" style="display:none">
   <a href="index.html"><b>⌂</b>Beranda</a>
   <a href="booking.html"><b>▦</b>Booking</a>
@@ -131,13 +131,52 @@
   </div>
 </div>
 
+<!-- MODAL TOP UP - FINAL -->
+<div class="modal" id="modalTopup">
+  <div class="modal-box">
+    <h3>💰 Top Up Saldo</h3>
+    <p style="font-size:13px;color:#aaa;margin-bottom:12px">Pilih nominal, lalu bayar via QRIS atau Transfer BCA. Setelah bayar, kirim bukti ke Admin ya biar saldonya langsung masuk.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+      <button onclick="pilihNominal(20000,this)" class="btn-nominal" style="flex:1;padding:11px;border-radius:10px;border:1px solid #d4af5a;background:#111;color:#e8c87a;font-weight:bold;cursor:pointer">20rb</button>
+      <button onclick="pilihNominal(50000,this)" class="btn-nominal" style="flex:1;padding:11px;border-radius:10px;border:1px solid #333;background:#111;color:#fff;font-weight:bold;cursor:pointer">50rb</button>
+      <button onclick="pilihNominal(100000,this)" class="btn-nominal" style="flex:1;padding:11px;border-radius:10px;border:1px solid #333;background:#111;color:#fff;font-weight:bold;cursor:pointer">100rb</button>
+      <button onclick="pilihNominal(200000,this)" class="btn-nominal" style="flex:1;padding:11px;border-radius:10px;border:1px solid #333;background:#111;color:#fff;font-weight:bold;cursor:pointer">200rb</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button onclick="tabBayar('qris')" id="tabQris" style="flex:1;padding:11px;border:none;border-radius:10px;background:linear-gradient(#f2d98c,#c9a94f);font-weight:bold">📷 QRIS</button>
+      <button onclick="tabBayar('tf')" id="tabTf" style="flex:1;padding:11px;border:none;border-radius:10px;background:#333;color:#fff;font-weight:bold">🏦 Transfer BCA</button>
+    </div>
+
+    <div id="bayarQris">
+      <div class="qris-box">
+        <p style="font-weight:bold;font-size:13px">SCAN QRIS AMMO TRAVEL</p>
+        <img src="qris.jpg" alt="QRIS Ammo Travel">
+        <p style="font-weight:bold;margin-top:6px" id="nominalQris">Nominal: Rp 20.000</p>
+        <p style="font-size:12px;color:#666">AMMO TRAVEL - NMID: ID1025421974540<br>Bisa via DANA / OVO / GoPay / ShopeePay / m-Banking</p>
+      </div>
+    </div>
+
+    <div id="bayarTf" style="display:none">
+      <div class="rek-box">
+        <div><b>BCA</b><br><span style="color:#e8c87a;font-size:18px;font-weight:bold">1092365519</span><br><small style="color:#999">a.n. Ahmad Maha Mongkol</small></div>
+        <button class="btn-copy" onclick="salin('1092365519')">Salin</button>
+      </div>
+      <p style="font-size:12px;color:#aaa;margin-top:10px" id="nominalTf">Nominal yang mau di-transfer: Rp 20.000</p>
+    </div>
+
+    <a id="btnWA" href="https://wa.me/6285890611111?text=Halo%20Admin%2C%20saya%20sudah%20Top%20Up%20Saldo" target="_blank" style="display:block;text-align:center;margin-top:14px;padding:14px;background:#25D366;color:#fff;font-weight:bold;border-radius:12px;text-decoration:none">💬 Sudah Bayar? Kirim Bukti ke Admin (0858-9061-1111)</a>
+    <button style="width:100%;margin-top:8px;padding:12px;background:#333;color:#fff;border:none;border-radius:12px" onclick="tutupTopup()">Tutup</button>
+  </div>
+</div>
+
 <script>
   const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
   const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   let modeEdit = '';
+  let nominalTopup = 20000;
+  const WA_ADMIN = "6285890611111";
 
-  // FOTO CEWEK & COWOK - BIAR GAK KETUKER 😂
   const fotoCewek = [
     'https://randomuser.me/api/portraits/women/44.jpg','https://randomuser.me/api/portraits/women/65.jpg','https://randomuser.me/api/portraits/women/68.jpg','https://randomuser.me/api/portraits/women/17.jpg','https://randomuser.me/api/portraits/women/12.jpg','https://randomuser.me/api/portraits/women/33.jpg','https://randomuser.me/api/portraits/women/50.jpg','https://randomuser.me/api/portraits/women/21.jpg','https://randomuser.me/api/portraits/women/26.jpg','https://randomuser.me/api/portraits/women/79.jpg','https://randomuser.me/api/portraits/women/28.jpg','https://randomuser.me/api/portraits/women/90.jpg','https://randomuser.me/api/portraits/women/15.jpg','https://randomuser.me/api/portraits/women/47.jpg','https://randomuser.me/api/portraits/women/3.jpg','https://randomuser.me/api/portraits/women/25.jpg','https://randomuser.me/api/portraits/women/56.jpg','https://randomuser.me/api/portraits/women/71.jpg','https://randomuser.me/api/portraits/women/82.jpg','https://randomuser.me/api/portraits/women/9.jpg'
   ];
@@ -165,8 +204,6 @@
   }
   function formatRupiah(n){ return "Rp " + Number(n||0).toLocaleString('id-ID'); }
   function formatTanggal(t){ if(!t) return "Bergabung sejak -"; let d=new Date(t); return "Bergabung sejak "+d.toLocaleDateString('id-ID',{month:'short',year:'numeric'}); }
-
-  // AVATAR - SIMPAN DI HP AJA, GAK KE DATABASE
   function gantiAvatar(){
     let box = document.getElementById('boxAvatar');
     if(box.style.display === 'block'){ box.style.display = 'none'; return; }
@@ -194,7 +231,33 @@
     localStorage.setItem('ammo_avatar', url);
     toast('Foto profil berhasil diganti! 📸');
   }
-
+  function bukaTopup(){
+    document.getElementById('modalTopup').style.display='flex';
+    pilihNominal(20000, document.querySelector('.btn-nominal'));
+    tabBayar('qris');
+  }
+  function tutupTopup(){ document.getElementById('modalTopup').style.display='none'; }
+  function pilihNominal(nominal, btn){
+    nominalTopup = nominal;
+    document.querySelectorAll('.btn-nominal').forEach(b => { b.style.borderColor='#333'; b.style.color='#fff'; });
+    if(btn){ btn.style.borderColor='#d4af5a'; btn.style.color='#e8c87a'; }
+    document.getElementById('nominalQris').innerText = 'Nominal: ' + formatRupiah(nominal);
+    document.getElementById('nominalTf').innerText = 'Nominal yang mau di-transfer: ' + formatRupiah(nominal);
+    let user = getUser();
+    let nama = user ? user.nama : 'Customer';
+    document.getElementById('btnWA').href = 'https://wa.me/' + WA_ADMIN + '?text=' + encodeURIComponent('Halo Admin, saya ' + nama + ' sudah Top Up ' + formatRupiah(nominal) + ' via BCA 1092365519 / QRIS AMMO TRAVEL, ini bukti transfernya');
+  }
+  function tabBayar(tipe){
+    document.getElementById('bayarQris').style.display = tipe==='qris' ? 'block' : 'none';
+    document.getElementById('bayarTf').style.display = tipe==='tf' ? 'block' : 'none';
+    document.getElementById('tabQris').style.background = tipe==='qris' ? 'linear-gradient(#f2d98c,#c9a94f)' : '#333';
+    document.getElementById('tabQris').style.color = tipe==='qris' ? '#000' : '#fff';
+    document.getElementById('tabTf').style.background = tipe==='tf' ? 'linear-gradient(#f2d98c,#c9a94f)' : '#333';
+    document.getElementById('tabTf').style.color = tipe==='tf' ? '#000' : '#fff';
+  }
+  function salin(teks){
+    navigator.clipboard.writeText(teks).then(()=> toast('Nomor ' + teks + ' berhasil disalin! ✓'));
+  }
   async function tampilkan(user){
     document.getElementById('boxLogin').style.display='none';
     document.getElementById('boxAkun').style.display='block';
@@ -278,7 +341,7 @@
     localStorage.setItem('ammo_user', JSON.stringify(user));
     tutupModal(); tampilkan(user); toast('Berhasil diubah! ✓');
   }
-  function topup(){ toast('Fitur Top Up nanti kita sambung ke pembayaran ya bro!'); }
+  function topup(){ bukaTopup(); }
   function logout(){ localStorage.removeItem('ammo_user'); location.reload(); }
   const saved = localStorage.getItem('ammo_user');
   if(saved){ tampilkan(JSON.parse(saved)); }
