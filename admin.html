@@ -2,39 +2,43 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Ammo Travel - Super Admin</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
 body{background:#0a0a0a;color:#f5d67b;display:flex;min-height:100vh}
-.sidebar{width:260px;background:#000;border-right:1px solid #d4af37;position:fixed;height:100vh;padding:20px 0;flex-shrink:0;z-index:20}
+/* ===== SIDEBAR DESKTOP ===== */
+.sidebar{width:260px;background:#000;border-right:1px solid #d4af37;position:fixed;height:100vh;padding:20px 0;flex-shrink:0;z-index:20;overflow-y:auto}
 .logo{display:flex;align-items:center;gap:10px;padding:0 20px 22px;font-weight:800;font-size:19px;color:#f5d67b}
-.logo-icon{width:42px;height:42px;background:#f5d67b;color:#000;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px}
-.menu a{display:flex;gap:12px;align-items:center;padding:13px 20px;color:#f5d67b;text-decoration:none;cursor:pointer;font-size:15px}
+.logo-icon{width:38px;height:38px;background:#f5d67b;color:#000;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.menu a{display:flex;gap:12px;align-items:center;padding:12px 20px;color:#f5d67b;text-decoration:none;cursor:pointer;font-size:15px;white-space:nowrap}
 .menu a.active,.menu a:hover{background:#f5d67b;color:#000;font-weight:700;border-radius:0 12px 12px 0}
+.menu a .mi{font-size:16px;width:22px;text-align:center;flex-shrink:0}
 .menu a span.badge{margin-left:auto;background:red;color:#fff;padding:2px 7px;border-radius:10px;font-size:11px}
 .main{flex:1;margin-left:260px;padding:0 20px 20px;background:#151515;min-width:0}
-.topbar{background:#000;padding:14px 22px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #d4af37;margin:0 -20px 20px;position:sticky;top:0;z-index:10}
+.topbar{background:#000;padding:14px 22px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #d4af37;margin:0 -20px 20px;position:sticky;top:0;z-index:10;gap:10px}
 .topbar h1{font-size:22px;color:#f5d67b}
-.admin{display:flex;align-items:center;gap:10px;color:#f5d67b}
-.admin img{width:40px;height:40px;border-radius:50%;border:2px solid #d4af37;object-fit:cover}
+.admin{display:flex;align-items:center;gap:10px;color:#f5d67b;white-space:nowrap}
+.admin img{width:38px;height:38px;border-radius:50%;border:2px solid #d4af37;object-fit:cover;flex-shrink:0}
+/* ===== KARTU - IKON DIPERKECIL, GAK GEDE LAGI ===== */
 .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:18px}
-.card{background:#000;border:1px solid #d4af37;border-radius:12px;padding:18px;text-align:center}
-.card .ic{font-size:36px}.card p{font-size:14px;margin-top:6px}.card h2{font-size:30px;margin-top:4px;color:#f5d67b}
+.card{background:#000;border:1px solid #d4af37;border-radius:12px;padding:16px 10px;text-align:center}
+.card .ic{font-size:22px!important;line-height:1;display:block} /* DULU 36px, INI PENYEBAB GAJAH */
+.card p{font-size:13px;margin-top:6px}.card h2{font-size:28px;margin-top:4px;color:#f5d67b}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:18px}
 .box{background:#000;border:1px solid #d4af37;border-radius:12px;padding:18px}
-.box-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.box-head h3{font-size:20px;color:#f5d67b}
+.box-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px}.box-head h3{font-size:20px;color:#f5d67b}
 .order{border-bottom:1px solid #333;padding:12px 0;display:flex;justify-content:space-between;align-items:center;gap:10px}.order:last-child{border:none}
 .order small{color:#ccc}
 .badge{padding:7px 12px;border-radius:8px;font-size:12px;font-weight:700;background:#f5d67b;color:#000;white-space:nowrap}
 .badge.outline{background:transparent;color:#f5d67b;border:1px solid #d4af37}
-table{width:100%;border-collapse:collapse}th{text-align:left;padding:10px;border-bottom:1px solid #d4af37;color:#f5d67b}td{padding:11px 10px;border-bottom:1px solid #333;color:#eee}
-.btn{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-weight:700}.btn-terima{background:#f5d67b;color:#000}.btn-tolak{background:#000;color:#f5d67b;border:1px solid #d4af37}
+table{width:100%;border-collapse:collapse}th{text-align:left;padding:10px;border-bottom:1px solid #d4af37;color:#f5d67b;white-space:nowrap}td{padding:11px 10px;border-bottom:1px solid #333;color:#eee}
+.btn{padding:8px 14px;border-radius:8px;border:none;cursor:pointer;font-weight:700;white-space:nowrap}.btn-terima{background:#f5d67b;color:#000}.btn-tolak{background:#000;color:#f5d67b;border:1px solid #d4af37}
 .map{height:180px;border-radius:10px;overflow:hidden;position:relative;background:#222}
 .map img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) brightness(.8)}
-.map .pin{position:absolute;font-size:22px}
-.map .ctrl{position:absolute;right:10px;top:10px;display:flex;gap:6px}.map .ctrl button{width:32px;height:32px;background:#f5d67b;border:none;border-radius:8px;font-size:18px;font-weight:800;cursor:pointer}
+.map .pin{position:absolute;font-size:18px!important}
+.map .ctrl{position:absolute;right:10px;top:10px;display:flex;gap:6px}.map .ctrl button{width:30px;height:30px;background:#f5d67b;border:none;border-radius:8px;font-size:16px;font-weight:800;cursor:pointer}
 .chat-wrap{display:grid;grid-template-columns:280px 1fr;gap:15px;height:520px}
 .chat-list{background:#111;border:1px solid #333;border-radius:12px;overflow-y:auto}
 .chat-user{padding:12px;border-bottom:1px solid #333;cursor:pointer}.chat-user:hover,.chat-user.active{background:#222}
@@ -42,33 +46,72 @@ table{width:100%;border-collapse:collapse}th{text-align:left;padding:10px;border
 .chat-main{display:flex;flex-direction:column;background:#111;border:1px solid #333;border-radius:12px;overflow:hidden}
 #chatBox{flex:1;padding:15px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
 .msg{max-width:75%;padding:10px 12px;border-radius:12px;font-size:14px;color:#000}.msg.user{background:#fff;align-self:flex-start}.msg.admin{background:#f5d67b;align-self:flex-end}.msg small{display:block;font-size:10px;color:#555;margin-top:4px}
-.chat-input{display:flex;gap:8px;padding:10px;background:#000}.chat-input input{flex:1;padding:12px;border-radius:10px;border:1px solid #d4af37;background:#111;color:#fff}.chat-input button{padding:12px 18px;background:#f5d67b;border:none;border-radius:10px;font-weight:800;cursor:pointer}
-.toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:#fff}.toggle input{accent-color:#f5d67b;width:18px;height:18px}
+.chat-input{display:flex;gap:8px;padding:10px;background:#000}.chat-input input{flex:1;padding:12px;border-radius:10px;border:1px solid #d4af37;background:#111;color:#fff}.chat-input button{padding:12px 16px;background:#f5d67b;border:none;border-radius:10px;font-weight:800;cursor:pointer}
+.toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:#fff;white-space:nowrap}.toggle input{accent-color:#f5d67b;width:18px;height:18px}
 .page{display:none}.page.active{display:block}
 input,select{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#111;color:#fff;width:100%}
-@media(max-width:900px){.sidebar{display:none}.main{margin-left:0}.cards{grid-template-columns:1fr 1fr}.row,.chat-wrap{grid-template-columns:1fr}}
+#btnMenu{display:none;background:#f5d67b;border:none;padding:8px 12px;border-radius:8px;font-weight:800;cursor:pointer}
+
+/* ===== HP TEGAK / PORTRAIT: RAPI, IKON KECIL ===== */
+@media(max-width:900px) and (orientation:portrait){
+  .sidebar{display:none}.main{margin-left:0}
+  #btnMenu{display:block}
+  .cards{grid-template-columns:1fr 1fr}
+  .row,.chat-wrap{grid-template-columns:1fr}
+  .card .ic{font-size:20px!important}
+  .card h2{font-size:24px}
+  .topbar h1{font-size:16px}
+  .admin span.txt{display:none}
+  .box{overflow-x:auto}
+}
+
+/* ===== HP LANSKAP: PERSIS KAYAK DESKTOP DI FOTO! ===== */
+@media(max-width:1024px) and (orientation:landscape){
+  .sidebar{display:block!important;width:180px;padding:12px 0}
+  .sidebar .logo{font-size:14px;padding:0 12px 14px}
+  .sidebar .logo-icon{width:30px;height:30px;font-size:15px}
+  .menu a{font-size:13px;padding:9px 12px;gap:8px}
+  .menu a .mi{font-size:14px;width:18px}
+  .sidebar div[style*="padding:20px"]{padding:12px!important}
+  .main{margin-left:180px;padding:0 12px 12px}
+  .topbar{margin:0 -12px 12px;padding:10px 14px}
+  .topbar h1{font-size:17px}
+  .admin{font-size:13px}
+  .admin img{width:32px;height:32px}
+  .cards{grid-template-columns:repeat(4,1fr)!important;gap:10px;margin-bottom:12px}
+  .card{padding:12px 6px}
+  .card .ic{font-size:18px!important}
+  .card p{font-size:11px}
+  .card h2{font-size:20px}
+  .row{grid-template-columns:1fr 1fr!important;gap:10px;margin-bottom:12px}
+  .box{padding:12px}
+  .box-head h3{font-size:16px}
+  .map{height:150px}
+  #btnMenu{display:none}
+  th,td{padding:8px 6px;font-size:12px}
+  .btn{padding:6px 10px;font-size:12px}
+}
 </style>
 </head>
 <body>
 <div class="sidebar">
   <div class="logo"><div class="logo-icon">📍</div> Ammo Travel</div>
   <div class="menu">
-    <a data-page="dashboard" class="active">🏠 Dashboard</a>
-    <a data-page="penumpang">👤 Penumpang</a>
-    <a data-page="driver">🧑‍✈️ Driver</a>
-    <a data-page="order">📋 Order</a>
-    <a data-page="penghasilan">💰 Penghasilan</a>
-    <a data-page="chat">💬 Chat <span class="badge" id="chatNotif" style="display:none">0</span></a>
-    <a data-page="bot">🤖 Data Bot</a>
-    <a data-page="pengaturan">⚙️ Pengaturan</a>
+    <a data-page="dashboard" class="active"><span class="mi">🏠</span> Dashboard</a>
+    <a data-page="penumpang"><span class="mi">👤</span> Penumpang</a>
+    <a data-page="driver"><span class="mi">🧑‍✈️</span> Driver</a>
+    <a data-page="order"><span class="mi">📋</span> Order</a>
+    <a data-page="penghasilan"><span class="mi">💰</span> Penghasilan</a>
+    <a data-page="chat"><span class="mi">💬</span> Chat <span class="badge" id="chatNotif" style="display:none">0</span></a>
+    <a data-page="bot"><span class="mi">🤖</span> Data Bot</a>
+    <a data-page="pengaturan"><span class="mi">⚙️</span> Pengaturan</a>
   </div>
-  <div style="padding:20px;color:#888;font-size:12px">Login sebagai:<br><b style="color:#f5d67b;font-size:15px">Sari Lestari - Super Admin</b><br><br><button class="btn btn-tolak" onclick="alert('Logout - ganti halaman login')">Keluar</button></div>
+  <div style="padding:20px;color:#888;font-size:12px">Login sebagai:<br><b style="color:#f5d67b;font-size:15px">Sari Lestari - Super Admin</b><br><br><button class="btn btn-tolak" onclick="alert('Logout')">Keluar</button></div>
 </div>
 
 <div class="main">
-  <div class="topbar"><h1>Ammo Travel - Super Admin</h1><div class="admin"><img src="https://i.pravatar.cc/100?img=47"> Admin: Sari Lestari ▽</div></div>
+  <div class="topbar"><button id="btnMenu" onclick="document.querySelector('.sidebar').style.display=document.querySelector('.sidebar').style.display==='block'?'none':'block';document.querySelector('.sidebar').style.position='fixed'">☰</button><h1>Ammo Travel - Super Admin</h1><div class="admin"><img src="https://i.pravatar.cc/100?img=47"> <span class="txt">Admin: Sari Lestari ▽</span></div></div>
 
-  <!-- DASHBOARD - MIRIP FOTO -->
   <div id="page-dashboard" class="page active">
     <div class="cards">
       <div class="card"><div class="ic">👥</div><p>Total Penumpang:</p><h2 id="statPenumpang">1.250</h2></div>
@@ -87,35 +130,24 @@ input,select{padding:11px;border-radius:10px;border:1px solid #d4af37;background
     </div>
   </div>
 
-  <!-- PENUMPANG -->
-  <div id="page-penumpang" class="page"><div class="box"><h3>👤 Data Penumpang</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Dari tabel <b>penumpang</b> di Supabase. Kalau masih kosong, muncul data contoh.</p><table><thead><tr><th>Nama</th><th>HP / ID</th><th>Total Order</th><th>Status</th></tr></thead><tbody id="penumpangTable"></tbody></table></div></div>
-
-  <!-- DRIVER -->
+  <div id="page-penumpang" class="page"><div class="box"><h3>👤 Data Penumpang</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Dari tabel <b>penumpang</b> di Supabase.</p><table><thead><tr><th>Nama</th><th>HP / ID</th><th>Total Order</th><th>Status</th></tr></thead><tbody id="penumpangTable"></tbody></table></div></div>
   <div id="page-driver" class="page"><div class="box"><h3>🧑‍✈️ Semua Driver</h3><table><thead><tr><th>Nama</th><th>Mobil</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="driverTable2"></tbody></table></div></div>
-
-  <!-- ORDER -->
   <div id="page-order" class="page"><div class="box"><h3>📋 Semua Order</h3><div id="allOrderList"></div></div></div>
+  <div id="page-penghasilan" class="page"><div class="box"><h3>💰 Penghasilan</h3><p style="margin:12px 0;font-size:20px">Hari ini: <b id="penghasilanHariIni">Rp 7.400.000</b></p><div id="penghasilanList" style="margin-top:12px"></div></div></div>
 
-  <!-- PENGHASILAN -->
-  <div id="page-penghasilan" class="page"><div class="box"><h3>💰 Penghasilan</h3><p style="margin:12px 0;font-size:20px">Hari ini: <b id="penghasilanHariIni">Rp 7.400.000</b></p><p style="color:#ccc">Total dari tabel <b>orders</b> (kolom harga/total). Kalau tabel kosong, tampil contoh.</p><div id="penghasilanList" style="margin-top:12px"></div></div></div>
-
-  <!-- CHAT -->
   <div id="page-chat" class="page">
     <div class="box"><h3>💬 Chat Penumpang + Ajari Bot</h3><p style="color:#ccc;font-size:13px;margin-top:5px">Centang "Simpan ke Bot" aktif, jawaban kamu otomatis masuk tabel <b>bot</b>.</p></div>
     <div class="chat-wrap" style="margin-top:15px">
       <div class="chat-list" id="userList">Loading user...</div>
       <div class="chat-main">
-        <div style="padding:12px;background:#000;border-bottom:1px solid #d4af37;display:flex;justify-content:space-between;align-items:center"><b id="chatTitle">Pilih penumpang...</b><label class="toggle"><input type="checkbox" id="saveToBot" checked> Simpan ke Bot 🤖</label></div>
+        <div style="padding:12px;background:#000;border-bottom:1px solid #d4af37;display:flex;justify-content:space-between;align-items:center;gap:8px"><b id="chatTitle">Pilih penumpang...</b><label class="toggle"><input type="checkbox" id="saveToBot" checked> Simpan ke Bot 🤖</label></div>
         <div id="chatBox"><p style="color:#888;text-align:center;margin-top:50px">Pilih chat di kiri dulu</p></div>
         <div class="chat-input"><input id="chatInput" placeholder="Ketik jawaban... lalu Enter / Kirim, auto kesimpan ke Bot"><button onclick="kirimPesan()">Kirim ➤</button></div>
       </div>
     </div>
   </div>
 
-  <!-- BOT -->
-  <div id="page-bot" class="page"><div class="box"><h3>🤖 Data Bot</h3><div style="display:flex;gap:8px;margin:12px 0"><input id="newKunci" placeholder="Kunci / Pertanyaan"><input id="newJawaban" placeholder="Jawaban Bot"><button class="btn btn-terima" onclick="tambahBot()">+ Tambah</button></div><table><thead><tr><th>Kunci</th><th>Jawaban</th><th>Aksi</th></tr></thead><tbody id="botTable"></tbody></table></div></div>
-
-  <!-- PENGATURAN -->
+  <div id="page-bot" class="page"><div class="box"><h3>🤖 Data Bot</h3><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="newKunci" placeholder="Kunci / Pertanyaan"><input id="newJawaban" placeholder="Jawaban Bot"><button class="btn btn-terima" onclick="tambahBot()">+ Tambah</button></div><table><thead><tr><th>Kunci</th><th>Jawaban</th><th>Aksi</th></tr></thead><tbody id="botTable"></tbody></table></div></div>
   <div id="page-pengaturan" class="page"><div class="box"><h3>⚙️ Pengaturan</h3><p style="color:#ccc;margin:10px 0">Nama Admin</p><input id="namaAdmin" value="Sari Lestari"><p style="color:#ccc;margin:10px 0">Harga Dasar / KM</p><input value="Rp 5.000 / KM"><br><br><button class="btn btn-terima" onclick="alert('Pengaturan tersimpan!')">💾 Simpan Pengaturan</button><p style="color:#888;font-size:12px;margin-top:14px">Supabase: https://xxtgmohxdztesiubfxap.supabase.co • Status: <span id="statusSupabase" style="color:#25D366">Terhubung</span></p></div></div>
 
 </div>
@@ -125,8 +157,6 @@ const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser=null, lastUserMsg="";
-
-// DATA CONTOH BIAR PERSIS FOTO - DIPAKE KALO SUPABASE MASIH KOSONG
 const DEMO_ORDER=[
  {id:'ORD-1024',dari:'Jakarta Selatan',tujuan:'Bandara Soekarno-Hatta',status:'Berjalan'},
  {id:'ORD-1023',dari:'Bekasi',tujuan:'Depok',status:'Menunggu Driver'},
@@ -142,13 +172,12 @@ const DEMO_PENUMPANG=[
  {nama:'Siti Rahma',hp:'0813-xxxx-002',order:8,status:'Aktif'},
  {nama:'Budi Santoso',hp:'0821-xxxx-003',order:5,status:'Aktif'},
 ];
-
 document.querySelectorAll('.menu a').forEach(a=>{
   a.onclick=()=>{document.querySelectorAll('.menu a').forEach(x=>x.classList.remove('active'));a.classList.add('active');
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+a.dataset.page).classList.add('active');}
+  document.getElementById('page-'+a.dataset.page).classList.add('active');
+  if(window.innerWidth<=900 && window.matchMedia('(orientation: portrait)').matches) document.querySelector('.sidebar').style.display='none';}
 });
-
 function renderOrderDemo(list){
   document.getElementById('orderList').innerHTML=list.map(o=>`<div class="order"><div><b>${o.id}</b><br><small>${o.dari} → ${o.tujuan}</small></div><span class="badge ${o.status==='Selesai'?'outline':''}">${o.status}</span></div>`).join('');
   document.getElementById('allOrderList').innerHTML=list.map(o=>`<div class="order"><div><b>${o.id}</b><br><small>${o.dari} → ${o.tujuan}</small></div><span class="badge ${o.status==='Selesai'?'outline':''}">${o.status}</span></div>`).join('');
@@ -162,7 +191,6 @@ function renderDriverDemo(list){
 function renderPenumpangDemo(){
   document.getElementById('penumpangTable').innerHTML=DEMO_PENUMPANG.map(p=>`<tr><td>${p.nama}</td><td>${p.hp}</td><td>${p.order} order</td><td><span class="badge">${p.status}</span></td></tr>`).join('');
 }
-
 async function loadAll(){
   renderOrderDemo(DEMO_ORDER); renderDriverDemo(DEMO_DRIVER); renderPenumpangDemo();
   try{
@@ -197,7 +225,7 @@ async function loadBot(){
 async function tambahBot(){
   const kunci=document.getElementById('newKunci').value.trim(), jawaban=document.getElementById('newJawaban').value.trim();
   if(!kunci||!jawaban) return alert('Isi kunci & jawaban dulu');
-  try{await sb.from('bot').insert([{kunci,jawaban}]);}catch(e){alert('Demo: ditambah di tampilan aja');}
+  try{await sb.from('bot').insert([{kunci,jawaban}]);}catch(e){}
   document.getElementById('newKunci').value='';document.getElementById('newJawaban').value='';loadBot();
 }
 async function hapusBot(id){ if(confirm('Hapus data bot ini?')){try{await sb.from('bot').delete().eq('id',id);}catch(e){} loadBot();} }
