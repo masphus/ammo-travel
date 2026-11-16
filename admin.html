@@ -2,273 +2,221 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Ammo Travel - Super Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Rental Mobil</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
-body{background:#0a0a0a;color:#f5d67b;display:flex;min-height:100vh}
-/* ===== SIDEBAR DESKTOP ===== */
-.sidebar{width:260px;background:#000;border-right:1px solid #d4af37;position:fixed;height:100vh;padding:20px 0;flex-shrink:0;z-index:20;overflow-y:auto}
-.logo{display:flex;align-items:center;gap:10px;padding:0 20px 22px;font-weight:800;font-size:19px;color:#f5d67b}
-.logo-icon{width:38px;height:38px;background:#f5d67b;color:#000;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.menu a{display:flex;gap:12px;align-items:center;padding:12px 20px;color:#f5d67b;text-decoration:none;cursor:pointer;font-size:15px;white-space:nowrap}
-.menu a.active,.menu a:hover{background:#f5d67b;color:#000;font-weight:700;border-radius:0 12px 12px 0}
-.menu a .mi{font-size:16px;width:22px;text-align:center;flex-shrink:0}
-.menu a span.badge{margin-left:auto;background:red;color:#fff;padding:2px 7px;border-radius:10px;font-size:11px}
-.main{flex:1;margin-left:260px;padding:0 20px 20px;background:#151515;min-width:0}
-.topbar{background:#000;padding:14px 22px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #d4af37;margin:0 -20px 20px;position:sticky;top:0;z-index:10;gap:10px}
-.topbar h1{font-size:22px;color:#f5d67b}
-.admin{display:flex;align-items:center;gap:10px;color:#f5d67b;white-space:nowrap}
-.admin img{width:38px;height:38px;border-radius:50%;border:2px solid #d4af37;object-fit:cover;flex-shrink:0}
-/* ===== KARTU - IKON DIPERKECIL, GAK GEDE LAGI ===== */
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:18px}
-.card{background:#000;border:1px solid #d4af37;border-radius:12px;padding:16px 10px;text-align:center}
-.card .ic{font-size:22px!important;line-height:1;display:block} /* DULU 36px, INI PENYEBAB GAJAH */
-.card p{font-size:13px;margin-top:6px}.card h2{font-size:28px;margin-top:4px;color:#f5d67b}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:18px}
-.box{background:#000;border:1px solid #d4af37;border-radius:12px;padding:18px}
-.box-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px}.box-head h3{font-size:20px;color:#f5d67b}
-.order{border-bottom:1px solid #333;padding:12px 0;display:flex;justify-content:space-between;align-items:center;gap:10px}.order:last-child{border:none}
-.order small{color:#ccc}
-.badge{padding:7px 12px;border-radius:8px;font-size:12px;font-weight:700;background:#f5d67b;color:#000;white-space:nowrap}
-.badge.outline{background:transparent;color:#f5d67b;border:1px solid #d4af37}
-table{width:100%;border-collapse:collapse}th{text-align:left;padding:10px;border-bottom:1px solid #d4af37;color:#f5d67b;white-space:nowrap}td{padding:11px 10px;border-bottom:1px solid #333;color:#eee}
-.btn{padding:8px 14px;border-radius:8px;border:none;cursor:pointer;font-weight:700;white-space:nowrap}.btn-terima{background:#f5d67b;color:#000}.btn-tolak{background:#000;color:#f5d67b;border:1px solid #d4af37}
-.map{height:180px;border-radius:10px;overflow:hidden;position:relative;background:#222}
-.map img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) brightness(.8)}
-.map .pin{position:absolute;font-size:18px!important}
-.map .ctrl{position:absolute;right:10px;top:10px;display:flex;gap:6px}.map .ctrl button{width:30px;height:30px;background:#f5d67b;border:none;border-radius:8px;font-size:16px;font-weight:800;cursor:pointer}
-.chat-wrap{display:grid;grid-template-columns:280px 1fr;gap:15px;height:520px}
-.chat-list{background:#111;border:1px solid #333;border-radius:12px;overflow-y:auto}
-.chat-user{padding:12px;border-bottom:1px solid #333;cursor:pointer}.chat-user:hover,.chat-user.active{background:#222}
-.chat-user b{display:block;color:#fff}.chat-user small{color:#aaa}
-.chat-main{display:flex;flex-direction:column;background:#111;border:1px solid #333;border-radius:12px;overflow:hidden}
-#chatBox{flex:1;padding:15px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
-.msg{max-width:75%;padding:10px 12px;border-radius:12px;font-size:14px;color:#000}.msg.user{background:#fff;align-self:flex-start}.msg.admin{background:#f5d67b;align-self:flex-end}.msg small{display:block;font-size:10px;color:#555;margin-top:4px}
-.chat-input{display:flex;gap:8px;padding:10px;background:#000}.chat-input input{flex:1;padding:12px;border-radius:10px;border:1px solid #d4af37;background:#111;color:#fff}.chat-input button{padding:12px 16px;background:#f5d67b;border:none;border-radius:10px;font-weight:800;cursor:pointer}
-.toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:#fff;white-space:nowrap}.toggle input{accent-color:#f5d67b;width:18px;height:18px}
-.page{display:none}.page.active{display:block}
-input,select{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#111;color:#fff;width:100%}
-#btnMenu{display:none;background:#f5d67b;border:none;padding:8px 12px;border-radius:8px;font-weight:800;cursor:pointer}
-
-/* ===== HP TEGAK / PORTRAIT: RAPI, IKON KECIL ===== */
-@media(max-width:900px) and (orientation:portrait){
-  .sidebar{display:none}.main{margin-left:0}
-  #btnMenu{display:block}
-  .cards{grid-template-columns:1fr 1fr}
-  .row,.chat-wrap{grid-template-columns:1fr}
-  .card .ic{font-size:20px!important}
-  .card h2{font-size:24px}
-  .topbar h1{font-size:16px}
-  .admin span.txt{display:none}
-  .box{overflow-x:auto}
-}
-
-/* ===== HP LANSKAP: PERSIS KAYAK DESKTOP DI FOTO! ===== */
-@media(max-width:1024px) and (orientation:landscape){
-  .sidebar{display:block!important;width:180px;padding:12px 0}
-  .sidebar .logo{font-size:14px;padding:0 12px 14px}
-  .sidebar .logo-icon{width:30px;height:30px;font-size:15px}
-  .menu a{font-size:13px;padding:9px 12px;gap:8px}
-  .menu a .mi{font-size:14px;width:18px}
-  .sidebar div[style*="padding:20px"]{padding:12px!important}
-  .main{margin-left:180px;padding:0 12px 12px}
-  .topbar{margin:0 -12px 12px;padding:10px 14px}
-  .topbar h1{font-size:17px}
-  .admin{font-size:13px}
-  .admin img{width:32px;height:32px}
-  .cards{grid-template-columns:repeat(4,1fr)!important;gap:10px;margin-bottom:12px}
-  .card{padding:12px 6px}
-  .card .ic{font-size:18px!important}
-  .card p{font-size:11px}
-  .card h2{font-size:20px}
-  .row{grid-template-columns:1fr 1fr!important;gap:10px;margin-bottom:12px}
-  .box{padding:12px}
-  .box-head h3{font-size:16px}
-  .map{height:150px}
-  #btnMenu{display:none}
-  th,td{padding:8px 6px;font-size:12px}
-  .btn{padding:6px 10px;font-size:12px}
-}
+*{box-sizing:border-box;font-family:system-ui,Arial} body{margin:0;background:#f1f5f9;color:#0f172a}
+header{background:#0f172a;color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center}
+header b{font-size:18px} header span{font-size:12px;opacity:.8}
+.konek{background:#fffbeb;border:1px solid #fde68a;padding:12px 16px;margin:12px 16px;border-radius:12px}
+.konek b{font-size:14px}
+nav{display:flex;gap:8px;overflow:auto;padding:12px 16px;background:#fff;border-bottom:1px solid #e2e8f0}
+nav button{white-space:nowrap;border:1px solid #e2e8f0;background:#f8fafc;padding:9px 14px;border-radius:999px;cursor:pointer;font-weight:600}
+nav button.active{background:#0f172a;color:#fff}
+main{padding:16px;max-width:1100px;margin:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.card small{color:#64748b} .card h2{margin:6px 0 0;font-size:28px}
+.box{background:#fff;border-radius:14px;padding:16px;margin-top:14px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+input,select,textarea{width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:10px;margin:6px 0;font-size:15px}
+button.btn{background:#0f172a;color:#fff;border:0;padding:12px 14px;border-radius:10px;cursor:pointer;font-weight:600;width:100%;font-size:15px}
+button.btn-green{background:#16a34a} button.btn-red{background:#dc2626} button.btn-small{width:auto;padding:6px 10px;font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:14px} th,td{padding:9px;border-bottom:1px solid #e2e8f0;text-align:left;vertical-align:top}
+.badge{padding:3px 8px;border-radius:999px;font-size:12px;font-weight:700} .b-red{background:#fee2e2;color:#991b1b} .b-green{background:#dcfce7;color:#166534} .b-yellow{background:#fef9c3;color:#854d0e}
+.chat{max-height:420px;overflow:auto;display:flex;flex-direction:column;gap:8px} .msg{padding:10px 12px;border-radius:12px;max-width:85%} .msg.user{background:#0f172a;color:#fff;align-self:flex-end} .msg.bot{background:#e2e8f0;align-self:flex-start}
+.hidden{display:none} .flex{display:flex;gap:8px} .flex>*{flex:1}
 </style>
 </head>
 <body>
-<div class="sidebar">
-  <div class="logo"><div class="logo-icon">📍</div> Ammo Travel</div>
-  <div class="menu">
-    <a data-page="dashboard" class="active"><span class="mi">🏠</span> Dashboard</a>
-    <a data-page="penumpang"><span class="mi">👤</span> Penumpang</a>
-    <a data-page="driver"><span class="mi">🧑‍✈️</span> Driver</a>
-    <a data-page="order"><span class="mi">📋</span> Order</a>
-    <a data-page="penghasilan"><span class="mi">💰</span> Penghasilan</a>
-    <a data-page="chat"><span class="mi">💬</span> Chat <span class="badge" id="chatNotif" style="display:none">0</span></a>
-    <a data-page="bot"><span class="mi">🤖</span> Data Bot</a>
-    <a data-page="pengaturan"><span class="mi">⚙️</span> Pengaturan</a>
-  </div>
-  <div style="padding:20px;color:#888;font-size:12px">Login sebagai:<br><b style="color:#f5d67b;font-size:15px">Sari Lestari - Super Admin</b><br><br><button class="btn btn-tolak" onclick="alert('Logout')">Keluar</button></div>
+<header><div><b>ADMIN RENTAL</b><br><span>Chat Anonim • Bot • Antrian • Order</span></div><span id="jam"></span></header>
+
+<div class="konek" id="boxKonek">
+<b>🔌 Sambungin ke Database dulu (sekali aja)</b><br><small style="color:#92400e">Copy dari index.html lu, paste disini. Nanti kesimpen otomatis di HP.</small>
+<input id="inUrl" placeholder="Paste SUPABASE_URL disini, contoh: https://xxxx.supabase.co">
+<input id="inKey" placeholder="Paste SUPABASE KEY (anon public) disini">
+<button class="btn btn-green" onclick="simpanKonek()">SIMPAN & SAMBUNGKAN ✅</button>
+<small id="statusKonek" style="color:#64748b"></small>
 </div>
 
-<div class="main">
-  <div class="topbar"><button id="btnMenu" onclick="document.querySelector('.sidebar').style.display=document.querySelector('.sidebar').style.display==='block'?'none':'block';document.querySelector('.sidebar').style.position='fixed'">☰</button><h1>Ammo Travel - Super Admin</h1><div class="admin"><img src="https://i.pravatar.cc/100?img=47"> <span class="txt">Admin: Sari Lestari ▽</span></div></div>
-
-  <div id="page-dashboard" class="page active">
-    <div class="cards">
-      <div class="card"><div class="ic">👥</div><p>Total Penumpang:</p><h2 id="statPenumpang">1.250</h2></div>
-      <div class="card"><div class="ic">🧑‍✈️</div><p>Total Driver Aktif:</p><h2 id="statDriver">85</h2></div>
-      <div class="card"><div class="ic">📋</div><p>Order Hari Ini:</p><h2 id="statOrder">124</h2></div>
-      <div class="card"><div class="ic">💰</div><p>Pendapatan Hari Ini:</p><h2 id="statPendapatan">Rp 7.400.000</h2></div>
-    </div>
-    <div class="row">
-      <div class="box"><div class="box-head"><h3>Order Live</h3><span id="orderAktif">• 3 Pesanan Aktif</span></div><div id="orderList"></div></div>
-      <div class="box"><div class="box-head"><h3>Driver Online</h3><span id="driverOnline">📍 • 42 Driver Online</span></div>
-        <div class="map"><img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80"><span class="pin" style="left:18%;top:25%">📍</span><span class="pin" style="left:38%;top:18%">📍</span><span class="pin" style="left:55%;top:15%">📍</span><span class="pin" style="left:48%;top:48%">📍</span><span class="pin" style="left:62%;top:55%">📍</span><span class="pin" style="left:75%;top:35%">📍</span><span class="pin" style="left:70%;top:70%">📍</span><span class="pin" style="left:35%;top:65%">📍</span><div class="ctrl"><button>−</button><button>+</button></div></div>
-      </div>
-    </div>
-    <div class="box"><div class="box-head"><h3>Daftar Driver Menunggu Verifikasi</h3></div>
-      <table><thead><tr><th>Nama</th><th>Mobil</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="driverTable"></tbody></table>
-    </div>
-  </div>
-
-  <div id="page-penumpang" class="page"><div class="box"><h3>👤 Data Penumpang</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Dari tabel <b>penumpang</b> di Supabase.</p><table><thead><tr><th>Nama</th><th>HP / ID</th><th>Total Order</th><th>Status</th></tr></thead><tbody id="penumpangTable"></tbody></table></div></div>
-  <div id="page-driver" class="page"><div class="box"><h3>🧑‍✈️ Semua Driver</h3><table><thead><tr><th>Nama</th><th>Mobil</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="driverTable2"></tbody></table></div></div>
-  <div id="page-order" class="page"><div class="box"><h3>📋 Semua Order</h3><div id="allOrderList"></div></div></div>
-  <div id="page-penghasilan" class="page"><div class="box"><h3>💰 Penghasilan</h3><p style="margin:12px 0;font-size:20px">Hari ini: <b id="penghasilanHariIni">Rp 7.400.000</b></p><div id="penghasilanList" style="margin-top:12px"></div></div></div>
-
-  <div id="page-chat" class="page">
-    <div class="box"><h3>💬 Chat Penumpang + Ajari Bot</h3><p style="color:#ccc;font-size:13px;margin-top:5px">Centang "Simpan ke Bot" aktif, jawaban kamu otomatis masuk tabel <b>bot</b>.</p></div>
-    <div class="chat-wrap" style="margin-top:15px">
-      <div class="chat-list" id="userList">Loading user...</div>
-      <div class="chat-main">
-        <div style="padding:12px;background:#000;border-bottom:1px solid #d4af37;display:flex;justify-content:space-between;align-items:center;gap:8px"><b id="chatTitle">Pilih penumpang...</b><label class="toggle"><input type="checkbox" id="saveToBot" checked> Simpan ke Bot 🤖</label></div>
-        <div id="chatBox"><p style="color:#888;text-align:center;margin-top:50px">Pilih chat di kiri dulu</p></div>
-        <div class="chat-input"><input id="chatInput" placeholder="Ketik jawaban... lalu Enter / Kirim, auto kesimpan ke Bot"><button onclick="kirimPesan()">Kirim ➤</button></div>
-      </div>
-    </div>
-  </div>
-
-  <div id="page-bot" class="page"><div class="box"><h3>🤖 Data Bot</h3><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="newKunci" placeholder="Kunci / Pertanyaan"><input id="newJawaban" placeholder="Jawaban Bot"><button class="btn btn-terima" onclick="tambahBot()">+ Tambah</button></div><table><thead><tr><th>Kunci</th><th>Jawaban</th><th>Aksi</th></tr></thead><tbody id="botTable"></tbody></table></div></div>
-  <div id="page-pengaturan" class="page"><div class="box"><h3>⚙️ Pengaturan</h3><p style="color:#ccc;margin:10px 0">Nama Admin</p><input id="namaAdmin" value="Sari Lestari"><p style="color:#ccc;margin:10px 0">Harga Dasar / KM</p><input value="Rp 5.000 / KM"><br><br><button class="btn btn-terima" onclick="alert('Pengaturan tersimpan!')">💾 Simpan Pengaturan</button><p style="color:#888;font-size:12px;margin-top:14px">Supabase: https://xxtgmohxdztesiubfxap.supabase.co • Status: <span id="statusSupabase" style="color:#25D366">Terhubung</span></p></div></div>
-
+<nav id="nav">
+<button class="active" onclick="show('dashboard',this)">📊 Dashboard</button>
+<button onclick="show('antrian',this)">🔥 Antrian <span id="notifAntrian"></span></button>
+<button onclick="show('chat',this)">💬 Chat</button>
+<button onclick="show('bot',this)">🤖 Data Bot</button>
+<button onclick="show('order',this)">🚗 Order</button>
+<button onclick="show('bayar',this)">💰 Penghasilan</button>
+<button onclick="show('driver',this)">🧑‍✈️ Driver</button>
+<button onclick="show('penumpang',this)">👥 Penumpang</button>
+<button onclick="show('blacklist',this)">🚫 Blacklist</button>
+<button onclick="show('tarif',this)">💲 Tarif</button>
+</nav>
+<main>
+<section id="dashboard">
+<div class="grid">
+<div class="card"><small>Total Chat</small><h2 id="cChat">-</h2></div>
+<div class="card"><small>Antrian Belum Jawab</small><h2 id="cAntrian">-</h2></div>
+<div class="card"><small>Data Bot</small><h2 id="cBot">-</h2></div>
+<div class="card"><small>Total Order</small><h2 id="cOrder">-</h2></div>
+<div class="card"><small>Total Penghasilan</small><h2 id="cBayar">-</h2></div>
+<div class="card"><small>Driver</small><h2 id="cDriver">-</h2></div>
 </div>
-
+<div class="box"><b>⚠️ Kenapa 0?</b><p style="color:#475569">Kalau Order / Penghasilan masih 0, itu BENER karena tabel bookings & payments memang masih kosong. Yang ada isinya cuma Chat, Bot, Tarif, Antrian. Bukan error.</p><b>Antrian yang perlu dijawab:</b><div id="dashAntrian">Sambungin dulu diatas bro 👆</div></div>
+</section>
+<section id="antrian" class="hidden">
+<div class="box"><b>🔥 Antrian - Pertanyaan yang Bot Gak Tau</b><p style="color:#64748b;font-size:13px">Jawab disini, jawaban otomatis masuk ke tabel Bot juga, biar besok bot bisa jawab sendiri.</p><div id="listAntrian"></div></div>
+</section>
+<section id="chat" class="hidden">
+<div class="box"><b>💬 Semua Chat (Anonim - tanpa login)</b><p style="color:#64748b;font-size:13px">penumpang_id bisa NULL karena user nanya tanpa daftar. Sender hanya user / bot.</p><div class="chat" id="listChat"></div></div>
+<div class="box"><b>✍️ Ajari Bot Baru</b><input id="botKunci" placeholder="Kunci, contoh: harga"><textarea id="botJawaban" placeholder="Jawaban bot, gaya santai kayak lu..."></textarea><button class="btn btn-green" onclick="tambahBot()">+ Simpan ke Bot</button></div>
+</section>
+<section id="bot" class="hidden">
+<div class="box"><b>🤖 Data Bot (kunci + jawaban)</b><input id="cariBot" placeholder="Cari kunci..." oninput="loadBot()"><div id="listBot"></div></div>
+</section>
+<section id="order" class="hidden">
+<div class="box"><b>🚗 Order / Bookings</b><div id="listOrder"></div></div>
+<div class="box"><b>+ Tambah Order Manual</b>
+<input id="oNama" placeholder="Nama Penumpang"><div class="flex"><input id="oDari" placeholder="Dari, cth: Cianjur"><input id="oKe" placeholder="Ke, cth: Bandung"></div>
+<div class="flex"><input id="oJarak" type="number" placeholder="Jarak KM"><select id="oJenis"><option value="reguler">Reguler</option><option value="prioritas">Prioritas</option></select></div>
+<input id="oTgl" type="date"><select id="oStatus"><option>pending</option><option>disetujui</option><option>berjalan</option><option>selesai</option><option>dibatalkan</option></select>
+<button class="btn" onclick="tambahOrder()">Simpan Order</button><small id="oHitung" style="color:#64748b"></small></div>
+</section>
+<section id="bayar" class="hidden"><div class="box"><b>💰 Payments / Penghasilan</b><div id="listBayar"></div></div></section>
+<section id="driver" class="hidden">
+<div class="box"><b>🧑‍✈️ Driver</b><div id="listDriver"></div></div>
+<div class="box"><b>+ Tambah Driver</b><input id="dNama" placeholder="Nama Driver"><input id="dWa" placeholder="No WA"><div class="flex"><input id="dPlat" placeholder="Plat Mobil"><input id="dMobil" placeholder="Jenis Mobil"></div><select id="dStatus"><option>aktif</option><option>nonaktif</option></select><button class="btn" onclick="tambahDriver()">Simpan Driver</button></div>
+</section>
+<section id="penumpang" class="hidden"><div class="box"><b>👥 Penumpang</b><div id="listPenumpang"></div></div></section>
+<section id="blacklist" class="hidden">
+<div class="box"><b>🚫 Blacklist - Penumpang Nakal (Sering Cancel)</b><p style="color:#64748b;font-size:13px">Buat nandain penumpang yang udah order tapi sering dibatalkan.</p><div id="listBlacklist"></div></div>
+<div class="box"><b>+ Tambah Blacklist</b><input id="bWa" placeholder="No WA Penumpang"><input id="bAlasan" placeholder="Alasan, cth: 3x cancel mendadak"><input id="bCancel" type="number" placeholder="Jumlah Cancel"><button class="btn btn-red" onclick="tambahBlacklist()">Masukkan Blacklist</button></div>
+</section>
+<section id="tarif" class="hidden"><div class="box"><b>💲 Tarif per KM</b><div id="listTarif"></div></div></section>
+</main>
 <script>
-const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-let currentUser=null, lastUserMsg="";
-const DEMO_ORDER=[
- {id:'ORD-1024',dari:'Jakarta Selatan',tujuan:'Bandara Soekarno-Hatta',status:'Berjalan'},
- {id:'ORD-1023',dari:'Bekasi',tujuan:'Depok',status:'Menunggu Driver'},
- {id:'ORD-1022',dari:'Tangerang',tujuan:'Bogor',status:'Selesai'},
-];
-const DEMO_DRIVER=[
- {id:1,nama:'Budi Pratama',mobil:'Toyota Avanza',status:'menunggu'},
- {id:2,nama:'Rina Wijaya',mobil:'Daihatsu Xenia',status:'menunggu'},
- {id:3,nama:'Andi Saputra',mobil:'Suzuki Ertiga',status:'menunggu'},
-];
-const DEMO_PENUMPANG=[
- {nama:'Ahmad Hidayat',hp:'0812-xxxx-001',order:12,status:'Aktif'},
- {nama:'Siti Rahma',hp:'0813-xxxx-002',order:8,status:'Aktif'},
- {nama:'Budi Santoso',hp:'0821-xxxx-003',order:5,status:'Aktif'},
-];
-document.querySelectorAll('.menu a').forEach(a=>{
-  a.onclick=()=>{document.querySelectorAll('.menu a').forEach(x=>x.classList.remove('active'));a.classList.add('active');
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+a.dataset.page).classList.add('active');
-  if(window.innerWidth<=900 && window.matchMedia('(orientation: portrait)').matches) document.querySelector('.sidebar').style.display='none';}
-});
-function renderOrderDemo(list){
-  document.getElementById('orderList').innerHTML=list.map(o=>`<div class="order"><div><b>${o.id}</b><br><small>${o.dari} → ${o.tujuan}</small></div><span class="badge ${o.status==='Selesai'?'outline':''}">${o.status}</span></div>`).join('');
-  document.getElementById('allOrderList').innerHTML=list.map(o=>`<div class="order"><div><b>${o.id}</b><br><small>${o.dari} → ${o.tujuan}</small></div><span class="badge ${o.status==='Selesai'?'outline':''}">${o.status}</span></div>`).join('');
-  document.getElementById('penghasilanList').innerHTML=list.map(o=>`<div class="order"><div><b>${o.id}</b><br><small>${o.dari} → ${o.tujuan}</small></div><b>Rp 150.000</b></div>`).join('');
+let sb=null;
+function show(id, el){document.querySelectorAll('section').forEach(s=>s.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
+setInterval(()=>{document.getElementById('jam').textContent=new Date().toLocaleString('id-ID')},1000);
+function simpanKonek(){
+  const u=document.getElementById('inUrl').value.trim();
+  const k=document.getElementById('inKey').value.trim();
+  if(!u||!k) return alert('Isi URL sama KEY dulu bro');
+  localStorage.setItem('sb_url',u); localStorage.setItem('sb_key',k);
+  mulai(u,k);
 }
-function renderDriverDemo(list){
-  const html=list.map(d=>`<tr><td>${d.nama}</td><td>${d.mobil}</td><td><span class="badge">Menunggu</span></td><td><button class="btn btn-terima" onclick="verifikasiDriver('${d.id}','aktif')">Terima</button> <button class="btn btn-tolak" onclick="verifikasiDriver('${d.id}','ditolak')">Tolak</button></td></tr>`).join('');
-  document.getElementById('driverTable').innerHTML=html;
-  document.getElementById('driverTable2').innerHTML=html;
+function mulai(u,k){
+  sb=supabase.createClient(u,k);
+  document.getElementById('statusKonek').textContent='Tersambung ✅ '+u;
+  document.getElementById('boxKonek').style.background='#f0fdf4';
+  document.getElementById('boxKonek').style.borderColor='#bbf7d0';
+  loadAll();
 }
-function renderPenumpangDemo(){
-  document.getElementById('penumpangTable').innerHTML=DEMO_PENUMPANG.map(p=>`<tr><td>${p.nama}</td><td>${p.hp}</td><td>${p.order} order</td><td><span class="badge">${p.status}</span></td></tr>`).join('');
+// Auto load kalau udah pernah disimpan
+window.onload=()=>{
+  const u=localStorage.getItem('sb_url'), k=localStorage.getItem('sb_key');
+  if(u&&k){document.getElementById('inUrl').value=u; document.getElementById('inKey').value=k; mulai(u,k);}
+};
+async function loadAll(){if(!sb) return; loadDashboard();loadAntrian();loadChat();loadBot();loadOrder();loadBayar();loadDriver();loadPenumpang();loadBlacklist();loadTarif();}
+async function loadDashboard(){
+  const [ch,an,bt,od,py,dr]=await Promise.all([
+    sb.from('chats').select('*',{count:'exact',head:true}),
+    sb.from('antrian').select('*').is('jawaban',null),
+    sb.from('bot').select('*',{count:'exact',head:true}),
+    sb.from('bookings').select('*'),
+    sb.from('payments').select('*'),
+    sb.from('drivers').select('*',{count:'exact',head:true}),
+  ]);
+  document.getElementById('cChat').textContent=ch.count||0;
+  document.getElementById('cAntrian').textContent=an.data?.length||0;
+  document.getElementById('notifAntrian').textContent=(an.data?.length?`(${an.data.length})`:'');
+  document.getElementById('cBot').textContent=bt.count||0;
+  document.getElementById('cOrder').textContent=od.data?.length||0;
+  let total=0; py.data?.forEach(p=>total+=Number(p.nominal||0));
+  document.getElementById('cBayar').textContent='Rp '+total.toLocaleString('id-ID');
+  document.getElementById('cDriver').textContent=dr.count||0;
+  document.getElementById('dashAntrian').innerHTML=(an.data||[]).map(a=>`<div style="padding:10px;border:1px solid #fde68a;background:#fffbeb;border-radius:10px;margin:6px 0"><b>${a.pertanyaan}</b><br><small>${a.waktu||''} • ${a.status}</small></div>`).join('')||'Semua antrian sudah terjawab ✅';
 }
-async function loadAll(){
-  renderOrderDemo(DEMO_ORDER); renderDriverDemo(DEMO_DRIVER); renderPenumpangDemo();
-  try{
-    const {count:cPen}=await sb.from('penumpang').select('*',{count:'exact',head:true});
-    const {count:cDrv}=await sb.from('drivers').select('*',{count:'exact',head:true}).eq('status','aktif');
-    const {data:orders}=await sb.from('orders').select('*').order('created_at',{ascending:false});
-    if(cPen!==null && cPen>0) document.getElementById('statPenumpang').innerText=cPen.toLocaleString('id-ID');
-    if(cDrv!==null && cDrv>0){document.getElementById('statDriver').innerText=cDrv; document.getElementById('driverOnline').innerText='📍 • '+cDrv+' Driver Online';}
-    if(orders && orders.length){
-      const today=new Date().toISOString().slice(0,10);
-      const tOrders=orders.filter(o=>(o.created_at||'').slice(0,10)===today);
-      document.getElementById('statOrder').innerText=tOrders.length||orders.length;
-      const total=tOrders.reduce((s,o)=>s+(o.harga||o.total||0),0);
-      if(total>0){document.getElementById('statPendapatan').innerText='Rp '+total.toLocaleString('id-ID'); document.getElementById('penghasilanHariIni').innerText='Rp '+total.toLocaleString('id-ID');}
-      renderOrderDemo(orders.slice(0,5).map(o=>({id:o.id||o.kode||'ORD',dari:o.dari||'-',tujuan:o.tujuan||'-',status:o.status||'Baru'})));
-    }
-    const {data:drv}=await sb.from('drivers').select('*').eq('status','menunggu').order('created_at',{ascending:false});
-    if(drv && drv.length) renderDriverDemo(drv);
-    const {data:pen}=await sb.from('penumpang').select('*').limit(10);
-    if(pen && pen.length) document.getElementById('penumpangTable').innerHTML=pen.map(p=>`<tr><td>${p.nama||'-'}</td><td>${p.hp||p.phone||p.id}</td><td>-</td><td><span class="badge">Aktif</span></td></tr>`).join('');
-  }catch(e){ document.getElementById('statusSupabase').innerText='Demo Mode (tabel belum dibuat)'; }
-  loadBot(); loadUsers();
+async function loadAntrian(){
+  const {data}=await sb.from('antrian').select('*').order('id',{ascending:false}).limit(50);
+  document.getElementById('listAntrian').innerHTML=(data||[]).map(a=>`
+  <div style="border:1px solid #e2e8f0;border-radius:12px;padding:12px;margin:8px 0;background:${a.jawaban?'#f0fdf4':'#fffbeb'}">
+  <b>${a.pertanyaan}</b><br><small>${a.waktu||''} • Status: ${a.status}</small>
+  ${a.jawaban?`<div style="margin-top:8px">Jawaban: ${a.jawaban}</div>`:`
+  <textarea id="jawab-${a.id}" placeholder="Tulis jawaban lu, gaya santai..."></textarea>
+  <button class="btn btn-green" onclick="jawabAntrian('${a.id}','${(a.pertanyaan||'').replace(/'/g,"")}')">Jawab & Ajari Bot</button>`}
+  </div>`).join('')||'Belum ada antrian';
 }
-async function verifikasiDriver(id,status){ try{await sb.from('drivers').update({status}).eq('id',id);}catch(e){} alert('Driver '+status); loadAll(); }
-async function loadBot(){
-  try{
-    const {data}=await sb.from('bot').select('*').order('id',{ascending:false});
-    if(data && data.length){document.getElementById('botTable').innerHTML=data.map(b=>`<tr><td>${b.kunci}</td><td>${b.jawaban}</td><td><button class="btn btn-tolak" onclick="hapusBot(${b.id})">Hapus</button></td></tr>`).join(''); return;}
-  }catch(e){}
-  document.getElementById('botTable').innerHTML=`<tr><td>harga cianjur jakarta</td><td>Rp 150.000, berangkat tiap jam, WA admin</td><td><button class="btn btn-tolak">Hapus</button></td></tr><tr><td>jadwal pagi</td><td>Berangkat jam 06.00, 08.00, 10.00 dari Cianjur</td><td><button class="btn btn-tolak">Hapus</button></td></tr>`;
+async function jawabAntrian(id, pertanyaan){
+  const jawaban=document.getElementById('jawab-'+id).value.trim();
+  if(!jawaban) return alert('Isi jawaban dulu bro');
+  await sb.from('antrian').update({jawaban:jawaban, status:'terjawab'}).eq('id',id);
+  await sb.from('bot').insert([{kunci:pertanyaan.toLowerCase(), jawaban:jawaban}]);
+  alert('Udah kejawab + udah masuk ke Bot ✅'); loadAll();
+}
+async function loadChat(){
+  const {data}=await sb.from('chats').select('*').order('created_at',{ascending:false}).limit(100);
+  document.getElementById('listChat').innerHTML=(data||[]).map(c=>`<div class="msg ${c.sender}"><b>${c.sender}</b><br>${c.message}<br><small>${c.created_at?new Date(c.created_at).toLocaleString('id-ID'):''} ${c.penumpang_id?'• '+c.penumpang_id.slice(0,8):'• Anonim'}</small></div>`).join('')||'Belum ada chat';
 }
 async function tambahBot(){
-  const kunci=document.getElementById('newKunci').value.trim(), jawaban=document.getElementById('newJawaban').value.trim();
-  if(!kunci||!jawaban) return alert('Isi kunci & jawaban dulu');
-  try{await sb.from('bot').insert([{kunci,jawaban}]);}catch(e){}
-  document.getElementById('newKunci').value='';document.getElementById('newJawaban').value='';loadBot();
+  const k=document.getElementById('botKunci').value.trim().toLowerCase();
+  const j=document.getElementById('botJawaban').value.trim();
+  if(!k||!j) return alert('Isi kunci & jawaban');
+  const {error}=await sb.from('bot').insert([{kunci:k,jawaban:j}]);
+  if(error) return alert(error.message);
+  alert('Bot berhasil diajarin ✅'); document.getElementById('botKunci').value=''; document.getElementById('botJawaban').value=''; loadAll();
 }
-async function hapusBot(id){ if(confirm('Hapus data bot ini?')){try{await sb.from('bot').delete().eq('id',id);}catch(e){} loadBot();} }
-async function loadUsers(){
-  try{
-    const {data}=await sb.from('chats').select('*').order('created_at',{ascending:false});
-    if(!data||!data.length) throw new Error('kosong');
-    const users=[...new Map(data.map(c=>[c.user_id||c.pengguna||'user',c])).values()];
-    document.getElementById('userList').innerHTML=users.map(u=>`<div class="chat-user" onclick="bukaChat('${u.user_id||u.pengguna||'user'}','${(u.user_id||u.pengguna||'user')}')"><b>${u.user_id||u.pengguna||'Penumpang'}</b><small>${(u.message||'').slice(0,40)}</small></div>`).join('');
-    document.getElementById('chatNotif').innerText=users.length; document.getElementById('chatNotif').style.display='inline';
-  }catch(e){
-    document.getElementById('userList').innerHTML=`<div class="chat-user" onclick="bukaChat('demo1','Budi - Penumpang')"><b>Budi - Penumpang</b><small>Berapa harga Cianjur-Jakarta?</small></div><div class="chat-user" onclick="bukaChat('demo2','Siti - Penumpang')"><b>Siti - Penumpang</b><small>Jadwal besok jam berapa?</small></div>`;
-  }
+async function loadBot(){
+  const cari=(document.getElementById('cariBot')?.value||'').toLowerCase();
+  const {data}=await sb.from('bot').select('*').limit(100);
+  let f=(data||[]).filter(b=>b.kunci.toLowerCase().includes(cari));
+  document.getElementById('listBot').innerHTML=`<table><tr><th>Kunci</th><th>Jawaban</th><th>Aksi</th></tr>${f.map(b=>`<tr><td><b>${b.kunci}</b></td><td>${b.jawaban}</td><td><button class="btn-small btn-red" onclick="hapusBot('${b.kunci.replace(/'/g,"")}')">Hapus</button></td></tr>`).join('')}</table>`;
 }
-async function bukaChat(userId,nama){
-  currentUser=userId; document.getElementById('chatTitle').innerText='Chat: '+nama;
-  try{
-    const {data}=await sb.from('chats').select('*').eq('user_id',userId).order('created_at',{ascending:true});
-    if(!data||!data.length) throw new Error('kosong');
-    const box=document.getElementById('chatBox');
-    box.innerHTML=data.map(c=>`<div class="msg ${c.sender==='admin'?'admin':'user'}">${c.message}<small>${c.sender==='admin'?'Sari Lestari - Admin':'Penumpang'} • ${new Date(c.created_at).toLocaleString('id-ID')}</small></div>`).join('');
-    box.scrollTop=box.scrollHeight;
-    const lastUser=[...data].reverse().find(c=>c.sender!=='admin'); lastUserMsg=lastUser?lastUser.message:"";
-  }catch(e){
-    document.getElementById('chatBox').innerHTML=`<div class="msg user">Berapa harga Cianjur - Jakarta? <small>Penumpang</small></div><div class="msg admin">Rp 150.000 kak, berangkat tiap jam 🙏 <small>Sari Lestari - Admin</small></div>`;
-    lastUserMsg="Berapa harga Cianjur - Jakarta?";
-  }
+async function hapusBot(kunci){if(!confirm('Hapus bot '+kunci+'?'))return; await sb.from('bot').delete().eq('kunci',kunci); loadAll();}
+async function loadOrder(){
+  const {data}=await sb.from('bookings').select('*').order('created_at',{ascending:false}).limit(50);
+  document.getElementById('listOrder').innerHTML=data?.length?`<table><tr><th>Penumpang</th><th>Rute</th><th>Jarak</th><th>Total</th><th>Status</th></tr>${data.map(o=>`<tr><td>${o.nama_penumpang||'-'}</td><td>${o.dari_lokasi} → ${o.ke_lokasi}</td><td>${o.jarak_km} km (${o.jenis_layanan})</td><td>Rp ${Number(o.total_harga||0).toLocaleString('id-ID')}</td><td><span class="badge b-yellow">${o.status}</span></td></tr>`).join('')}</table>`:'<p style="color:#64748b">Belum ada order. Ini BENER, tabel bookings masih kosong.</p>';
 }
-async function kirimPesan(){
-  const input=document.getElementById('chatInput'); const pesan=input.value.trim();
-  if(!pesan||!currentUser) return alert('Pilih penumpang dulu & ketik pesan');
-  try{await sb.from('chats').insert([{user_id:currentUser, sender:'admin', message:pesan}]);}catch(e){}
-  if(document.getElementById('saveToBot').checked && lastUserMsg){
-    try{
-      const {data:cek}=await sb.from('bot').select('*').ilike('kunci','%'+lastUserMsg.slice(0,30)+'%');
-      if(!cek||!cek.length){await sb.from('bot').insert([{kunci:lastUserMsg, jawaban:pesan}]); alert('✅ Tersimpan! Jawaban kamu udah masuk ke Bot.'); loadBot();}
-    }catch(e){ alert('✅ Tersimpan ke Bot (demo)'); }
-  }
-  input.value=''; bukaChat(currentUser, currentUser);
+async function tambahOrder(){
+  const nama=document.getElementById('oNama').value, dari=document.getElementById('oDari').value, ke=document.getElementById('oKe').value;
+  const jarak=Number(document.getElementById('oJarak').value), jenis=document.getElementById('oJenis').value, tgl=document.getElementById('oTgl').value, status=document.getElementById('oStatus').value;
+  const {data:tarif}=await sb.from('tarif').select('*').eq('jenis',jenis).single();
+  const total=jarak*(tarif?.harga_per_km||5000);
+  document.getElementById('oHitung').textContent=`Hitung: ${jarak} km x Rp ${tarif?.harga_per_km} = Rp ${total.toLocaleString('id-ID')}`;
+  const {error}=await sb.from('bookings').insert([{nama_penumpang:nama,dari_lokasi:dari,ke_lokasi:ke,jarak_km:jarak,jenis_layanan:jenis,total_harga:total,tanggal_berangkat:tgl,status:status}]);
+  if(error) return alert(error.message); alert('Order tersimpan ✅'); loadAll();
 }
-document.getElementById('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter') kirimPesan();});
-loadAll();
-setInterval(loadAll, 10000);
+async function loadBayar(){
+  const {data}=await sb.from('payments').select('*').order('created_at',{ascending:false}).limit(50);
+  document.getElementById('listBayar').innerHTML=data?.length?`<table><tr><th>Booking</th><th>Metode</th><th>Nominal</th><th>Status</th><th>Bukti</th></tr>${data.map(p=>`<tr><td>${p.booking_id}</td><td>${p.metode}</td><td>Rp ${Number(p.nominal||0).toLocaleString('id-ID')}</td><td>${p.status}</td><td>${p.bukti_url?`<a href="${p.bukti_url}" target="_blank">Lihat</a>`:'-'}</td></tr>`).join('')}</table>`:'<p style="color:#64748b">Belum ada pembayaran.</p>';
+}
+async function loadDriver(){
+  const {data}=await sb.from('drivers').select('*').limit(50);
+  document.getElementById('listDriver').innerHTML=data?.length?`<table><tr><th>Nama</th><th>WA</th><th>Mobil</th><th>Status</th></tr>${data.map(d=>`<tr><td>${d.nama}</td><td>${d.no_wa}</td><td>${d.jenis_mobil} - ${d.plat_mobil}</td><td>${d.status}</td></tr>`).join('')}</table>`:'Belum ada driver';
+}
+async function tambahDriver(){
+  const {error}=await sb.from('drivers').insert([{nama:document.getElementById('dNama').value,no_wa:document.getElementById('dWa').value,plat_mobil:document.getElementById('dPlat').value,jenis_mobil:document.getElementById('dMobil').value,status:document.getElementById('dStatus').value}]);
+  if(error) return alert(error.message); alert('Driver tersimpan ✅'); loadAll();
+}
+async function loadPenumpang(){
+  const {data}=await sb.from('penumpang').select('*').limit(50);
+  document.getElementById('listPenumpang').innerHTML=data?.length?`<table><tr><th>Nama</th><th>WA</th><th>Email</th><th>Status</th></tr>${data.map(p=>`<tr><td>${p.nama}</td><td>${p.no_wa}</td><td>${p.email||'-'}</td><td>${p.status}</td></tr>`).join('')}</table>`:'Belum ada penumpang';
+}
+async function loadBlacklist(){
+  const {data}=await sb.from('blacklist').select('*').limit(50);
+  document.getElementById('listBlacklist').innerHTML=data?.length?`<table><tr><th>No WA</th><th>Alasan</th><th>Jumlah Cancel</th><th>Status</th></tr>${data.map(b=>`<tr><td>${b.no_wa}</td><td>${b.alasan}</td><td>${b.jumlah_cancel}</td><td><span class="badge b-red">${b.status}</span></td></tr>`).join('')}</table>`:'Belum ada blacklist. Bagus, berarti belum ada penumpang nakal.';
+}
+async function tambahBlacklist(){
+  const {error}=await sb.from('blacklist').insert([{no_wa:document.getElementById('bWa').value,alasan:document.getElementById('bAlasan').value,jumlah_cancel:Number(document.getElementById('bCancel').value||1),status:'blacklist'}]);
+  if(error) return alert(error.message); alert('Masuk blacklist ✅'); loadAll();
+}
+async function loadTarif(){
+  const {data}=await sb.from('tarif').select('*').order('id');
+  document.getElementById('listTarif').innerHTML=`<table><tr><th>Jenis</th><th>Harga / KM</th><th>Aktif</th><th>Update</th></tr>${(data||[]).map(t=>`<tr><td>${t.jenis}</td><td>Rp ${Number(t.harga_per_km).toLocaleString('id-ID')}</td><td>${t.is_active?'✅':'❌'}</td><td><input type="number" value="${t.harga_per_km}" id="tarif-${t.id}" style="width:120px"><button class="btn-small" onclick="updateTarif(${t.id})">Update</button></td></tr>`).join('')}</table>`;
+}
+async function updateTarif(id){
+  const harga=Number(document.getElementById('tarif-'+id).value);
+  await sb.from('tarif').update({harga_per_km:harga}).eq('id',id); alert('Tarif keupdate ✅'); loadAll();
+}
 </script>
 </body>
 </html>
