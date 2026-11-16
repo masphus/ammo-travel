@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akun - Ammo Travel</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Arial;background:#000;color:#fff;min-height:100vh}
+  .phone{max-width:420px;margin:auto;background:#0a0a0a;min-height:100vh;padding:16px 14px 90px;position:relative}
+  .badge{text-align:center;margin:6px 0 14px}
+  .badge span{display:inline-block;background:linear-gradient(#e8c87a,#b9974a);color:#3a2a00;padding:8px 22px;border-radius:999px;font-weight:bold;font-size:19px;border:1px solid #ffe9a8}
+  .avatar{text-align:center}
+  .avatar img{width:110px;height:110px;object-fit:cover;border-radius:50%;border:3px solid #d4af5a}
+  .joined{text-align:center;color:#d4af5a;font-size:13px;margin:8px 0 18px}
+  .section{background:#111;padding:14px;border-radius:14px;margin-bottom:16px;border:1px solid #222}
+  .label{display:inline-block;background:#2a2113;color:#e8c87a;padding:4px 10px;border-radius:8px;font-size:14px;margin-bottom:6px;border:1px solid #4a3a1a}
+  .row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid #222}
+  .row:last-child{border-bottom:none}
+  .icon{width:38px;height:38px;background:#2a2113;border:1px solid #6b551f;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .row .left{flex:1;font-size:16px}
+  .row .right{color:#e8c87a;font-weight:bold;font-size:15px;text-align:right}
+  .row .arrow{color:#e8c87a;font-size:18px}
+  .btn-ubah{background:#8a6d2b;color:#ffe9a8;border:1px solid #d4af5a;padding:4px 12px;border-radius:8px;font-size:13px;cursor:pointer}
+  .btn-gold{width:100%;padding:14px;background:linear-gradient(#f2d98c,#c9a94f);border:none;border-radius:12px;font-weight:bold;font-size:19px;cursor:pointer;margin-top:4px}
+  .bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:#111;display:flex;justify-content:space-around;padding:10px 0 14px;border-top:1px solid #222}
+  .bottom a{color:#d4af5a;text-decoration:none;text-align:center;font-size:12px}
+  .bottom div{font-size:22px}
+  input{width:100%;padding:12px;margin:8px 0;border-radius:10px;border:1px solid #6b551f;background:#1a1a1a;color:white}
+  .login-card{background:#111;padding:20px;border-radius:16px}
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- KALAU BELUM LOGIN -->
+  <div id="boxLogin" class="login-card">
+    <div class="badge"><span>👑 Ammo Travel</span></div>
+    <h3 style="text-align:center;margin-bottom:10px">Masuk / Daftar</h3>
+    <input id="nama" placeholder="Nama Lengkap">
+    <input id="nomor" placeholder="Nomor HP - 08123456789" type="tel">
+    <input id="password" placeholder="Password" type="password">
+    <button class="btn-gold" onclick="daftarMasuk()">Daftar / Masuk</button>
+    <p style="font-size:12px;color:#999;text-align:center;margin-top:10px">Nomor baru = otomatis daftar<br>Nomor lama = langsung masuk</p>
+  </div>
+
+  <!-- KALAU SUDAH LOGIN - SESUAI GAMBAR -->
+  <div id="boxAkun" style="display:none">
+    <div class="badge"><span>👑 Member Gold</span></div>
+
+    <div class="avatar"><img id="fotoProfil" src="https://i.pravatar.cc/200?img=47"></div>
+    <div class="joined" id="tampilGabung">Bergabung sejak -</div>
+
+    <div class="section">
+      <span class="label">Informasi Akun</span>
+      <div class="row"><div class="icon">👤</div><div class="left">Nama</div><div class="right" id="tampilNama">-</div><div class="arrow">›</div></div>
+      <div class="row"><div class="icon">📞</div><div class="left">Nomor</div><div class="right" id="tampilNomor">-</div><div class="arrow">›</div></div>
+      <div class="row"><div class="icon">🔒</div><div class="left">Password</div><div class="right">•••••••••• <button class="btn-ubah" onclick="ubahPassword()">Ubah</button></div></div>
+      <div class="row"><div class="icon">G</div><div class="left">Akun Google</div><div class="right" style="font-size:12px" id="tampilGoogle">- <span style="color:#22c55e">✿ Terverifikasi</span></div></div>
+    </div>
+
+    <div class="section">
+      <span class="label">Layanan</span>
+      <div class="row"><div class="icon">📅</div><div class="left">Booking</div><div class="right" id="tampilBooking">0 Booking Aktif</div><div class="arrow">›</div></div>
+      <div class="row"><div class="icon">🎟️</div><div class="left">Voucher</div><div class="right" id="tampilVoucher">0 Voucher Tersedia</div><div class="arrow">›</div></div>
+      <div class="row"><div class="icon">💳</div><div class="left">Saldo</div><div class="right" id="tampilSaldo">Rp 0</div></div>
+    </div>
+
+    <button class="btn-gold" onclick="topup()">Top Up Saldo</button>
+  </div>
+</div>
+
+<div class="bottom" id="navBawah" style="display:none">
+  <a href="index.html"><div>🏠</div>Beranda</a>
+  <a href="booking.html"><div>🗓️</div>Booking</a>
+  <a href="voucher.html"><div>🎟️</div>Voucher</a>
+  <a href="#" onclick="logout()"><div>⏻</div>Keluar</a>
+</div>
+
+<script>
+  const SUPABASE_URL = "https://xxxx.supabase.co";
+  const SUPABASE_KEY = "paste-anon-key-lu-disini";
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  function formatRupiah(n){ return "Rp " + Number(n||0).toLocaleString('id-ID'); }
+  function formatTanggal(t){
+    if(!t) return "Bergabung sejak -";
+    let d = new Date(t);
+    return "Bergabung sejak " + d.toLocaleDateString('id-ID',{month:'short',year:'numeric'});
+  }
+
+  async function tampilkan(user){
+    document.getElementById('boxLogin').style.display='none';
+    document.getElementById('boxAkun').style.display='block';
+    document.getElementById('navBawah').style.display='flex';
+    document.getElementById('tampilNama').innerText = user.nama;
+    document.getElementById('tampilNomor').innerText = user.nomor;
+    document.getElementById('tampilSaldo').innerText = formatRupiah(user.saldo);
+    document.getElementById('tampilGabung').innerText = formatTanggal(user.created_at);
+    document.getElementById('tampilGoogle').innerHTML = (user.nomor||'') + "@gmail.com <span style='color:#22c55e'>✿ Terverifikasi</span>";
+
+    // Hitung Booking Aktif dari tabel bookings
+    let { data: book } = await supabaseClient.from('bookings').select('id').eq('penumpang_id', user.id);
+    if(book) document.getElementById('tampilBooking').innerText = book.length + " Booking Aktif";
+  }
+
+  async function daftarMasuk(){
+    const nama = document.getElementById('nama').value.trim();
+    const nomor = document.getElementById('nomor').value.trim();
+    const password = document.getElementById('password').value.trim();
+    if(!nomor || !password){ alert('Nomor & Password wajib diisi bro!'); return; }
+    let { data: ada } = await supabaseClient.from('penumpang').select('*').eq('nomor', nomor).maybeSingle();
+    if(ada){
+      if(ada.password !== password){ alert('Password salah bro!'); return; }
+      localStorage.setItem('ammo_user', JSON.stringify(ada));
+      tampilkan(ada);
+    } else {
+      if(!nama){ alert('Buat akun baru, Nama wajib diisi bro!'); return; }
+      let { data: baru, error } = await supabaseClient.from('penumpang').insert([{ nama, nomor, password, saldo: 0 }]).select().single();
+      if(error){ alert(error.message); return; }
+      localStorage.setItem('ammo_user', JSON.stringify(baru));
+      tampilkan(baru);
+    }
+  }
+  function ubahPassword(){
+    let baru = prompt("Masukkan password baru:");
+    if(!baru) return;
+    let user = JSON.parse(localStorage.getItem('ammo_user'));
+    supabaseClient.from('penumpang').update({password: baru}).eq('id', user.id).then(()=>{
+      user.password = baru; localStorage.setItem('ammo_user', JSON.stringify(user));
+      alert("Password berhasil diubah!");
+    });
+  }
+  function topup(){ alert("Fitur Top Up nanti kita sambung ke pembayaran ya bro!"); }
+  function logout(){ localStorage.removeItem('ammo_user'); location.reload(); }
+  const saved = localStorage.getItem('ammo_user');
+  if(saved){ tampilkan(JSON.parse(saved)); }
+</script>
+</body>
+</html>
