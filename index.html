@@ -113,6 +113,7 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 .toast b{color:#d4af37;font-size:14px}
 .toast p{font-size:13px;color:#ddd}
 .toast button{border:none;background:#d4af37;border-radius:8px;padding:8px 12px;font-weight:900;cursor:pointer}
+.gps-note{font-size:12px;color:#d4af37;text-align:center;margin-top:6px;display:none}
 </style>
 </head>
 <body>
@@ -121,7 +122,8 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 <div class="title"><h1>Mau Diantar <b>Kemana?</b></h1></div>
 <div class="form" autocomplete="off">
 <div class="lbl">Dari</div>
-<div class="row"><input id="pickup" placeholder="Ketik / Pilih Lokasi Jemput..." autocomplete="off"><button class="btn-map" onclick="openMap('pickup')">📍 Peta</button></div>
+<div class="row"><input id="pickup" placeholder="📍 Mendeteksi lokasi GPS..." autocomplete="off"><button class="btn-map" onclick="openMap('pickup')">📍 Peta</button></div>
+<div id="gpsNote" class="gps-note">📍 Mendeteksi lokasi GPS kamu...</div>
 <div id="saranPick" class="saran-box"></div>
 <div class="swap-wrap"><button id="swapBtn" class="swap-btn" onclick="swapLokasi()" disabled title="Tukar Penjemputan & Tujuan">⇅</button></div>
 <div class="lbl">Tujuan</div>
@@ -233,7 +235,7 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 <p>Buat dihubungi driver ya, sekali aja.</p>
 <label>Nomor WhatsApp</label>
 <input id="inputWaGoogle" placeholder="0812xxxx" inputmode="numeric">
-<div class="center-btns"><button style="background:#333;color:#fff" onclick="tutupWaGoogle()">Nanti Aja</button><button style="background:#d4af37;color:#000" onclick="simpanWaGoogle()">Simpan</button></div>
+<div class="center-btns"><button style="background:#333;color:#fff" onclick="tutupWaGoogle()">Nanti Aja</button><button style="background:#d4af37;color:#000" onclick="simpanWaGoogle()">Simpan & Lanjut Order</button></div>
 </div></div>
 <div id="logoutModal" class="center-modal"><div class="center-box">
 <div style="font-size:36px">👋</div>
@@ -244,17 +246,7 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 <div id="toastWrap" class="toast-wrap"><div class="toast"><div class="ico" id="toastIco">✓</div><div style="flex:1"><b id="toastJudul">Berhasil</b><p id="toastIsi">-</p></div><button onclick="tutupToast()">OK</button></div></div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-(function(){
-try{
-var harusKosong = sessionStorage.getItem('ammo_clear')==='1' || sessionStorage.getItem('ammo_must_clear_dest')==='1' || sessionStorage.getItem('ammo_from_index')==='1' || localStorage.getItem('masphus_order') || (document.referrer && document.referrer.indexOf('penumpang')!==-1);
-if(harusKosong){
-var d = document.getElementById('dest');
-if(d) d.value='';
-var o = document.getElementById('ongkosPreview');
-if(o) o.style.display='none';
-}
-}catch(e){}
-})();
+// ===== STATE =====
 let pickupCoord=null, destCoord=null, mapMode='pickup';
 let map=null, marker=null, tempLat=-6.9175, tempLng=107.6191, tempAddr='Lokasi Saya Saat Ini';
 let previewTimer=null, saranTimer=null;
@@ -263,6 +255,7 @@ let jumlahOrang=6;
 let pendingRole=null;
 const PIN_ADMIN='258000';
 let pendingKode='';
+let gpsSudahCoba=false;
 const $=id=>document.getElementById(id);
 const fmtRp=n=>'Rp. '+Math.round(n).toLocaleString('id-ID');
 function fmtJarak(m){let km=m/1000;return km>=100?Math.round(km).toLocaleString('id-ID')+' km':km.toFixed(1).replace('.',',')+' km';}
@@ -278,284 +271,489 @@ function sembunyikanHarga(){$('ongkosPreview').style.display='none';$('prevJarak
 document.addEventListener('click',function(e){let b=e.target.closest('.orang-btn');if(!b)return;jumlahOrang=parseInt(b.dataset.orang);document.querySelectorAll('.orang-btn').forEach(x=>x.classList.remove('aktif'));b.classList.add('aktif');jadwalPreview(true);});
 function swapLokasi(){let a=$('pickup').value,b=$('dest').value;$('pickup').value=b;$('dest').value=a;let tc=pickupCoord;pickupCoord=destCoord;destCoord=tc;updateSwap();jadwalPreview(true);showToast('Ditukar','Dari & Tujuan berhasil ditukar');}
 async function reverseGeocode(lat,lng){try{let r=await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lng);let d=await r.json();return d.display_name||('Titik Peta ('+lat.toFixed(4)+', '+lng.toFixed(4)+')');}catch(e){return 'Titik Peta ('+lat.toFixed(4)+', '+lng.toFixed(4)+')';}}
-function isiPenjemputanOtomatis(){if($('pickup').value.trim())return;if(navigator.geolocation){navigator.geolocation.getCurrentPosition(async pos=>{tempLat=pos.coords.latitude;tempLng=pos.coords.longitude;pickupCoord=[tempLat,tempLng];let a=await reverseGeocode(tempLat,tempLng);if(!$('pickup').value.trim())$('pickup').value=a;},()=>{}, {timeout:5000});}}
+
+// ===== FIX 1: GPS - JANGAN BIARIN KOSONG =====
+function pakaiGpsTersimpan(){
+  try{
+    let last=JSON.parse(localStorage.getItem('ammo_last_gps')||'null');
+    if(last && last.lat && last.lon && !$('pickup').value.trim()){
+      pickupCoord=[last.lat,last.lon]; tempLat=last.lat; tempLng=last.lon;
+      $('pickup').value=last.nama||('Titik Peta ('+last.lat.toFixed(4)+', '+last.lon.toFixed(4)+')');
+      updateSwap(); return true;
+    }
+  }catch(e){}
+  return false;
+}
+function isiPenjemputanOtomatis(force){
+  if(!force && $('pickup').value.trim() && pickupCoord) return;
+  if(!force && $('pickup').value.trim() && $('pickup').value.indexOf('Mendeteksi')===-1) return;
+  // 1. Pakai GPS terakhir dulu biar langsung keisi, gak kosong melompong
+  if(pakaiGpsTersimpan() && !force) {
+    // Tetap refresh GPS baru di background
+    setTimeout(()=>isiPenjemputanOtomatis(true), 500);
+    return;
+  }
+  if(!$('pickup').value.trim()) $('pickup').value='📍 Mendeteksi lokasi GPS...';
+  if($('gpsNote')) $('gpsNote').style.display='block';
+  if(!navigator.geolocation){
+    if($('gpsNote')) $('gpsNote').textContent='GPS tidak didukung, pilih dari Peta / ketik manual ya';
+    if($('pickup').value.indexOf('Mendeteksi')!==-1) $('pickup').value='';
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    tempLat=pos.coords.latitude; tempLng=pos.coords.longitude;
+    pickupCoord=[tempLat,tempLng];
+    try{ localStorage.setItem('ammo_last_gps', JSON.stringify({lat:tempLat,lon:tempLng,nama:'',waktu:Date.now()})); }catch(e){}
+    let a=await reverseGeocode(tempLat,tempLng);
+    try{ localStorage.setItem('ammo_last_gps', JSON.stringify({lat:tempLat,lon:tempLng,nama:a,waktu:Date.now()})); }catch(e){}
+    $('pickup').value=a;
+    if($('gpsNote')) $('gpsNote').style.display='none';
+    updateSwap(); jadwalPreview(true);
+  }, (err)=>{
+    if($('gpsNote')) $('gpsNote').textContent='Izin lokasi ditolak / GPS tidak ketemu. Ketik manual atau pilih dari Peta ya.';
+    if($('pickup').value.indexOf('Mendeteksi')!==-1) $('pickup').value='';
+    // Fallback: kalau pernah ada GPS tersimpan, pakai itu
+    pakaiGpsTersimpan();
+  }, {enableHighAccuracy:true, timeout:10000, maximumAge:60000});
+  gpsSudahCoba=true;
+}
 function jadwalPreview(langsung){clearTimeout(previewTimer);if(langsung)hitungPreview();else previewTimer=setTimeout(hitungPreview,800);}
 async function hitungPreview(){
-let a=$('pickup').value.trim(), b=$('dest').value.trim();
-if(!a||!b){sembunyikanHarga();return;}
-if(!pickupCoord||!destCoord){sembunyikanHarga();return;}
-$('ongkosPreview').style.display='block';
-$('prevJarak').textContent='Menghitung...';$('prevEstimasi').textContent='Menghitung...';$('prevOngkos').textContent='Menghitung...';
-try{
-let url=`https://router.project-osrm.org/route/v1/driving/${pickupCoord[1]},${pickupCoord[0]};${destCoord[1]},${destCoord[0]}?overview=false`;
-let r=await fetch(url);let d=await r.json();
-if(d.routes&&d.routes.length){
-let route=d.routes[0];let km=route.distance/1000;let h=hitungOngkos(km,jumlahOrang);
-$('prevJarak').textContent='~ '+fmtJarak(route.distance);
-$('prevEstimasi').textContent='± '+fmtEstimasi(route.duration);
-$('prevOngkos').textContent='ONGKOS '+fmtRp(h.ongkos);
-$('prevVoucher').textContent='Voucher didapat: + '+fmtRp(h.voucher);
-}
-}catch(e){sembunyikanHarga();}
+  let a=$('pickup').value.trim(), b=$('dest').value.trim();
+  if(!a||!b){sembunyikanHarga();return;}
+  if(!pickupCoord||!destCoord){sembunyikanHarga();return;}
+  $('ongkosPreview').style.display='block';
+  $('prevJarak').textContent='Menghitung...';$('prevEstimasi').textContent='Menghitung...';$('prevOngkos').textContent='Menghitung...';
+  try{
+    let url=`https://router.project-osrm.org/route/v1/driving/${pickupCoord[1]},${pickupCoord[0]};${destCoord[1]},${destCoord[0]}?overview=false`;
+    let r=await fetch(url);let d=await r.json();
+    if(d.routes&&d.routes.length){
+      let route=d.routes[0];let km=route.distance/1000;let h=hitungOngkos(km,jumlahOrang);
+      $('prevJarak').textContent='~ '+fmtJarak(route.distance);
+      $('prevEstimasi').textContent='± '+fmtEstimasi(route.duration);
+      $('prevOngkos').textContent='ONGKOS '+fmtRp(h.ongkos);
+      $('prevVoucher').textContent='Voucher didapat: + '+fmtRp(h.voucher);
+    }
+  }catch(e){sembunyikanHarga();}
 }
 async function cariSaran(q, boxEl, inputEl, isPickup){
-if(!q || q.length < 3){ boxEl.style.display='none'; return; }
-boxEl.style.display='block';
-boxEl.innerHTML='<div class="loading">Mencari saran...</div>';
-try{
-let r = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=6&countrycodes=id&q='+encodeURIComponent(q));
-let d = await r.json();
-if(!d || !d.length){ boxEl.innerHTML='<div class="loading">Tidak ketemu, coba kata lain / pilih dari Peta</div>'; return; }
-boxEl.innerHTML='';
-d.forEach(function(item){
-let div=document.createElement('div');
-let namaPendek=item.display_name.split(',').slice(0,3).join(',');
-div.innerHTML='📍 '+namaPendek+'<div class="jarak">'+item.display_name.split(',').slice(3,5).join(',')+'</div>';
-div.onclick=function(){
-inputEl.value=item.display_name;
-let coord=[parseFloat(item.lat), parseFloat(item.lon)];
-if(isPickup){ pickupCoord=coord; } else { destCoord=coord; }
-boxEl.style.display='none';
-updateSwap(); jadwalPreview(true);
-};
-boxEl.appendChild(div);
-});
-}catch(e){ boxEl.innerHTML='<div class="loading">Gagal cari saran, coba lagi / pakai Peta</div>'; }
+  if(!q || q.length < 3){ boxEl.style.display='none'; return; }
+  boxEl.style.display='block';
+  boxEl.innerHTML='<div class="loading">Mencari saran...</div>';
+  try{
+    let r = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=6&countrycodes=id&q='+encodeURIComponent(q));
+    let d = await r.json();
+    if(!d || !d.length){ boxEl.innerHTML='<div class="loading">Tidak ketemu, coba kata lain / pilih dari Peta</div>'; return; }
+    boxEl.innerHTML='';
+    d.forEach(function(item){
+      let div=document.createElement('div');
+      let namaPendek=item.display_name.split(',').slice(0,3).join(',');
+      div.innerHTML='📍 '+namaPendek+'<div class="jarak">'+item.display_name.split(',').slice(3,5).join(',')+'</div>';
+      div.onclick=function(){
+        inputEl.value=item.display_name;
+        let coord=[parseFloat(item.lat), parseFloat(item.lon)];
+        if(isPickup){ pickupCoord=coord; if($('gpsNote')) $('gpsNote').style.display='none'; } else { destCoord=coord; }
+        boxEl.style.display='none';
+        updateSwap(); jadwalPreview(true);
+      };
+      boxEl.appendChild(div);
+    });
+  }catch(e){ boxEl.innerHTML='<div class="loading">Gagal cari saran, coba lagi / pakai Peta</div>'; }
 }
 function jadwalSaran(inputEl, boxEl, isPickup){
-clearTimeout(saranTimer);
-saranTimer=setTimeout(function(){ cariSaran(inputEl.value.trim(), boxEl, inputEl, isPickup); }, 400);
+  clearTimeout(saranTimer);
+  saranTimer=setTimeout(function(){ cariSaran(inputEl.value.trim(), boxEl, inputEl, isPickup); }, 400);
 }
 document.addEventListener('click', function(e){
-if(!$('saranPick').contains(e.target) && e.target.id!=='pickup') $('saranPick').style.display='none';
-if(!$('saranDest').contains(e.target) && e.target.id!=='dest') $('saranDest').style.display='none';
+  if(!$('saranPick').contains(e.target) && e.target.id!=='pickup') $('saranPick').style.display='none';
+  if(!$('saranDest').contains(e.target) && e.target.id!=='dest') $('saranDest').style.display='none';
 });
 function getDB(){try{return JSON.parse(localStorage.getItem('ammo_penumpang_db')||'[]');}catch(e){return [];}}
 function saveDB(db){localStorage.setItem('ammo_penumpang_db',JSON.stringify(db));}
 function getSesi(){try{let s=JSON.parse(localStorage.getItem('ammo_sesi')||'null');if(s&&(s.nama||s.hp||s.email))return s;return null;}catch(e){return null;}}
-async function refreshProfilDariDB(){
-let s=getSesi(); if(!s) return null;
-if(s.hp){
-try{
-let cek=await supabaseClient.from('penumpang').select('id,nama,no_wa').eq('no_wa',s.hp).maybeSingle();
-if(cek.data){
-s.nama=cek.data.nama||s.nama; s.hp=cek.data.no_wa;
-localStorage.setItem('ammo_sesi',JSON.stringify(s));
-localStorage.setItem('ammo_supabase_penumpang_id',cek.data.id);
-localStorage.setItem('ammo_last_hp',s.hp);
-let b=await supabaseClient.from('bookings').select('id',{count:'exact',head:true}).eq('penumpang_id',cek.data.id);
-s.total_perjalanan=(b.count||0); s._penumpang_id=cek.data.id;
+// ===== FIX 2: PENDING ORDER LENGKAP - SIMPAN SEMUA, BUKAN CUMA TEKS =====
+function simpanPendingOrder(){
+  localStorage.setItem('ammo_pending_order', JSON.stringify({
+    asal:$('pickup').value.trim(),
+    tujuan:$('dest').value.trim(),
+    asalCoord: pickupCoord,
+    tujuanCoord: destCoord,
+    jumlahOrang: jumlahOrang,
+    tanggal: $('tanggalBerangkat')?$('tanggalBerangkat').value:'',
+    jam: $('jamBerangkat')?$('jamBerangkat').value:'09:00',
+    mauOrder: true,
+    waktu: Date.now()
+  }));
 }
-}catch(e){console.log('refresh profil gagal',e);}
+function pulihkanPendingOrder(){
+  try{
+    let p=JSON.parse(localStorage.getItem('ammo_pending_order')||'null');
+    if(!p) return null;
+    if(p.asal) $('pickup').value=p.asal;
+    if(p.tujuan) $('dest').value=p.tujuan;
+    if(p.asalCoord) pickupCoord=p.asalCoord;
+    if(p.tujuanCoord) destCoord=p.tujuanCoord;
+    if(p.jumlahOrang){
+      jumlahOrang=p.jumlahOrang;
+      document.querySelectorAll('.orang-btn').forEach(x=>{ x.classList.toggle('aktif', parseInt(x.dataset.orang)===jumlahOrang); });
+    }
+    if(p.tanggal && $('tanggalBerangkat')) $('tanggalBerangkat').value=p.tanggal;
+    if(p.jam && $('jamBerangkat')) $('jamBerangkat').value=p.jam;
+    updateSwap(); jadwalPreview(true);
+    return p;
+  }catch(e){ return null; }
 }
-return s;
+function mauLanjutOrder(){ return localStorage.getItem('ammo_mau_order')==='1'; }
+function setMauOrder(v){ if(v) localStorage.setItem('ammo_mau_order','1'); else localStorage.removeItem('ammo_mau_order'); }
+function lanjutJikaMauOrder(){
+  if(!mauLanjutOrder()) return false;
+  // Cek masih ada asal + tujuan + koordinat
+  if(!$('pickup').value.trim() || !$('dest').value.trim() || !pickupCoord || !destCoord) return false;
+  setMauOrder(false);
+  localStorage.removeItem('ammo_pending_order');
+  simpanOrderDanLanjut();
+  return true;
 }
+
+// ===== FIX 3: SIMPAN ORDER - OSRM + CEK PROFIL DB + FILTER ORANG =====
 async function simpanOrderDanLanjut(){
-let a=$('pickup').value.trim(), b=$('dest').value.trim();
-let tgl=$('tanggalBerangkat')?$('tanggalBerangkat').value:'';
-if(!tgl){tgl=new Date().toISOString().slice(0,10);}
-let jam=$('jamBerangkat')?$('jamBerangkat').value:'09:00';
-if(!pickupCoord||!destCoord){showToast('Pilih Dulu','Pilih Dari & Tujuan dari saran / peta dulu ya, jangan cuma diketik',true);return;}
-let sesi=getSesi();
-if(sesi && sesi.hp){
-try{
-let cek=await supabaseClient.from('penumpang').select('id,nama,no_wa').eq('no_wa',sesi.hp).maybeSingle();
-if(!cek.data){localStorage.removeItem('ammo_sesi');bukaAkun();showToast('Login Dulu','Profil belum ketemu di database, login / daftar dulu ya',true);return;}
-sesi.nama=cek.data.nama; sesi.hp=cek.data.no_wa;
-localStorage.setItem('ammo_sesi',JSON.stringify(sesi));
-localStorage.setItem('ammo_supabase_penumpang_id',cek.data.id);
-}catch(e){console.log('cek profil gagal, lanjut pakai sesi lokal',e);}
-}
-if(!sesi){bukaAkun();showToast('Login Dulu','Login / Daftar dulu ya bro sebelum order',true);return;}
-let tujuanFile = jumlahOrang <= 4 ? 'penumpang.html' : 'reguler.html';
-let jenisLayanan = jumlahOrang <= 4 ? 'Travel Reguler' : 'Travel Reguler';
-let jarakKm=null, totalHarga=null, voucherDapat=0, estimasiTeks='', durasiDetik=0, jarakMeter=0;
-try{
-let url=`https://router.project-osrm.org/route/v1/driving/${pickupCoord[1]},${pickupCoord[0]};${destCoord[1]},${destCoord[0]}?overview=false`;
-let r=await fetch(url); let d=await r.json();
-if(d.routes&&d.routes.length){
-let route=d.routes[0]; jarakMeter=route.distance;
-let km=route.distance/1000; let h=hitungOngkos(km,jumlahOrang);
-jarakKm=h.kmTagih; totalHarga=h.ongkos; voucherDapat=h.voucher;
-estimasiTeks=fmtEstimasi(route.duration); durasiDetik=route.duration;
-}
-}catch(e){}
-if(!jarakKm){
-let kmRaw=haversine(pickupCoord[0],pickupCoord[1],destCoord[0],destCoord[1]);
-let h=hitungOngkos(kmRaw,jumlahOrang);
-jarakKm=h.kmTagih; totalHarga=h.ongkos; voucherDapat=h.voucher;
-estimasiTeks=fmtEstimasi(kmRaw/40*3600); durasiDetik=Math.round(kmRaw/40*3600); jarakMeter=Math.round(kmRaw*1000);
-}
-let voucherLama=parseInt(localStorage.getItem('ammo_voucher')||'0');
-localStorage.setItem('ammo_voucher', voucherLama+voucherDapat);
-localStorage.setItem('masphus_order',JSON.stringify({
-asal:{nama:a,lat:pickupCoord?pickupCoord[0]:null,lon:pickupCoord?pickupCoord[1]:null},
-tujuan:{nama:b,lat:destCoord?destCoord[0]:null,lon:destCoord?destCoord[1]:null},
-waktu:Date.now(),jarak_km:jarakKm,jarak_meter:jarakMeter,total_harga:totalHarga,estimasi:estimasiTeks,durasi_detik:durasiDetik,jumlah_orang:jumlahOrang,voucher_didapat:voucherDapat,jenis_layanan:jenisLayanan,tanggal_berangkat:tgl,jam_berangkat:jam,nama_penumpang:sesi?sesi.nama:null,no_wa:sesi?sesi.hp:null,penumpang_id:localStorage.getItem('ammo_supabase_penumpang_id')||null,locked:true,sumber_hitung:'OSRM'
-}));
-sessionStorage.setItem('ammo_from_index','1');
-sessionStorage.removeItem('ammo_clear');
-sessionStorage.removeItem('ammo_must_clear_dest');
-window.location.href=tujuanFile;
+  let a=$('pickup').value.trim(), b=$('dest').value.trim();
+  let tgl=$('tanggalBerangkat')?$('tanggalBerangkat').value:'';
+  if(!tgl){tgl=new Date().toISOString().slice(0,10);}
+  let jam=$('jamBerangkat')?$('jamBerangkat').value:'09:00';
+  if(!pickupCoord||!destCoord){showToast('Pilih Dulu','Pilih Dari & Tujuan dari saran / peta dulu ya, jangan cuma diketik',true);return;}
+  // Cek profil ke DB - kalau sesi ada tapi di DB gak ada, suruh login lagi
+  let sesi=getSesi();
+  if(sesi && sesi.hp){
+    try{
+      let cek=await supabaseClient.from('penumpang').select('id,nama,no_wa').eq('no_wa',sesi.hp).maybeSingle();
+      if(!cek.data){
+        localStorage.removeItem('ammo_sesi');
+        simpanPendingOrder(); setMauOrder(true); bukaAkun();
+        showToast('Login Dulu','Profil belum ketemu di database, login / daftar dulu ya',true); return;
+      }
+      sesi.nama=cek.data.nama; sesi.hp=cek.data.no_wa;
+      localStorage.setItem('ammo_sesi',JSON.stringify(sesi));
+      localStorage.setItem('ammo_supabase_penumpang_id',cek.data.id);
+    }catch(e){ console.log('cek profil gagal, lanjut pakai sesi lokal',e); }
+  }
+  if(!sesi){ simpanPendingOrder(); setMauOrder(true); bukaAkun(); showToast('Login Dulu','Login / Daftar dulu ya bro sebelum order',true); return; }
+  // Filter jumlah orang: <=4 -> penumpang.html, >=5 -> reguler.html
+  let tujuanFile = jumlahOrang <= 4 ? 'penumpang.html' : 'reguler.html';
+  let jenisLayanan = 'Travel Reguler';
+  // Hitung OSRM - sama kayak preview, bukan haversine
+  let jarakKm=null, totalHarga=null, voucherDapat=0, estimasiTeks='', durasiDetik=0, jarakMeter=0;
+  try{
+    let url=`https://router.project-osrm.org/route/v1/driving/${pickupCoord[1]},${pickupCoord[0]};${destCoord[1]},${destCoord[0]}?overview=false`;
+    let r=await fetch(url); let d=await r.json();
+    if(d.routes&&d.routes.length){
+      let route=d.routes[0]; jarakMeter=route.distance;
+      let km=route.distance/1000; let h=hitungOngkos(km,jumlahOrang);
+      jarakKm=h.kmTagih; totalHarga=h.ongkos; voucherDapat=h.voucher;
+      estimasiTeks=fmtEstimasi(route.duration); durasiDetik=route.duration;
+    }
+  }catch(e){}
+  if(!jarakKm){
+    let kmRaw=haversine(pickupCoord[0],pickupCoord[1],destCoord[0],destCoord[1]);
+    let h=hitungOngkos(kmRaw,jumlahOrang);
+    jarakKm=h.kmTagih; totalHarga=h.ongkos; voucherDapat=h.voucher;
+    estimasiTeks=fmtEstimasi(kmRaw/40*3600); durasiDetik=Math.round(kmRaw/40*3600); jarakMeter=Math.round(kmRaw*1000);
+  }
+  let voucherLama=parseInt(localStorage.getItem('ammo_voucher')||'0');
+  localStorage.setItem('ammo_voucher', voucherLama+voucherDapat);
+  localStorage.setItem('masphus_order',JSON.stringify({
+    asal:{nama:a,lat:pickupCoord?pickupCoord[0]:null,lon:pickupCoord?pickupCoord[1]:null},
+    tujuan:{nama:b,lat:destCoord?destCoord[0]:null,lon:destCoord?destCoord[1]:null},
+    waktu:Date.now(),jarak_km:jarakKm,jarak_meter:jarakMeter,total_harga:totalHarga,estimasi:estimasiTeks,durasi_detik:durasiDetik,jumlah_orang:jumlahOrang,voucher_didapat:voucherDapat,jenis_layanan:jenisLayanan,tanggal_berangkat:tgl,jam_berangkat:jam,nama_penumpang:sesi?sesi.nama:null,no_wa:sesi?sesi.hp:null,penumpang_id:localStorage.getItem('ammo_supabase_penumpang_id')||null,locked:true,sumber_hitung:'OSRM'
+  }));
+  sessionStorage.setItem('ammo_from_index','1');
+  sessionStorage.removeItem('ammo_clear');
+  sessionStorage.removeItem('ammo_must_clear_dest');
+  setMauOrder(false);
+  localStorage.removeItem('ammo_pending_order');
+  window.location.href=tujuanFile;
 }
 async function cekDriver(){
-let a=$('pickup').value.trim(), b=$('dest').value.trim();
-if(!a||!b){showToast('Lengkapi Dulu','Isi Penjemputan dan Tujuan dulu Bro!',true);return;}
-let sesi=getSesi();
-if(sesi){simpanOrderDanLanjut();return;}
-let lastHp=localStorage.getItem('ammo_last_hp')||'';
-if(lastHp){
-try{
-let cek=await supabaseClient.from('penumpang').select('id,nama,no_wa').eq('no_wa',lastHp).maybeSingle();
-if(cek.data){
-let user={nama:cek.data.nama,hp:cek.data.no_wa,via:'WA'};
-localStorage.setItem('ammo_sesi',JSON.stringify(user));
-localStorage.setItem('ammo_supabase_penumpang_id',cek.data.id);
-simpanOrderDanLanjut();return;
-}
-}catch(e){console.log('cek penumpang error',e);}
-}
-bukaAkun();
+  let a=$('pickup').value.trim(), b=$('dest').value.trim();
+  if(!a||!b){showToast('Lengkapi Dulu','Isi Penjemputan dan Tujuan dulu Bro!',true);return;}
+  // Kalau kolom Dari masih "Mendeteksi..." tapi koordinat sudah ada, jangan gagalkan
+  if(a.indexOf('Mendeteksi')!==-1 && !pickupCoord){showToast('Tunggu GPS','Tunggu GPS keisi dulu ya, atau pilih dari Peta',true);return;}
+  let sesi=getSesi();
+  if(sesi){simpanOrderDanLanjut();return;}
+  let lastHp=localStorage.getItem('ammo_last_hp')||'';
+  if(lastHp){
+    try{
+      let cek=await supabaseClient.from('penumpang').select('id,nama,no_wa').eq('no_wa',lastHp).maybeSingle();
+      if(cek.data){
+        let user={nama:cek.data.nama,hp:cek.data.no_wa,via:'WA'};
+        localStorage.setItem('ammo_sesi',JSON.stringify(user));
+        localStorage.setItem('ammo_supabase_penumpang_id',cek.data.id);
+        simpanOrderDanLanjut();return;
+      }
+    }catch(e){console.log('cek penumpang error',e);}
+  }
+  // Belum punya akun -> simpan pending + tandai mau order, baru buka akun
+  simpanPendingOrder(); setMauOrder(true); bukaAkun();
 }
 function tutupDaftar(){$('daftarModal').classList.remove('show');}
 async function daftarPenumpang(via){
-if(via==='Google'){
-let a=$('pickup').value.trim(), b=$('dest').value.trim();
-localStorage.setItem('ammo_pending_order',JSON.stringify({asal:a,tujuan:b}));
-await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href}});
-return;
+  if(via==='Google'){
+    simpanPendingOrder(); setMauOrder(true);
+    await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href}});
+    return;
+  }
+  let nama=$('namaDaftar').value.trim();
+  let hp=$('hpDaftar').value.trim();
+  if(!nama){showToast('Nama Kosong','Tolong Masukkan nama terlebih dahulu 🙏🙏🙏',true);return;}
+  if(!hp){showToast('No. WA Kosong','Isi No. WA dulu ya.',true);return;}
+  let db=getDB();
+  let user=db.find(u=>u.hp===hp);
+  if(!user){user={nama:nama,hp:hp,via:via,created:Date.now()};db.push(user);saveDB(db);}
+  else{user.nama=nama;user.via=via;saveDB(db);}
+  localStorage.setItem('ammo_sesi',JSON.stringify(user));
+  localStorage.setItem('ammo_last_hp',hp);
+  tutupDaftar(); tutupAkun();
+  try{await syncPenumpangKeSupabase(nama,hp,via);}catch(e){console.log('Supabase penumpang gagal:',e);}
+  // Kalau dari ORDER NOW, langsung lanjut. Kalau cuma buka Profil, jangan loncat.
+  if(!lanjutJikaMauOrder()){ showToast('Terdaftar','Akun berhasil dibuat, '+nama); bukaAkun(); }
 }
-let nama=$('namaDaftar').value.trim();
-let hp=$('hpDaftar').value.trim();
-if(!nama){showToast('Nama Kosong','Tolong Masukkan nama terlebih dahulu 🙏🙏🙏',true);return;}
-if(!hp){showToast('No. WA Kosong','Isi No. WA dulu ya.',true);return;}
-let db=getDB();
-let user=db.find(u=>u.hp===hp);
-if(!user){user={nama:nama,hp:hp,via:via,created:Date.now()};db.push(user);saveDB(db);}
-else{user.nama=nama;user.via=via;saveDB(db);}
-localStorage.setItem('ammo_sesi',JSON.stringify(user));
-localStorage.setItem('ammo_last_hp',hp);
-tutupDaftar();
-try{await syncPenumpangKeSupabase(nama,hp,via);}catch(e){console.log('Supabase penumpang gagal:',e);}
-simpanOrderDanLanjut();
+async function refreshProfilDariDB(){
+  let s=getSesi(); if(!s) return null;
+  if(s.hp){
+    try{
+      let cek=await supabaseClient.from('penumpang').select('id,nama,no_wa').eq('no_wa',s.hp).maybeSingle();
+      if(cek.data){
+        s.nama=cek.data.nama||s.nama; s.hp=cek.data.no_wa;
+        localStorage.setItem('ammo_sesi',JSON.stringify(s));
+        localStorage.setItem('ammo_supabase_penumpang_id',cek.data.id);
+        localStorage.setItem('ammo_last_hp',s.hp);
+        let b=await supabaseClient.from('bookings').select('id',{count:'exact',head:true}).eq('penumpang_id',cek.data.id);
+        s.total_perjalanan=(b.count||0);
+      }
+    }catch(e){}
+  }
+  return s;
 }
 async function bukaAkun(){
-let s=getSesi();
-if(!s){
-let lastHp=localStorage.getItem('ammo_last_hp')||'';
-if(lastHp){
-try{
-let cek=await supabaseClient.from('penumpang').select('id,nama,no_wa').eq('no_wa',lastHp).maybeSingle();
-if(cek.data){s={nama:cek.data.nama,hp:cek.data.no_wa,via:'WA'};localStorage.setItem('ammo_sesi',JSON.stringify(s));localStorage.setItem('ammo_supabase_penumpang_id',cek.data.id);}
-}catch(e){}
-}
-} else { s=await refreshProfilDariDB()||s; }
-if(s){
-$('akunSudahLogin').style.display='block';$('akunBelumLogin').style.display='none';
-$('akunNama').textContent=s.nama||'Penumpang';
-$('akunSub').innerHTML=(s.hp||'')+' - Penumpang<br>akun '+(s.via||'WA')+': '+(s.email||'-');
-if($('akunVoucher')) $('akunVoucher').textContent='Rp. '+(parseInt(localStorage.getItem('ammo_voucher')||'0')).toLocaleString('id-ID');
-if($('akunPerjalanan')) $('akunPerjalanan').textContent=(s.total_perjalanan||0)+' Perjalanan';
-}else{$('akunSudahLogin').style.display='none';$('akunBelumLogin').style.display='block';}
-$('akunModal').classList.add('show');
+  let s=getSesi();
+  if(!s){
+    let lastHp=localStorage.getItem('ammo_last_hp')||'';
+    if(lastHp){
+      try{
+        let cek=await supabaseClient.from('penumpang').select('id,nama,no_wa').eq('no_wa',lastHp).maybeSingle();
+        if(cek.data){s={nama:cek.data.nama,hp:cek.data.no_wa,via:'WA'};localStorage.setItem('ammo_sesi',JSON.stringify(s));localStorage.setItem('ammo_supabase_penumpang_id',cek.data.id);}
+      }catch(e){}
+    }
+  } else { s=await refreshProfilDariDB()||s; }
+  if(s){
+    $('akunSudahLogin').style.display='block';$('akunBelumLogin').style.display='none';
+    $('akunNama').textContent=s.nama||'Penumpang';
+    $('akunSub').innerHTML=(s.hp||'')+' - Penumpang<br>akun '+(s.via||'WA')+': '+(s.email||'-');
+    if($('akunVoucher')) $('akunVoucher').textContent='Rp. '+(parseInt(localStorage.getItem('ammo_voucher')||'0')).toLocaleString('id-ID');
+    if($('akunPerjalanan')) $('akunPerjalanan').textContent=(s.total_perjalanan||0)+' Perjalanan';
+  }else{$('akunSudahLogin').style.display='none';$('akunBelumLogin').style.display='block';}
+  $('akunModal').classList.add('show');
 }
 function tutupAkun(){$('akunModal').classList.remove('show');}
 function togglePass(){let p=$('loginPass');p.type=p.type==='password'?'text':'password';}
 async function loginWA(){
-let hp=$('loginWA').value.trim();
-if(!hp){showToast('WA Kosong','Isi No. WA dulu',true);return;}
-try{
-let cek=await supabaseClient.from('penumpang').select('id,nama,no_wa').eq('no_wa',hp).maybeSingle();
-if(cek.data){let user={nama:cek.data.nama,hp:cek.data.no_wa,via:'WA'};localStorage.setItem('ammo_sesi',JSON.stringify(user));localStorage.setItem('ammo_supabase_penumpang_id',cek.data.id);localStorage.setItem('ammo_last_hp',hp);tutupAkun();simpanOrderDanLanjut();return;}
-}catch(e){}
-let db=getDB();let user=db.find(u=>u.hp===hp);
-if(user){localStorage.setItem('ammo_sesi',JSON.stringify(user));tutupAkun();simpanOrderDanLanjut();}
-else{$('daftarModal').classList.add('show');$('namaDaftar').value='';$('hpDaftar').value=hp;}
+  let hp=$('loginWA').value.trim();
+  if(!hp){showToast('WA Kosong','Isi No. WA dulu',true);return;}
+  try{
+    let cek=await supabaseClient.from('penumpang').select('id,nama,no_wa').eq('no_wa',hp).maybeSingle();
+    if(cek.data){
+      let user={nama:cek.data.nama,hp:cek.data.no_wa,via:'WA'};
+      localStorage.setItem('ammo_sesi',JSON.stringify(user));
+      localStorage.setItem('ammo_supabase_penumpang_id',cek.data.id);
+      localStorage.setItem('ammo_last_hp',hp);
+      tutupAkun();
+      // FIX: cuma lanjut order kalau memang dari ORDER NOW, kalau dari Profil jangan loncat
+      if(!lanjutJikaMauOrder()){ showToast('Berhasil','Selamat datang, '+user.nama); }
+      return;
+    }
+  }catch(e){}
+  let db=getDB();let user=db.find(u=>u.hp===hp);
+  if(user){
+    localStorage.setItem('ammo_sesi',JSON.stringify(user));
+    localStorage.setItem('ammo_last_hp',hp);
+    tutupAkun();
+    if(!lanjutJikaMauOrder()){ showToast('Berhasil','Selamat datang, '+user.nama); }
+  }
+  else{$('daftarModal').classList.add('show');$('namaDaftar').value='';$('hpDaftar').value=hp;}
 }
 function tanyaLogout(){$('logoutModal').classList.add('show');}
 function tutupLogout(){$('logoutModal').classList.remove('show');}
-function logoutAkun(){localStorage.removeItem('ammo_sesi');localStorage.removeItem('ammo_supabase_penumpang_id');tutupLogout();tutupAkun();showToast('Logout','Kamu berhasil logout');}
+function logoutAkun(){localStorage.removeItem('ammo_sesi');localStorage.removeItem('ammo_supabase_penumpang_id');setMauOrder(false);tutupLogout();tutupAkun();showToast('Logout','Kamu berhasil logout');}
 function tutupNamaBaru(){$('namaBaruModal').classList.remove('show');}
-function buatAkunDariNama(){let n=$('inputNamaBaru').value.trim();if(!n){showToast('Nama Kosong','Isi nama dulu',true);return;}let user={nama:n,hp:pendingHP||'',via:'WA'};localStorage.setItem('ammo_sesi',JSON.stringify(user));tutupNamaBaru();simpanOrderDanLanjut();}
+function buatAkunDariNama(){
+  let n=$('inputNamaBaru').value.trim();
+  if(!n){showToast('Nama Kosong','Isi nama dulu',true);return;}
+  let user={nama:n,hp:pendingHP||localStorage.getItem('ammo_last_hp')||'',via:'WA'};
+  localStorage.setItem('ammo_sesi',JSON.stringify(user));
+  if(user.hp) localStorage.setItem('ammo_last_hp',user.hp);
+  tutupNamaBaru(); tutupAkun();
+  if(!lanjutJikaMauOrder()){ showToast('Terdaftar','Akun dibuat, '+n); }
+}
 function tutupWaGoogle(){$('waGoogleModal').classList.remove('show');}
-function simpanWaGoogle(){let w=$('inputWaGoogle').value.trim();if(w){localStorage.setItem('ammo_last_hp',w);let s=getSesi();if(s){s.hp=w;localStorage.setItem('ammo_sesi',JSON.stringify(s));}}tutupWaGoogle();}
+function simpanWaGoogle(){
+  let w=$('inputWaGoogle').value.trim();
+  if(!w){showToast('WA Kosong','Isi No. WA dulu ya',true);return;}
+  localStorage.setItem('ammo_last_hp',w);
+  let s=getSesi();
+  if(s){s.hp=w;localStorage.setItem('ammo_sesi',JSON.stringify(s));}
+  tutupWaGoogle();
+  // FIX: abis isi WA Google, langsung lanjut order kalau memang dari ORDER NOW
+  // Jangan cuma nutup modal doang
+  (async ()=>{
+    try{ if(s) await syncPenumpangKeSupabase(s.nama||'Penumpang', w, 'Google'); }catch(e){}
+    if(!lanjutJikaMauOrder()){
+      // Kalau gak ada pending order, pulihkan pending lama kalau ada
+      let p=pulihkanPendingOrder();
+      if(p && p.mauOrder){ lanjutJikaMauOrder(); }
+    }
+  })();
+}
 function openChat(){$('chatModal').classList.add('show');$('pinView').style.display='none';$('chatView').style.display='block';}
 function closeChat(){$('chatModal').classList.remove('show');}
 function openMap(mode){
-mapMode=mode;
-if(mode==='pickup'&&pickupCoord){tempLat=pickupCoord[0];tempLng=pickupCoord[1];}
-if(mode==='dest'&&destCoord){tempLat=destCoord[0];tempLng=destCoord[1];}
-$('mapModal').classList.add('show');
-setTimeout(async()=>{
-if(!map){
-map=L.map('map').setView([tempLat,tempLng],14);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
-marker=L.marker([tempLat,tempLng],{draggable:true}).addTo(map);
-marker.on('dragend',async()=>{
-let p=marker.getLatLng();tempLat=p.lat;tempLng=p.lng;
-tempAddr=await reverseGeocode(tempLat,tempLng);
-$('mapAddr').textContent=tempAddr;
-});
-map.on('click',async e=>{
-tempLat=e.latlng.lat;tempLng=e.latlng.lng;marker.setLatLng(e.latlng);
-tempAddr=await reverseGeocode(tempLat,tempLng);
-$('mapAddr').textContent=tempAddr;
-});
-}else{map.setView([tempLat,tempLng],14);marker.setLatLng([tempLat,tempLng]);}
-tempAddr=await reverseGeocode(tempLat,tempLng);
-$('mapAddr').textContent=tempAddr;
-},50);
+  mapMode=mode;
+  if(mode==='pickup'&&pickupCoord){tempLat=pickupCoord[0];tempLng=pickupCoord[1];}
+  if(mode==='dest'&&destCoord){tempLat=destCoord[0];tempLng=destCoord[1];}
+  $('mapModal').classList.add('show');
+  setTimeout(async()=>{
+    if(!map){
+      map=L.map('map').setView([tempLat,tempLng],14);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
+      marker=L.marker([tempLat,tempLng],{draggable:true}).addTo(map);
+      marker.on('dragend',async()=>{
+        let p=marker.getLatLng();tempLat=p.lat;tempLng=p.lng;
+        tempAddr=await reverseGeocode(tempLat,tempLng);
+        $('mapAddr').textContent=tempAddr;
+      });
+      map.on('click',async e=>{
+        tempLat=e.latlng.lat;tempLng=e.latlng.lng;marker.setLatLng(e.latlng);
+        tempAddr=await reverseGeocode(tempLat,tempLng);
+        $('mapAddr').textContent=tempAddr;
+      });
+    }else{map.setView([tempLat,tempLng],14);marker.setLatLng([tempLat,tempLng]);}
+    tempAddr=await reverseGeocode(tempLat,tempLng);
+    $('mapAddr').textContent=tempAddr;
+  },50);
 }
 function closeMap(){$('mapModal').classList.remove('show');}
 function confirmMap(){
-let inp=mapMode==='pickup'?$('pickup'):$('dest');
-inp.value=tempAddr;
-if(mapMode==='pickup')pickupCoord=[tempLat,tempLng];
-else destCoord=[tempLat,tempLng];
-closeMap();updateSwap();jadwalPreview(true);
+  let inp=mapMode==='pickup'?$('pickup'):$('dest');
+  inp.value=tempAddr;
+  if(mapMode==='pickup'){pickupCoord=[tempLat,tempLng]; if($('gpsNote')) $('gpsNote').style.display='none';}
+  else destCoord=[tempLat,tempLng];
+  try{ if(mapMode==='pickup') localStorage.setItem('ammo_last_gps', JSON.stringify({lat:tempLat,lon:tempLng,nama:tempAddr,waktu:Date.now()})); }catch(e){}
+  closeMap();updateSwap();jadwalPreview(true);
 }
 let pinKode='';
 function bukaPin(role,kode){
-pendingRole=role; pendingKode=kode||'#driver';
-pinKode=''; renderPin();
-$('pinMsg').textContent='';
-$('pinTitle').textContent = role==='admin' ? 'Masukkan PIN Admin' : 'Masukkan PIN Driver ('+pendingKode+')';
-$('pinSub').textContent = role==='admin' ? 'Admin • Ammo Travel' : 'Driver • Ammo Travel';
-$('chatView').style.display='none';
-$('pinView').style.display='block';
+  pendingRole=role; pendingKode=kode||'#driver';
+  pinKode=''; renderPin();
+  $('pinMsg').textContent='';
+  $('pinTitle').textContent = role==='admin' ? 'Masukkan PIN Admin' : 'Masukkan PIN Driver ('+pendingKode+')';
+  $('pinSub').textContent = role==='admin' ? 'Admin • Ammo Travel' : 'Driver • Ammo Travel';
+  $('chatView').style.display='none';
+  $('pinView').style.display='block';
 }
 function pressPin(n){if(pinKode.length>=6)return;pinKode+=n;renderPin();if(pinKode.length===6){setTimeout(cekPin,250);}}
 function delPin(){pinKode=pinKode.slice(0,-1);renderPin();}
 function clearPin(){pinKode='';renderPin();}
 function renderPin(){let boxes=document.querySelectorAll('.pinBox');boxes.forEach((b,i)=>{b.textContent=i<pinKode.length?'•':'';});}
 async function cekPin(){
-if(pendingRole==='admin'){ if(pinKode===PIN_ADMIN){localStorage.setItem('ammo_role','admin');window.location.href='admin.html';return;} $('pinMsg').textContent='PIN salah, coba lagi'; $('pinMsg').style.color='#ff6b81'; pinKode='';renderPin(); return; }
-if(pendingRole==='driver'){ $('pinMsg').textContent='Mengecek ke database...'; $('pinMsg').style.color='#facc15'; try{ let r=await supabaseClient.from('drivers').select('*').eq('kode',pendingKode).eq('pin',pinKode).maybeSingle(); if(r.data){localStorage.setItem('ammo_role','driver');localStorage.setItem('ammo_driver',JSON.stringify(r.data));localStorage.setItem('ammo_driver_id',r.data.id);localStorage.setItem('ammo_driver_nama',r.data.nama);window.location.href='driver.html';return;} }catch(e){console.log(e);} $('pinMsg').textContent='Kode / PIN salah, coba lagi'; $('pinMsg').style.color='#ff6b81'; pinKode='';renderPin(); return; }
+  if(pendingRole==='admin'){ if(pinKode===PIN_ADMIN){localStorage.setItem('ammo_role','admin');window.location.href='admin.html';return;} $('pinMsg').textContent='PIN salah, coba lagi'; $('pinMsg').style.color='#ff6b81'; pinKode='';renderPin(); return; }
+  if(pendingRole==='driver'){ $('pinMsg').textContent='Mengecek ke database...'; $('pinMsg').style.color='#facc15'; try{ let r=await supabaseClient.from('drivers').select('*').eq('kode',pendingKode).eq('pin',pinKode).maybeSingle(); if(r.data){localStorage.setItem('ammo_role','driver');localStorage.setItem('ammo_driver',JSON.stringify(r.data));localStorage.setItem('ammo_driver_id',r.data.id);localStorage.setItem('ammo_driver_nama',r.data.nama);window.location.href='driver.html';return;} }catch(e){console.log(e);} $('pinMsg').textContent='Kode / PIN salah, coba lagi'; $('pinMsg').style.color='#ff6b81'; pinKode='';renderPin(); return; }
 }
 function backToChat(){pendingRole=null;pinKode='';renderPin();$('pinView').style.display='none';$('chatView').style.display='block';}
-async function botReply(txt){
-txt=txt.toLowerCase();
-try{
-let r=await supabaseClient.from('bot').select('jawaban').ilike('kunci','%'+txt+'%').maybeSingle();
-if(r.data&&r.data.jawaban) return r.data.jawaban;
-}catch(e){}
-if(txt.includes('harga')||txt.includes('ongkos')) return 'Ongkos dihitung dari jarak jalan (OSRM). Isi Dari & Tujuan dulu, nanti muncul estimasi otomatis.';
-if(txt.includes('rute')||txt.includes('tujuan')) return 'Kita layani semua rute Jawa - Lampung. Ketik tujuan di kolom Tujuan ya.';
-if(txt.includes('promo')||txt.includes('voucher')) return 'Setiap order dapat voucher 5%. Saldo voucher bisa dicek di menu Voucher.';
-if(txt.includes('cara')||txt.includes('order')) return 'Caranya: 1) Isi Dari & Tujuan 2) Pilih jumlah orang 3) Pilih tanggal 4) Klik ORDER NOW 5) Isi penumpang.';
-if(txt.includes('halo')||txt.includes('hai')) return 'Halo! Mau order travel kemana hari ini?';
-if(txt.includes('#driver')){bukaPin('driver','#driver');return 'Silakan masukkan PIN Driver.';}
-if(txt.includes('#admin')){bukaPin('admin','#admin');return 'Silakan masukkan PIN Admin.';}
-return 'Siap, pesan kamu diteruskan ke admin. Coba ketik: harga / promo / cara order.';
+document.addEventListener('keydown',e=>{if(e.key==='p'||e.key==='P'){openChat();bukaPin('driver');}});
+async function simpanChat(sender,pesan){try{let pid=localStorage.getItem('ammo_supabase_penumpang_id')||null;let payload={sender:sender,message:pesan};if(pid)payload.penumpang_id=pid;await supabaseClient.from('chats').insert([payload]);}catch(e){console.log('Gagal simpan chat',e);}}
+async function botReply(pesan){
+  let q=pesan.toLowerCase().trim();
+  try{
+    if(typeof supabaseClient!=='undefined'){
+      let r=await supabaseClient.from('bot').select('kunci,jawaban');
+      if(r && !r.error && r.data){
+        let ketemu=r.data.find(row=>row.kunci && row.kunci.toLowerCase().trim()===q);
+        if(!ketemu){ketemu=r.data.find(row=>row.kunci && (q.includes(row.kunci.toLowerCase().trim()) || row.kunci.toLowerCase().trim().includes(q)));}
+        if(ketemu && ketemu.jawaban) return ketemu.jawaban;
+      }
+    }
+  }catch(e){}
+  if(q.includes('ongkos')||q.includes('harga')||q.includes('tarif')||q.includes('berapa')) return 'Ongkos kita hitung per km bro. 1-4 orang Rp 5.000/km, 5-7 orang Rp 6.500/km, minimal 10 km. Tinggal isi Dari & Tujuan di atas, pilih dari saran / peta, harga langsung muncul. Mau dibantu hitungin ke mana?';
+  if(q.includes('cianjur')||q.includes('bandung')||q.includes('jakarta')||q.includes('bogor')||q.includes('sukabumi')) return 'Siap, tinggal ketik tujuan lengkapnya di kolom Tujuan, pilih dari saran yang muncul, nanti ongkos + estimasi langsung muncul. Atau mau langsung WA Admin? Klik tombol WA Admin di bawah.';
+  if(q.includes('driver')||q.includes('sopir')) return 'Driver kita siap 24 jam. Order dulu lewat ORDER NOW, nanti driver terdekat langsung dihubungi.';
+  if(q.includes('voucher')||q.includes('diskon')||q.includes('promo')) return 'Setiap order dapat voucher 5% dari total ongkos, bisa dipakai untuk order berikutnya. Voucher kamu bisa dicek di menu Voucher bawah.';
+  if(q.includes('halo')||q.includes('hai')||q.includes('selamat')) return 'Halo! Selamat datang di Ammo Travel 🙏 Mau diantar ke mana hari ini? Ketik tujuanmu, atau isi Dari & Tujuan di atas ya.';
+  if(q.includes('wa')||q.includes('admin')||q.includes('telpon')||q.includes('hubungi')) return 'Bisa langsung klik tombol WA Admin di bawah, nomor Admin 0858-9961-1111. Admin online, dibalas secepatnya ya.';
+  return 'Siap, kami bantu. Coba ceritain mau ke mana? Atau isi Dari & Tujuan di atas, pilih dari saran, harga langsung muncul. Kalau mau cepat, klik WA Admin di bawah ya.';
 }
-$('chatSend').addEventListener('click',async()=>{
-let inp=$('chatInput');let txt=inp.value.trim();if(!txt)return;
-$('chatLog').innerHTML+='<div class="chatBubble" style="background:#332c00;text-align:right">'+txt+'</div>';inp.value='';
-let jawab=await botReply(txt);
-$('chatLog').innerHTML+='<div class="chatBubble">'+jawab+'</div>';
+async function kirimChat(){
+  let inp=$('chatInput');
+  let v=inp.value.trim(); if(!v) return;
+  let low=v.toLowerCase().trim();
+  inp.value='';
+  if(low==='#admin'){ bukaPin('admin'); return; }
+  if(low.startsWith('#')){ let cekK=await supabaseClient.from('drivers').select('kode').eq('kode',low).maybeSingle(); if(cekK.data){ bukaPin('driver',low); return; } let lg=$('chatLog'); lg.innerHTML+='<div class="chatBubble"><b>Bot Ammo:</b> Kode '+low+' tidak ditemukan.</div>'; return; }
+  let log=$('chatLog');
+  log.innerHTML+='<div class="chatBubble"><b>Kamu:</b> '+v.replace(/</g,'&lt;')+'</div>';
+  log.scrollTop=log.scrollHeight;
+  simpanChat('user',v);
+  log.innerHTML+='<div class="chatBubble" id="botTyping">Bot sedang mengetik...</div>';
+  let jawab=await botReply(v);
+  let t=document.getElementById('botTyping'); if(t) t.remove();
+  log.innerHTML+='<div class="chatBubble"><b>Bot Ammo:</b> '+jawab+'</div>';
+  log.scrollTop=log.scrollHeight;
+  simpanChat('bot',jawab);
+}
+if($('chatSend'))$('chatSend').addEventListener('click',kirimChat);
+if($('chatInput'))$('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')kirimChat();});
+if($('chatModal'))$('chatModal').addEventListener('click',e=>{if(e.target.id==='chatModal')closeChat();});
+// ===== FIX: JANGAN HAPUS TUJUAN PAS BALIK DARI GOOGLE =====
+function kosongkanTujuan(){
+  // Kalau ada pending order dari Google / ORDER NOW, jangan dihapus!
+  if(localStorage.getItem('ammo_pending_order') || mauLanjutOrder()) return;
+  $('dest').value='';
+  destCoord=null;
+  $('saranDest').style.display='none';
+  sembunyikanHarga();
+  localStorage.removeItem('masphus_order');
+  updateSwap();
+}
+function resetIndex(){
+  // Kalau balik dari penumpang/reguler, kosongkan tujuan - TAPI jangan kalau ada pending Google
+  if(localStorage.getItem('ammo_pending_order') || mauLanjutOrder()) return;
+  let harusKosong=sessionStorage.getItem('ammo_clear')==='1'||sessionStorage.getItem('ammo_must_clear_dest')==='1'||sessionStorage.getItem('ammo_from_index')==='1'||localStorage.getItem('masphus_order')||(document.referrer&&document.referrer.indexOf('penumpang')!==-1);
+  if(harusKosong){
+    kosongkanTujuan();
+    sessionStorage.removeItem('ammo_clear');
+    sessionStorage.removeItem('ammo_must_clear_dest');
+    sessionStorage.removeItem('ammo_from_index');
+  }
+}
+resetIndex();
+window.addEventListener('pageshow',function(){
+  // FIX: pageshow dari Google OAuth jangan hapus tujuan
+  if(localStorage.getItem('ammo_pending_order') || mauLanjutOrder()){
+    pulihkanPendingOrder();
+    return;
+  }
+  kosongkanTujuan();
+  sessionStorage.removeItem('ammo_clear');
+  sessionStorage.removeItem('ammo_must_clear_dest');
+  sessionStorage.removeItem('ammo_from_index');
+  if(!$('pickup').value.trim())isiPenjemputanOtomatis();
 });
-$('chatInput').addEventListener('keypress',async e=>{if(e.key==='Enter')$('chatSend').click();});
-$('pickup').addEventListener('input',()=>{pickupCoord=null;updateSwap();sembunyikanHarga();jadwalSaran($('pickup'),$('saranPick'),true);});
+setTimeout(function(){
+  if(!localStorage.getItem('ammo_pending_order') && !mauLanjutOrder()){
+    if(sessionStorage.getItem('ammo_clear')==='1'||sessionStorage.getItem('ammo_must_clear_dest')==='1')kosongkanTujuan();
+  }
+},500);
+isiPenjemputanOtomatis();
+try{let t=$('tanggalBerangkat');if(t&&!t.value)t.value=new Date().toISOString().slice(0,10);}catch(e){}
+$('pickup').addEventListener('input',()=>{ if($('gpsNote')) $('gpsNote').style.display='none'; pickupCoord=null;updateSwap();sembunyikanHarga();jadwalSaran($('pickup'),$('saranPick'),true);});
 $('dest').addEventListener('input',()=>{destCoord=null;updateSwap();sembunyikanHarga();jadwalSaran($('dest'),$('saranDest'),false);});
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -564,40 +762,54 @@ const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
 const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 async function syncPenumpangKeSupabase(nama, hp, via){
-if(!hp)return null;
-try{
-let cek=await supabaseClient.from('penumpang').select('id').eq('no_wa',hp).maybeSingle();
-if(cek.data){return cek.data.id;}
-let ins=await supabaseClient.from('penumpang').insert([{nama:nama,no_wa:hp,via:via}]).select('id').single();
-if(ins.data){localStorage.setItem('ammo_supabase_penumpang_id',ins.data.id);return ins.data.id;}
-}catch(e){console.log('sync gagal',e);}
-return null;
+  if(!hp)return null;
+  try{
+    let cek=await supabaseClient.from('penumpang').select('id').eq('no_wa',hp).maybeSingle();
+    if(cek.data){return cek.data.id;}
+    let ins=await supabaseClient.from('penumpang').insert([{nama:nama,no_wa:hp,via:via}]).select('id').single();
+    if(ins.data){localStorage.setItem('ammo_supabase_penumpang_id',ins.data.id);return ins.data.id;}
+  }catch(e){console.log('sync gagal',e);}
+  return null;
 }
 (async function cekBalikanGoogle(){
-try{
-const {data:{session}} = await supabaseClient.auth.getSession();
-if(session&&session.user){
-let namaGoogle=session.user.user_metadata?.full_name||session.user.user_metadata?.name||session.user.email?.split('@')[0]||'Penumpang';
-let emailGoogle=session.user.email;
-let sesiLama=getSesi();
-if(!sesiLama){
-let user={nama:namaGoogle,hp:localStorage.getItem('ammo_last_hp')||'',email:emailGoogle,via:'Google'};
-localStorage.setItem('ammo_sesi',JSON.stringify(user));
-sesiLama=user;
-}
-if(sesiLama.hp){try{await syncPenumpangKeSupabase(sesiLama.nama,sesiLama.hp,'Google');}catch(e){}}
-let pending=localStorage.getItem('ammo_pending_order');
-if(pending){
-let p=JSON.parse(pending);
-if(p.asal)$('pickup').value=p.asal;
-if(p.tujuan)$('dest').value=p.tujuan;
-localStorage.removeItem('ammo_pending_order');
-}
-if(!sesiLama.hp){$('waGoogleModal').classList.add('show');}
-}
-}catch(e){console.log(e);}
+  try{
+    const {data:{session}} = await supabaseClient.auth.getSession();
+    if(session&&session.user){
+      let namaGoogle=session.user.user_metadata?.full_name||session.user.user_metadata?.name||session.user.email?.split('@')[0]||'Penumpang';
+      let emailGoogle=session.user.email;
+      let sesiLama=getSesi();
+      if(!sesiLama){
+        let user={nama:namaGoogle,hp:localStorage.getItem('ammo_last_hp')||'',email:emailGoogle,via:'Google'};
+        localStorage.setItem('ammo_sesi',JSON.stringify(user));
+        sesiLama=user;
+      } else {
+        // Lengkapi email Google ke sesi lama
+        if(!sesiLama.email){ sesiLama.email=emailGoogle; localStorage.setItem('ammo_sesi',JSON.stringify(sesiLama)); }
+      }
+      if(sesiLama.hp){try{await syncPenumpangKeSupabase(sesiLama.nama,sesiLama.hp,'Google');}catch(e){}}
+      // FIX: Pulihkan pending LENGKAP - termasuk koordinat + jumlah orang + tanggal/jam
+      let pending=pulihkanPendingOrder();
+      if(pending && !pending.asalCoord && !pending.tujuanCoord){
+        // Pending lama (cuma teks) - coba isi ulang koordinat via geocode di simpanOrder akan gagal, jadi jangan auto-lanjut, biar user pilih saran lagi
+        // Tapi jangan hapus teksnya
+      }
+      if(!sesiLama.hp){
+        // Belum ada WA -> minta WA dulu, abis itu simpanWaGoogle() akan auto-lanjut
+        $('waGoogleModal').classList.add('show');
+      } else {
+        // FIX UTAMA: abis Google login, langsung lanjut order kalau memang dari ORDER NOW
+        // Jangan diem aja di index
+        if(mauLanjutOrder()){
+          // Kasih jeda biar koordinat ke-restore dulu
+          setTimeout(()=>{ lanjutJikaMauOrder(); }, 600);
+        }
+      }
+    } else {
+      // Gak ada sesi Google, tapi ada pending - pulihkan aja biar gak kosong
+      pulihkanPendingOrder();
+    }
+  }catch(e){console.log(e);}
 })();
-(function(){let d=new Date();d.setDate(d.getDate()+1);if($('tanggalBerangkat'))$('tanggalBerangkat').value=d.toISOString().slice(0,10);})();
 </script>
 </body>
 </html>
