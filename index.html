@@ -488,13 +488,17 @@ function cekPin(){
 function backToChat(){pendingRole=null;pinKode='';renderPin();$('pinView').style.display='none';$('chatView').style.display='block';}
 document.addEventListener('keydown',e=>{if(e.key==='p'||e.key==='P'){openChat();bukaPin('driver');}});
 /* === CHAT + BOT SUPABASE === */
+async function simpanChat(sender,pesan){try{let pid=localStorage.getItem('ammo_supabase_penumpang_id')||null;let payload={sender:sender,message:pesan};if(pid)payload.penumpang_id=pid;await supabaseClient.from('chats').insert([payload]);}catch(e){console.log('Gagal simpan chat',e);}}
 async function botReply(pesan){
-  let q=pesan.toLowerCase();
+  let q=pesan.toLowerCase().trim();
   try{
     if(typeof supabaseClient!=='undefined'){
-      let r=await supabaseClient.from('bot_chat').select('jawaban').ilike('pertanyaan','%'+pesan+'%').limit(1).maybeSingle();
-      if(r && r.data && r.data.jawaban) return r.data.jawaban;
-      try{ await supabaseClient.from('chat_log').insert([{pesan:pesan, peran:'penumpang', waktu:new Date().toISOString()}]); }catch(e){}
+      let r=await supabaseClient.from('bot').select('kunci,jawaban');
+      if(r && !r.error && r.data){
+        let ketemu=r.data.find(row=>row.kunci && row.kunci.toLowerCase().trim()===q);
+        if(!ketemu){ketemu=r.data.find(row=>row.kunci && (q.includes(row.kunci.toLowerCase().trim()) || row.kunci.toLowerCase().trim().includes(q)));}
+        if(ketemu && ketemu.jawaban) return ketemu.jawaban;
+      }
     }
   }catch(e){}
   if(q.includes('ongkos')||q.includes('harga')||q.includes('tarif')||q.includes('berapa')) return 'Ongkos kita hitung per km bro. 1-4 orang Rp 5.000/km, 5-7 orang Rp 6.500/km, minimal 10 km. Tinggal isi Dari & Tujuan di atas, pilih dari saran / peta, harga langsung muncul. Mau dibantu hitungin ke mana?';
@@ -515,11 +519,13 @@ async function kirimChat(){
   let log=$('chatLog');
   log.innerHTML+='<div class="chatBubble"><b>Kamu:</b> '+v.replace(/</g,'&lt;')+'</div>';
   log.scrollTop=log.scrollHeight;
+  simpanChat('user',v);
   log.innerHTML+='<div class="chatBubble" id="botTyping">Bot sedang mengetik...</div>';
   let jawab=await botReply(v);
   let t=document.getElementById('botTyping'); if(t) t.remove();
   log.innerHTML+='<div class="chatBubble"><b>Bot Ammo:</b> '+jawab+'</div>';
   log.scrollTop=log.scrollHeight;
+  simpanChat('bot',jawab);
 }
 if($('chatSend'))$('chatSend').addEventListener('click',kirimChat);
 if($('chatInput'))$('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')kirimChat();});
