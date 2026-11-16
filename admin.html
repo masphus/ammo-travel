@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ammo Travel</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:#000;color:#fff;padding:10px;max-width:700px;margin:auto}
+header{background:#000;padding:10px;text-align:center;border-bottom:2px solid #d4af37}
+header img{width:180px;max-width:85%;border-radius:12px;border:1px solid #d4af37}
+.chat{height:55vh;overflow:auto;padding:10px;background:#111;border-radius:14px;border:1px solid #d4af37;margin:10px 0}
+.b{max-width:85%;padding:10px 14px;border-radius:16px;margin:8px 0;font-size:15px;line-height:1.5;white-space:pre-wrap}
+.me{background:#d4af37;color:#000;margin-left:auto}.bot{background:#222}.info{background:#1a1400;border:1px solid #d4af37;border-radius:12px;padding:10px;text-align:center;font-size:13px;line-height:1.5}
+.row{display:flex;gap:8px} .row input{flex:1;padding:12px;border-radius:20px;border:1px solid #d4af37;background:#111;color:#fff} .row button{padding:12px 18px;border-radius:20px;border:0;background:#25D366;color:#fff;font-weight:bold}
+.kartu{background:#1a1400;border:1px solid #d4af37;border-radius:14px;padding:14px;margin:12px 0} .kartu b{color:#d4af37} .kartu p{margin:4px 0;line-height:1.5}
+.kartu input{width:100%;padding:12px;border-radius:10px;border:1px solid #d4af37;background:#111;color:#fff;margin-top:8px} .kartu button{margin-top:8px;padding:12px;border-radius:20px;border:0;background:#25D366;color:#fff;font-weight:bold;width:100%}
+.belajar{background:#002b1a;border:1px solid #25D366;border-radius:14px;padding:12px;margin:10px 0} .belajar b{color:#25D366}
+.top{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0} .top button{flex:1;min-width:140px;padding:12px;border-radius:20px;border:1px solid #d4af37;background:#111;color:#d4af37;font-weight:bold} .top button.hijau{background:#25D366;color:#fff;border-color:#25D366} .top button.merah{background:#222;color:#ff6b6b;border-color:#ff6b6b}
+.kosong{background:#1a1a1a;border:1px solid #3a2f00;border-radius:14px;padding:16px;text-align:center;line-height:1.6}
+.pinbox{background:#1a1400;border:2px solid #d4af37;border-radius:14px;padding:16px;text-align:center;margin:10px 0} .pinbox input{width:100%;padding:14px;border-radius:10px;border:1px solid #d4af37;background:#111;color:#fff;text-align:center;font-size:18px;letter-spacing:4px} .pinbox button{margin-top:10px;padding:12px;border-radius:20px;border:0;background:#25D366;color:#fff;font-weight:bold;width:100%}
+.small{font-size:12px;color:#aaa;text-align:center}
+</style>
+</head>
+<body>
+<header><img src="logo-ammo-baru.png" alt="Ammo Travel" onerror="this.style.display='none'"></header>
+<div id="modePenumpang">
+<h2 style="color:#d4af37;text-align:center">🚕 Ammo Travel - Online</h2>
+<div class="info">Online Supabase • Tanya apa aja soal Ammo Travel.</div>
+<div class="chat" id="chat"></div>
+<div class="row"><input id="inputTanya" placeholder="Tulis pertanyaan..."><button onclick="kirim()">Kirim</button></div>
+<div id="pinArea"></div>
+<p class="small" id="statusP">Menghubungkan...</p>
+</div>
+<div id="modeDriver" style="display:none">
+<h2 style="color:#d4af37;text-align:center">🚗 MODE DRIVER - Ahmad (ONLINE)</h2>
+<div class="info" id="infoDB">Memuat...</div>
+<div class="top"><button onclick="tampilAntrian()">📥 Antrian</button><button onclick="tampilBelajar()">🧠 Pelajaran</button></div>
+<div class="top"><button class="hijau" onclick="backup()">💾 Backup</button><button onclick="document.getElementById('fileBackup').click()">📥 Pulihkan Backup</button></div>
+<input type="file" id="fileBackup" accept=".json,application/json" style="display:none" onchange="pulihkan(event)">
+<div class="top"><button class="merah" onclick="logoutDriver()">🚪 Keluar</button></div>
+<div id="statusD" class="small">🟢 Online...</div>
+<div id="list"></div>
+</div>
+<script>
+const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
+const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
+var KODE_RAHASIA = "#drivergila";
+var PIN_DRIVER = "258000";
+var salahPIN=0, kunciSampai=0;
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+var DB={belajar:{},antrian:[]};
+var sudahTampil={}; var lagiLihatBelajar=false; var isDriver=false;
+async function muatDB(){
+  var b = await supabaseClient.from("belajar").select("*");
+  var a = await supabaseClient.from("antrian").select("*").order("id",{ascending:false});
+  DB.belajar={}; (b.data||[]).forEach(function(x){ DB.belajar[x.kunci]=x.jawaban; });
+  DB.antrian = a.data||[];
+  updateInfo(); if(isDriver && !lagiLihatBelajar) renderAntrian();
+}
+function updateInfo(){ var el=document.getElementById("infoDB"); if(!el) return; var jml=Object.keys(DB.belajar).length; var menunggu=DB.antrian.filter(function(x){return x.status==="menunggu"}).length; el.innerHTML="🧠 Bot belajar <b style='color:#25D366'>"+jml+" hal</b> | 📥 Menunggu: <b style='color:#d4af37'>"+menunggu+"</b> | Online Supabase"; document.getElementById("statusP").innerText="🟢 Online - Bot hafal "+jml+" hal"; }
+function tambahChat(t, s){ var c=document.getElementById("chat"); var d=document.createElement("div"); d.className="b "+s; d.innerText=t; c.appendChild(d); c.scrollTop=c.scrollHeight; }
+function normalisasi(s){ return s.toLowerCase().replace(/[?.,!]/g,"").trim(); }
+function cariJawaban(tanya){
+  var k=normalisasi(tanya); if(DB.belajar[k]) return DB.belajar[k];
+  var kata=k.split(" ").filter(function(w){return ["bisa","boleh","apakah","ada","berapa","bagaimana","kenapa","kapan","dimana","apa"].indexOf(w)===-1 && w.length>2});
+  if(kata.length>0 && DB.belajar[kata.join(" ")]) return DB.belajar[kata.join(" ")];
+  var best=null, skor=0; Object.keys(DB.belajar).forEach(function(key){ var s2=0; kata.forEach(function(w){ if(key.includes(w)) s2++; }); if(s2>skor){skor=s2; best=DB.belajar[key];} });
+  if(skor>=2) return best; return null;
+}
+async function kirim(){
+  var inp=document.getElementById("inputTanya"); var tanya=inp.value.trim(); if(!tanya) return; inp.value="";
+  if(tanya.toLowerCase()===KODE_RAHASIA.toLowerCase()){ mintaPIN(); return; }
+  if(tanya.toLowerCase().includes("drivergila") || tanya.toLowerCase().includes("#driver")){ tambahChat("Maaf, saya tidak mengerti. Silakan tanya soal jadwal / harga Ammo Travel.", "bot"); return; }
+  tambahChat(tanya,"me");
+  var jawab=cariJawaban(tanya);
+  if(jawab){ tambahChat(jawab,"bot"); return; }
+  var id=Date.now();
+  await supabaseClient.from("antrian").insert({id:id, pertanyaan:tanya, waktu:new Date().toLocaleString("id-ID",{timeZone:"Asia/Jakarta"}), status:"menunggu"});
+  tambahChat("Baik, pertanyaanmu sudah saya kirim ke Driver Ammo Travel. Nanti kalau Driver sudah jawab, bot akan hafal. 🙏","bot");
+  muatDB();
+}
+document.getElementById("inputTanya").addEventListener("keypress",function(e){ if(e.key==="Enter") kirim(); });
+function mintaPIN(){
+  if(Date.now()<kunciSampai){ document.getElementById("pinArea").innerHTML="<div class='pinbox' style='border-color:#ff6b6b'>🔒 Terkunci. Coba lagi nanti.</div>"; return; }
+  document.getElementById("pinArea").innerHTML="<div class='pinbox'>🔑 <b>Masukkan PIN Driver</b><br><br><input id='inputPIN' type='password' inputmode='numeric' placeholder='••••••' maxlength='6'><button onclick='cekPIN()'>Masuk Mode Driver</button><button onclick='batalPIN()' style='background:#333;margin-top:6px'>Batal</button></div>";
+  setTimeout(function(){var p=document.getElementById("inputPIN"); if(p) p.focus();},100);
+}
+function batalPIN(){ document.getElementById("pinArea").innerHTML=""; }
+function cekPIN(){ var p=document.getElementById("inputPIN").value.trim(); if(p===PIN_DRIVER){ salahPIN=0; document.getElementById("pinArea").innerHTML=""; masukDriver(); } else { salahPIN++; if(salahPIN>=3){ kunciSampai=Date.now()+5*60*1000; salahPIN=0; document.getElementById("pinArea").innerHTML="<div class='pinbox' style='border-color:#ff6b6b'>❌ Salah 3x. Terkunci 5 menit.</div>"; } else { alert("PIN salah! Sisa: "+(3-salahPIN)); document.getElementById("inputPIN").value=""; } } }
+function masukDriver(){ isDriver=true; lagiLihatBelajar=false; document.getElementById("modePenumpang").style.display="none"; document.getElementById("modeDriver").style.display="block"; document.getElementById("list").innerHTML=""; sudahTampil={}; muatDB(); }
+function logoutDriver(){ isDriver=false; document.getElementById("modeDriver").style.display="none"; document.getElementById("modePenumpang").style.display="block"; document.getElementById("pinArea").innerHTML=""; }
+function backup(){
+  var data={app:"Ammo Travel", tanggal_backup:new Date().toLocaleString("id-ID",{timeZone:"Asia/Jakarta"}), database:DB};
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}); var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="ammo-backup-"+new Date().toISOString().slice(0,10)+".json"; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  alert("✅ Backup berhasil!");
+}
+async function pulihkan(event){
+  var file=event.target.files[0]; if(!file) return; var r=new FileReader();
+  r.onload=async function(e){ try{ var data=JSON.parse(e.target.result); var dbBaru=data.database||data; if(!dbBaru.belajar){alert("❌ Bukan backup Ammo!"); return;} if(!confirm("Pulihkan "+Object.keys(dbBaru.belajar).length+" pelajaran?")) return;
+    for(var k in dbBaru.belajar){ await supabaseClient.from("belajar").upsert({kunci:k, jawaban:dbBaru.belajar[k]}); }
+    alert("✅ Pulih!"); muatDB(); }catch(err){ alert("❌ File rusak."); } event.target.value=""; };
+  r.readAsText(file);
+}
+function buatKartu(item){
+  var d=document.createElement("div"); d.className="kartu"; d.id="kartu-"+item.id;
+  d.innerHTML="<b>❓ Pertanyaan #"+item.id+"</b><p>\""+item.pertanyaan+"\"</p><p style='color:#aaa;font-size:12px'>Ditanya: "+item.waktu+"</p>";
+  var inp=document.createElement("input"); inp.placeholder="Tulis jawaban...";
+  var btn=document.createElement("button"); btn.innerText="✅ Simpan & Ajari Bot";
+  btn.onclick=async function(){ var j=inp.value.trim(); if(!j){alert("Jawaban masih kosong!"); return;} var k=normalisasi(item.pertanyaan);
+    await supabaseClient.from("belajar").upsert({kunci:k, jawaban:j});
+    var kata=item.pertanyaan.toLowerCase().split(" ").filter(function(w){return ["bisa","boleh","apakah","ada","berapa","bagaimana","kenapa","kapan","dimana","apa"].indexOf(w)===-1 && w.length>2}); if(kata.length>0) await supabaseClient.from("belajar").upsert({kunci:kata.join(" "), jawaban:j});
+    await supabaseClient.from("antrian").update({status:"terjawab", jawaban:j}).eq("id", item.id);
+    var el=document.getElementById("kartu-"+item.id); if(el) el.remove(); delete sudahTampil[item.id]; alert("Berhasil! Bot sudah belajar di semua HP."); muatDB(); };
+  d.appendChild(inp); d.appendChild(btn); return d;
+}
+function renderAntrian(){
+  if(!isDriver || lagiLihatBelajar) return; var el=document.getElementById("list"); var menunggu=DB.antrian.filter(function(x){return x.status==="menunggu"});
+  if(menunggu.length===0){ if(Object.keys(sudahTampil).length===0) el.innerHTML="<div class='kosong'>✅ Antrian kosong, aman.</div>"; return; }
+  var kosong=el.querySelector(".kosong"); if(kosong) kosong.remove();
+  menunggu.forEach(function(item){ if(!sudahTampil[item.id]){ el.appendChild(buatKartu(item)); sudahTampil[item.id]=true; if(navigator.vibrate) navigator.vibrate([200,100,200]); } });
+}
+function tampilAntrian(){ lagiLihatBelajar=false; document.getElementById("list").innerHTML=""; sudahTampil={}; muatDB(); }
+function tampilBelajar(){
+  lagiLihatBelajar=true; var el=document.getElementById("list"); el.innerHTML=""; var keys=Object.keys(DB.belajar);
+  if(keys.length===0){ el.innerHTML="<div class='kosong'>Belum ada yang dipelajari.</div>"; return; }
+  el.innerHTML="<h3 style='color:#25D366'>🧠 Bot belajar "+keys.length+" hal (Online):</h3>";
+  keys.forEach(function(k){ var d=document.createElement("div"); d.className="belajar"; d.innerHTML="<b>Q: "+k+"</b><p>A: "+DB.belajar[k]+"</p>"; el.appendChild(d); });
+}
+setInterval(function(){ if(isDriver) muatDB(); },4000);
+muatDB();
+tambahChat("Halo! Saya bot Ammo Travel 🚕 (Online)\n\nTanya jadwal, harga, atau rute.","bot");
+</script>
+</body>
+</html>
