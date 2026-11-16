@@ -181,6 +181,34 @@ const SUPABASE_ANON_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser=null, lastUserMsg="", currentUserLabel="";
 let cacheBookings=[], cacheDrivers=[], cachePenumpang=[], cachePayments=[], cacheTarif=[], cacheAntrian=[];
+let sedangNgetik=false, draftAntrian={}, draftChat="";
+let lastFocusEl=null;
+
+// ===== ANTI KEYBOARD HILANG: DETEKSI LAGI NGETIK =====
+document.addEventListener('focusin', e=>{
+  if(e.target.tagName==='INPUT' || e.target.tagName==='TEXTAREA'){
+    sedangNgetik=true; lastFocusEl=e.target;
+  }
+});
+document.addEventListener('focusout', e=>{
+  // Kasih jeda dikit, karena di HP focusout sering kepanggil pas keyboard pindah
+  setTimeout(()=>{ if(document.activeElement.tagName!=='INPUT' && document.activeElement.tagName!=='TEXTAREA') sedangNgetik=false; }, 500);
+});
+document.addEventListener('input', e=>{
+  if(e.target.id && e.target.id.startsWith('jawab-')) draftAntrian[e.target.id]=e.target.value;
+  if(e.target.id==='chatInput') draftChat=e.target.value;
+});
+function simpanDraftSebelumRefresh(){
+  document.querySelectorAll('textarea[id^="jawab-"]').forEach(el=>{ draftAntrian[el.id]=el.value; });
+  const ci=document.getElementById('chatInput'); if(ci) draftChat=ci.value;
+}
+function kembalikanDraft(){
+  Object.keys(draftAntrian).forEach(id=>{
+    const el=document.getElementById(id);
+    if(el && draftAntrian[id]) el.value=draftAntrian[id];
+  });
+  const ci=document.getElementById('chatInput'); if(ci && draftChat) ci.value=draftChat;
+}
 
 function showPopup(title, msg, icon, btns){
   document.getElementById('popupIc').textContent = icon || '✅';
@@ -230,6 +258,7 @@ function esc(s){ return String(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;')
 function todayStr(){ return new Date().toISOString().slice(0,10); }
 
 async function loadAll(){
+  simpanDraftSebelumRefresh();
   try{
     const [pen, drv, book, pay, tarif, ant, black] = await Promise.all([
       sb.from('penumpang').select('*').order('created_at',{ascending:false}),
@@ -294,7 +323,7 @@ async function loadAll(){
     else dashAnt.innerHTML = belum.slice(0,5).map(a=>`<div class="order order-klik" onclick="bukaAntrianDariDashboard('${a.id}')"><div><b>${a.pertanyaan}</b><br><small>${a.waktu||''} • ${a.status}</small></div><span class="badge outline">Belum Jawab ➤</span></div>`).join('');
     const antList = document.getElementById('antrianList');
     if(!cacheAntrian.length) antList.innerHTML='<p style="color:#888">Belum ada antrian.</p>';
-    else antList.innerHTML = cacheAntrian.map(a=>`<div class="order" style="align-items:flex-start;flex-direction:column"><div style="width:100%;display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><b>${a.pertanyaan}</b><br><small>${a.waktu||''} • Status: ${a.status}</small></div><button class="btn btn-tolak" onclick="hapusAntrian('${a.id}','${esc(a.pertanyaan)}')">🗑️ Hapus</button></div>${a.jawaban?`<div style="margin-top:8px;color:#f5d67b">Jawaban: ${a.jawaban}</div>`: `<div style="display:flex;gap:8px;width:100%;margin-top:10px;flex-wrap:wrap"><textarea id="jawab-${a.id}" placeholder="Tulis jawaban lu, gaya santai kayak bot lu..." style="flex:1"></textarea><button class="btn btn-terima" onclick="jawabAntrian('${a.id}','${esc(a.pertanyaan)}')">Jawab & Ajari Bot</button></div>`}</div>`).join('');
+    else antList.innerHTML = cacheAntrian.map(a=>`<div class="order" style="align-items:flex-start;flex-direction:column"><div style="width:100%;display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><b>${a.pertanyaan}</b><br><small>${a.waktu||''} • Status: ${a.status}</small></div><button class="btn btn-tolak" onclick="hapusAntrian('${a.id}','${esc(a.pertanyaan)}')">🗑️ Hapus</button></div>${a.jawaban?`<div style="margin-top:8px;color:#f5d67b">Jawaban: ${a.jawaban}</div>`: `<div style="display:flex;gap:8px;width:100%;margin-top:10px;flex-wrap:wrap"><textarea id="jawab-${a.id}" placeholder="Tulis jawaban lu, gaya santai kayak bot lu..." style="flex:1" rows="4"></textarea><button class="btn btn-terima" onclick="jawabAntrian('${a.id}','${esc(a.pertanyaan)}')">Jawab & Ajari Bot</button></div>`}</div>`).join('');
     const bl = document.getElementById('blacklistTable');
     const blackData = black.data||[];
     if(!blackData.length) bl.innerHTML='<tr><td colspan="5">Belum ada blacklist. Bagus, berarti belum ada penumpang nakal.</td></tr>';
@@ -305,6 +334,7 @@ async function loadAll(){
     console.error(e);
   }
   loadBot(); loadUsers();
+  kembalikanDraft();
 }
 
 async function tambahDriver(){
@@ -333,22 +363,21 @@ async function jawabAntrian(id, pertanyaan){
   if(error) return showError(error.message);
   const {data:cek}=await sb.from('bot').select('*').eq('kunci',pertanyaan.toLowerCase());
   if(!cek||!cek.length) await sb.from('bot').insert([{kunci:pertanyaan.toLowerCase(), jawaban:jawaban}]);
+  delete draftAntrian['jawab-'+id];
   showSukses('Udah kejawab + udah masuk ke Bot! Besok bot bisa jawab sendiri.'); loadAll();
 }
-// ===== HAPUS ANTRIAN - PILIH HAPUS ANTRIAN AJA ATAU + BOT =====
 async function hapusAntrian(id, pertanyaan){
   const item = cacheAntrian.find(a=>String(a.id)===String(id));
   const sudahJawab = item && item.jawaban;
   if(!sudahJawab){
-    // Belum terjawab = belum masuk Bot, langsung hapus antrian aja
     showConfirm('Hapus Antrian?','Yakin mau hapus antrian ini?\n"'+(pertanyaan||'')+'"', async ()=>{
       const {error}=await sb.from('antrian').delete().eq('id',id);
       if(error) return showError(error.message);
+      delete draftAntrian['jawab-'+id];
       loadAll(); showSukses('Antrian udah dihapus, database jadi rapi ✅');
     });
     return;
   }
-  // Udah terjawab = udah ke-copy ke Bot, kasih 2 pilihan
   showPopup('Hapus Antrian Ini?','"'+(pertanyaan||'')+'"\n\nJawaban ini udah ke-copy ke Bot. Mau hapus yang mana bro?\n\n• Hapus Antrian Aja = Bot tetep bisa jawab (kalau jawaban udah bener)\n• Hapus Antrian + Bot = Bot gak akan jawab ngawur lagi (kalau jawaban lu ternyata SALAH)','🗑️',[
     {text:'Batal',cls:'btn-tolak',close:true},
     {text:'Hapus Antrian Aja',cls:'btn-tolak',close:true,onClick: async ()=>{
@@ -359,7 +388,6 @@ async function hapusAntrian(id, pertanyaan){
     {text:'🗑️ Hapus Antrian + Bot',cls:'btn-terima',close:true,onClick: async ()=>{
       const {error}=await sb.from('antrian').delete().eq('id',id);
       if(error) return showError(error.message);
-      // Hapus juga dari Bot pake kunci = pertanyaan (lowercase, karena pas jawab kita simpan lowercase)
       await sb.from('bot').delete().eq('kunci', pertanyaan.toLowerCase());
       loadAll(); loadBot(); showSukses('Udah kehapus semua! Antrian + Bot-nya udah ilang. Bot gak akan jawab ngawur lagi ✅');
     }}
@@ -432,11 +460,16 @@ async function kirimPesan(){
     const {data:cek}=await sb.from('bot').select('*').eq('kunci',lastUserMsg);
     if(!cek||!cek.length){ await sb.from('bot').insert([{kunci:lastUserMsg, jawaban:pesan}]); showSukses('Jawaban kamu udah masuk ke Bot.'); loadBot(); }
   }
-  input.value=''; bukaChat(currentUser, currentUserLabel);
+  draftChat=""; input.value=''; bukaChat(currentUser, currentUserLabel);
 }
 document.getElementById('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter') kirimPesan();});
 loadAll();
-setInterval(loadAll, 10000);
+// TIMER BARU: 30 DETIK, DAN SKIP KALAU LAGI NGETIK BIAR KEYBOARD GAK HILANG
+setInterval(()=>{
+  if(sedangNgetik) return;
+  if(document.getElementById('popupBg').classList.contains('show')) return;
+  loadAll();
+}, 30000);
 </script>
 </body>
 </html>
