@@ -415,8 +415,8 @@ async function simpanOrderDanLanjut(){
   if(sesi.hp || sesi.email){
     try{ await syncPenumpangKeSupabase(sesi.nama||'Penumpang', sesi.hp||'', sesi.via||'Google', sesi.email||'', sesi.google_id||''); }catch(e){}
   }
-  let tujuanFile = jumlahOrang <= 4 ? 'penumpang.html' : 'reguler.html';
-  let jenisLayanan = 'Travel Reguler';
+  let tujuanFile = jumlahOrang <= 4 ? 'penumpang.html' : 'penumpang.html';
+  let jenisLayanan = 'Travel Penumpang';
   let jarakKm=null, totalHarga=null, voucherDapat=0, estimasiTeks='', durasiDetik=0, jarakMeter=0;
   try{
     let url=`https://router.project-osrm.org/route/v1/driving/${pickupCoord[1]},${pickupCoord[0]};${destCoord[1]},${destCoord[0]}?overview=false`;
