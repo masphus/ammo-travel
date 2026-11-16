@@ -8,13 +8,13 @@
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:Arial;background:#000;color:#fff;min-height:100vh}
-  .phone{max-width:420px;margin:auto;background:#0a0a0a;min-height:100vh;padding:16px 14px 90px;position:relative}
-  .badge{text-align:center;margin:6px 0 14px}
+  .phone{max-width:420px;margin:auto;background:#0a0a0a;min-height:100vh;padding:14px 14px 95px;position:relative}
+  .badge{text-align:center;margin:4px 0 12px}
   .badge span{display:inline-block;background:linear-gradient(#e8c87a,#b9974a);color:#3a2a00;padding:8px 22px;border-radius:999px;font-weight:bold;font-size:19px;border:1px solid #ffe9a8}
   .avatar{text-align:center}
   .avatar img{width:110px;height:110px;object-fit:cover;border-radius:50%;border:3px solid #d4af5a}
-  .joined{text-align:center;color:#d4af5a;font-size:13px;margin:8px 0 18px}
-  .section{background:#111;padding:14px;border-radius:14px;margin-bottom:16px;border:1px solid #222}
+  .joined{text-align:center;color:#d4af5a;font-size:13px;margin:8px 0 16px}
+  .section{background:#111;padding:14px;border-radius:14px;margin-bottom:14px;border:1px solid #222}
   .label{display:inline-block;background:#2a2113;color:#e8c87a;padding:4px 10px;border-radius:8px;font-size:14px;margin-bottom:6px;border:1px solid #4a3a1a}
   .row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid #222;cursor:pointer}
   .row:last-child{border-bottom:none}
@@ -22,69 +22,91 @@
   .row .left{flex:1;font-size:16px}
   .row .right{color:#e8c87a;font-weight:bold;font-size:15px;text-align:right}
   .row .arrow{color:#e8c87a;font-size:22px;font-weight:bold}
-  .btn-ubah{background:#8a6d2b;color:#ffe9a8;border:1px solid #d4af5a;padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer}
-  .btn-gold{width:100%;padding:14px;background:linear-gradient(#f2d98c,#c9a94f);border:none;border-radius:12px;font-weight:bold;font-size:19px;cursor:pointer;margin-top:4px}
-  .bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:#1a1a1a;display:flex;justify-content:space-around;padding:8px 0 12px;border-top:2px solid #d4af5a}
-  .bottom a{color:#fff;text-decoration:none;text-align:center;font-size:12px;font-weight:bold;flex:1;padding:6px 0}
-  .bottom a b{display:block;font-size:22px;color:#e8c87a;line-height:1}
-  .bottom a.active{color:#e8c87a}
-  .bottom a.active b{color:#fff;background:#d4af5a;border-radius:10px;padding:2px 0}
-  input{width:100%;padding:12px;margin:8px 0;border-radius:10px;border:1px solid #6b551f;background:#1a1a1a;color:white}
+  .btn-ubah{background:#8a6d2b;color:#ffe9a8;border:1px solid #d4af5a;padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer;margin-left:8px}
+  .btn-gold{width:100%;padding:14px;background:linear-gradient(#f2d98c,#c9a94f);border:none;border-radius:12px;font-weight:bold;font-size:18px;cursor:pointer;margin-top:4px;color:#000}
+  .btn-google{width:100%;padding:13px;background:#fff;color:#000;border:none;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
+  .btn-google span{width:24px;height:24px;background:#4285F4;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .divider{display:flex;align-items:center;gap:10px;color:#888;font-size:13px;margin:16px 0}
+  .divider:before,.divider:after{content:'';flex:1;height:1px;background:#333}
+  input{width:100%;padding:13px;margin:8px 0;border-radius:12px;border:1px solid #6b551f;background:#1a1a1a;color:white;font-size:15px}
   .login-card{background:#111;padding:20px;border-radius:16px}
-  /* POPUP EDIT */
-  .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:99;align-items:center;justify-content:center;padding:20px}
-  .modal-box{background:#1a1a1a;border:1px solid #d4af5a;padding:20px;border-radius:16px;width:100%;max-width:360px}
-  .modal-box h3{margin-bottom:10px;color:#e8c87a}
+  .tabs{display:flex;background:#1a1a1a;border-radius:12px;padding:4px;margin-bottom:16px}
+  .tabs button{flex:1;padding:11px;border:none;border-radius:9px;background:transparent;color:#999;font-weight:bold;cursor:pointer;font-size:15px}
+  .tabs button.on{background:linear-gradient(#f2d98c,#c9a94f);color:#000}
+  /* TOMBOL BAWAH BARU - SESUAI GAMBAR */
+  .bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:#111;display:flex;justify-content:space-around;padding:10px 0 14px;border-top:1px solid #222}
+  .bottom a{color:#d4af5a;text-decoration:none;text-align:center;font-size:13px;flex:1}
+  .bottom a b{display:block;font-size:24px;line-height:1;margin-bottom:4px}
+  .bottom a.keluar{color:#e8c87a}
+  /* TOAST CANTIK */
+  #toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);width:calc(100% - 32px);max-width:388px;background:#1a1a1a;border:1px solid #d4af5a;border-left:5px solid #22c55e;color:#fff;padding:14px 16px;border-radius:14px;z-index:999;transition:.35s;box-shadow:0 10px 30px rgba(0,0,0,.6);font-size:14px}
+  #toast.show{transform:translateX(-50%) translateY(0)}
+  #toast.err{border-left-color:#ef4444;border-color:#ef4444}
+  .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:99;align-items:flex-end;justify-content:center}
+  .modal-box{background:#1c1c1c;border-top:2px solid #d4af5a;padding:22px;border-radius:20px 20px 0 0;width:100%;max-width:420px;padding-bottom:30px}
+  .modal-box h3{margin-bottom:12px;color:#e8c87a;font-size:18px}
 </style>
 </head>
 <body>
+<div id="toast"></div>
 <div class="phone">
   <div id="boxLogin" class="login-card">
     <div class="badge"><span>👑 Ammo Travel</span></div>
-    <h3 style="text-align:center;margin-bottom:10px">Masuk / Daftar</h3>
-    <input id="nama" placeholder="Nama Lengkap">
-    <input id="nomor" placeholder="Nomor HP - 08123456789" type="tel">
-    <input id="password" placeholder="Password - minimal 6 karakter" type="password">
-    <input id="email" placeholder="Email Google - contoh: nama@gmail.com" type="email">
-    <button class="btn-gold" onclick="daftarMasuk()">Daftar / Masuk</button>
-    <p style="font-size:12px;color:#999;text-align:center;margin-top:10px">Nomor baru = otomatis daftar<br>Nomor lama = langsung masuk</p>
+    <div class="tabs">
+      <button id="tabMasuk" class="on" onclick="switchTab('masuk')">Masuk</button>
+      <button id="tabDaftar" onclick="switchTab('daftar')">Daftar</button>
+    </div>
+    <div id="formMasuk">
+      <input id="loginNomor" placeholder="Nomor HP - 08123456789" type="tel">
+      <input id="loginPassword" placeholder="Password" type="password">
+      <button class="btn-gold" onclick="masuk()">Masuk</button>
+      <div class="divider">atau masuk dengan</div>
+      <button class="btn-google" onclick="masukGoogle()"><span>G</span> Lanjutkan dengan Google</button>
+    </div>
+    <div id="formDaftar" style="display:none">
+      <input id="nama" placeholder="Nama Lengkap">
+      <input id="nomor" placeholder="Nomor HP - 08123456789" type="tel">
+      <input id="password" placeholder="Password - minimal 6 karakter" type="password">
+      <input id="email" placeholder="Email Google - nama@gmail.com" type="email">
+      <button class="btn-gold" onclick="daftar()">Daftar Sekarang</button>
+      <div class="divider">atau daftar dengan</div>
+      <button class="btn-google" onclick="masukGoogle()"><span>G</span> Daftar dengan Google</button>
+    </div>
   </div>
+
   <div id="boxAkun" style="display:none">
     <div class="badge"><span>👑 Member Gold</span></div>
     <div class="avatar"><img id="fotoProfil" src="https://i.pravatar.cc/200?img=47"></div>
     <div class="joined" id="tampilGabung">Bergabung sejak -</div>
     <div class="section">
-      <span class="label">Informasi Akun - Klik untuk Edit</span>
-      <div class="row" onclick="editNama()"><div class="icon">A</div><div class="left">Nama</div><div class="right" id="tampilNama">-</div><div class="arrow">›</div></div>
-      <div class="row" onclick="editNomor()"><div class="icon">☎</div><div class="left">Nomor HP</div><div class="right" id="tampilNomor">-</div><div class="arrow">›</div></div>
+      <span class="label">Informasi Akun</span>
+      <div class="row" onclick="editNama()"><div class="icon">👤</div><div class="left">Nama</div><div class="right" id="tampilNama">-</div><div class="arrow">›</div></div>
+      <div class="row" onclick="editNomor()"><div class="icon">📞</div><div class="left">Nomor</div><div class="right" id="tampilNomor">-</div><div class="arrow">›</div></div>
       <div class="row"><div class="icon">🔒</div><div class="left">Password</div><div class="right">•••••••••• <button class="btn-ubah" onclick="editPassword()">Ubah</button></div></div>
       <div class="row" onclick="editEmail()"><div class="icon">G</div><div class="left">Akun Google</div><div class="right" style="font-size:12px" id="tampilGoogle">Belum ditautkan</div><div class="arrow">›</div></div>
     </div>
     <div class="section">
       <span class="label">Layanan</span>
-      <div class="row"><div class="icon">◷</div><div class="left">Booking</div><div class="right" id="tampilBooking">0 Booking Aktif</div><div class="arrow">›</div></div>
-      <div class="row"><div class="icon">%</div><div class="left">Voucher</div><div class="right" id="tampilVoucher">0 Voucher Tersedia</div><div class="arrow">›</div></div>
-      <div class="row"><div class="icon">Rp</div><div class="left">Saldo</div><div class="right" id="tampilSaldo">Rp 0</div></div>
+      <div class="row"><div class="icon">📅</div><div class="left">Booking</div><div class="right" id="tampilBooking">0 Booking Aktif</div><div class="arrow">›</div></div>
+      <div class="row"><div class="icon">🎟️</div><div class="left">Voucher</div><div class="right" id="tampilVoucher">0 Voucher Tersedia</div><div class="arrow">›</div></div>
+      <div class="row"><div class="icon">💳</div><div class="left">Saldo</div><div class="right" id="tampilSaldo">Rp 0</div></div>
     </div>
     <button class="btn-gold" onclick="topup()">Top Up Saldo</button>
   </div>
 </div>
 
-<!-- NAV BAWAH BARU - JELAS KELIATAN -->
+<!-- TOMBOL BAWAH - UDAH SESUAI GAMBAR LU -->
 <div class="bottom" id="navBawah" style="display:none">
-  <a href="index.html"><b>⌂</b>BERANDA</a>
-  <a href="booking.html"><b>▦</b>BOOKING</a>
-  <a href="voucher.html"><b>%</b>VOUCHER</a>
-  <a href="akun.html" class="active"><b>●</b>AKUN</a>
-  <a href="#" onclick="logout()"><b>X</b>KELUAR</a>
+  <a href="index.html"><b>⌂</b>Beranda</a>
+  <a href="booking.html"><b>▦</b>Booking</a>
+  <a href="voucher.html"><b>▤</b>Voucher</a>
+  <a href="#" class="keluar" onclick="logout()"><b>⏻</b>Keluar</a>
 </div>
 
-<!-- POPUP EDIT -->
 <div class="modal" id="modalEdit">
   <div class="modal-box">
     <h3 id="modalJudul">Edit</h3>
     <input id="modalInput" placeholder="">
-    <input id="modalInput2" placeholder="" style="display:none">
     <button class="btn-gold" onclick="simpanEdit()">Simpan Perubahan</button>
     <button style="width:100%;margin-top:8px;padding:12px;background:#333;color:#fff;border:none;border-radius:12px" onclick="tutupModal()">Batal</button>
   </div>
@@ -95,6 +117,24 @@
   const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   let modeEdit = '';
+  function toast(msg, err){
+    let t = document.getElementById('toast');
+    t.innerText = msg; t.className = err ? 'err' : '';
+    t.classList.add('show');
+    setTimeout(()=> t.classList.remove('show'), 3000);
+  }
+  function bersihNomor(n){ n = n.replace(/[^0-9]/g,''); if(n.startsWith('62')) n = '0'+n.slice(2); return n; }
+  function validNomor(n){
+    if(n.length < 10 || n.length > 13){ toast('Nomor HP harus 10-13 angka bro!', true); return false; }
+    if(!n.startsWith('08')){ toast('Nomor HP harus diawali 08 bro!', true); return false; }
+    return true;
+  }
+  function switchTab(mode){
+    document.getElementById('tabMasuk').className = mode==='masuk' ? 'on' : '';
+    document.getElementById('tabDaftar').className = mode==='daftar' ? 'on' : '';
+    document.getElementById('formMasuk').style.display = mode==='masuk' ? 'block' : 'none';
+    document.getElementById('formDaftar').style.display = mode==='daftar' ? 'block' : 'none';
+  }
   function formatRupiah(n){ return "Rp " + Number(n||0).toLocaleString('id-ID'); }
   function formatTanggal(t){ if(!t) return "Bergabung sejak -"; let d=new Date(t); return "Bergabung sejak "+d.toLocaleDateString('id-ID',{month:'short',year:'numeric'}); }
   async function tampilkan(user){
@@ -105,19 +145,45 @@
     document.getElementById('tampilNomor').innerText = user.nomor;
     document.getElementById('tampilSaldo').innerText = formatRupiah(user.saldo);
     document.getElementById('tampilGabung').innerText = formatTanggal(user.created_at);
-    document.getElementById('tampilGoogle').innerHTML = user.email ? user.email + " <span style='color:#22c55e'>✓</span>" : "Belum ditautkan";
+    document.getElementById('tampilGoogle').innerHTML = user.email ? user.email + " <span style='color:#22c55e'>✿ Terverifikasi</span>" : "Belum ditautkan";
     let { data: book } = await supabaseClient.from('bookings').select('id').eq('penumpang_id', user.id);
     if(book) document.getElementById('tampilBooking').innerText = book.length + " Booking Aktif";
   }
   function getUser(){ return JSON.parse(localStorage.getItem('ammo_user')); }
+  async function masuk(){
+    let nomor = bersihNomor(document.getElementById('loginNomor').value.trim());
+    let password = document.getElementById('loginPassword').value.trim();
+    if(!nomor || !password){ toast('Nomor & Password wajib diisi bro!', true); return; }
+    if(!validNomor(nomor)) return;
+    if(password.length < 6){ toast('Password minimal 6 karakter bro!', true); return; }
+    let { data: ada } = await supabaseClient.from('penumpang').select('*').eq('nomor', nomor).maybeSingle();
+    if(!ada){ toast('Nomor belum terdaftar! Silakan Daftar dulu ya bro', true); switchTab('daftar'); document.getElementById('nomor').value = nomor; return; }
+    if(ada.password !== password){ toast('Password salah bro!', true); return; }
+    localStorage.setItem('ammo_user', JSON.stringify(ada)); tampilkan(ada); toast('Selamat datang kembali, '+ada.nama+'! 👋');
+  }
+  async function daftar(){
+    let nama = document.getElementById('nama').value.trim();
+    let nomor = bersihNomor(document.getElementById('nomor').value.trim());
+    let password = document.getElementById('password').value.trim();
+    let email = document.getElementById('email').value.trim();
+    if(!nama || !nomor || !password){ toast('Nama, Nomor & Password wajib diisi!', true); return; }
+    if(nama.length < 3){ toast('Nama minimal 3 huruf bro!', true); return; }
+    if(!validNomor(nomor)) return;
+    if(password.length < 6){ toast('Password minimal 6 karakter bro!', true); return; }
+    if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ toast('Email salah format bro!', true); return; }
+    let { data: cek } = await supabaseClient.from('penumpang').select('id').eq('nomor', nomor).maybeSingle();
+    if(cek){ toast('Nomor ini sudah terdaftar! Silakan Masuk aja', true); switchTab('masuk'); return; }
+    let { data: baru, error } = await supabaseClient.from('penumpang').insert([{ nama, nomor, password, email: email || null, saldo: 0 }]).select().single();
+    if(error){ toast(error.message, true); return; }
+    localStorage.setItem('ammo_user', JSON.stringify(baru)); tampilkan(baru); toast('Akun berhasil dibuat! Selamat datang '+nama+' 🎉');
+  }
+  async function masukGoogle(){ toast('Login Google lagi kita sambungin ya bro, pakai Nomor HP dulu aja 🙏'); }
   function bukaModal(judul, value, placeholder, tipe){
     modeEdit = tipe;
     document.getElementById('modalJudul').innerText = judul;
     let inp = document.getElementById('modalInput');
     inp.value = value || ''; inp.placeholder = placeholder; inp.type = tipe==='password' ? 'password' : 'text';
-    document.getElementById('modalInput2').style.display='none';
-    document.getElementById('modalEdit').style.display='flex';
-    inp.focus();
+    document.getElementById('modalEdit').style.display='flex'; inp.focus();
   }
   function tutupModal(){ document.getElementById('modalEdit').style.display='none'; }
   function editNama(){ bukaModal('Edit Nama', getUser().nama, 'Nama baru', 'nama'); }
@@ -126,62 +192,33 @@
   function editEmail(){ bukaModal('Edit Email Google', getUser().email||'', 'nama@gmail.com', 'email'); }
   async function simpanEdit(){
     let val = document.getElementById('modalInput').value.trim();
-    let user = getUser();
-    if(!user) return;
+    let user = getUser(); if(!user) return;
     if(modeEdit==='nama'){
-      if(val.length < 3){ alert('Nama minimal 3 huruf bro!'); return; }
+      if(val.length < 3){ toast('Nama minimal 3 huruf bro!', true); return; }
       let {error} = await supabaseClient.from('penumpang').update({nama:val}).eq('id',user.id);
-      if(error){ alert(error.message); return; } user.nama = val;
+      if(error){ toast(error.message, true); return; } user.nama = val;
     }
     if(modeEdit==='nomor'){
-      val = val.replace(/[^0-9]/g,'');
-      if(val.length < 10 || val.length > 13){ alert('Nomor HP harus 10-13 angka bro!'); return; }
-      if(!val.startsWith('08') && !val.startsWith('62')){ alert('Nomor harus diawali 08 bro!'); return; }
-      if(val.startsWith('62')) val = '0'+val.slice(2);
+      val = bersihNomor(val); if(!validNomor(val)) return;
       let {data:cek} = await supabaseClient.from('penumpang').select('id').eq('nomor',val).maybeSingle();
-      if(cek && cek.id !== user.id){ alert('Nomor ini sudah dipakai akun lain bro!'); return; }
+      if(cek && cek.id !== user.id){ toast('Nomor ini sudah dipakai akun lain!', true); return; }
       let {error} = await supabaseClient.from('penumpang').update({nomor:val}).eq('id',user.id);
-      if(error){ alert(error.message); return; } user.nomor = val;
+      if(error){ toast(error.message, true); return; } user.nomor = val;
     }
     if(modeEdit==='password'){
-      if(val.length < 6){ alert('Password minimal 6 karakter bro!'); return; }
+      if(val.length < 6){ toast('Password minimal 6 karakter bro!', true); return; }
       let {error} = await supabaseClient.from('penumpang').update({password:val}).eq('id',user.id);
-      if(error){ alert(error.message); return; } user.password = val;
+      if(error){ toast(error.message, true); return; } user.password = val;
     }
     if(modeEdit==='email'){
-      if(val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)){ alert('Email salah format bro!'); return; }
+      if(val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)){ toast('Email salah format bro!', true); return; }
       let {error} = await supabaseClient.from('penumpang').update({email:val||null}).eq('id',user.id);
-      if(error){ alert(error.message); return; } user.email = val;
+      if(error){ toast(error.message, true); return; } user.email = val;
     }
     localStorage.setItem('ammo_user', JSON.stringify(user));
-    tutupModal(); tampilkan(user); alert('Berhasil diubah bro! ✓');
+    tutupModal(); tampilkan(user); toast('Berhasil diubah! ✓');
   }
-  async function daftarMasuk(){
-    const nama = document.getElementById('nama').value.trim();
-    let nomor = document.getElementById('nomor').value.trim();
-    const password = document.getElementById('password').value.trim();
-    const email = document.getElementById('email') ? document.getElementById('email').value.trim() : '';
-    if(!nomor || !password){ alert('Nomor & Password wajib diisi bro!'); return; }
-    nomor = nomor.replace(/[^0-9]/g, '');
-    if(nomor.length < 10 || nomor.length > 13){ alert('Nomor HP minimal 10 angka & maksimal 13 angka bro!'); return; }
-    if(!nomor.startsWith('08') && !nomor.startsWith('62')){ alert('Nomor HP harus diawali 08 bro!'); return; }
-    if(nomor.startsWith('62')) nomor = '0' + nomor.slice(2);
-    if(password.length < 6){ alert('Password minimal 6 karakter bro!'); return; }
-    if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ alert('Email-nya salah format bro!'); return; }
-    let { data: ada } = await supabaseClient.from('penumpang').select('*').eq('nomor', nomor).maybeSingle();
-    if(ada){
-      if(ada.password !== password){ alert('Password salah bro!'); return; }
-      if(email && !ada.email){ await supabaseClient.from('penumpang').update({email: email}).eq('id', ada.id); ada.email = email; }
-      localStorage.setItem('ammo_user', JSON.stringify(ada)); tampilkan(ada);
-    } else {
-      if(!nama){ alert('Buat akun baru, Nama wajib diisi bro!'); return; }
-      if(nama.length < 3){ alert('Nama minimal 3 huruf bro!'); return; }
-      let { data: baru, error } = await supabaseClient.from('penumpang').insert([{ nama, nomor, password, email: email || null, saldo: 0 }]).select().single();
-      if(error){ alert(error.message); return; }
-      localStorage.setItem('ammo_user', JSON.stringify(baru)); tampilkan(baru);
-    }
-  }
-  function topup(){ alert("Fitur Top Up nanti kita sambung ke pembayaran ya bro!"); }
+  function topup(){ toast('Fitur Top Up nanti kita sambung ke pembayaran ya bro!'); }
   function logout(){ localStorage.removeItem('ammo_user'); location.reload(); }
   const saved = localStorage.getItem('ammo_user');
   if(saved){ tampilkan(JSON.parse(saved)); }
