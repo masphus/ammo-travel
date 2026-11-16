@@ -61,7 +61,6 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 .waAdmin{background:#25D366;color:#000}
 .waCall{background:#333;color:#fff}
 .chat-close{width:100%;padding:12px;border-radius:10px;border:1px solid #555;background:transparent;color:#fff;margin-top:10px;cursor:pointer}
-/* === PIN - VERSI HITAM SESUAI FOTO, PUTIH DIGANTI HITAM === */
 .pinTitle{color:#fff;text-align:center;font-size:20px;font-weight:800;margin:6px 0 4px}
 .pinSub{color:#d4af37;text-align:center;font-size:13px;margin-bottom:12px;font-weight:700}
 .pinBoxes{display:flex;justify-content:center;gap:10px;margin:14px 0 18px}
@@ -173,7 +172,7 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 <div style="font-size:12px;color:#888;margin-top:6px;text-align:center">Dijawab Bot Ammo Travel • CS online</div>
 <div id="waRow" class="waRow">
 <a class="waBtn waAdmin" target="_blank" href="https://wa.me/6285899611111?text=Halo%20Admin%20Ammo%20Travel%2C%20mau%20tanya...">💬 WA Admin</a>
-<a class="waBtn waCall" target="_blank" href="https://wa.me/6285899611111?text=Halo%20Admin%2C%20mau%20telpon%20lewat%20WA...">📞 Call Admin via WA</a>
+<a class="waBtn waCall" target="_blank" href="https://wa.me/6285899611111?text=Halo%20Admin%2C%20mau%20telpon%20lewat%20WA...">📞 Call Admin</a>
 </div>
 <button class="chat-close" onclick="closeChat()">Tutup</button>
 </div>
@@ -267,8 +266,8 @@ let previewTimer=null, saranTimer=null;
 let pendingHP='', pendingPass='';
 let jumlahOrang=6;
 let pendingRole=null;
-const PIN_DRIVER='123456';
 const PIN_ADMIN='258000';
+let pendingKode='';
 const $=id=>document.getElementById(id);
 const fmtRp=n=>'Rp. '+Math.round(n).toLocaleString('id-ID');
 function fmtJarak(m){let km=m/1000;return km>=100?Math.round(km).toLocaleString('id-ID')+' km':km.toFixed(1).replace('.',',')+' km';}
@@ -465,11 +464,11 @@ closeMap();updateSwap();jadwalPreview(true);
 }
 /* === PIN + KODE RAHASIA #driver / #admin === */
 let pinKode='';
-function bukaPin(role){
-  pendingRole=role;
+function bukaPin(role,kode){
+  pendingRole=role; pendingKode=kode||'#driver';
   pinKode=''; renderPin();
   $('pinMsg').textContent='';
-  $('pinTitle').textContent = role==='admin' ? 'Masukkan PIN Admin' : 'Masukkan PIN Driver';
+  $('pinTitle').textContent = role==='admin' ? 'Masukkan PIN Admin' : 'Masukkan PIN Driver ('+pendingKode+')';
   $('pinSub').textContent = role==='admin' ? 'Admin • Ammo Travel' : 'Driver • Ammo Travel';
   $('chatView').style.display='none';
   $('pinView').style.display='block';
@@ -478,12 +477,9 @@ function pressPin(n){if(pinKode.length>=6)return;pinKode+=n;renderPin();if(pinKo
 function delPin(){pinKode=pinKode.slice(0,-1);renderPin();}
 function clearPin(){pinKode='';renderPin();}
 function renderPin(){let boxes=document.querySelectorAll('.pinBox');boxes.forEach((b,i)=>{b.textContent=i<pinKode.length?'•':'';});}
-function cekPin(){
-  if(pendingRole==='driver' && pinKode===PIN_DRIVER){localStorage.setItem('ammo_role','driver');window.location.href='driver.html';return;}
-  if(pendingRole==='admin' && pinKode===PIN_ADMIN){localStorage.setItem('ammo_role','admin');window.location.href='admin.html';return;}
-  $('pinMsg').textContent='PIN salah, coba lagi';
-  $('pinMsg').style.color='#ff6b81';
-  pinKode='';renderPin();
+async function cekPin(){
+  if(pendingRole==='admin'){ if(pinKode===PIN_ADMIN){localStorage.setItem('ammo_role','admin');window.location.href='admin.html';return;} $('pinMsg').textContent='PIN salah, coba lagi'; $('pinMsg').style.color='#ff6b81'; pinKode='';renderPin(); return; }
+  if(pendingRole==='driver'){ $('pinMsg').textContent='Mengecek ke database...'; $('pinMsg').style.color='#facc15'; try{ let r=await supabaseClient.from('drivers').select('*').eq('kode',pendingKode).eq('pin',pinKode).maybeSingle(); if(r.data){localStorage.setItem('ammo_role','driver');localStorage.setItem('ammo_driver',JSON.stringify(r.data));localStorage.setItem('ammo_driver_id',r.data.id);localStorage.setItem('ammo_driver_nama',r.data.nama);window.location.href='driver.html';return;} }catch(e){console.log(e);} $('pinMsg').textContent='Kode / PIN salah, coba lagi'; $('pinMsg').style.color='#ff6b81'; pinKode='';renderPin(); return; }
 }
 function backToChat(){pendingRole=null;pinKode='';renderPin();$('pinView').style.display='none';$('chatView').style.display='block';}
 document.addEventListener('keydown',e=>{if(e.key==='p'||e.key==='P'){openChat();bukaPin('driver');}});
@@ -514,8 +510,8 @@ async function kirimChat(){
   let v=inp.value.trim(); if(!v) return;
   let low=v.toLowerCase().trim();
   inp.value='';
-  // Kode rahasia - tidak ditampilkan isinya di chat
-  if(low==='#driver' || low==='#admin'){ bukaPin(low==='#driver' ? 'driver' : 'admin'); return; }
+  if(low==='#admin'){ bukaPin('admin'); return; }
+  if(low.startsWith('#')){ let cekK=await supabaseClient.from('drivers').select('kode').eq('kode',low).maybeSingle(); if(cekK.data){ bukaPin('driver',low); return; } let lg=$('chatLog'); lg.innerHTML+='<div class="chatBubble"><b>Bot Ammo:</b> Kode '+low+' tidak ditemukan.</div>'; return; }
   let log=$('chatLog');
   log.innerHTML+='<div class="chatBubble"><b>Kamu:</b> '+v.replace(/</g,'&lt;')+'</div>';
   log.scrollTop=log.scrollHeight;
