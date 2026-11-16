@@ -38,7 +38,8 @@
     <h3 style="text-align:center;margin-bottom:10px">Masuk / Daftar</h3>
     <input id="nama" placeholder="Nama Lengkap">
     <input id="nomor" placeholder="Nomor HP - 08123456789" type="tel">
-    <input id="password" placeholder="Password" type="password">
+    <input id="password" placeholder="Password - minimal 6 karakter" type="password">
+    <input id="email" placeholder="Email Google - contoh: nama@gmail.com" type="email">
     <button class="btn-gold" onclick="daftarMasuk()">Daftar / Masuk</button>
     <p style="font-size:12px;color:#999;text-align:center;margin-top:10px">Nomor baru = otomatis daftar<br>Nomor lama = langsung masuk</p>
   </div>
@@ -51,7 +52,7 @@
       <div class="row"><div class="icon">👤</div><div class="left">Nama</div><div class="right" id="tampilNama">-</div><div class="arrow">›</div></div>
       <div class="row"><div class="icon">📞</div><div class="left">Nomor</div><div class="right" id="tampilNomor">-</div><div class="arrow">›</div></div>
       <div class="row"><div class="icon">🔒</div><div class="left">Password</div><div class="right">•••••••••• <button class="btn-ubah" onclick="ubahPassword()">Ubah</button></div></div>
-      <div class="row"><div class="icon">G</div><div class="left">Akun Google</div><div class="right" style="font-size:12px" id="tampilGoogle">- <span style="color:#22c55e">✿ Terverifikasi</span></div></div>
+      <div class="row"><div class="icon">G</div><div class="left">Akun Google</div><div class="right" style="font-size:12px" id="tampilGoogle">Belum ditautkan</div></div>
     </div>
     <div class="section">
       <span class="label">Layanan</span>
@@ -86,31 +87,44 @@
     document.getElementById('tampilNomor').innerText = user.nomor;
     document.getElementById('tampilSaldo').innerText = formatRupiah(user.saldo);
     document.getElementById('tampilGabung').innerText = formatTanggal(user.created_at);
-    document.getElementById('tampilGoogle').innerHTML = (user.nomor||'') + "@gmail.com <span style='color:#22c55e'>✿ Terverifikasi</span>";
+    document.getElementById('tampilGoogle').innerHTML = user.email ? user.email + " <span style='color:#22c55e'>✿ Terverifikasi</span>" : "Belum ditautkan";
     let { data: book } = await supabaseClient.from('bookings').select('id').eq('penumpang_id', user.id);
     if(book) document.getElementById('tampilBooking').innerText = book.length + " Booking Aktif";
   }
   async function daftarMasuk(){
     const nama = document.getElementById('nama').value.trim();
-    const nomor = document.getElementById('nomor').value.trim();
+    let nomor = document.getElementById('nomor').value.trim();
     const password = document.getElementById('password').value.trim();
+    const email = document.getElementById('email') ? document.getElementById('email').value.trim() : '';
     if(!nomor || !password){ alert('Nomor & Password wajib diisi bro!'); return; }
+    nomor = nomor.replace(/[^0-9]/g, '');
+    if(nomor.length < 10 || nomor.length > 13){ alert('Nomor HP minimal 10 angka & maksimal 13 angka bro!'); return; }
+    if(!nomor.startsWith('08') && !nomor.startsWith('62')){ alert('Nomor HP harus diawali 08 bro!'); return; }
+    if(nomor.startsWith('62')) nomor = '0' + nomor.slice(2);
+    if(password.length < 6){ alert('Password minimal 6 karakter bro!'); return; }
+    if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ alert('Email-nya salah format bro! Contoh: nama@gmail.com'); return; }
     let { data: ada } = await supabaseClient.from('penumpang').select('*').eq('nomor', nomor).maybeSingle();
     if(ada){
       if(ada.password !== password){ alert('Password salah bro!'); return; }
+      if(email && !ada.email){
+        await supabaseClient.from('penumpang').update({email: email}).eq('id', ada.id);
+        ada.email = email;
+      }
       localStorage.setItem('ammo_user', JSON.stringify(ada));
       tampilkan(ada);
     } else {
       if(!nama){ alert('Buat akun baru, Nama wajib diisi bro!'); return; }
-      let { data: baru, error } = await supabaseClient.from('penumpang').insert([{ nama, nomor, password, saldo: 0 }]).select().single();
+      if(nama.length < 3){ alert('Nama minimal 3 huruf bro!'); return; }
+      let { data: baru, error } = await supabaseClient.from('penumpang').insert([{ nama, nomor, password, email: email || null, saldo: 0 }]).select().single();
       if(error){ alert(error.message); return; }
       localStorage.setItem('ammo_user', JSON.stringify(baru));
       tampilkan(baru);
     }
   }
   function ubahPassword(){
-    let baru = prompt("Masukkan password baru:");
+    let baru = prompt("Masukkan password baru (minimal 6 karakter):");
     if(!baru) return;
+    if(baru.trim().length < 6){ alert("Password minimal 6 karakter bro!"); return; }
     let user = JSON.parse(localStorage.getItem('ammo_user'));
     supabaseClient.from('penumpang').update({password: baru}).eq('id', user.id).then(()=>{
       user.password = baru; localStorage.setItem('ammo_user', JSON.stringify(user));
