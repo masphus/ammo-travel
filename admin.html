@@ -52,6 +52,16 @@ textarea{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#11
 #btnMenu{display:none;background:#f5d67b;border:none;padding:8px 12px;border-radius:8px;font-weight:800;cursor:pointer}
 .order-klik{cursor:pointer}
 .order-klik:hover{background:#1a1a1a}
+.popup-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:999;padding:20px}
+.popup-bg.show{display:flex}
+.popup{background:#000;border:2px solid #d4af37;border-radius:18px;padding:22px;width:100%;max-width:420px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.6);animation:pop .25s ease}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+.popup .p-ic{font-size:42px;margin-bottom:10px;display:block}
+.popup h3{color:#f5d67b;font-size:19px;margin-bottom:8px}
+.popup p{color:#ccc;font-size:14px;line-height:1.5;margin-bottom:18px;white-space:pre-line}
+.popup .p-btns{display:flex;gap:10px;justify-content:center;flex-direction:column}
+.popup .p-btns .btn{flex:1;padding:12px;width:100%}
+.popup .p-btns-row{display:flex;gap:10px}
 @media(max-width:900px) and (orientation:portrait){
   .sidebar{display:none}.main{margin-left:0}
   #btnMenu{display:block}
@@ -105,7 +115,7 @@ textarea{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#11
     <a data-page="blacklist"><span class="mi">🚫</span> Blacklist</a>
     <a data-page="pengaturan"><span class="mi">⚙️</span> Pengaturan</a>
   </div>
-  <div style="padding:20px;color:#888;font-size:12px">Login sebagai:<br><b style="color:#f5d67b;font-size:15px">Sari Lestari - Super Admin</b><br><br><button class="btn btn-tolak" onclick="alert('Logout')">Keluar</button></div>
+  <div style="padding:20px;color:#888;font-size:12px">Login sebagai:<br><b style="color:#f5d67b;font-size:15px">Sari Lestari - Super Admin</b><br><br><button class="btn btn-tolak" onclick="showPopup('Mau keluar dari admin?','Yakin mau logout?', '👋', [{text:'Batal',cls:'btn-tolak',close:true},{text:'Ya, Keluar',cls:'btn-terima',close:true}])">Keluar</button></div>
 </div>
 
 <div class="main">
@@ -135,7 +145,7 @@ textarea{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#11
   <div id="page-order" class="page"><div class="box"><h3>📋 Semua Order - REAL dari tabel bookings</h3><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="inDari" placeholder="Dari Lokasi"><input id="inTujuan" placeholder="Ke Lokasi"><input id="inHarga" type="number" placeholder="Total Harga Rp"><button class="btn btn-terima" onclick="tambahOrder()">+ Buat Booking</button></div><div id="allOrderList">Memuat...</div></div></div>
   <div id="page-penghasilan" class="page"><div class="box"><h3>💰 Penghasilan - REAL dari tabel payments</h3><p style="margin:12px 0;font-size:20px">Hari ini: <b id="penghasilanHariIni">Rp 0</b></p><p style="color:#ccc;font-size:13px">Dihitung dari <b>payments.nominal</b> yang statusnya lunas / paid / sukses hari ini. Kalau di DB lu statusnya beda, gue hitung semua payments hari ini.</p><div id="penghasilanList" style="margin-top:12px"></div><div style="margin-top:16px"><h3>💰 Tarif Aktif - REAL dari tabel tarif</h3><div id="tarifList"></div></div></div></div>
 
-  <div id="page-antrian" class="page"><div class="box"><h3>🔥 Antrian - Pertanyaan yang Bot Gak Tau</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Kalau user nanya yang bot gak tau, masuk kesini. Jawab disini, jawaban otomatis masuk ke tabel <b>bot</b> juga, biar besok bot bisa jawab sendiri. Status: <b>terjawab</b> = udah ada jawaban, <b>dijawab</b> = masih nunggu jawaban lu.</p><div id="antrianList">Memuat...</div></div></div>
+  <div id="page-antrian" class="page"><div class="box"><h3>🔥 Antrian - Pertanyaan yang Bot Gak Tau</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Kalau user nanya yang bot gak tau, masuk kesini. Jawab disini, jawaban otomatis masuk ke tabel <b>bot</b> juga, biar besok bot bisa jawab sendiri. Kalau jawabannya SALAH, klik <b>🗑️ Hapus</b> lalu pilih <b>Hapus Antrian + Bot</b>, biar bot gak jawab ngawur lagi. Gak usah buka database.</p><div id="antrianList">Memuat...</div></div></div>
 
   <div id="page-chat" class="page">
     <div class="box"><h3>💬 Chat Penumpang + Ajari Bot</h3><p style="color:#ccc;font-size:13px;margin-top:5px">REAL dari tabel <b>chats</b>. Chat di index lu itu <b>anonim</b>, jadi penumpang_id bisa <b>NULL</b> - chat anonim dikumpulin jadi grup <b>Tamu Anonim</b>. Centang "Simpan ke Bot" aktif, jawaban kamu masuk tabel <b>bot</b>.</p></div>
@@ -149,11 +159,20 @@ textarea{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#11
     </div>
   </div>
 
-  <div id="page-bot" class="page"><div class="box"><h3>🤖 Data Bot - REAL dari tabel bot</h3><p style="color:#ccc;font-size:13px">Tabel bot lu gak ada id, jadi hapus pake <b>kunci</b>.</p><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="newKunci" placeholder="Kunci / Pertanyaan"><input id="newJawaban" placeholder="Jawaban Bot"><button class="btn btn-terima" onclick="tambahBot()">+ Tambah</button></div><table><thead><tr><th>Kunci</th><th>Jawaban</th><th>Aksi</th></tr></thead><tbody id="botTable"></tbody></table></div></div>
+  <div id="page-bot" class="page"><div class="box"><h3>🤖 Data Bot - REAL dari tabel bot</h3><p style="color:#ccc;font-size:13px">Tabel bot lu gak ada id, jadi hapus pake <b>kunci</b>. Kalau ada jawaban bot yang salah, hapus disini aja, gak usah buka database.</p><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="newKunci" placeholder="Kunci / Pertanyaan"><input id="newJawaban" placeholder="Jawaban Bot"><button class="btn btn-terima" onclick="tambahBot()">+ Tambah</button></div><table><thead><tr><th>Kunci</th><th>Jawaban</th><th>Aksi</th></tr></thead><tbody id="botTable"></tbody></table></div></div>
 
   <div id="page-blacklist" class="page"><div class="box"><h3>🚫 Blacklist - Penumpang Nakal (Sering Cancel)</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Buat nandain penumpang yang udah order tapi sering dibatalkan.</p><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="inBlWa" placeholder="No WA Penumpang"><input id="inBlAlasan" placeholder="Alasan - cth: 3x cancel mendadak"><input id="inBlCancel" type="number" placeholder="Jumlah Cancel"><button class="btn btn-terima" onclick="tambahBlacklist()">+ Masukkan Blacklist</button></div><table><thead><tr><th>No WA</th><th>Alasan</th><th>Jumlah Cancel</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="blacklistTable"></tbody></table></div></div>
 
-  <div id="page-pengaturan" class="page"><div class="box"><h3>⚙️ Pengaturan</h3><p style="color:#ccc;margin:10px 0">Nama Admin</p><input id="namaAdmin" value="Sari Lestari"><p style="color:#ccc;margin:10px 0">Tarif Aktif (dari tabel tarif)</p><div id="tarifSetting"></div><br><button class="btn btn-terima" onclick="alert('Pengaturan tersimpan! (masih lokal)')">💾 Simpan Pengaturan</button><p style="color:#888;font-size:12px;margin-top:14px">Supabase: https://xxtgmohxdztesiubfxap.supabase.co • Status: <span id="statusSupabase" style="color:#25D366">Menghubungkan...</span></p></div></div>
+  <div id="page-pengaturan" class="page"><div class="box"><h3>⚙️ Pengaturan</h3><p style="color:#ccc;margin:10px 0">Nama Admin</p><input id="namaAdmin" value="Sari Lestari"><p style="color:#ccc;margin:10px 0">Tarif Aktif (dari tabel tarif)</p><div id="tarifSetting"></div><br><button class="btn btn-terima" onclick="showPopup('Tersimpan ✅','Pengaturan udah tersimpan (masih lokal).','💾',[{text:'Oke',cls:'btn-terima',close:true}])">💾 Simpan Pengaturan</button><p style="color:#888;font-size:12px;margin-top:14px">Supabase: https://xxtgmohxdztesiubfxap.supabase.co • Status: <span id="statusSupabase" style="color:#25D366">Menghubungkan...</span></p></div></div>
+</div>
+
+<div class="popup-bg" id="popupBg" onclick="if(event.target===this) tutupPopup()">
+  <div class="popup">
+    <span class="p-ic" id="popupIc">✅</span>
+    <h3 id="popupTitle">Berhasil</h3>
+    <p id="popupMsg">...</p>
+    <div class="p-btns" id="popupBtns"></div>
+  </div>
 </div>
 
 <script>
@@ -162,6 +181,27 @@ const SUPABASE_ANON_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser=null, lastUserMsg="", currentUserLabel="";
 let cacheBookings=[], cacheDrivers=[], cachePenumpang=[], cachePayments=[], cacheTarif=[], cacheAntrian=[];
+
+function showPopup(title, msg, icon, btns){
+  document.getElementById('popupIc').textContent = icon || '✅';
+  document.getElementById('popupTitle').textContent = title || 'Info';
+  document.getElementById('popupMsg').textContent = msg || '';
+  const wrap=document.getElementById('popupBtns'); wrap.innerHTML='';
+  const list = btns && btns.length ? btns : [{text:'Oke', cls:'btn-terima', close:true}];
+  list.forEach(b=>{
+    const el=document.createElement('button');
+    el.className='btn '+b.cls; el.textContent=b.text;
+    el.onclick=()=>{ tutupPopup(); if(b.onClick) b.onClick(); };
+    wrap.appendChild(el);
+  });
+  document.getElementById('popupBg').classList.add('show');
+}
+function tutupPopup(){ document.getElementById('popupBg').classList.remove('show'); }
+function showConfirm(title, msg, onYes){
+  showPopup(title, msg, '❓', [{text:'Batal',cls:'btn-tolak',close:true},{text:'Ya, Hapus',cls:'btn-terima',close:true,onClick:onYes}]);
+}
+function showError(msg){ showPopup('Gagal 😢', msg, '❌', [{text:'Oke',cls:'btn-terima',close:true}]); }
+function showSukses(msg){ showPopup('Berhasil ✅', msg, '✅', [{text:'Oke, Mantap',cls:'btn-terima',close:true}]); }
 
 document.querySelectorAll('.menu a').forEach(a=>{
   a.onclick=()=>{document.querySelectorAll('.menu a').forEach(x=>x.classList.remove('active'));a.classList.add('active');
@@ -204,7 +244,6 @@ async function loadAll(){
     cachePenumpang = pen.data||[]; cacheDrivers = drv.data||[]; cacheBookings = book.data||[]; cachePayments = pay.data||[]; cacheTarif = tarif.data||[]; cacheAntrian = ant.data||[];
     document.getElementById('statusSupabase').innerText='Terhubung ✅ - REAL';
     document.getElementById('statusSupabase').style.color='#25D366';
-
     document.getElementById('statPenumpang').innerText = cachePenumpang.length.toLocaleString('id-ID');
     const aktif = cacheDrivers.filter(d=>['aktif','active','online','tersedia'].includes(String(d.status||'').toLowerCase()));
     document.getElementById('statDriver').innerText = aktif.length;
@@ -217,46 +256,36 @@ async function loadAll(){
     const totalPendapatan = (payLunas.length?payLunas:payToday).reduce((s,p)=>s+(Number(p.nominal)||0),0);
     document.getElementById('statPendapatan').innerText = rp(totalPendapatan);
     document.getElementById('penghasilanHariIni').innerText = rp(totalPendapatan);
-
     const aktifOrder = cacheBookings.filter(o=>!['selesai','completed','batal','cancelled'].includes(String(o.status||'').toLowerCase()));
     document.getElementById('orderAktif').innerText = '• '+aktifOrder.length+' Pesanan Aktif';
     const listEl = document.getElementById('orderList');
     if(!cacheBookings.length) listEl.innerHTML='<p style="color:#888">Belum ada booking. Data dari index lu akan muncul di sini.</p>';
     else listEl.innerHTML = cacheBookings.slice(0,3).map(o=>`<div class="order"><div><b>BKG-${o.id}</b><br><small>${o.nama_penumpang||'-'} • ${o.dari_lokasi||'-'} → ${o.ke_lokasi||'-'}</small></div><span class="badge ${o.status==='selesai'?'outline':''}">${o.status||'Baru'}</span></div>`).join('');
-
     const allEl = document.getElementById('allOrderList');
     if(!cacheBookings.length) allEl.innerHTML='<p style="color:#888">Belum ada booking.</p>';
     else allEl.innerHTML = cacheBookings.map(o=>`<div class="order"><div><b>BKG-${o.id}</b><br><small>${o.nama_penumpang||'-'} (${o.no_wa||'-'}) • ${o.dari_lokasi||'-'} → ${o.ke_lokasi||'-'} • ${o.jenis_layanan||''} • ${o.tanggal_berangkat||''} • ${o.created_at?new Date(o.created_at).toLocaleString('id-ID'):''}</small></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><b>${rp(o.total_harga)}</b><span class="badge ${o.status==='selesai'?'outline':''}">${o.status}</span><button class="btn btn-terima" onclick="selesaiOrder(${o.id})">Selesai</button><button class="btn btn-tolak" onclick="hapusOrder(${o.id})">Hapus</button></div></div>`).join('');
-
     const pengEl = document.getElementById('penghasilanList');
     if(!cachePayments.length) pengEl.innerHTML='<p style="color:#888">Belum ada payments. Payment dari index akan muncul di sini.</p>';
     else pengEl.innerHTML = cachePayments.slice(0,20).map(p=>`<div class="order"><div><b>Payment #${p.id} • Booking #${p.booking_id}</b><br><small>${p.metode||'-'} • ${p.created_at?new Date(p.created_at).toLocaleString('id-ID'):''}</small></div><div><b>${rp(p.nominal)}</b> <span class="badge ${p.status==='lunas'?'':'outline'}">${p.status}</span></div></div>`).join('');
-
     const tarifHtml = cacheTarif.length ? cacheTarif.map(t=>`<div class="order"><div><b>${t.jenis}</b></div><b>${rp(t.harga_per_km)} / KM ${t.is_active?'✅ Aktif':''}</b></div>`).join('') : '<p style="color:#888">Belum ada tarif</p>';
     document.getElementById('tarifList').innerHTML = tarifHtml;
     document.getElementById('tarifSetting').innerHTML = tarifHtml;
-
     const pins = document.getElementById('pins');
     const pos = [[18,25],[38,18],[55,15],[48,48],[62,55],[75,35],[70,70],[35,65]];
     pins.innerHTML = aktif.slice(0,8).map((d,i)=>`<span class="pin" style="left:${pos[i][0]}%;top:${pos[i][1]}%" title="${d.nama}">📍</span>`).join('') || '<p style="color:#888;padding:10px">Belum ada driver aktif</p>';
-
     const menunggu = cacheDrivers.filter(d=>['menunggu','pending','baru','waiting'].includes(String(d.status||'').toLowerCase()));
     const dt = document.getElementById('driverTable');
     if(!menunggu.length) dt.innerHTML='<tr><td colspan="4">Tidak ada driver menunggu ✅</td></tr>';
     else dt.innerHTML = menunggu.map(d=>`<tr><td>${d.nama||'-'}</td><td>${d.jenis_mobil||'-'} • ${d.plat_mobil||'-'}</td><td><span class="badge">Menunggu</span></td><td><button class="btn btn-terima" onclick="verifikasiDriver(${d.id},'aktif')">Terima</button> <button class="btn btn-tolak" onclick="verifikasiDriver(${d.id},'ditolak')">Tolak</button></td></tr>`).join('');
-
     const dt2 = document.getElementById('driverTable2');
     if(!cacheDrivers.length) dt2.innerHTML='<tr><td colspan="4">Belum ada driver.</td></tr>';
     else dt2.innerHTML = cacheDrivers.map(d=>`<tr><td>${d.nama||'-'}<br><small style="color:#aaa">${d.no_wa||''}</small></td><td>${d.jenis_mobil||'-'} • ${d.plat_mobil||'-'}</td><td><span class="badge ${d.status==='aktif'?'':'outline'}">${d.status}</span></td><td>${['menunggu','pending'].includes(String(d.status||'').toLowerCase())?`<button class="btn btn-terima" onclick="verifikasiDriver(${d.id},'aktif')">Terima</button> <button class="btn btn-tolak" onclick="verifikasiDriver(${d.id},'ditolak')">Tolak</button>`:`<button class="btn btn-tolak" onclick="hapusDriver(${d.id})">Hapus</button>`}</td></tr>`).join('');
-
     const pt = document.getElementById('penumpangTable');
     if(!cachePenumpang.length) pt.innerHTML='<tr><td colspan="4">Belum ada penumpang.</td></tr>';
     else pt.innerHTML = cachePenumpang.map(p=>{
       const jml = cacheBookings.filter(o=>o.penumpang_id===p.id).length;
       return `<tr><td>${p.nama||'-'}</td><td>${p.no_wa||'-'}</td><td>${jml} booking</td><td><span class="badge">${p.status||'Aktif'}</span></td></tr>`;
     }).join('');
-
-    // ANTRIAN - yg belum terjawab = jawaban null - SEKARANG BISA DIKLIK
     const belum = cacheAntrian.filter(a=>!a.jawaban);
     const antNotif = document.getElementById('antrianNotif');
     antNotif.innerText = belum.length; antNotif.style.display = belum.length?'inline':'none';
@@ -265,13 +294,11 @@ async function loadAll(){
     else dashAnt.innerHTML = belum.slice(0,5).map(a=>`<div class="order order-klik" onclick="bukaAntrianDariDashboard('${a.id}')"><div><b>${a.pertanyaan}</b><br><small>${a.waktu||''} • ${a.status}</small></div><span class="badge outline">Belum Jawab ➤</span></div>`).join('');
     const antList = document.getElementById('antrianList');
     if(!cacheAntrian.length) antList.innerHTML='<p style="color:#888">Belum ada antrian.</p>';
-    else antList.innerHTML = cacheAntrian.map(a=>`<div class="order" style="align-items:flex-start;flex-direction:column"><div><b>${a.pertanyaan}</b><br><small>${a.waktu||''} • Status: ${a.status}</small></div>${a.jawaban?`<div style="margin-top:8px;color:#f5d67b">Jawaban: ${a.jawaban}</div>`: `<div style="display:flex;gap:8px;width:100%;margin-top:10px;flex-wrap:wrap"><textarea id="jawab-${a.id}" placeholder="Tulis jawaban lu, gaya santai kayak bot lu..." style="flex:1"></textarea><button class="btn btn-terima" onclick="jawabAntrian('${a.id}','${esc(a.pertanyaan)}')">Jawab & Ajari Bot</button></div>`}</div>`).join('');
-
+    else antList.innerHTML = cacheAntrian.map(a=>`<div class="order" style="align-items:flex-start;flex-direction:column"><div style="width:100%;display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><b>${a.pertanyaan}</b><br><small>${a.waktu||''} • Status: ${a.status}</small></div><button class="btn btn-tolak" onclick="hapusAntrian('${a.id}','${esc(a.pertanyaan)}')">🗑️ Hapus</button></div>${a.jawaban?`<div style="margin-top:8px;color:#f5d67b">Jawaban: ${a.jawaban}</div>`: `<div style="display:flex;gap:8px;width:100%;margin-top:10px;flex-wrap:wrap"><textarea id="jawab-${a.id}" placeholder="Tulis jawaban lu, gaya santai kayak bot lu..." style="flex:1"></textarea><button class="btn btn-terima" onclick="jawabAntrian('${a.id}','${esc(a.pertanyaan)}')">Jawab & Ajari Bot</button></div>`}</div>`).join('');
     const bl = document.getElementById('blacklistTable');
     const blackData = black.data||[];
     if(!blackData.length) bl.innerHTML='<tr><td colspan="5">Belum ada blacklist. Bagus, berarti belum ada penumpang nakal.</td></tr>';
     else bl.innerHTML = blackData.map(b=>`<tr><td>${b.no_wa||'-'}</td><td>${b.alasan||'-'}</td><td>${b.jumlah_cancel||0}x</td><td><span class="badge outline">${b.status||'blacklist'}</span></td><td><button class="btn btn-tolak" onclick="hapusBlacklist(${b.id})">Hapus</button></td></tr>`).join('');
-
   }catch(e){
     document.getElementById('statusSupabase').innerText='GAGAL: '+e.message;
     document.getElementById('statusSupabase').style.color='#ff6b6b';
@@ -282,40 +309,70 @@ async function loadAll(){
 
 async function tambahDriver(){
   const nama=document.getElementById('inNamaDrv').value.trim(), no_wa=document.getElementById('inWaDrv').value.trim(), plat_mobil=document.getElementById('inPlatDrv').value.trim(), jenis_mobil=document.getElementById('inJenisDrv').value.trim();
-  if(!nama) return alert('Isi nama dulu');
+  if(!nama) return showPopup('Belum Lengkap 😅','Isi nama driver dulu ya bro.','📝',[{text:'Oke, Isi Dulu',cls:'btn-terima',close:true}]);
   const {error}=await sb.from('drivers').insert([{nama,no_wa,plat_mobil,jenis_mobil,status:'menunggu'}]);
-  if(error) return alert(error.message);
-  document.getElementById('inNamaDrv').value='';document.getElementById('inWaDrv').value='';document.getElementById('inPlatDrv').value='';document.getElementById('inJenisDrv').value=''; loadAll(); alert('Driver ditambah, status Menunggu ✅');
+  if(error) return showError(error.message);
+  document.getElementById('inNamaDrv').value='';document.getElementById('inWaDrv').value='';document.getElementById('inPlatDrv').value='';document.getElementById('inJenisDrv').value=''; loadAll(); showSukses('Driver ditambah, status Menunggu.');
 }
-async function verifikasiDriver(id,status){ const {error}=await sb.from('drivers').update({status}).eq('id',id); if(error) return alert(error.message); loadAll(); alert('Driver '+status); }
-async function hapusDriver(id){ if(!confirm('Hapus driver ini?')) return; await sb.from('drivers').delete().eq('id',id); loadAll(); }
+async function verifikasiDriver(id,status){ const {error}=await sb.from('drivers').update({status}).eq('id',id); if(error) return showError(error.message); loadAll(); showSukses('Driver '+status); }
+async function hapusDriver(id){ showConfirm('Hapus Driver?','Yakin mau hapus driver ini? Data gak bisa dibalikin loh.', async ()=>{ await sb.from('drivers').delete().eq('id',id); loadAll(); showSukses('Driver udah dihapus.'); }); }
 async function tambahOrder(){
   const dari_lokasi=document.getElementById('inDari').value.trim(), ke_lokasi=document.getElementById('inTujuan').value.trim(), total_harga=parseInt(document.getElementById('inHarga').value||'0');
-  if(!dari_lokasi||!ke_lokasi) return alert('Isi Dari & Tujuan dulu');
+  if(!dari_lokasi||!ke_lokasi) return showPopup('Belum Lengkap 😅','Isi Dari & Tujuan dulu ya bro.','📝',[{text:'Oke',cls:'btn-terima',close:true}]);
   const {error}=await sb.from('bookings').insert([{dari_lokasi,ke_lokasi,total_harga,status:'menunggu',nama_penumpang:'Admin Input',tanggal_berangkat:new Date().toISOString().slice(0,10)}]);
-  if(error) return alert(error.message);
-  document.getElementById('inDari').value='';document.getElementById('inTujuan').value='';document.getElementById('inHarga').value=''; loadAll(); alert('Booking dibuat ✅');
+  if(error) return showError(error.message);
+  document.getElementById('inDari').value='';document.getElementById('inTujuan').value='';document.getElementById('inHarga').value=''; loadAll(); showSukses('Booking berhasil dibuat.');
 }
-async function selesaiOrder(id){ const {error}=await sb.from('bookings').update({status:'selesai'}).eq('id',id); if(error) return alert(error.message); loadAll(); }
-async function hapusOrder(id){ if(!confirm('Hapus booking ini?')) return; await sb.from('bookings').delete().eq('id',id); loadAll(); }
+async function selesaiOrder(id){ const {error}=await sb.from('bookings').update({status:'selesai'}).eq('id',id); if(error) return showError(error.message); loadAll(); showSukses('Order udah selesai.'); }
+async function hapusOrder(id){ showConfirm('Hapus Booking?','Yakin mau hapus booking ini?', async ()=>{ await sb.from('bookings').delete().eq('id',id); loadAll(); showSukses('Booking udah dihapus.'); }); }
 
 async function jawabAntrian(id, pertanyaan){
   const el=document.getElementById('jawab-'+id); const jawaban=el.value.trim();
-  if(!jawaban) return alert('Isi jawaban dulu bro');
+  if(!jawaban) return showPopup('Jawaban Kosong 😅','Isi jawaban dulu bro, baru klik Jawab.','✍️',[{text:'Oke',cls:'btn-terima',close:true}]);
   const {error}=await sb.from('antrian').update({jawaban:jawaban, status:'terjawab'}).eq('id',id);
-  if(error) return alert(error.message);
+  if(error) return showError(error.message);
   const {data:cek}=await sb.from('bot').select('*').eq('kunci',pertanyaan.toLowerCase());
   if(!cek||!cek.length) await sb.from('bot').insert([{kunci:pertanyaan.toLowerCase(), jawaban:jawaban}]);
-  alert('✅ Udah kejawab + udah masuk ke Bot!'); loadAll();
+  showSukses('Udah kejawab + udah masuk ke Bot! Besok bot bisa jawab sendiri.'); loadAll();
+}
+// ===== HAPUS ANTRIAN - PILIH HAPUS ANTRIAN AJA ATAU + BOT =====
+async function hapusAntrian(id, pertanyaan){
+  const item = cacheAntrian.find(a=>String(a.id)===String(id));
+  const sudahJawab = item && item.jawaban;
+  if(!sudahJawab){
+    // Belum terjawab = belum masuk Bot, langsung hapus antrian aja
+    showConfirm('Hapus Antrian?','Yakin mau hapus antrian ini?\n"'+(pertanyaan||'')+'"', async ()=>{
+      const {error}=await sb.from('antrian').delete().eq('id',id);
+      if(error) return showError(error.message);
+      loadAll(); showSukses('Antrian udah dihapus, database jadi rapi ✅');
+    });
+    return;
+  }
+  // Udah terjawab = udah ke-copy ke Bot, kasih 2 pilihan
+  showPopup('Hapus Antrian Ini?','"'+(pertanyaan||'')+'"\n\nJawaban ini udah ke-copy ke Bot. Mau hapus yang mana bro?\n\n• Hapus Antrian Aja = Bot tetep bisa jawab (kalau jawaban udah bener)\n• Hapus Antrian + Bot = Bot gak akan jawab ngawur lagi (kalau jawaban lu ternyata SALAH)','🗑️',[
+    {text:'Batal',cls:'btn-tolak',close:true},
+    {text:'Hapus Antrian Aja',cls:'btn-tolak',close:true,onClick: async ()=>{
+      const {error}=await sb.from('antrian').delete().eq('id',id);
+      if(error) return showError(error.message);
+      loadAll(); showSukses('Antriannya aja yang kehapus. Bot-nya tetep aman, masih bisa jawab.');
+    }},
+    {text:'🗑️ Hapus Antrian + Bot',cls:'btn-terima',close:true,onClick: async ()=>{
+      const {error}=await sb.from('antrian').delete().eq('id',id);
+      if(error) return showError(error.message);
+      // Hapus juga dari Bot pake kunci = pertanyaan (lowercase, karena pas jawab kita simpan lowercase)
+      await sb.from('bot').delete().eq('kunci', pertanyaan.toLowerCase());
+      loadAll(); loadBot(); showSukses('Udah kehapus semua! Antrian + Bot-nya udah ilang. Bot gak akan jawab ngawur lagi ✅');
+    }}
+  ]);
 }
 async function tambahBlacklist(){
   const no_wa=document.getElementById('inBlWa').value.trim(), alasan=document.getElementById('inBlAlasan').value.trim(), jumlah_cancel=parseInt(document.getElementById('inBlCancel').value||'1');
-  if(!no_wa) return alert('Isi No WA dulu');
+  if(!no_wa) return showPopup('Belum Lengkap 😅','Isi No WA dulu ya bro.','📝',[{text:'Oke',cls:'btn-terima',close:true}]);
   const {error}=await sb.from('blacklist').insert([{no_wa, alasan, jumlah_cancel, status:'blacklist'}]);
-  if(error) return alert(error.message);
-  document.getElementById('inBlWa').value='';document.getElementById('inBlAlasan').value='';document.getElementById('inBlCancel').value=''; loadAll(); alert('Masuk blacklist ✅');
+  if(error) return showError(error.message);
+  document.getElementById('inBlWa').value='';document.getElementById('inBlAlasan').value='';document.getElementById('inBlCancel').value=''; loadAll(); showSukses('Penumpang nakal masuk blacklist.');
 }
-async function hapusBlacklist(id){ if(!confirm('Hapus dari blacklist?')) return; await sb.from('blacklist').delete().eq('id',id); loadAll(); }
+async function hapusBlacklist(id){ showConfirm('Hapus dari Blacklist?','Yakin mau hapus penumpang ini dari blacklist?', async ()=>{ await sb.from('blacklist').delete().eq('id',id); loadAll(); showSukses('Udah dihapus dari blacklist.'); }); }
 
 async function loadBot(){
   const {data,error}=await sb.from('bot').select('*').order('kunci',{ascending:true});
@@ -325,12 +382,12 @@ async function loadBot(){
 }
 async function tambahBot(){
   const kunci=document.getElementById('newKunci').value.trim(), jawaban=document.getElementById('newJawaban').value.trim();
-  if(!kunci||!jawaban) return alert('Isi kunci & jawaban dulu');
+  if(!kunci||!jawaban) return showPopup('Belum Lengkap 😅','Isi kunci & jawaban dulu ya bro.','🤖',[{text:'Oke',cls:'btn-terima',close:true}]);
   const {error}=await sb.from('bot').insert([{kunci,jawaban}]);
-  if(error) return alert(error.message);
-  document.getElementById('newKunci').value='';document.getElementById('newJawaban').value='';loadBot();
+  if(error) return showError(error.message);
+  document.getElementById('newKunci').value='';document.getElementById('newJawaban').value='';loadBot(); showSukses('Bot berhasil diajarin.');
 }
-async function hapusBot(kunci){ if(confirm('Hapus data bot ini?')){await sb.from('bot').delete().eq('kunci',kunci); loadBot();} }
+async function hapusBot(kunci){ showConfirm('Hapus Bot?','Yakin mau hapus bot "'+kunci+'"?', async ()=>{ await sb.from('bot').delete().eq('kunci',kunci); loadBot(); showSukses('Bot udah dihapus.'); }); }
 
 async function loadUsers(){
   const {data,error}=await sb.from('chats').select('*').order('created_at',{ascending:false});
@@ -367,13 +424,13 @@ async function bukaChat(penumpangId,nama){
 }
 async function kirimPesan(){
   const input=document.getElementById('chatInput'); const pesan=input.value.trim();
-  if(!pesan||!currentUser) return alert('Pilih penumpang dulu & ketik pesan');
+  if(!pesan||!currentUser) return showPopup('Pilih Dulu 😅','Pilih penumpang dulu & ketik pesan ya bro.','💬',[{text:'Oke',cls:'btn-terima',close:true}]);
   const payload = currentUser==='anon' ? {penumpang_id:null, sender:'admin', message:pesan} : {penumpang_id:currentUser, sender:'admin', message:pesan};
   const {error}=await sb.from('chats').insert([payload]);
-  if(error) return alert(error.message);
+  if(error) return showError(error.message);
   if(document.getElementById('saveToBot').checked && lastUserMsg){
     const {data:cek}=await sb.from('bot').select('*').eq('kunci',lastUserMsg);
-    if(!cek||!cek.length){ await sb.from('bot').insert([{kunci:lastUserMsg, jawaban:pesan}]); alert('✅ Tersimpan! Jawaban kamu udah masuk ke Bot.'); loadBot(); }
+    if(!cek||!cek.length){ await sb.from('bot').insert([{kunci:lastUserMsg, jawaban:pesan}]); showSukses('Jawaban kamu udah masuk ke Bot.'); loadBot(); }
   }
   input.value=''; bukaChat(currentUser, currentUserLabel);
 }
