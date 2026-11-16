@@ -11,8 +11,9 @@
   .phone{max-width:420px;margin:auto;background:#0a0a0a;min-height:100vh;padding:14px 14px 95px;position:relative}
   .badge{text-align:center;margin:4px 0 12px}
   .badge span{display:inline-block;background:linear-gradient(#e8c87a,#b9974a);color:#3a2a00;padding:8px 22px;border-radius:999px;font-weight:bold;font-size:19px;border:1px solid #ffe9a8}
-  .avatar{text-align:center}
+  .avatar{text-align:center;cursor:pointer}
   .avatar img{width:110px;height:110px;object-fit:cover;border-radius:50%;border:3px solid #d4af5a}
+  .avatar p{font-size:11px;color:#999;margin-top:6px}
   .joined{text-align:center;color:#d4af5a;font-size:13px;margin:8px 0 16px}
   .section{background:#111;padding:14px;border-radius:14px;margin-bottom:14px;border:1px solid #222}
   .label{display:inline-block;background:#2a2113;color:#e8c87a;padding:4px 10px;border-radius:8px;font-size:14px;margin-bottom:6px;border:1px solid #4a3a1a}
@@ -33,12 +34,12 @@
   .tabs{display:flex;background:#1a1a1a;border-radius:12px;padding:4px;margin-bottom:16px}
   .tabs button{flex:1;padding:11px;border:none;border-radius:9px;background:transparent;color:#999;font-weight:bold;cursor:pointer;font-size:15px}
   .tabs button.on{background:linear-gradient(#f2d98c,#c9a94f);color:#000}
-  /* TOMBOL BAWAH BARU - SESUAI GAMBAR */
+  .tab-avatar{padding:8px 16px;border-radius:999px;border:none;font-weight:bold;cursor:pointer}
+  .tab-avatar.on{background:linear-gradient(#f2d98c,#c9a94f);color:#000}
+  .tab-avatar.off{background:#333;color:#fff}
   .bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:#111;display:flex;justify-content:space-around;padding:10px 0 14px;border-top:1px solid #222}
   .bottom a{color:#d4af5a;text-decoration:none;text-align:center;font-size:13px;flex:1}
   .bottom a b{display:block;font-size:24px;line-height:1;margin-bottom:4px}
-  .bottom a.keluar{color:#e8c87a}
-  /* TOAST CANTIK */
   #toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);width:calc(100% - 32px);max-width:388px;background:#1a1a1a;border:1px solid #d4af5a;border-left:5px solid #22c55e;color:#fff;padding:14px 16px;border-radius:14px;z-index:999;transition:.35s;box-shadow:0 10px 30px rgba(0,0,0,.6);font-size:14px}
   #toast.show{transform:translateX(-50%) translateY(0)}
   #toast.err{border-left-color:#ef4444;border-color:#ef4444}
@@ -50,6 +51,7 @@
 <body>
 <div id="toast"></div>
 <div class="phone">
+  <!-- LOGIN / DAFTAR -->
   <div id="boxLogin" class="login-card">
     <div class="badge"><span>👑 Ammo Travel</span></div>
     <div class="tabs">
@@ -74,10 +76,27 @@
     </div>
   </div>
 
+  <!-- AKUN -->
   <div id="boxAkun" style="display:none">
     <div class="badge"><span>👑 Member Gold</span></div>
-    <div class="avatar"><img id="fotoProfil" src="https://i.pravatar.cc/200?img=47"></div>
+    <div class="avatar" onclick="gantiAvatar()">
+      <img id="fotoProfil" src="https://randomuser.me/api/portraits/women/44.jpg">
+      <p>Klik foto untuk ganti</p>
+    </div>
     <div class="joined" id="tampilGabung">Bergabung sejak -</div>
+
+    <!-- PILIH FOTO -->
+    <div id="boxAvatar" style="display:none;background:#1a1a1a;border:1px solid #d4af5a;border-radius:14px;padding:14px;text-align:center;margin-bottom:14px">
+      <p style="margin-bottom:10px;color:#e8c87a;font-weight:bold">Pilih Foto Profil Kamu</p>
+      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px">
+        <button onclick="tampilAvatar('cewek')" id="btnCewek" class="tab-avatar on">👩 Cewek</button>
+        <button onclick="tampilAvatar('cowok')" id="btnCowok" class="tab-avatar off">👨 Cowok</button>
+        <button onclick="tampilAvatar('semua')" id="btnSemua" class="tab-avatar off">Semua</button>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-height:300px;overflow-y:auto" id="listAvatar"></div>
+      <button onclick="document.getElementById('boxAvatar').style.display='none'" style="margin-top:12px;padding:10px 20px;background:#333;color:#fff;border:none;border-radius:10px">Tutup</button>
+    </div>
+
     <div class="section">
       <span class="label">Informasi Akun</span>
       <div class="row" onclick="editNama()"><div class="icon">👤</div><div class="left">Nama</div><div class="right" id="tampilNama">-</div><div class="arrow">›</div></div>
@@ -95,12 +114,12 @@
   </div>
 </div>
 
-<!-- TOMBOL BAWAH - UDAH SESUAI GAMBAR LU -->
+<!-- BAWAH - CUMA 4, GAK ADA AKUN -->
 <div class="bottom" id="navBawah" style="display:none">
   <a href="index.html"><b>⌂</b>Beranda</a>
   <a href="booking.html"><b>▦</b>Booking</a>
   <a href="voucher.html"><b>▤</b>Voucher</a>
-  <a href="#" class="keluar" onclick="logout()"><b>⏻</b>Keluar</a>
+  <a href="#" onclick="logout()"><b>⏻</b>Keluar</a>
 </div>
 
 <div class="modal" id="modalEdit">
@@ -117,6 +136,15 @@
   const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   let modeEdit = '';
+
+  // FOTO CEWEK & COWOK - BIAR GAK KETUKER 😂
+  const fotoCewek = [
+    'https://randomuser.me/api/portraits/women/44.jpg','https://randomuser.me/api/portraits/women/65.jpg','https://randomuser.me/api/portraits/women/68.jpg','https://randomuser.me/api/portraits/women/17.jpg','https://randomuser.me/api/portraits/women/12.jpg','https://randomuser.me/api/portraits/women/33.jpg','https://randomuser.me/api/portraits/women/50.jpg','https://randomuser.me/api/portraits/women/21.jpg','https://randomuser.me/api/portraits/women/26.jpg','https://randomuser.me/api/portraits/women/79.jpg','https://randomuser.me/api/portraits/women/28.jpg','https://randomuser.me/api/portraits/women/90.jpg','https://randomuser.me/api/portraits/women/15.jpg','https://randomuser.me/api/portraits/women/47.jpg','https://randomuser.me/api/portraits/women/3.jpg','https://randomuser.me/api/portraits/women/25.jpg','https://randomuser.me/api/portraits/women/56.jpg','https://randomuser.me/api/portraits/women/71.jpg','https://randomuser.me/api/portraits/women/82.jpg','https://randomuser.me/api/portraits/women/9.jpg'
+  ];
+  const fotoCowok = [
+    'https://randomuser.me/api/portraits/men/32.jpg','https://randomuser.me/api/portraits/men/75.jpg','https://randomuser.me/api/portraits/men/11.jpg','https://randomuser.me/api/portraits/men/22.jpg','https://randomuser.me/api/portraits/men/36.jpg','https://randomuser.me/api/portraits/men/52.jpg','https://randomuser.me/api/portraits/men/85.jpg','https://randomuser.me/api/portraits/men/15.jpg','https://randomuser.me/api/portraits/men/45.jpg','https://randomuser.me/api/portraits/men/67.jpg','https://randomuser.me/api/portraits/men/29.jpg','https://randomuser.me/api/portraits/men/41.jpg','https://randomuser.me/api/portraits/men/18.jpg','https://randomuser.me/api/portraits/men/60.jpg','https://randomuser.me/api/portraits/men/3.jpg','https://randomuser.me/api/portraits/men/76.jpg','https://randomuser.me/api/portraits/men/9.jpg','https://randomuser.me/api/portraits/men/97.jpg','https://randomuser.me/api/portraits/men/50.jpg','https://randomuser.me/api/portraits/men/64.jpg'
+  ];
+
   function toast(msg, err){
     let t = document.getElementById('toast');
     t.innerText = msg; t.className = err ? 'err' : '';
@@ -137,6 +165,36 @@
   }
   function formatRupiah(n){ return "Rp " + Number(n||0).toLocaleString('id-ID'); }
   function formatTanggal(t){ if(!t) return "Bergabung sejak -"; let d=new Date(t); return "Bergabung sejak "+d.toLocaleDateString('id-ID',{month:'short',year:'numeric'}); }
+
+  // AVATAR - SIMPAN DI HP AJA, GAK KE DATABASE
+  function gantiAvatar(){
+    let box = document.getElementById('boxAvatar');
+    if(box.style.display === 'block'){ box.style.display = 'none'; return; }
+    box.style.display = 'block';
+    tampilAvatar('cewek');
+  }
+  function tampilAvatar(tipe){
+    document.getElementById('btnCewek').className = 'tab-avatar ' + (tipe==='cewek' ? 'on' : 'off');
+    document.getElementById('btnCowok').className = 'tab-avatar ' + (tipe==='cowok' ? 'on' : 'off');
+    document.getElementById('btnSemua').className = 'tab-avatar ' + (tipe==='semua' ? 'on' : 'off');
+    let list = document.getElementById('listAvatar');
+    list.innerHTML = '';
+    let data = tipe==='cewek' ? fotoCewek : tipe==='cowok' ? fotoCowok : [...fotoCewek, ...fotoCowok];
+    data.forEach(url => {
+      let img = document.createElement('img');
+      img.src = url;
+      img.style.cssText = 'width:65px;height:65px;object-fit:cover;border-radius:50%;border:2px solid #d4af5a;cursor:pointer';
+      img.onclick = () => pilihAvatar(url);
+      list.appendChild(img);
+    });
+  }
+  function pilihAvatar(url){
+    document.getElementById('fotoProfil').src = url;
+    document.getElementById('boxAvatar').style.display = 'none';
+    localStorage.setItem('ammo_avatar', url);
+    toast('Foto profil berhasil diganti! 📸');
+  }
+
   async function tampilkan(user){
     document.getElementById('boxLogin').style.display='none';
     document.getElementById('boxAkun').style.display='block';
@@ -146,6 +204,8 @@
     document.getElementById('tampilSaldo').innerText = formatRupiah(user.saldo);
     document.getElementById('tampilGabung').innerText = formatTanggal(user.created_at);
     document.getElementById('tampilGoogle').innerHTML = user.email ? user.email + " <span style='color:#22c55e'>✿ Terverifikasi</span>" : "Belum ditautkan";
+    let avatarSimpan = localStorage.getItem('ammo_avatar');
+    if(avatarSimpan) document.getElementById('fotoProfil').src = avatarSimpan;
     let { data: book } = await supabaseClient.from('bookings').select('id').eq('penumpang_id', user.id);
     if(book) document.getElementById('tampilBooking').innerText = book.length + " Booking Aktif";
   }
