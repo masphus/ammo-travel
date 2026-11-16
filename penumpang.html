@@ -6,11 +6,12 @@
 <title>Penumpang - Menunggu Driver</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
-body{background:#f2f2f2;display:flex;justify-content:center}
-.phone{width:100%;max-width:430px;background:#fff;min-height:100vh;padding-bottom:20px;position:relative}
-header{background:#00a651;color:#fff;padding:14px 16px;display:flex;align-items:center;gap:14px}
-header a{color:#fff;font-size:24px;text-decoration:none}
-header b{font-size:22px;color:#fff}
+body{background:#000;display:flex;justify-content:center}
+.phone{width:100%;max-width:430px;background:#0f0f0f;min-height:100vh;padding-bottom:20px;position:relative;color:#fff}
+/* HEADER DISEMBUNYIKAN - SESUAI GAMBAR, TAPI HTML & FUNGSI TETAP ADA */
+header{background:#000;color:#e8c96a;padding:14px 16px;display:none;align-items:center;gap:14px}
+header a{color:#e8c96a;font-size:24px;text-decoration:none}
+header b{font-size:22px;color:#e8c96a}
 .radar-wrap{text-align:center;padding:0;background:#000;overflow:hidden;position:relative}
 .radar{width:100%;height:220px;margin:auto;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000 70%)}
 .radar:before,.radar:after{content:"";position:absolute;border:1px solid rgba(255,215,0,.35);border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}
@@ -26,51 +27,53 @@ header b{font-size:22px;color:#fff}
 @keyframes kedip{0%,100%{opacity:0;transform:scale(0.5)}20%{opacity:1;transform:scale(1.2)}40%{opacity:0.2}60%{opacity:1}}
 .radar-label{position:absolute;bottom:10px;left:0;right:0;text-align:center;color:#FFD700;font-size:12px;letter-spacing:3px;font-weight:bold}
 .driver-sukses{display:none;text-align:center;padding:18px 0 4px}
-.driver-sukses .foto-driver{width:130px;height:130px;margin:auto;border-radius:50%;border:4px solid #00a651;object-fit:cover;background:#eee}
-.driver-sukses .nama{font-size:22px;font-weight:bold;color:#0a3d1f;margin-top:10px}
-.driver-sukses .plat{font-size:15px;color:#555}
-.driver-sukses .eta{font-size:17px;font-weight:bold;color:#00a651;margin-top:6px;background:#E8F5E9;display:inline-block;padding:6px 14px;border-radius:20px}
-.title{text-align:center;font-size:30px;color:#0a3d1f;margin-top:8px}
-.sub{text-align:center;font-size:14px;padding:6px 20px 14px;color:#555}
-.card{margin:0 16px 14px;border:1.5px solid #d9ecd9;border-radius:14px;padding:16px}
-.card h2{color:#0a3d1f;font-size:24px}
-.route{margin:14px 0 0 4px;border-left:2px dashed #ccc;padding-left:22px}
-.route b{font-size:19px;display:block;line-height:1.3}
-.route small{color:#555;font-size:14px}
-.meta{display:flex;gap:14px;border-top:1px solid #eee;padding:12px 0;flex-wrap:wrap}
-.meta div{font-size:17px}
-.meta b{display:block;font-size:19px}
-.ongkos{background:#a8e6a1;border-radius:8px;padding:12px;font-weight:bold;font-size:20px;color:#0a3d1f}
-.ongkos small{display:block;font-size:15px}
-.note{font-size:14px;color:#333;margin-top:10px;line-height:1.4}
-.btn-batal{margin:14px 16px 0;background:#e60000;color:#fff;border:0;width:calc(100% - 32px);padding:15px;border-radius:10px;font-weight:bold;font-size:22px;cursor:pointer}
-.btn-prioritas{display:none;margin:0 16px 4px;background:#111;color:#FFD700;border:1px solid #FFD700;width:calc(100% - 32px);padding:14px;border-radius:10px;font-weight:800;font-size:19px;cursor:pointer}
-.btn-prioritas-found{display:none;margin:8px 16px 4px;background:#111;color:#FFD700;border:1px solid #FFD700;width:calc(100% - 32px);padding:14px;border-radius:10px;font-weight:800;font-size:19px;cursor:pointer}
-.prioritas-note{display:none;text-align:center;font-size:13px;color:#555;line-height:1.4;padding:0 24px 14px}
+.badge-unggulan{display:none;border:1.5px solid #d4af37;color:#e8c96a;border-radius:999px;padding:6px 16px;font-size:14px;font-weight:900;letter-spacing:1px;background:#111;margin:0 auto 14px;width:fit-content}
+.driver-sukses .foto-driver{width:150px;height:150px;margin:auto;border-radius:50%;border:4px solid #d4af37;object-fit:cover;background:#222;box-shadow:0 0 24px rgba(212,175,55,.45)}
+.driver-sukses .nama{font-size:32px;font-weight:900;color:#e8c96a;margin-top:14px;line-height:1.1}
+.driver-sukses .plat{font-size:20px;color:#e8c96a;margin-top:4px}
+.driver-sukses .eta{font-size:20px;font-weight:900;color:#f5d76e;margin-top:16px;background:#111;display:inline-block;padding:8px 18px;border-radius:999px;border:1.5px solid #d4af37}
+.title{text-align:center;font-size:30px;color:#e8c96a;margin-top:8px}
+.sub{text-align:center;font-size:14px;padding:6px 20px 14px;color:#f5d76e}
+.card{margin:22px 16px 14px;border:2px solid #d4af37;border-radius:18px;padding:18px 16px;background:#131313;display:flex;flex-wrap:wrap;gap:12px;box-shadow:0 0 18px rgba(212,175,55,.18)}
+.card h2{color:#e8c96a;font-size:26px;width:100%}
+.route{margin:6px 0 0 4px;border-left:2px dashed #d4af37;padding-left:22px;width:100%}
+.route b{font-size:19px;display:block;line-height:1.4;color:#ffffff}
+.route small{color:#e8c96a;font-size:16px;font-weight:900}
+.meta{flex:1;display:flex;flex-direction:column;gap:8px;border:1.5px solid #d4af37;border-radius:16px;padding:14px;background:#0f0f0f;order:3;min-width:0}
+.meta div{font-size:15px;color:#f5d76e}
+.meta b{display:block;font-size:18px;color:#e8c96a;margin-top:2px}
+.ongkos{flex:1;background:#0f0f0f;border:1.5px solid #d4af37;border-radius:16px;padding:14px;font-weight:900;font-size:24px;color:#e8c96a;order:4;min-width:0}
+.ongkos small{display:block;font-size:14px;color:#f5d76e;margin-bottom:8px}
+.note{font-size:15px;color:#fff;margin-top:0;line-height:1.4;text-align:center;width:100%;order:2;border:1.5px solid #d4af37;border-radius:16px;padding:12px 14px;background:#0f0f0f}
+.note:before{content:"PENTING!";display:block;color:#ff2b2b;font-size:26px;font-weight:900;letter-spacing:.5px;margin-bottom:4px}
+.btn-batal{margin:22px 16px 0;background:linear-gradient(180deg,#4a1212,#2a0707);color:#fff;border:2px solid #ff2b2b;width:calc(100% - 32px);padding:16px;border-radius:14px;font-weight:900;font-size:22px;cursor:pointer}
+.btn-prioritas{display:none;margin:26px 16px 4px;background:linear-gradient(#ffe98a,#d4af37 55%,#b8962e);color:#000;border:none;width:calc(100% - 32px);padding:16px;border-radius:14px;font-weight:900;font-size:21px;cursor:pointer;box-shadow:0 4px 0 #8a6d1a}
+.btn-prioritas-found{display:none;margin:8px 16px 4px;background:linear-gradient(#ffe98a,#d4af37 55%,#b8962e);color:#000;border:none;width:calc(100% - 32px);padding:16px;border-radius:14px;font-weight:900;font-size:21px;cursor:pointer;box-shadow:0 4px 14px rgba(212,175,55,.4)}
+.prioritas-note{display:none;text-align:center;font-size:14px;color:#f5d76e;line-height:1.4;padding:0 24px 14px}
 .chat-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;align-items:flex-end;justify-content:center}
 .chat-modal.show{display:flex}
-.chat-box{width:100%;max-width:430px;background:#fff;border-radius:16px 16px 0 0;padding:14px;max-height:85vh;overflow-y:auto}
-.chat-head{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid #eee}
-.chat-bubble{background:#f2f2f2;border-radius:12px;padding:10px 12px;margin:8px 0;font-size:15px;line-height:1.4;max-width:85%}
-.chat-bubble.driver{background:#D9ECD9}
-.chat-bubble.me{background:#00a651;color:#fff;margin-left:auto}
-.chat-bubble.system{background:#FFF3CD;border:1px solid #FFD700;text-align:center;margin:10px auto;font-size:14px;color:#856404;max-width:95%}
+.chat-box{width:100%;max-width:430px;background:#1a1a1a;border-radius:16px 16px 0 0;padding:14px;max-height:85vh;overflow-y:auto;color:#fff}
+.chat-head{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid #333}
+.chat-bubble{background:#222;border-radius:12px;padding:10px 12px;margin:8px 0;font-size:15px;line-height:1.4;max-width:85%;color:#fff}
+.chat-bubble.driver{background:#2a2410;border:1px solid #d4af37}
+.chat-bubble.me{background:#d4af37;color:#000;margin-left:auto}
+.chat-bubble.system{background:#2a2410;border:1px solid #FFD700;text-align:center;margin:10px auto;font-size:14px;color:#f5d76e;max-width:95%}
 .chat-input{display:flex;gap:8px;margin-top:10px}
-.chat-input input{flex:1;padding:12px;border:1px solid #ddd;border-radius:20px;outline:none;font-size:15px}
-.chat-input button{background:#00a651;color:#fff;border:none;border-radius:50%;width:44px;height:44px;font-size:20px;cursor:pointer}
-.chat-close{display:block;width:100%;margin-top:10px;padding:12px;border:none;border-radius:10px;background:#eee;font-weight:bold;font-size:16px;cursor:pointer}
+.chat-input input{flex:1;padding:12px;border:1px solid #333;border-radius:20px;outline:none;font-size:15px;background:#111;color:#fff}
+.chat-input button{background:#d4af37;color:#000;border:none;border-radius:50%;width:44px;height:44px;font-size:20px;cursor:pointer}
+.chat-close{display:block;width:100%;margin-top:10px;padding:12px;border:none;border-radius:10px;background:#111;color:#fff;font-weight:bold;font-size:16px;cursor:pointer;border:1px solid #333}
 .notif-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:120;align-items:flex-end;justify-content:center}
 .notif-modal.show{display:flex}
-.notif-box{width:100%;max-width:430px;background:#fff;border-radius:16px 16px 0 0;padding:20px 16px 16px;text-align:center}
+.notif-box{width:100%;max-width:430px;background:#1a1a1a;border:1px solid #d4af37;border-radius:16px 16px 0 0;padding:20px 16px 16px;text-align:center}
 .notif-box .ikon{font-size:48px;margin-bottom:8px}
-.notif-box h3{font-size:20px;color:#0a3d1f;margin-bottom:8px;line-height:1.3}
-.notif-box p{font-size:15px;color:#555;line-height:1.5;margin-bottom:16px}
+.notif-box h3{font-size:20px;color:#e8c96a;margin-bottom:8px;line-height:1.3}
+.notif-box p{font-size:15px;color:#ccc;line-height:1.5;margin-bottom:16px}
 .notif-btns{display:flex;gap:10px}
 .notif-btns button{flex:1;padding:14px;border-radius:10px;border:none;font-weight:bold;font-size:16px;cursor:pointer}
 .btn-ya-batal{background:#e60000;color:#fff}
-.btn-lanjutkan{background:#00a651;color:#fff}
-.btn-ok-notif{background:#00a651;color:#fff;width:100%;padding:14px;border-radius:10px;border:none;font-weight:bold;font-size:16px;cursor:pointer}
-.spinner{width:36px;height:36px;border:3px solid #eee;border-top:3px solid #e60000;border-radius:50%;margin:0 auto 10px;animation:spin 0.8s linear infinite}
+.btn-lanjutkan{background:#d4af37;color:#000}
+.btn-ok-notif{background:#d4af37;color:#000;width:100%;padding:14px;border-radius:10px;border:none;font-weight:bold;font-size:16px;cursor:pointer}
+.spinner{width:36px;height:36px;border:3px solid #333;border-top:3px solid #ff2b2b;border-radius:50%;margin:0 auto 10px;animation:spin 0.8s linear infinite}
 </style>
 </head>
 <body>
@@ -88,6 +91,7 @@ header b{font-size:22px;color:#fff}
 </div>
 </div>
 <div class="driver-sukses" id="driverSukses">
+<div class="badge-unggulan" id="badgeUnggulan">DRIVER UNGGULAN</div>
 <img class="foto-driver" id="fotoDriver" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Driver">
 <div class="nama" id="namaDriverSukses">Budi Santoso</div>
 <div class="plat" id="platDriverSukses">D 1234 ABC • ⭐ 4.9</div>
@@ -100,7 +104,7 @@ header b{font-size:22px;color:#fff}
 <p class="prioritas-note" id="prioritasNote">Dengan Upgrade ke Prioritas Anda akan mendapatkan Pelayanan yang diutamakan</p>
 <div class="card">
 <h2>📍 Rute Perjalanan</h2>
-<div class="route"><small>Dari</small><b id="wDari">Memuat...</b><br><br><small>Ke</small><b id="wTujuan">Memuat...</b></div>
+<div class="route"><small>Dari</small><b id="wDari">Memuat...</b><br><br><small>Tujuan</small><b id="wTujuan">Memuat...</b></div>
 <div class="meta"><div>🅰️ Jarak<b id="wJarak">Menghitung...</b></div><div>🕒 Estimasi<b id="wEstimasi">Menghitung...</b></div></div>
 <div class="ongkos"><small>ONGKOS</small><span id="wOngkos">Menghitung...</span></div>
 <p class="note">ⓘ Biaya Parkir, Tol, dan Penyeberangan akan dibebankan kepada Penumpang bilamana ada</p>
@@ -179,48 +183,7 @@ async function geocodeAlamat(q){
   try{ let r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=id&q=${encodeURIComponent(q)}`); let d = await r.json(); if(d.length) return [parseFloat(d[0].lat), parseFloat(d[0].lon)]; }catch(e){}
   return null;
 }
-// ===== INI YANG DIBENERIN - JANGAN HITUNG ULANG KALAU UDAH DIKUNCI DARI INDEX =====
-function tampilkanDariSaved(){
-  // saved dari index.html yang baru: sudah ada jarak_km, total_harga, estimasi, durasi_detik, locked:true
-  // saved dari index.html yang lama: masih ada jarak_km + total_harga, tapi belum ada estimasi
-  if(!saved || !saved.jarak_km || !saved.total_harga) return false;
-  document.getElementById('wDari').textContent = saved.asal ? saved.asal.nama : ASAL_NAMA;
-  document.getElementById('wTujuan').textContent = saved.tujuan ? saved.tujuan.nama : TUJUAN_NAMA;
-  document.getElementById('chatRute').textContent = (saved.asal?saved.asal.nama:ASAL_NAMA) + ' → ' + (saved.tujuan?saved.tujuan.nama:TUJUAN_NAMA);
-  // Jarak: pakai jarak_km yang dikunci, jangan dari geocode baru
-  let meter = saved.jarak_meter || (saved.jarak_km * 1000);
-  document.getElementById('wJarak').textContent = '~ ' + fmtJarak(meter);
-  // Estimasi: kalau ada dari index, pakai itu. Kalau index lama gak nyimpen estimasi, biarin diisi hitungRuteFallback() tapi HARGA tetap jangan diubah
-  if(saved.estimasi){
-    document.getElementById('wEstimasi').textContent = '± ' + saved.estimasi;
-  } else if(saved.durasi_detik){
-    document.getElementById('wEstimasi').textContent = '± ' + fmtEstimasi(saved.durasi_detik);
-  }
-  // Harga: PAKAI total_harga dari index, JANGAN hitung ulang pakai *5000 lagi
-  document.getElementById('wOngkos').textContent = fmtRp(saved.total_harga);
-  return true;
-}
 async function hitungRute(){
-  // 1. Kalau sudah ada data kunci dari index, tampilkan itu dan STOP. Jangan geocode / OSRM lagi.
-  if(tampilkanDariSaved()){
-    // Kalau index lama belum nyimpen estimasi, cuma isi estimasi aja, harga tetap dikunci
-    if(!saved.estimasi && !saved.durasi_detik){
-      try{
-        if(!ASAL_COORD) ASAL_COORD = await geocodeAlamat(ASAL_NAMA);
-        if(!TUJUAN_COORD) TUJUAN_COORD = await geocodeAlamat(TUJUAN_NAMA);
-        if(ASAL_COORD && TUJUAN_COORD){
-          let url = `https://router.project-osrm.org/route/v1/driving/${ASAL_COORD[1]},${ASAL_COORD[0]};${TUJUAN_COORD[1]},${TUJUAN_COORD[0]}?overview=false`;
-          let r = await fetch(url); let d = await r.json();
-          if(d.routes && d.routes.length){
-            document.getElementById('wEstimasi').textContent = '± ' + fmtEstimasi(d.routes[0].duration);
-          }
-        }
-      }catch(e){}
-    }
-    return;
-  }
-  // 2. Fallback: cuma kalau dibuka langsung tanpa lewat index (saved kosong)
-  // Ini tetap pakai rumus yang sama kayak index: rate 5000 untuk 1-4 orang, 6500 untuk 5-7 orang, + fee 5%
   if(!ASAL_COORD) ASAL_COORD = await geocodeAlamat(ASAL_NAMA);
   if(!TUJUAN_COORD) TUJUAN_COORD = await geocodeAlamat(TUJUAN_NAMA);
   if(!ASAL_COORD || !TUJUAN_COORD){ document.getElementById('wJarak').textContent='-'; return; }
@@ -228,13 +191,7 @@ async function hitungRute(){
     let url = `https://router.project-osrm.org/route/v1/driving/${ASAL_COORD[1]},${ASAL_COORD[0]};${TUJUAN_COORD[1]},${TUJUAN_COORD[0]}?overview=false`;
     let r = await fetch(url); let d = await r.json();
     if(d.routes && d.routes.length){
-      let route = d.routes[0]; let km = route.distance/1000;
-      let orang = (saved && saved.jumlah_orang) ? saved.jumlah_orang : 1;
-      let rate = orang >= 5 ? 6500 : 5000;
-      let kmTagih = Math.max(Math.round(km),10);
-      let dasar = kmTagih * rate;
-      let fee = Math.round(dasar * 0.05);
-      let ongkos = dasar + fee;
+      let route = d.routes[0]; let km = route.distance/1000; let ongkos = Math.max(Math.round(km),10) * 5000;
       document.getElementById('wJarak').textContent = '~ ' + fmtJarak(route.distance);
       document.getElementById('wEstimasi').textContent = '± ' + fmtEstimasi(route.duration);
       document.getElementById('wOngkos').textContent = fmtRp(ongkos);
@@ -281,6 +238,7 @@ function tampilkanDriverKetemu(nama, plat, foto, etaMenit, isPrioritas, janganSi
   document.getElementById('fotoDriver').src = foto;
   document.getElementById('chatFoto').src = foto;
   document.getElementById('chatNama').textContent = nama + (isPrioritas ? '' : ' (TEST)');
+  document.getElementById('badgeUnggulan').style.display = isPrioritas ? 'block' : 'none';
   document.getElementById('waitTitle').style.display = 'none';
   document.getElementById('waitSub').textContent = isPrioritas ? 'Driver prioritas sedang OTW ke titik jemputmu' : 'Driver sedang OTW ke titik jemputmu';
   document.getElementById('btnPrioritas').style.display = 'none';
@@ -288,8 +246,8 @@ function tampilkanDriverKetemu(nama, plat, foto, etaMenit, isPrioritas, janganSi
     let b2 = document.getElementById('btnPrioritasFound');
     b2.style.display = 'block';
     b2.textContent = '✅ SUDAH PRIORITAS';
-    b2.style.background = '#00a651';
-    b2.style.color = '#fff';
+    b2.style.background = 'linear-gradient(#ffe98a,#d4af37 55%,#b8962e)';
+    b2.style.color = '#000';
     document.getElementById('prioritasNote').style.display = 'block';
     document.getElementById('prioritasNote').textContent = 'Anda sekarang mendapatkan Pelayanan yang diutamakan';
   } else {
@@ -344,22 +302,23 @@ if(!driverDitemukan){
 function upgradePrioritas(){
   let btn1 = document.getElementById('btnPrioritas');
   let btn2 = document.getElementById('btnPrioritasFound');
-  [btn1, btn2].forEach(b=>{ b.textContent = '✅ SUDAH PRIORITAS'; b.style.background = '#00a651'; b.style.color = '#fff'; });
+  [btn1, btn2].forEach(b=>{ b.textContent = '✅ SUDAH PRIORITAS'; b.style.background = 'linear-gradient(#ffe98a,#d4af37 55%,#b8962e)'; b.style.color = '#000'; });
   document.getElementById('prioritasNote').textContent = 'Anda sekarang mendapatkan Pelayanan yang diutamakan';
+  document.getElementById('badgeUnggulan').style.display = 'block';
   if(driverDitemukan){
     document.getElementById('waitSub').textContent = 'Mengganti ke driver prioritas yang lebih cepat...';
     setTimeout(()=>{
-      namaDriverAktif = 'Andi Prioritas';
-      document.getElementById('namaDriverSukses').textContent = 'Andi Prioritas';
+      namaDriverAktif = 'Andi';
+      document.getElementById('namaDriverSukses').textContent = 'Andi';
       document.getElementById('platDriverSukses').textContent = 'D 9999 PR • ⭐ 5.0';
       document.getElementById('fotoDriver').src = 'https://randomuser.me/api/portraits/men/75.jpg';
       document.getElementById('chatFoto').src = 'https://randomuser.me/api/portraits/men/75.jpg';
-      document.getElementById('chatNama').textContent = 'Andi Prioritas';
+      document.getElementById('chatNama').textContent = 'Andi';
       document.getElementById('waitSub').textContent = 'Driver prioritas sedang OTW ke titik jemputmu';
       let isi = document.getElementById('chatIsi');
-      isi.innerHTML += '<div class="chat-bubble driver">Halo! Saya <b>Andi Prioritas</b>, driver prioritas kamu ⚡ Saya langsung OTW, kamu diprioritaskan ya!</div>';
+      isi.innerHTML += '<div class="chat-bubble driver">Halo! Saya <b>Andi</b>, driver unggulan kamu ⚡ Saya langsung OTW, kamu diprioritaskan ya!</div>';
       document.getElementById('chatModal').classList.add('show');
-      simpanDriver('Andi Prioritas', 'D 9999 PR • ⭐ 5.0', 'https://randomuser.me/api/portraits/men/75.jpg', 3, true);
+      simpanDriver('Andi', 'D 9999 PR • ⭐ 5.0', 'https://randomuser.me/api/portraits/men/75.jpg', 3, true);
       mulaiEta(3);
     }, 2000);
     return;
