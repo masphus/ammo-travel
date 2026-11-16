@@ -6,11 +6,11 @@
 <title>Penumpang - Menunggu Driver</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
-body{background:#f2f2f2;display:flex;justify-content:center}
-.phone{width:100%;max-width:430px;background:#fff;min-height:100vh;padding-bottom:20px;position:relative}
-header{background:#00a651;color:#fff;padding:14px 16px;display:flex;align-items:center;gap:14px}
-header a{color:#fff;font-size:24px;text-decoration:none}
-header b{font-size:22px;color:#fff}
+body{background:#0a0a0a;display:flex;justify-content:center}
+.phone{width:100%;max-width:430px;background:#0a0a0a;min-height:100vh;padding-bottom:20px;position:relative;color:#fff}
+header{background:linear-gradient(135deg,#d4af37 0%,#f5d67b 45%,#b8962e 100%);color:#000;padding:14px 16px;display:flex;align-items:center;gap:14px}
+header a{color:#000;font-size:24px;text-decoration:none;font-weight:800}
+header b{font-size:22px;color:#000}
 .radar-wrap{text-align:center;padding:0;background:#000;overflow:hidden;position:relative}
 .radar{width:100%;height:220px;margin:auto;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000 70%)}
 .radar:before,.radar:after{content:"";position:absolute;border:1px solid rgba(255,215,0,.35);border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}
@@ -26,51 +26,51 @@ header b{font-size:22px;color:#fff}
 @keyframes kedip{0%,100%{opacity:0;transform:scale(0.5)}20%{opacity:1;transform:scale(1.2)}40%{opacity:0.2}60%{opacity:1}}
 .radar-label{position:absolute;bottom:10px;left:0;right:0;text-align:center;color:#FFD700;font-size:12px;letter-spacing:3px;font-weight:bold}
 .driver-sukses{display:none;text-align:center;padding:18px 0 4px}
-.driver-sukses .foto-driver{width:130px;height:130px;margin:auto;border-radius:50%;border:4px solid #00a651;object-fit:cover;background:#eee}
-.driver-sukses .nama{font-size:22px;font-weight:bold;color:#0a3d1f;margin-top:10px}
-.driver-sukses .plat{font-size:15px;color:#555}
-.driver-sukses .eta{font-size:17px;font-weight:bold;color:#00a651;margin-top:6px;background:#E8F5E9;display:inline-block;padding:6px 14px;border-radius:20px}
-.title{text-align:center;font-size:30px;color:#0a3d1f;margin-top:8px}
-.sub{text-align:center;font-size:14px;padding:6px 20px 14px;color:#555}
-.card{margin:0 16px 14px;border:1.5px solid #d9ecd9;border-radius:14px;padding:16px}
-.card h2{color:#0a3d1f;font-size:24px}
-.route{margin:14px 0 0 4px;border-left:2px dashed #ccc;padding-left:22px}
-.route b{font-size:19px;display:block;line-height:1.3}
-.route small{color:#555;font-size:14px}
-.meta{display:flex;gap:14px;border-top:1px solid #eee;padding:12px 0;flex-wrap:wrap}
+.driver-sukses .foto-driver{width:130px;height:130px;margin:auto;border-radius:50%;border:4px solid #f5d67b;object-fit:cover;background:#111;box-shadow:0 0 20px rgba(245,214,123,.35)}
+.driver-sukses .nama{font-size:22px;font-weight:bold;color:#f5d67b;margin-top:10px}
+.driver-sukses .plat{font-size:15px;color:#ccc}
+.driver-sukses .eta{font-size:17px;font-weight:bold;color:#000;margin-top:6px;background:#f5d67b;display:inline-block;padding:6px 14px;border-radius:20px}
+.title{text-align:center;font-size:30px;color:#f5d67b;margin-top:8px}
+.sub{text-align:center;font-size:14px;padding:6px 20px 14px;color:#ccc}
+.card{margin:0 16px 14px;border:1.5px solid #d4af37;border-radius:14px;padding:16px;background:#111}
+.card h2{color:#f5d67b;font-size:24px}
+.route{margin:14px 0 0 4px;border-left:2px dashed #d4af37;padding-left:22px}
+.route b{font-size:19px;display:block;line-height:1.3;color:#fff}
+.route small{color:#d4af37;font-size:14px}
+.meta{display:flex;gap:14px;border-top:1px solid #333;padding:12px 0;flex-wrap:wrap;color:#fff}
 .meta div{font-size:17px}
-.meta b{display:block;font-size:19px}
-.ongkos{background:#a8e6a1;border-radius:8px;padding:12px;font-weight:bold;font-size:20px;color:#0a3d1f}
+.meta b{display:block;font-size:19px;color:#f5d67b}
+.ongkos{background:linear-gradient(135deg,#d4af37,#f5d67b);border-radius:8px;padding:12px;font-weight:bold;font-size:20px;color:#000}
 .ongkos small{display:block;font-size:15px}
-.note{font-size:14px;color:#333;margin-top:10px;line-height:1.4}
+.note{font-size:14px;color:#aaa;margin-top:10px;line-height:1.4}
 .btn-batal{margin:14px 16px 0;background:#e60000;color:#fff;border:0;width:calc(100% - 32px);padding:15px;border-radius:10px;font-weight:bold;font-size:22px;cursor:pointer}
 .btn-prioritas{display:none;margin:0 16px 4px;background:#111;color:#FFD700;border:1px solid #FFD700;width:calc(100% - 32px);padding:14px;border-radius:10px;font-weight:800;font-size:19px;cursor:pointer}
 .btn-prioritas-found{display:none;margin:8px 16px 4px;background:#111;color:#FFD700;border:1px solid #FFD700;width:calc(100% - 32px);padding:14px;border-radius:10px;font-weight:800;font-size:19px;cursor:pointer}
-.prioritas-note{display:none;text-align:center;font-size:13px;color:#555;line-height:1.4;padding:0 24px 14px}
+.prioritas-note{display:none;text-align:center;font-size:13px;color:#aaa;line-height:1.4;padding:0 24px 14px}
 .chat-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;align-items:flex-end;justify-content:center}
 .chat-modal.show{display:flex}
-.chat-box{width:100%;max-width:430px;background:#fff;border-radius:16px 16px 0 0;padding:14px;max-height:85vh;overflow-y:auto}
-.chat-head{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid #eee}
-.chat-bubble{background:#f2f2f2;border-radius:12px;padding:10px 12px;margin:8px 0;font-size:15px;line-height:1.4;max-width:85%}
-.chat-bubble.driver{background:#D9ECD9}
-.chat-bubble.me{background:#00a651;color:#fff;margin-left:auto}
-.chat-bubble.system{background:#FFF3CD;border:1px solid #FFD700;text-align:center;margin:10px auto;font-size:14px;color:#856404;max-width:95%}
+.chat-box{width:100%;max-width:430px;background:#111;border-radius:16px 16px 0 0;padding:14px;max-height:85vh;overflow-y:auto;border-top:2px solid #d4af37}
+.chat-head{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid #333;color:#fff}
+.chat-bubble{background:#222;border-radius:12px;padding:10px 12px;margin:8px 0;font-size:15px;line-height:1.4;max-width:85%;color:#fff}
+.chat-bubble.driver{background:#2a2300;border:1px solid #d4af37;color:#f5d67b}
+.chat-bubble.me{background:#f5d67b;color:#000;margin-left:auto}
+.chat-bubble.system{background:#000;border:1px solid #FFD700;text-align:center;margin:10px auto;font-size:14px;color:#f5d67b;max-width:95%}
 .chat-input{display:flex;gap:8px;margin-top:10px}
-.chat-input input{flex:1;padding:12px;border:1px solid #ddd;border-radius:20px;outline:none;font-size:15px}
-.chat-input button{background:#00a651;color:#fff;border:none;border-radius:50%;width:44px;height:44px;font-size:20px;cursor:pointer}
-.chat-close{display:block;width:100%;margin-top:10px;padding:12px;border:none;border-radius:10px;background:#eee;font-weight:bold;font-size:16px;cursor:pointer}
+.chat-input input{flex:1;padding:12px;border:1px solid #d4af37;border-radius:20px;outline:none;font-size:15px;background:#000;color:#fff}
+.chat-input button{background:#f5d67b;color:#000;border:none;border-radius:50%;width:44px;height:44px;font-size:20px;cursor:pointer;font-weight:800}
+.chat-close{display:block;width:100%;margin-top:10px;padding:12px;border:none;border-radius:10px;background:#222;color:#f5d67b;font-weight:bold;font-size:16px;cursor:pointer}
 .notif-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:120;align-items:flex-end;justify-content:center}
 .notif-modal.show{display:flex}
-.notif-box{width:100%;max-width:430px;background:#fff;border-radius:16px 16px 0 0;padding:20px 16px 16px;text-align:center}
+.notif-box{width:100%;max-width:430px;background:#111;border-radius:16px 16px 0 0;padding:20px 16px 16px;text-align:center;border-top:2px solid #d4af37}
 .notif-box .ikon{font-size:48px;margin-bottom:8px}
-.notif-box h3{font-size:20px;color:#0a3d1f;margin-bottom:8px;line-height:1.3}
-.notif-box p{font-size:15px;color:#555;line-height:1.5;margin-bottom:16px}
+.notif-box h3{font-size:20px;color:#f5d67b;margin-bottom:8px;line-height:1.3}
+.notif-box p{font-size:15px;color:#ccc;line-height:1.5;margin-bottom:16px}
 .notif-btns{display:flex;gap:10px}
 .notif-btns button{flex:1;padding:14px;border-radius:10px;border:none;font-weight:bold;font-size:16px;cursor:pointer}
 .btn-ya-batal{background:#e60000;color:#fff}
-.btn-lanjutkan{background:#00a651;color:#fff}
-.btn-ok-notif{background:#00a651;color:#fff;width:100%;padding:14px;border-radius:10px;border:none;font-weight:bold;font-size:16px;cursor:pointer}
-.spinner{width:36px;height:36px;border:3px solid #eee;border-top:3px solid #e60000;border-radius:50%;margin:0 auto 10px;animation:spin 0.8s linear infinite}
+.btn-lanjutkan{background:#f5d67b;color:#000}
+.btn-ok-notif{background:#f5d67b;color:#000;width:100%;padding:14px;border-radius:10px;border:none;font-weight:bold;font-size:16px;cursor:pointer}
+.spinner{width:36px;height:36px;border:3px solid #333;border-top:3px solid #f5d67b;border-radius:50%;margin:0 auto 10px;animation:spin 0.8s linear infinite}
 </style>
 </head>
 <body>
@@ -108,7 +108,7 @@ header b{font-size:22px;color:#fff}
 <button class="btn-batal" onclick="batalkanPesanan()">Batalkan Pesanan</button>
 </div>
 <div id="chatModal" class="chat-modal"><div class="chat-box">
-<div class="chat-head"><img id="chatFoto" src="https://randomuser.me/api/portraits/men/32.jpg" style="width:44px;height:44px;border-radius:50%;object-fit:cover"><div><b id="chatNama">Budi Santoso</b><br><small id="chatStatus" style="color:#00a651">● Online</small></div></div>
+<div class="chat-head"><img id="chatFoto" src="https://randomuser.me/api/portraits/men/32.jpg" style="width:44px;height:44px;border-radius:50%;object-fit:cover"><div><b id="chatNama">Budi Santoso</b><br><small id="chatStatus" style="color:#f5d67b">● Online</small></div></div>
 <div id="chatIsi">
 <div class="chat-bubble driver">Halo! Saya <b>Budi</b>, driver kamu. Saya sudah OTW ke titik jemput ya 🙏<br><small id="chatRute">Jalan Peta, Pelindung Hewan → Soreang - Ciwidey</small></div>
 </div>
@@ -241,8 +241,8 @@ function tampilkanDriverKetemu(nama, plat, foto, etaMenit, isPrioritas, janganSi
     let b2 = document.getElementById('btnPrioritasFound');
     b2.style.display = 'block';
     b2.textContent = '✅ SUDAH PRIORITAS';
-    b2.style.background = '#00a651';
-    b2.style.color = '#fff';
+    b2.style.background = '#f5d67b';
+    b2.style.color = '#000';
     document.getElementById('prioritasNote').style.display = 'block';
     document.getElementById('prioritasNote').textContent = 'Anda sekarang mendapatkan Pelayanan yang diutamakan';
   } else {
@@ -297,7 +297,7 @@ if(!driverDitemukan){
 function upgradePrioritas(){
   let btn1 = document.getElementById('btnPrioritas');
   let btn2 = document.getElementById('btnPrioritasFound');
-  [btn1, btn2].forEach(b=>{ b.textContent = '✅ SUDAH PRIORITAS'; b.style.background = '#00a651'; b.style.color = '#fff'; });
+  [btn1, btn2].forEach(b=>{ b.textContent = '✅ SUDAH PRIORITAS'; b.style.background = '#f5d67b'; b.style.color = '#000'; });
   document.getElementById('prioritasNote').textContent = 'Anda sekarang mendapatkan Pelayanan yang diutamakan';
   if(driverDitemukan){
     document.getElementById('waitSub').textContent = 'Mengganti ke driver prioritas yang lebih cepat...';
