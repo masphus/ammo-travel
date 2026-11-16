@@ -33,8 +33,6 @@
 </head>
 <body>
 <div class="phone">
-
-  <!-- KALAU BELUM LOGIN -->
   <div id="boxLogin" class="login-card">
     <div class="badge"><span>👑 Ammo Travel</span></div>
     <h3 style="text-align:center;margin-bottom:10px">Masuk / Daftar</h3>
@@ -44,14 +42,10 @@
     <button class="btn-gold" onclick="daftarMasuk()">Daftar / Masuk</button>
     <p style="font-size:12px;color:#999;text-align:center;margin-top:10px">Nomor baru = otomatis daftar<br>Nomor lama = langsung masuk</p>
   </div>
-
-  <!-- KALAU SUDAH LOGIN - SESUAI GAMBAR -->
   <div id="boxAkun" style="display:none">
     <div class="badge"><span>👑 Member Gold</span></div>
-
     <div class="avatar"><img id="fotoProfil" src="https://i.pravatar.cc/200?img=47"></div>
     <div class="joined" id="tampilGabung">Bergabung sejak -</div>
-
     <div class="section">
       <span class="label">Informasi Akun</span>
       <div class="row"><div class="icon">👤</div><div class="left">Nama</div><div class="right" id="tampilNama">-</div><div class="arrow">›</div></div>
@@ -59,37 +53,31 @@
       <div class="row"><div class="icon">🔒</div><div class="left">Password</div><div class="right">•••••••••• <button class="btn-ubah" onclick="ubahPassword()">Ubah</button></div></div>
       <div class="row"><div class="icon">G</div><div class="left">Akun Google</div><div class="right" style="font-size:12px" id="tampilGoogle">- <span style="color:#22c55e">✿ Terverifikasi</span></div></div>
     </div>
-
     <div class="section">
       <span class="label">Layanan</span>
       <div class="row"><div class="icon">📅</div><div class="left">Booking</div><div class="right" id="tampilBooking">0 Booking Aktif</div><div class="arrow">›</div></div>
       <div class="row"><div class="icon">🎟️</div><div class="left">Voucher</div><div class="right" id="tampilVoucher">0 Voucher Tersedia</div><div class="arrow">›</div></div>
       <div class="row"><div class="icon">💳</div><div class="left">Saldo</div><div class="right" id="tampilSaldo">Rp 0</div></div>
     </div>
-
     <button class="btn-gold" onclick="topup()">Top Up Saldo</button>
   </div>
 </div>
-
 <div class="bottom" id="navBawah" style="display:none">
   <a href="index.html"><div>🏠</div>Beranda</a>
   <a href="booking.html"><div>🗓️</div>Booking</a>
   <a href="voucher.html"><div>🎟️</div>Voucher</a>
   <a href="#" onclick="logout()"><div>⏻</div>Keluar</a>
 </div>
-
 <script>
-  const SUPABASE_URL = "https://xxxx.supabase.co";
-  const SUPABASE_KEY = "paste-anon-key-lu-disini";
+  const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
   function formatRupiah(n){ return "Rp " + Number(n||0).toLocaleString('id-ID'); }
   function formatTanggal(t){
     if(!t) return "Bergabung sejak -";
     let d = new Date(t);
     return "Bergabung sejak " + d.toLocaleDateString('id-ID',{month:'short',year:'numeric'});
   }
-
   async function tampilkan(user){
     document.getElementById('boxLogin').style.display='none';
     document.getElementById('boxAkun').style.display='block';
@@ -99,12 +87,9 @@
     document.getElementById('tampilSaldo').innerText = formatRupiah(user.saldo);
     document.getElementById('tampilGabung').innerText = formatTanggal(user.created_at);
     document.getElementById('tampilGoogle').innerHTML = (user.nomor||'') + "@gmail.com <span style='color:#22c55e'>✿ Terverifikasi</span>";
-
-    // Hitung Booking Aktif dari tabel bookings
     let { data: book } = await supabaseClient.from('bookings').select('id').eq('penumpang_id', user.id);
     if(book) document.getElementById('tampilBooking').innerText = book.length + " Booking Aktif";
   }
-
   async function daftarMasuk(){
     const nama = document.getElementById('nama').value.trim();
     const nomor = document.getElementById('nomor').value.trim();
