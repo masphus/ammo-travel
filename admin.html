@@ -50,6 +50,8 @@ table{width:100%;border-collapse:collapse}th{text-align:left;padding:10px;border
 input,select{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#111;color:#fff;width:100%}
 textarea{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#111;color:#fff;width:100%;font-family:inherit}
 #btnMenu{display:none;background:#f5d67b;border:none;padding:8px 12px;border-radius:8px;font-weight:800;cursor:pointer}
+.order-klik{cursor:pointer}
+.order-klik:hover{background:#1a1a1a}
 @media(max-width:900px) and (orientation:portrait){
   .sidebar{display:none}.main{margin-left:0}
   #btnMenu{display:block}
@@ -122,7 +124,7 @@ textarea{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#11
         <div class="map"><img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80"><div id="pins"></div><div class="ctrl"><button>−</button><button>+</button></div></div>
       </div>
     </div>
-    <div class="box"><div class="box-head"><h3>Antrian Belum Terjawab - Perlu Dijawab!</h3></div><div id="dashAntrian">Memuat...</div></div>
+    <div class="box"><div class="box-head"><h3>Antrian Belum Terjawab - Perlu Dijawab! <small style="font-size:12px;color:#aaa;font-weight:400">👆 Klik untuk jawab</small></h3></div><div id="dashAntrian">Memuat...</div></div>
     <div class="box" style="margin-top:15px"><div class="box-head"><h3>Daftar Driver Menunggu Verifikasi</h3></div>
       <table><thead><tr><th>Nama</th><th>Mobil / Plat</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="driverTable"><tr><td colspan="4">Memuat...</td></tr></tbody></table>
     </div>
@@ -167,6 +169,22 @@ document.querySelectorAll('.menu a').forEach(a=>{
   document.getElementById('page-'+a.dataset.page).classList.add('active');
   if(window.innerWidth<=900 && window.matchMedia('(orientation: portrait)').matches) document.querySelector('.sidebar').style.display='none';}
 });
+function pindahKeHalaman(page){
+  document.querySelectorAll('.menu a').forEach(x=>x.classList.remove('active'));
+  const target=document.querySelector('.menu a[data-page="'+page+'"]');
+  if(target) target.classList.add('active');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  if(window.innerWidth<=900 && window.matchMedia('(orientation: portrait)').matches) document.querySelector('.sidebar').style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function bukaAntrianDariDashboard(id){
+  pindahKeHalaman('antrian');
+  setTimeout(()=>{
+    const el=document.getElementById('jawab-'+id);
+    if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.focus(); el.style.border='2px solid #f5d67b'; }
+  },300);
+}
 function rp(n){ return 'Rp ' + (Number(n)||0).toLocaleString('id-ID'); }
 function esc(s){ return String(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
 function todayStr(){ return new Date().toISOString().slice(0,10); }
@@ -238,18 +256,17 @@ async function loadAll(){
       return `<tr><td>${p.nama||'-'}</td><td>${p.no_wa||'-'}</td><td>${jml} booking</td><td><span class="badge">${p.status||'Aktif'}</span></td></tr>`;
     }).join('');
 
-    // ANTRIAN - yg belum terjawab = jawaban null
+    // ANTRIAN - yg belum terjawab = jawaban null - SEKARANG BISA DIKLIK
     const belum = cacheAntrian.filter(a=>!a.jawaban);
     const antNotif = document.getElementById('antrianNotif');
     antNotif.innerText = belum.length; antNotif.style.display = belum.length?'inline':'none';
     const dashAnt = document.getElementById('dashAntrian');
     if(!belum.length) dashAnt.innerHTML='<p style="color:#888">Semua antrian sudah terjawab ✅</p>';
-    else dashAnt.innerHTML = belum.slice(0,3).map(a=>`<div class="order"><div><b>${a.pertanyaan}</b><br><small>${a.waktu||''} • ${a.status}</small></div><span class="badge outline">Belum Jawab</span></div>`).join('');
+    else dashAnt.innerHTML = belum.slice(0,5).map(a=>`<div class="order order-klik" onclick="bukaAntrianDariDashboard('${a.id}')"><div><b>${a.pertanyaan}</b><br><small>${a.waktu||''} • ${a.status}</small></div><span class="badge outline">Belum Jawab ➤</span></div>`).join('');
     const antList = document.getElementById('antrianList');
     if(!cacheAntrian.length) antList.innerHTML='<p style="color:#888">Belum ada antrian.</p>';
     else antList.innerHTML = cacheAntrian.map(a=>`<div class="order" style="align-items:flex-start;flex-direction:column"><div><b>${a.pertanyaan}</b><br><small>${a.waktu||''} • Status: ${a.status}</small></div>${a.jawaban?`<div style="margin-top:8px;color:#f5d67b">Jawaban: ${a.jawaban}</div>`: `<div style="display:flex;gap:8px;width:100%;margin-top:10px;flex-wrap:wrap"><textarea id="jawab-${a.id}" placeholder="Tulis jawaban lu, gaya santai kayak bot lu..." style="flex:1"></textarea><button class="btn btn-terima" onclick="jawabAntrian('${a.id}','${esc(a.pertanyaan)}')">Jawab & Ajari Bot</button></div>`}</div>`).join('');
 
-    // BLACKLIST
     const bl = document.getElementById('blacklistTable');
     const blackData = black.data||[];
     if(!blackData.length) bl.innerHTML='<tr><td colspan="5">Belum ada blacklist. Bagus, berarti belum ada penumpang nakal.</td></tr>';
@@ -287,7 +304,6 @@ async function jawabAntrian(id, pertanyaan){
   if(!jawaban) return alert('Isi jawaban dulu bro');
   const {error}=await sb.from('antrian').update({jawaban:jawaban, status:'terjawab'}).eq('id',id);
   if(error) return alert(error.message);
-  // Masukkan ke bot biar besok auto jawab, cek dulu biar gak duplikat
   const {data:cek}=await sb.from('bot').select('*').eq('kunci',pertanyaan.toLowerCase());
   if(!cek||!cek.length) await sb.from('bot').insert([{kunci:pertanyaan.toLowerCase(), jawaban:jawaban}]);
   alert('✅ Udah kejawab + udah masuk ke Bot!'); loadAll();
@@ -319,7 +335,6 @@ async function hapusBot(kunci){ if(confirm('Hapus data bot ini?')){await sb.from
 async function loadUsers(){
   const {data,error}=await sb.from('chats').select('*').order('created_at',{ascending:false});
   if(error||!data||!data.length){ document.getElementById('userList').innerHTML='<p style="color:#888;padding:12px">Belum ada chat. Chat dari index akan masuk sini.</p>'; document.getElementById('chatNotif').style.display='none'; return; }
-  // FIX ANONIM: penumpang_id NULL dikumpulin jadi 1 grup "Tamu Anonim", bukan dihilangin
   const map=new Map();
   data.forEach(c=>{
     const key=c.penumpang_id||'anon';
@@ -353,7 +368,6 @@ async function bukaChat(penumpangId,nama){
 async function kirimPesan(){
   const input=document.getElementById('chatInput'); const pesan=input.value.trim();
   if(!pesan||!currentUser) return alert('Pilih penumpang dulu & ketik pesan');
-  // Kalau anon, penumpang_id tetap NULL biar nyambung ke chat anonim di index
   const payload = currentUser==='anon' ? {penumpang_id:null, sender:'admin', message:pesan} : {penumpang_id:currentUser, sender:'admin', message:pesan};
   const {error}=await sb.from('chats').insert([payload]);
   if(error) return alert(error.message);
