@@ -3,391 +3,134 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Penumpang - Menunggu Driver</title>
+<title>Pesan Travel - Penumpang</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
-body{background:#0a0a0a;display:flex;justify-content:center}
-.phone{width:100%;max-width:430px;background:#0a0a0a;min-height:100vh;padding-bottom:20px;position:relative;color:#fff}
-header{background:linear-gradient(135deg,#d4af37 0%,#f5d67b 45%,#b8962e 100%);color:#000;padding:14px 16px;display:flex;align-items:center;gap:14px}
-header a{color:#000;font-size:24px;text-decoration:none;font-weight:800}
-header b{font-size:22px;color:#000}
-.radar-wrap{text-align:center;padding:0;background:#000;overflow:hidden;position:relative}
-.radar{width:100%;height:220px;margin:auto;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000 70%)}
-.radar:before,.radar:after{content:"";position:absolute;border:1px solid rgba(255,215,0,.35);border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}
-.radar:before{width:300px;height:300px}
-.radar:after{width:180px;height:180px}
-.radar .lingkar3{position:absolute;width:90px;height:90px;border:1px solid rgba(255,215,0,.35);border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}
-.radar .garis-v{position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,215,0,.15)}
-.radar .garis-h{position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(255,215,0,.15)}
-.radar .sapu{position:absolute;left:50%;top:50%;width:50%;height:2px;background:linear-gradient(90deg, rgba(255,215,0,0) 0%, #FFD700 100%);transform-origin:left center;animation:spin 2.5s linear infinite;box-shadow:0 0 12px #FFD700}
-.radar .sapu-bayang{position:absolute;left:50%;top:50%;width:50%;height:110px;background:conic-gradient(from 0deg, rgba(255,215,0,.25) 0deg, rgba(255,215,0,0) 60deg);transform-origin:left top;animation:spin 2.5s linear infinite;clip-path:polygon(0 0, 100% 0, 0 100%)}
-@keyframes spin{to{transform:rotate(360deg)}}
-.titik{position:absolute;width:7px;height:7px;background:#FFD700;border-radius:50%;box-shadow:0 0 10px #FFD700;animation:kedip 2.5s infinite;opacity:0}
-@keyframes kedip{0%,100%{opacity:0;transform:scale(0.5)}20%{opacity:1;transform:scale(1.2)}40%{opacity:0.2}60%{opacity:1}}
-.radar-label{position:absolute;bottom:10px;left:0;right:0;text-align:center;color:#FFD700;font-size:12px;letter-spacing:3px;font-weight:bold}
-.driver-sukses{display:none;text-align:center;padding:18px 0 4px}
-.driver-sukses .foto-driver{width:130px;height:130px;margin:auto;border-radius:50%;border:4px solid #f5d67b;object-fit:cover;background:#111;box-shadow:0 0 20px rgba(245,214,123,.35)}
-.driver-sukses .nama{font-size:22px;font-weight:bold;color:#f5d67b;margin-top:10px}
-.driver-sukses .plat{font-size:15px;color:#ccc}
-.driver-sukses .eta{font-size:17px;font-weight:bold;color:#000;margin-top:6px;background:#f5d67b;display:inline-block;padding:6px 14px;border-radius:20px}
-.title{text-align:center;font-size:30px;color:#f5d67b;margin-top:8px}
-.sub{text-align:center;font-size:14px;padding:6px 20px 14px;color:#ccc}
-.card{margin:0 16px 14px;border:1.5px solid #d4af37;border-radius:14px;padding:16px;background:#111}
-.card h2{color:#f5d67b;font-size:24px}
-.route{margin:14px 0 0 4px;border-left:2px dashed #d4af37;padding-left:22px}
-.route b{font-size:19px;display:block;line-height:1.3;color:#fff}
-.route small{color:#d4af37;font-size:14px}
-.meta{display:flex;gap:14px;border-top:1px solid #333;padding:12px 0;flex-wrap:wrap;color:#fff}
-.meta div{font-size:17px}
-.meta b{display:block;font-size:19px;color:#f5d67b}
-.ongkos{background:linear-gradient(135deg,#d4af37,#f5d67b);border-radius:8px;padding:12px;font-weight:bold;font-size:20px;color:#000}
-.ongkos small{display:block;font-size:15px}
-.note{font-size:14px;color:#aaa;margin-top:10px;line-height:1.4}
-.btn-batal{margin:14px 16px 0;background:#e60000;color:#fff;border:0;width:calc(100% - 32px);padding:15px;border-radius:10px;font-weight:bold;font-size:22px;cursor:pointer}
-.btn-prioritas{display:none;margin:0 16px 4px;background:#111;color:#FFD700;border:1px solid #FFD700;width:calc(100% - 32px);padding:14px;border-radius:10px;font-weight:800;font-size:19px;cursor:pointer}
-.btn-prioritas-found{display:none;margin:8px 16px 4px;background:#111;color:#FFD700;border:1px solid #FFD700;width:calc(100% - 32px);padding:14px;border-radius:10px;font-weight:800;font-size:19px;cursor:pointer}
-.prioritas-note{display:none;text-align:center;font-size:13px;color:#aaa;line-height:1.4;padding:0 24px 14px}
-.chat-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;align-items:flex-end;justify-content:center}
-.chat-modal.show{display:flex}
-.chat-box{width:100%;max-width:430px;background:#111;border-radius:16px 16px 0 0;padding:14px;max-height:85vh;overflow-y:auto;border-top:2px solid #d4af37}
-.chat-head{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid #333;color:#fff}
-.chat-bubble{background:#222;border-radius:12px;padding:10px 12px;margin:8px 0;font-size:15px;line-height:1.4;max-width:85%;color:#fff}
-.chat-bubble.driver{background:#2a2300;border:1px solid #d4af37;color:#f5d67b}
-.chat-bubble.me{background:#f5d67b;color:#000;margin-left:auto}
-.chat-bubble.system{background:#000;border:1px solid #FFD700;text-align:center;margin:10px auto;font-size:14px;color:#f5d67b;max-width:95%}
-.chat-input{display:flex;gap:8px;margin-top:10px}
-.chat-input input{flex:1;padding:12px;border:1px solid #d4af37;border-radius:20px;outline:none;font-size:15px;background:#000;color:#fff}
-.chat-input button{background:#f5d67b;color:#000;border:none;border-radius:50%;width:44px;height:44px;font-size:20px;cursor:pointer;font-weight:800}
-.chat-close{display:block;width:100%;margin-top:10px;padding:12px;border:none;border-radius:10px;background:#222;color:#f5d67b;font-weight:bold;font-size:16px;cursor:pointer}
-.notif-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:120;align-items:flex-end;justify-content:center}
-.notif-modal.show{display:flex}
-.notif-box{width:100%;max-width:430px;background:#111;border-radius:16px 16px 0 0;padding:20px 16px 16px;text-align:center;border-top:2px solid #d4af37}
-.notif-box .ikon{font-size:48px;margin-bottom:8px}
-.notif-box h3{font-size:20px;color:#f5d67b;margin-bottom:8px;line-height:1.3}
-.notif-box p{font-size:15px;color:#ccc;line-height:1.5;margin-bottom:16px}
-.notif-btns{display:flex;gap:10px}
-.notif-btns button{flex:1;padding:14px;border-radius:10px;border:none;font-weight:bold;font-size:16px;cursor:pointer}
-.btn-ya-batal{background:#e60000;color:#fff}
-.btn-lanjutkan{background:#f5d67b;color:#000}
-.btn-ok-notif{background:#f5d67b;color:#000;width:100%;padding:14px;border-radius:10px;border:none;font-weight:bold;font-size:16px;cursor:pointer}
-.spinner{width:36px;height:36px;border:3px solid #333;border-top:3px solid #f5d67b;border-radius:50%;margin:0 auto 10px;animation:spin 0.8s linear infinite}
+*{box-sizing:border-box;font-family:Arial,sans-serif}
+body{margin:0;background:#0a0a0a;color:#fff;min-height:100vh}
+.header{background:linear-gradient(135deg,#d4af37,#f5d76e);color:#000;padding:20px;text-align:center;font-weight:900;font-size:22px}
+.container{max-width:480px;margin:0 auto;padding:16px}
+.card{background:#1a1a1a;border:1px solid #d4af37;border-radius:16px;padding:16px;margin-bottom:14px}
+label{font-size:13px;color:#d4af37;font-weight:bold}
+input,select{width:100%;padding:12px;margin:6px 0 12px;border-radius:10px;border:1px solid #333;background:#111;color:#fff;font-size:15px}
+button{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#d4af37,#f5d76e);color:#000;font-weight:900;font-size:16px;cursor:pointer}
+.driver{background:#111;border:1px solid #333;border-radius:12px;padding:12px;margin-top:10px}
+.driver b{color:#f5d76e}
+.harga{font-size:22px;font-weight:900;color:#f5d76e;text-align:center;margin:10px 0}
+.small{font-size:12px;color:#aaa;text-align:center}
+.success{background:#0f3d1e;border:1px solid #2ecc71;padding:14px;border-radius:12px;text-align:center;display:none}
 </style>
 </head>
 <body>
-<div class="phone">
-<header><a href="javascript:void(0)" onclick="kembaliKeIndex()">←</a><b>Menunggu Driver</b></header>
-<div class="radar-wrap" id="radarWrap">
-<div class="radar" id="radarEl">
-<div class="garis-v"></div>
-<div class="garis-h"></div>
-<div class="lingkar3"></div>
-<div class="sapu-bayang"></div>
-<div class="sapu"></div>
-<div id="titikWrap"></div>
-<div class="radar-label">● MENCARI DRIVER TERDEKAT...</div>
+<div class="header">🚕 TRAVEL CIANJUR<br><span style="font-size:13px;font-weight:400">Pesan Travel - Penumpang</span></div>
+<div class="container">
+  <div class="card">
+    <label>Nama Penumpang</label>
+    <input id="nama" placeholder="Nama lengkap">
+    <label>No WA</label>
+    <input id="wa" placeholder="08xxxxxxxxxx">
+    <label>Dari Lokasi (Jemput)</label>
+    <input id="dari" placeholder="Cth: Cianjur Kota">
+    <label>Ke Lokasi (Tujuan)</label>
+    <input id="ke" placeholder="Cth: Bandung">
+    <label>Jarak (KM) - isi perkiraan</label>
+    <input id="jarak" type="number" value="30">
+    <label>Jenis Layanan</label>
+    <select id="layanan">
+      <option value="REGULER">REGULER - Rp 3.500 / KM</option>
+      <option value="EXPRESS">EXPRESS - Rp 5.000 / KM</option>
+      <option value="CARTER">CARTER - Rp 7.000 / KM</option>
+    </select>
+    <label>Tanggal Berangkat</label>
+    <input id="tanggal" type="date">
+    <div class="harga" id="hargaText">Total: Rp 0</div>
+    <button onclick="pesan()">PESAN SEKARANG</button>
+    <p class="small" id="statusText">Menghubungkan ke Supabase...</p>
+  </div>
+
+  <div class="card">
+    <b style="color:#d4af37">Driver Aktif</b>
+    <div id="driverList">Memuat driver...</div>
+  </div>
+
+  <div class="success" id="suksesBox">
+    ✅ Order Berhasil Terkirim!<br>
+    <span id="suksesDetail" style="font-size:13px"></span>
+  </div>
 </div>
-</div>
-<div class="driver-sukses" id="driverSukses">
-<img class="foto-driver" id="fotoDriver" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Driver">
-<div class="nama" id="namaDriverSukses">Budi Santoso</div>
-<div class="plat" id="platDriverSukses">D 1234 ABC • ⭐ 4.9</div>
-<div class="eta" id="etaDriver">⏱️ Tiba dalam 8 menit</div>
-</div>
-<div class="title" id="waitTitle">Mencari Driver...</div>
-<p class="sub" id="waitSub">Kami sedang mencari driver terdekat untukmu</p>
-<button class="btn-prioritas" id="btnPrioritas" onclick="upgradePrioritas()">⚡ UPGRADE KE PRIORITAS</button>
-<button class="btn-prioritas-found" id="btnPrioritasFound" onclick="upgradePrioritas()">⚡ UPGRADE KE PRIORITAS</button>
-<p class="prioritas-note" id="prioritasNote">Dengan Upgrade ke Prioritas Anda akan mendapatkan Pelayanan yang diutamakan</p>
-<div class="card">
-<h2>📍 Rute Perjalanan</h2>
-<div class="route"><small>Dari</small><b id="wDari">Memuat...</b><br><br><small>Ke</small><b id="wTujuan">Memuat...</b></div>
-<div class="meta"><div>🅰️ Jarak<b id="wJarak">Menghitung...</b></div><div>🕒 Estimasi<b id="wEstimasi">Menghitung...</b></div></div>
-<div class="ongkos"><small>ONGKOS</small><span id="wOngkos">Menghitung...</span></div>
-<p class="note">ⓘ Biaya Parkir, Tol, dan Penyeberangan akan dibebankan kepada Penumpang bilamana ada</p>
-</div>
-<button class="btn-batal" onclick="batalkanPesanan()">Batalkan Pesanan</button>
-</div>
-<div id="chatModal" class="chat-modal"><div class="chat-box">
-<div class="chat-head"><img id="chatFoto" src="https://randomuser.me/api/portraits/men/32.jpg" style="width:44px;height:44px;border-radius:50%;object-fit:cover"><div><b id="chatNama">Budi Santoso</b><br><small id="chatStatus" style="color:#f5d67b">● Online</small></div></div>
-<div id="chatIsi">
-<div class="chat-bubble driver">Halo! Saya <b>Budi</b>, driver kamu. Saya sudah OTW ke titik jemput ya 🙏<br><small id="chatRute">Jalan Peta, Pelindung Hewan → Soreang - Ciwidey</small></div>
-</div>
-<div class="chat-input"><input id="chatInput" placeholder="Ketik pesan ke driver..."><button onclick="kirimChat()">➤</button></div>
-<button class="chat-close" onclick="tutupChat()">Tutup Chat</button>
-</div></div>
-<div id="modalKembali" class="notif-modal"><div class="notif-box">
-<div class="ikon">⚠️</div>
-<h3>Anda Masih Mempunyai Perjalanan</h3>
-<p id="teksKembali">Driver sudah OTW ke titik jemputmu.<br>Yakin ingin membatalkan perjalanan ini?</p>
-<div class="notif-btns">
-<button class="btn-ya-batal" onclick="konfirmasiKembaliYa()">Ya, Batalkan</button>
-<button class="btn-lanjutkan" onclick="konfirmasiKembaliLanjut()">Lanjutkan Perjalanan</button>
-</div>
-</div></div>
-<div id="modalBatal" class="notif-modal"><div class="notif-box">
-<div class="spinner"></div>
-<h3>Membatalkan Perjalanan...</h3>
-<p id="teksBatal">Mengirim pemberitahuan pembatalan ke driver...<br>Driver akan diberitahu bahwa penumpang membatalkan perjalanan.</p>
-</div></div>
-<div id="modalBatalSukses" class="notif-modal"><div class="notif-box">
-<div class="ikon">✅</div>
-<h3>Perjalanan Dibatalkan</h3>
-<p>Driver sudah diberitahu bahwa kamu membatalkan perjalanan.<br>Terima kasih sudah menggunakan Ammo Travel.</p>
-<button class="btn-ok-notif" onclick="selesaiBatalKeIndex()">OK, Kembali ke Beranda</button>
-</div></div>
+
 <script>
-const TEST_MODE = true;
-const saved = JSON.parse(localStorage.getItem('masphus_order') || 'null');
-const ASAL_NAMA = saved ? saved.asal.nama : 'Jalan Peta, Pelindung Hewan, Kota Bandung, Jawa Barat';
-const TUJUAN_NAMA = saved ? saved.tujuan.nama : 'Jalan Raya Soreang - Ciwidey, Sukajadi, West Java';
-let ASAL_COORD = (saved && saved.asal.lat) ? [saved.asal.lat, saved.asal.lon] : null;
-let TUJUAN_COORD = (saved && saved.tujuan.lat) ? [saved.tujuan.lat, saved.tujuan.lon] : null;
-let driverDitemukan = false;
-let etaInterval = null;
-let etaDetik = 0;
-let namaDriverAktif = 'Budi Santoso';
-let bolehKeluar = false;
-let lagiTampilNotif = false;
-document.getElementById('wDari').textContent = ASAL_NAMA;
-document.getElementById('wTujuan').textContent = TUJUAN_NAMA;
-document.getElementById('chatRute').textContent = ASAL_NAMA + ' → ' + TUJUAN_NAMA;
-function buatTitikRadar(){
-  let wrap = document.getElementById('titikWrap');
-  if(!wrap) return;
-  wrap.innerHTML = '';
-  for(let i=0;i<8;i++){
-    let d = document.createElement('div');
-    d.className = 'titik';
-    let x = 12 + Math.random()*76;
-    let y = 12 + Math.random()*68;
-    d.style.left = x + '%';
-    d.style.top = y + '%';
-    d.style.animationDelay = (Math.random()*3).toFixed(2) + 's';
-    d.style.animationDuration = (1.8 + Math.random()*2.5).toFixed(2) + 's';
-    let warna = ['#FFD700','#FFD700','#FFD700','#FFD700','#00FF88','#FFFFFF'][Math.floor(Math.random()*6)];
-    d.style.background = warna;
-    d.style.boxShadow = '0 0 10px ' + warna;
-    wrap.appendChild(d);
-  }
+const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
+const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
+const HEADERS = {
+  "apikey": SUPABASE_KEY,
+  "Authorization": "Bearer " + SUPABASE_KEY,
+  "Content-Type": "application/json",
+  "Prefer": "return=representation"
+};
+
+function hitung(){
+  const jarak = parseFloat(document.getElementById('jarak').value) || 0;
+  const layanan = document.getElementById('layanan').value;
+  let perKm = 3500;
+  if(layanan==='EXPRESS') perKm=5000;
+  if(layanan==='CARTER') perKm=7000;
+  const total = jarak * perKm;
+  document.getElementById('hargaText').innerText = "Total: Rp " + total.toLocaleString('id-ID');
+  return total;
 }
-buatTitikRadar();
-setInterval(buatTitikRadar, 6000);
-function fmtRp(n){ return 'Rp. ' + Math.round(n).toLocaleString('id-ID'); }
-function fmtJarak(m){ let km=m/1000; return km>=100 ? Math.round(km).toLocaleString('id-ID')+' km' : km.toFixed(1).replace('.',',')+' km'; }
-function fmtEstimasi(detik){ let m=Math.round(detik/60); let h=Math.floor(m/60), hari=Math.floor(h/24); h=h%24; let sisa=m%60; if(hari>0) return hari+' hari '+(h>0?h+' jam':''); if(h>0) return h+' jam '+(sisa>0?sisa+' menit':''); return m+' menit'; }
-async function geocodeAlamat(q){
-  try{ let r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=id&q=${encodeURIComponent(q)}`); let d = await r.json(); if(d.length) return [parseFloat(d[0].lat), parseFloat(d[0].lon)]; }catch(e){}
-  return null;
-}
-async function hitungRute(){
-  if(!ASAL_COORD) ASAL_COORD = await geocodeAlamat(ASAL_NAMA);
-  if(!TUJUAN_COORD) TUJUAN_COORD = await geocodeAlamat(TUJUAN_NAMA);
-  if(!ASAL_COORD || !TUJUAN_COORD){ document.getElementById('wJarak').textContent='-'; return; }
+document.getElementById('jarak').addEventListener('input', hitung);
+document.getElementById('layanan').addEventListener('change', hitung);
+document.getElementById('tanggal').valueAsDate = new Date();
+hitung();
+
+async function loadDriver(){
   try{
-    let url = `https://router.project-osrm.org/route/v1/driving/${ASAL_COORD[1]},${ASAL_COORD[0]};${TUJUAN_COORD[1]},${TUJUAN_COORD[0]}?overview=false`;
-    let r = await fetch(url); let d = await r.json();
-    if(d.routes && d.routes.length){
-      let route = d.routes[0]; let km = route.distance/1000; let ongkos = Math.max(Math.round(km),10) * 5000;
-      document.getElementById('wJarak').textContent = '~ ' + fmtJarak(route.distance);
-      document.getElementById('wEstimasi').textContent = '± ' + fmtEstimasi(route.duration);
-      document.getElementById('wOngkos').textContent = fmtRp(ongkos);
-    }
-  }catch(e){ document.getElementById('wJarak').textContent='Gagal hitung rute'; }
-}
-hitungRute();
-function simpanDriver(nama, plat, foto, etaMenit, isPrioritas){
-  let etaEnd = Date.now() + (etaMenit * 60 * 1000);
-  let orderKey = ASAL_NAMA + '|' + TUJUAN_NAMA;
-  localStorage.setItem('masphus_driver', JSON.stringify({nama:nama, plat:plat, foto:foto, etaEnd:etaEnd, isPrioritas:isPrioritas||false, orderKey:orderKey}));
-}
-function mulaiEtaDariDetik(detikAwal){
-  if(etaInterval) clearInterval(etaInterval);
-  etaDetik = detikAwal;
-  updateEtaText();
-  etaInterval = setInterval(()=>{
-    etaDetik--;
-    if(etaDetik <= 0){
-      clearInterval(etaInterval);
-      document.getElementById('etaDriver').textContent = '✅ Driver sudah sampai di titik jemput!';
-      document.getElementById('waitSub').textContent = 'Driver sudah sampai, silakan naik!';
-      return;
-    }
-    updateEtaText();
-  }, 1000);
-}
-function mulaiEta(menitAwal){ mulaiEtaDariDetik(menitAwal * 60); }
-function updateEtaText(){
-  let m = Math.floor(etaDetik / 60);
-  let d = etaDetik % 60;
-  let teks = '';
-  if(m > 0) teks = '⏱️ Tiba dalam ' + m + ' menit ' + d + ' detik';
-  else teks = '⏱️ Tiba dalam ' + d + ' detik';
-  document.getElementById('etaDriver').textContent = teks;
-}
-function tampilkanDriverKetemu(nama, plat, foto, etaMenit, isPrioritas, janganSimpanLagi, sisaDetik){
-  driverDitemukan = true;
-  namaDriverAktif = nama;
-  document.getElementById('radarWrap').style.display = 'none';
-  document.getElementById('driverSukses').style.display = 'block';
-  document.getElementById('namaDriverSukses').textContent = nama;
-  document.getElementById('platDriverSukses').textContent = plat;
-  document.getElementById('fotoDriver').src = foto;
-  document.getElementById('chatFoto').src = foto;
-  document.getElementById('chatNama').textContent = nama + (isPrioritas ? '' : ' (TEST)');
-  document.getElementById('waitTitle').style.display = 'none';
-  document.getElementById('waitSub').textContent = isPrioritas ? 'Driver prioritas sedang OTW ke titik jemputmu' : 'Driver sedang OTW ke titik jemputmu';
-  document.getElementById('btnPrioritas').style.display = 'none';
-  if(isPrioritas){
-    let b2 = document.getElementById('btnPrioritasFound');
-    b2.style.display = 'block';
-    b2.textContent = '✅ SUDAH PRIORITAS';
-    b2.style.background = '#f5d67b';
-    b2.style.color = '#000';
-    document.getElementById('prioritasNote').style.display = 'block';
-    document.getElementById('prioritasNote').textContent = 'Anda sekarang mendapatkan Pelayanan yang diutamakan';
-  } else {
-    document.getElementById('btnPrioritasFound').style.display = 'none';
-    document.getElementById('prioritasNote').style.display = 'none';
-  }
-  if(!janganSimpanLagi){ simpanDriver(nama, plat, foto, etaMenit, isPrioritas); }
-  if(sisaDetik !== undefined && sisaDetik !== null){ mulaiEtaDariDetik(sisaDetik); } else { mulaiEta(etaMenit); }
-  if(!janganSimpanLagi){
-    setTimeout(()=>{
-      document.getElementById('chatModal').classList.add('show');
-      setTimeout(()=>{
-        if(driverDitemukan && !isPrioritas){
-          document.getElementById('btnPrioritasFound').style.display = 'block';
-          document.getElementById('prioritasNote').style.display = 'block';
-        }
-      }, 10000);
-    }, 500);
-  } else {
-    if(!isPrioritas){
-      document.getElementById('btnPrioritasFound').style.display = 'block';
-      document.getElementById('prioritasNote').style.display = 'block';
-    }
+    const res = await fetch(SUPABASE_URL + "/rest/v1/drivers?status=eq.aktif&select=*", {headers: HEADERS});
+    const data = await res.json();
+    document.getElementById('statusText').innerText = "Terhubung ✅ " + data.length + " driver aktif";
+    if(!data.length){ document.getElementById('driverList').innerHTML = "Belum ada driver aktif"; return; }
+    document.getElementById('driverList').innerHTML = data.map(d=>`
+      <div class="driver"><b>${d.nama}</b> - ${d.jenis_mobil || ''}<br>Plat: ${d.plat_mobil || '-'} | WA: ${d.no_wa || '-'}<br>Status: ${d.status}</div>
+    `).join('');
+  }catch(e){
+    document.getElementById('statusText').innerText = "Gagal konek: " + e.message;
   }
 }
-(function cekDriverTersimpan(){
+loadDriver();
+
+async function pesan(){
+  const nama = document.getElementById('nama').value.trim();
+  const wa = document.getElementById('wa').value.trim();
+  const dari = document.getElementById('dari').value.trim();
+  const ke = document.getElementById('ke').value.trim();
+  const jarak = parseFloat(document.getElementById('jarak').value) || 0;
+  const layanan = document.getElementById('layanan').value;
+  const tanggal = document.getElementById('tanggal').value;
+  const total = hitung();
+  if(!nama || !wa || !dari || !ke){ alert("Isi semua dulu bro!"); return; }
+
+  const payload = {
+    nama_penumpang: nama,
+    no_wa: wa,
+    dari_lokasi: dari,
+    ke_lokasi: ke,
+    jarak_km: jarak,
+    jenis_layanan: layanan,
+    total_harga: total,
+    tanggal_berangkat: tanggal,
+    status: "menunggu",
+    driver_id: null
+  };
+
+  document.getElementById('statusText').innerText = "Mengirim order...";
   try{
-    let d = JSON.parse(localStorage.getItem('masphus_driver') || 'null');
-    if(!d) return;
-    let kunciOrderSekarang = ASAL_NAMA + '|' + TUJUAN_NAMA;
-    if(d.orderKey && d.orderKey !== kunciOrderSekarang){
-      localStorage.removeItem('masphus_driver');
-      return;
-    }
-    let sisa = Math.floor((d.etaEnd - Date.now()) / 1000);
-    if(sisa <= 0){ localStorage.removeItem('masphus_driver'); return; }
-    let etaMenit = Math.ceil(sisa / 60);
-    tampilkanDriverKetemu(d.nama, d.plat, d.foto, etaMenit, d.isPrioritas, true, sisa);
-  }catch(e){}
-})();
-let detikJalan = 0;
-let timerDriver = null;
-if(!driverDitemukan){
-  timerDriver = setInterval(()=>{
-    detikJalan += 5;
-    if(TEST_MODE && detikJalan < 15) return;
-    if(!TEST_MODE) return;
-    clearInterval(timerDriver);
-    tampilkanDriverKetemu('Budi Santoso', 'D 1234 ABC • ⭐ 4.9', 'https://randomuser.me/api/portraits/men/32.jpg', 8, false, false);
-  }, 5000);
-}
-function upgradePrioritas(){
-  let btn1 = document.getElementById('btnPrioritas');
-  let btn2 = document.getElementById('btnPrioritasFound');
-  [btn1, btn2].forEach(b=>{ b.textContent = '✅ SUDAH PRIORITAS'; b.style.background = '#f5d67b'; b.style.color = '#000'; });
-  document.getElementById('prioritasNote').textContent = 'Anda sekarang mendapatkan Pelayanan yang diutamakan';
-  if(driverDitemukan){
-    document.getElementById('waitSub').textContent = 'Mengganti ke driver prioritas yang lebih cepat...';
-    setTimeout(()=>{
-      namaDriverAktif = 'Andi Prioritas';
-      document.getElementById('namaDriverSukses').textContent = 'Andi Prioritas';
-      document.getElementById('platDriverSukses').textContent = 'D 9999 PR • ⭐ 5.0';
-      document.getElementById('fotoDriver').src = 'https://randomuser.me/api/portraits/men/75.jpg';
-      document.getElementById('chatFoto').src = 'https://randomuser.me/api/portraits/men/75.jpg';
-      document.getElementById('chatNama').textContent = 'Andi Prioritas';
-      document.getElementById('waitSub').textContent = 'Driver prioritas sedang OTW ke titik jemputmu';
-      let isi = document.getElementById('chatIsi');
-      isi.innerHTML += '<div class="chat-bubble driver">Halo! Saya <b>Andi Prioritas</b>, driver prioritas kamu ⚡ Saya langsung OTW, kamu diprioritaskan ya!</div>';
-      document.getElementById('chatModal').classList.add('show');
-      simpanDriver('Andi Prioritas', 'D 9999 PR • ⭐ 5.0', 'https://randomuser.me/api/portraits/men/75.jpg', 3, true);
-      mulaiEta(3);
-    }, 2000);
-    return;
-  }
-}
-function tutupChat(){ document.getElementById('chatModal').classList.remove('show'); }
-function kirimChat(){
-  let inp = document.getElementById('chatInput');
-  let teks = inp.value.trim();
-  if(!teks) return;
-  let isi = document.getElementById('chatIsi');
-  isi.innerHTML += '<div class="chat-bubble me">' + teks + '</div>';
-  inp.value = '';
-  setTimeout(()=>{ isi.innerHTML += '<div class="chat-bubble driver">Siap, saya sudah OTW ya, ditunggu di titik jemput 🙏</div>'; }, 1500);
-}
-document.getElementById('chatInput').addEventListener('keypress', function(e){ if(e.key==='Enter') kirimChat(); });
-function kirimNotifKeDriver(pesan){
-  let isi = document.getElementById('chatIsi');
-  if(isi){ isi.innerHTML += '<div class="chat-bubble system">📢 ' + pesan + '</div>'; }
-  console.log('[NOTIF KE DRIVER - ' + namaDriverAktif + ']: ' + pesan);
-}
-function tampilkanNotifKembali(){
-  if(driverDitemukan){ document.getElementById('teksKembali').innerHTML = 'Driver <b>' + namaDriverAktif + '</b> sudah OTW ke titik jemputmu.<br>Yakin ingin membatalkan perjalanan ini?'; }
-  else { document.getElementById('teksKembali').innerHTML = 'Kami masih mencari driver untukmu.<br>Yakin ingin membatalkan perjalanan ini?'; }
-  document.getElementById('modalKembali').classList.add('show');
-}
-function kunciBack(){
-  history.pushState({page:'penumpang-lock'}, '', location.href);
-  history.pushState({page:'penumpang-lock'}, '', location.href);
-  history.pushState({page:'penumpang-lock'}, '', location.href);
-}
-kunciBack();
-window.addEventListener('popstate', function(e){
-  if(bolehKeluar) return;
-  kunciBack();
-  if(lagiTampilNotif) return;
-  lagiTampilNotif = true;
-  tampilkanNotifKembali();
-});
-function kembaliKeIndex(){
-  if(!saved && !driverDitemukan){ bersihkanDanKembali(); return; }
-  tampilkanNotifKembali();
-}
-function konfirmasiKembaliLanjut(){
-  document.getElementById('modalKembali').classList.remove('show');
-  lagiTampilNotif = false;
-  setTimeout(kunciBack, 50);
-}
-function konfirmasiKembaliYa(){
-  document.getElementById('modalKembali').classList.remove('show');
-  lagiTampilNotif = false;
-  jalankanPembatalan();
-}
-function batalkanPesanan(){ jalankanPembatalan(); }
-function jalankanPembatalan(){
-  document.getElementById('modalBatal').classList.add('show');
-  if(driverDitemukan){ kirimNotifKeDriver('Penumpang membatalkan perjalanan ke ' + TUJUAN_NAMA + '. Maaf ya, perjalanan dibatalkan oleh penumpang.'); }
-  else { kirimNotifKeDriver('Penumpang membatalkan pencarian driver ke ' + TUJUAN_NAMA + '.'); }
-  setTimeout(()=>{
-    document.getElementById('modalBatal').classList.remove('show');
-    document.getElementById('modalBatalSukses').classList.add('show');
-  }, 2000);
-}
-function selesaiBatalKeIndex(){
-  document.getElementById('modalBatalSukses').classList.remove('show');
-  bersihkanDanKembali();
-}
-function bersihkanDanKembali(){
-  bolehKeluar = true;
-  localStorage.removeItem('masphus_order');
-  localStorage.removeItem('masphus_driver');
-  sessionStorage.setItem('ammo_clear', '1');
-  sessionStorage.setItem('ammo_must_clear_dest', '1');
-  sessionStorage.removeItem('ammo_from_index');
-  window.location.href = 'index.html';
+    const res = await fetch(SUPABASE_URL + "/rest/v1/bookings", {method:"POST", headers: HEADERS, body: JSON.stringify(payload)});
+    const data = await res.json();
+    if(!res.ok){ alert("Gagal: " + JSON.stringify(data)); return; }
+    document.getElementById('suksesBox').style.display = "block";
+    document.getElementById('suksesDetail').innerText = `Order ${nama} ${dari} -> ${ke} Rp ${total.toLocaleString('id-ID')} - Status: menunggu`;
+    document.getElementById('statusText').innerText = "Order masuk ✅ ID: " + (data[0]?.id || '-');
+  }catch(e){ alert("Error: " + e.message); }
 }
 </script>
 </body>
