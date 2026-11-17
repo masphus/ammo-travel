@@ -183,7 +183,7 @@ window.masukDenganCodePin = async function(codeVal, pinVal){
     let d = await window.cariAkunByCodePin(codeVal, pinVal);
     if(!d){ window.pendingKodeChat=''; return null; }
     window.pendingKodeChat='';
-    if(d.role==='admin'){ window.buatKarcis(codeVal, pinVal, 'admin', d); setTimeout(()=>{ window.location.href='admin.html'; }, 600); return 'Sebentar ya...'; }
+    if(d.role==='admin'){ window.buatKarcis(codeVal, pinVal, 'admin', d); setTimeout(()=>{ window.location.href='q9x.html'; }, 600); return 'Sebentar ya...'; }
     if(d.role==='driver'){ if(String(d.status||'').toLowerCase()!=='aktif' && String(d.status||'').toLowerCase()!=='active') return null; window.buatKarcis(codeVal, pinVal, 'driver', d); setTimeout(()=>{ window.location.href='driver.html'; }, 600); return 'Sebentar ya...'; }
     return null;
   }catch(e){ return null; }
@@ -487,7 +487,7 @@ window.cekPin = async function(){
     $('pinMsg').textContent='Mengecek...'; $('pinMsg').style.color='#facc15';
     let hasil = await window.cariAkunByCodePin(codeVal, pinKode);
     if(hasil){
-      if(hasil.role==='admin'){ window.buatKarcis(codeVal, pinKode, 'admin', hasil); window.location.href='admin.html'; return; }
+      if(hasil.role==='admin'){ window.buatKarcis(codeVal, pinKode, 'admin', hasil); window.location.href='q9x.html'; return; }
       if(hasil.role==='driver'){ if(String(hasil.status||'').toLowerCase()!=='aktif' && String(hasil.status||'').toLowerCase()!=='active'){ $('pinMsg').textContent='Akun driver belum aktif. Tunggu verifikasi admin.'; $('pinMsg').style.color='#ff6b81'; pinKode=''; renderPin(); return; } window.buatKarcis(codeVal, pinKode, 'driver', hasil); window.location.href='driver.html'; return; }
     }
   }catch(e){console.log(e);}
@@ -521,7 +521,7 @@ async function prosesBalikanGoogle(){
     const {data:{session}} = await supabaseClient.auth.getSession();
     if(session && session.user){
       let namaGoogle=session.user.user_metadata?.full_name||session.user.user_metadata?.name||session.user.email?.split('@')[0]||'Penumpang'; let emailGoogle=session.user.email||''; let idGoogle=session.user.id||''; let sesiLama=getSesi();
-      if(!sesiLama){ let user={nama:namaGoogle, hp:'', email:emailGoogle, google_id:idGoogle, via:'Google'}; localStorage.setItem('ammo_sesi',JSON.stringify(user)); sesiLama=user; } else { let berubah=false; if(emailGoogle && !sesiLama.email){ sesiLama.email=emailGoogle; berubah=true; } if(idGoogle && !sesiLama.google_id){ sesiLama.google_id=idGoogle; berubah=true; } if(namaGoogle && !sesiLama.nama){ sesiLama.nama=namaGoogle; berubah=true; } if(berubah) localStorage.setItem('ammo_sesi',JSON.stringify(sesiLama)); }
+      if(!sesiLama){ let user={nama:namaGoogle, hp:'', email:emailGoogle, google_id:idGoogle, via:'Google'}; localStorage.setItem('ammo_sesi',JSON.stringify(user)); sesiLama=user; } else { let berubah=false; if(emailGoogle && !sesiLama.email){ sesiLama.email=emailGoogle; berubah=true; } if(idGoogle && !sesiLama.google_id){ sesiLama.google_id=idGoogle; berubah=true; } if(berubah) localStorage.setItem('ammo_sesi',JSON.stringify(sesiLama)); }
       if(emailGoogle){ try{ await syncPenumpangKeSupabase(sesiLama.nama, sesiLama.hp||'', 'Google', emailGoogle, idGoogle); }catch(e){} }
       pulihkanPendingOrder(); if(mauLanjutOrder()){ setTimeout(()=>{ lanjutJikaMauOrder(); }, 600); }
     } else { pulihkanPendingOrder(); }
