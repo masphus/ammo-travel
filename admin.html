@@ -149,10 +149,10 @@ textarea{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#11
     </div>
   </div>
   <div id="page-penumpang" class="page"><div class="box"><h3>👤 Data Penumpang - REAL dari tabel penumpang</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Total order dihitung dari tabel <b>bookings</b> pake <b>penumpang_id</b>.</p><table><thead><tr><th>Nama</th><th>No WA</th><th>Total Booking</th><th>Status</th></tr></thead><tbody id="penumpangTable"></tbody></table></div></div>
-  <div id="page-driver" class="page"><div class="box"><h3>🧑‍✈️ Semua Driver - REAL dari tabel drivers</h3><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="inNamaDrv" placeholder="Nama Driver"><input id="inWaDrv" placeholder="No WA"><input id="inPlatDrv" placeholder="Plat - contoh: F 1234 AB"><input id="inJenisDrv" placeholder="Jenis Mobil - Avanza"><button class="btn btn-terima" onclick="tambahDriver()">+ Tambah Driver</button></div><table><thead><tr><th>Nama</th><th>Mobil / Plat</th><th>Kode / PIN</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="driverTable2"></tbody></table></div></div>
-  <div id="page-order" class="page"><div class="box"><h3>📋 Riwayat Order - REAL dari tabel bookings</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Ini cuma buat liat riwayat order penumpang. Order masuk otomatis dari penumpang, bukan dibikin dari sini.</p><div id="allOrderList">Memuat...</div></div></div>
+  <div id="page-driver" class="page"><div class="box"><h3>🧑‍✈️ Semua Driver - REAL dari tabel drivers</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Code + PIN driver langsung nyambung ke database. Isi sendiri boleh, kalau kosong nanti dibikinin otomatis.</p><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="inNamaDrv" placeholder="Nama Driver"><input id="inWaDrv" placeholder="No WA"><input id="inPlatDrv" placeholder="Plat - contoh: F 1234 AB"><input id="inJenisDrv" placeholder="Jenis Mobil - Avanza"><input id="inKodeDrv" placeholder="Code driver - contoh: budi (boleh kosong)"><input id="inPinDrv" placeholder="PIN driver 4-6 angka (boleh kosong)" inputmode="numeric"><button class="btn btn-terima" onclick="tambahDriver()">+ Tambah Driver</button></div><table><thead><tr><th>Nama</th><th>Mobil / Plat</th><th>Kode / PIN</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="driverTable2"></tbody></table></div></div>
+  <div id="page-order" class="page"><div class="box"><h3>📋 Riwayat Order - REAL dari tabel bookings</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Ini cuma buat liat riwayat order penumpang. Order masuk otomatis dari penumpang, bukan dibikin dari sini. Jadi nggak bakal dobel gara-gara ke-pencet.</p><div id="allOrderList">Memuat...</div></div></div>
   <div id="page-penghasilan" class="page"><div class="box"><h3>💰 Penghasilan - REAL dari tabel payments</h3><p style="margin:12px 0;font-size:20px">Hari ini: <b id="penghasilanHariIni">Rp 0</b></p><p style="color:#ccc;font-size:13px">Dihitung dari <b>payments.nominal</b> yang statusnya lunas / paid / sukses hari ini. Fee admin <b>7%</b> dari tabel tarif, bukan dari frontend.</p><div id="penghasilanList" style="margin-top:12px"></div><div style="margin-top:16px"><h3>💰 Tarif Aktif - REAL dari tabel tarif</h3><div id="tarifList"></div></div></div></div>
-  <div id="page-antrian" class="page"><div class="box"><h3>🔥 Antrian - Pertanyaan yang Bot Gak Tau</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Kalau user nanya yang bot gak tau, masuk kesini. Jawab disini, jawaban otomatis masuk ke tabel <b>bot</b> juga, biar besok bot bisa jawab sendiri.</p><div id="antrianList">Memuat...</div></div></div>
+  <div id="page-antrian" class="page"><div class="box"><h3>🔥 Antrian - Pertanyaan yang Bot Gak Tau</h3><p style="color:#ccc;font-size:13px;margin:8px 0">1 pertanyaan = 1 antrian. Kalau ada yang nanya sama, digabung jadi 1, nggak dibikin baru terus. <button class="btn btn-tolak" onclick="bersihinAntrianDobel()" style="margin-left:6px">🧹 Bersihin Antrian Dobel</button></p><div id="antrianList">Memuat...</div></div></div>
   <div id="page-chat" class="page">
     <div class="box"><h3>💬 Chat Penumpang + Ajari Bot</h3><p style="color:#ccc;font-size:13px;margin-top:5px">REAL dari tabel <b>chats</b>. Chat anonim dipisah per sesi, bukan dicampur jadi 1 grup. Centang "Simpan ke Bot" aktif, jawaban kamu masuk tabel <b>bot</b> juga.</p></div>
     <div class="chat-wrap" style="margin-top:15px">
@@ -166,7 +166,7 @@ textarea{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#11
   </div>
   <div id="page-bot" class="page"><div class="box"><h3>🤖 Data Bot - REAL dari tabel bot</h3><p style="color:#ccc;font-size:13px">Kalau ada jawaban bot yang salah, pencet <b>Edit</b> buat benerin hurufnya, nggak usah hapus + ketik ulang.</p><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="newKunci" placeholder="Kunci / Pertanyaan"><input id="newJawaban" placeholder="Jawaban Bot"><button class="btn btn-terima" onclick="tambahBot()">+ Tambah / Simpan</button></div><table><thead><tr><th>Kunci</th><th>Jawaban</th><th>Aksi</th></tr></thead><tbody id="botTable"></tbody></table></div></div>
   <div id="page-blacklist" class="page"><div class="box"><h3>🚫 Blacklist - Otomatis</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Ini keisi otomatis kalau ada yang nyoba masuk admin tanpa kunci / Google-nya beda / karcisnya palsu. Nggak usah dimasukin manual. Kalau salah masuk, tinggal pencet Hapus.</p><table><thead><tr><th>No WA / Email</th><th>Alasan</th><th>Jumlah Cancel</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="blacklistTable"></tbody></table></div></div>
-  <div id="page-pengaturan" class="page"><div class="box"><h3>⚙️ Pengaturan</h3><p style="color:#ccc;margin:10px 0">Nama Admin</p><input id="namaAdmin"><p style="color:#ccc;margin:10px 0">Code Admin (kunci masuk, contoh: admin)</p><input id="settingKode" placeholder="Code admin"><p style="color:#ccc;margin:10px 0">PIN Admin (4-6 angka)</p><input id="settingPin" placeholder="PIN admin" inputmode="numeric"><p style="color:#888;font-size:12px;margin:6px 0">Ganti Code / PIN di sini, langsung keubah di database. Inget-inget yang baru ya, kalau lupa lu nggak bisa masuk lagi.</p><p style="color:#ccc;margin:10px 0">Email Google Admin (yang boleh masuk, harus sama kayak Google lu)</p><input id="settingEmail" placeholder="Email Google admin"><p style="color:#ccc;margin:10px 0">Tarif Aktif (dari tabel tarif)</p><div id="tarifSetting"></div><br><button class="btn btn-terima" onclick="simpanPengaturan()">💾 Simpan Pengaturan</button><p style="color:#888;font-size:12px;margin-top:14px">Supabase: https://xxtgmohxdztesiubfxap.supabase.co • Status: <span id="statusSupabase" style="color:#25D366">Menghubungkan...</span> • Fee: 7%</p></div></div>
+  <div id="page-pengaturan" class="page"><div class="box"><h3>⚙️ Pengaturan</h3><p style="color:#ccc;margin:10px 0">Nama Admin</p><input id="namaAdmin"><p style="color:#ccc;margin:10px 0">Code Admin (kunci masuk, contoh: admin) - nyambung ke database</p><input id="settingKode" placeholder="Code admin"><p style="color:#ccc;margin:10px 0">PIN Admin (4-6 angka) - nyambung ke database</p><input id="settingPin" placeholder="PIN admin" inputmode="numeric"><p style="color:#ccc;margin:10px 0">Email Google Admin (yang boleh masuk, harus sama kayak Google lu)</p><input id="settingEmail" placeholder="Email Google admin"><p style="color:#888;font-size:12px;margin:6px 0">Ganti Code / PIN / Email di sini, langsung keubah di database. Inget-inget yang baru ya, kalau lupa lu nggak bisa masuk lagi.</p><p style="color:#ccc;margin:10px 0">Tarif Aktif (dari tabel tarif)</p><div id="tarifSetting"></div><br><button class="btn btn-terima" onclick="simpanPengaturan()">💾 Simpan Pengaturan</button><p style="color:#888;font-size:12px;margin-top:14px">Supabase: https://xxtgmohxdztesiubfxap.supabase.co • Status: <span id="statusSupabase" style="color:#25D366">Menghubungkan...</span> • Fee: 7%</p></div></div>
 </div>
 <div id="googleGate" class="google-gate"><div class="google-card"><div style="font-size:44px">🔐</div><h2>Verifikasi Google Dulu, Bro</h2><p id="googleGateMsg">Code + PIN lu bener, udah dianter sampe depan pintu. Sekarang tunjukin KTP Google lu. Harus sama kayak email admin yang ada di database, kalau beda lu ditendang + dicatet.</p><p id="googleGateInfo" style="color:#f5d67b;font-weight:700"></p><button class="gbtn" onclick="loginGoogleAdmin()"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G"> Lanjut dengan Google</button><button class="gback" onclick="batalGoogle()">← Batal, Balik ke Depan</button><p style="color:#888;font-size:12px;margin-top:12px">Salah 3x pake Google orang lain = email Google itu dikunci, nggak bakal nemu lagi halaman admin.</p></div></div>
 <div class="popup-bg" id="popupBg" onclick="if(event.target===this) tutupPopup()">
@@ -191,10 +191,21 @@ let cacheBookings=[], cacheDrivers=[], cachePenumpang=[], cachePayments=[], cach
 let sedangNgetik=false, draftAntrian={}, draftChat="", pendingDeleteFn=null;
 let mapObj=null, mapCircle=null, mapAdminMarker=null, mapDriverLayer=null, adminLat=-6.9175, adminLng=107.6191;
 let googleSudahDicek=false;
-function lemparKeIndex(){
-  try{ localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); }catch(e){}
-  window.location.replace(INDEX_URL);
+let lastOrderBuat=0;
+function simpanHalaman(page){ try{ sessionStorage.setItem('ammo_admin_page', page); localStorage.setItem('ammo_admin_page', page); }catch(e){} }
+function ambilHalaman(){ try{ return sessionStorage.getItem('ammo_admin_page') || localStorage.getItem('ammo_admin_page') || 'dashboard'; }catch(e){ return 'dashboard'; } }
+function tampilkanHalaman(page){
+  const p = page || 'dashboard';
+  document.querySelectorAll('.menu a').forEach(x=>x.classList.remove('active'));
+  const target=document.querySelector('.menu a[data-page="'+p+'"]');
+  if(target) target.classList.add('active');
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  const el=document.getElementById('page-'+p);
+  if(el) el.classList.add('active'); else document.getElementById('page-dashboard').classList.add('active');
+  simpanHalaman(p);
+  window.scrollTo({top:0,behavior:'smooth'});
 }
+function lemparKeIndex(){ try{ localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); }catch(e){} window.location.replace(INDEX_URL); }
 function rp(n){ return 'Rp ' + (Number(n)||0).toLocaleString('id-ID'); }
 function esc(s){ return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function escAttr(s){ return esc(s).replace(/\n/g,' '); }
@@ -212,21 +223,17 @@ function showToast(judul,isi){ try{ showPopup(judul, isi, '✅', [{text:'Oke',cl
 function mintaPinHapus(msg, fn){ pendingDeleteFn = fn; document.getElementById('pinInput').value=''; document.getElementById('pinBg').classList.add('show'); setTimeout(()=>document.getElementById('pinInput').focus(),100); }
 function closePinModal(){ document.getElementById('pinBg').classList.remove('show'); pendingDeleteFn=null; }
 async function confirmPinDelete(){ const pin = document.getElementById('pinInput').value.trim(); if(!pin) return alert('Isi PIN dulu'); const {data} = await sb.from('admin').select('pin').eq('email', (currentAdmin?.email||'').toLowerCase()).single(); const pinBenar = data?.pin ? String(data.pin) : adminPinCache; if(String(pin) !== String(pinBenar)){ alert('PIN salah. Hapus dibatalkan.'); return; } closePinModal(); if(pendingDeleteFn){ const fn=pendingDeleteFn; pendingDeleteFn=null; await fn(); } }
-document.querySelectorAll('.menu a').forEach(a=>{ a.onclick=()=>{document.querySelectorAll('.menu a').forEach(x=>x.classList.remove('active'));a.classList.add('active'); document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page-'+a.dataset.page).classList.add('active'); if(window.innerWidth<=900 && window.matchMedia('(orientation: portrait)').matches) document.querySelector('.sidebar').style.display='none';} });
-function pindahKeHalaman(page){ document.querySelectorAll('.menu a').forEach(x=>x.classList.remove('active')); const target=document.querySelector('.menu a[data-page="'+page+'"]'); if(target) target.classList.add('active'); document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page-'+page).classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
+document.querySelectorAll('.menu a').forEach(a=>{ a.onclick=()=>{ tampilkanHalaman(a.dataset.page); if(window.innerWidth<=900 && window.matchMedia('(orientation: portrait)').matches) document.querySelector('.sidebar').style.display='none'; } });
+function pindahKeHalaman(page){ tampilkanHalaman(page); }
 function bukaAntrianDariDashboard(id){ pindahKeHalaman('antrian'); setTimeout(()=>{ const el=document.getElementById('jawab-'+id); if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.focus(); el.style.border='2px solid #f5d67b'; } },300); }
 async function doLogout(){
-  try{ localStorage.setItem('ammo_admin_logout_time', String(Date.now())); sessionStorage.setItem('ammo_admin_logout_time', String(Date.now())); localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); localStorage.removeItem('ammo_role'); localStorage.removeItem('ammo_admin_email'); localStorage.removeItem('ammo_admin_nama'); localStorage.removeItem('ammo_driver_token'); localStorage.removeItem('ammo_admin_google_ok'); }catch(e){}
+  try{ localStorage.setItem('ammo_admin_logout_time', String(Date.now())); sessionStorage.setItem('ammo_admin_logout_time', String(Date.now())); localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); localStorage.removeItem('ammo_role'); localStorage.removeItem('ammo_admin_email'); localStorage.removeItem('ammo_admin_nama'); localStorage.removeItem('ammo_driver_token'); localStorage.removeItem('ammo_admin_google_ok'); localStorage.removeItem('ammo_admin_page'); sessionStorage.removeItem('ammo_admin_page'); }catch(e){}
   try{ await sb.auth.signOut(); }catch(e){}
   currentAdmin=null; googleSudahDicek=false;
   try{ document.getElementById('googleGate').classList.remove('show'); }catch(e){}
   lemparKeIndex();
 }
-function batalGoogle(){
-  try{ localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); }catch(e){}
-  try{ sb.auth.signOut(); }catch(e){}
-  window.location.replace(INDEX_URL);
-}
+function batalGoogle(){ try{ localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); }catch(e){} try{ sb.auth.signOut(); }catch(e){} window.location.replace(INDEX_URL); }
 async function ambilIP(){ try{ const r=await fetch('https://api.ipify.org?format=json'); const j=await r.json(); return j.ip||'IP-tidak-kedetek'; }catch(e){ return 'IP-tidak-kedetek'; } }
 async function catetMaling(kodeInfo, ip, jenis){ try{ await sb.from('blacklist').insert([{ no_wa: ip, alasan: '🚨 '+jenis+' - '+kodeInfo+' | IP: '+ip, jumlah_cancel: 1, status: 'blacklist' }]); }catch(e){ console.log('Gagal catet maling:', e.message); } }
 async function catetGoogleSalah(emailGoogle, emailBenar, codeVal){
@@ -243,17 +250,11 @@ async function tendangGoogleSalah(emailGoogle, emailBenar, codeVal){
   const hitung = await catetGoogleSalah(emailGoogle, emailBenar, codeVal);
   try{ await sb.auth.signOut(); }catch(e){}
   try{ localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); localStorage.removeItem('ammo_admin_google_ok'); }catch(e){}
-  if(hitung>=3){
-    try{ localStorage.setItem('ammo_google_blocked_'+String(emailGoogle).toLowerCase(), '1'); }catch(e){}
-    alert('Google lu beda 3x! Email '+emailGoogle+' udah dikunci. Nggak bakal nemu lagi halaman admin.');
-  } else {
-    alert('Google lu beda! Yang bener: '+emailBenar+' | Lu pake: '+emailGoogle+' | Salah ke-'+hitung+'/3. Kalau sampai 3x, email Google lu dikunci.');
-  }
+  if(hitung>=3){ try{ localStorage.setItem('ammo_google_blocked_'+String(emailGoogle).toLowerCase(), '1'); }catch(e){} alert('Google lu beda 3x! Email '+emailGoogle+' udah dikunci. Nggak bakal nemu lagi halaman admin.'); }
+  else { alert('Google lu beda! Yang bener: '+emailBenar+' | Lu pake: '+emailGoogle+' | Salah ke-'+hitung+'/3. Kalau sampai 3x, email Google lu dikunci.'); }
   lemparKeIndex();
 }
-async function loginGoogleAdmin(){
-  try{ await sb.auth.signInWithOAuth({provider:'google', options:{redirectTo: window.location.href}}); }catch(e){ alert('Gagal buka Google: '+e.message); }
-}
+async function loginGoogleAdmin(){ try{ await sb.auth.signInWithOAuth({provider:'google', options:{redirectTo: window.location.href}}); }catch(e){ alert('Gagal buka Google: '+e.message); } }
 async function verifikasiGoogle(adm){
   const emailBenar = String(adm.email||'').toLowerCase().trim();
   if(!emailBenar){
@@ -263,6 +264,7 @@ async function verifikasiGoogle(adm){
     try{ var _sk=document.getElementById('settingKode'); if(_sk) _sk.value = adm.code||adm.kode||''; }catch(e){}
     try{ var _sp=document.getElementById('settingPin'); if(_sp) _sp.value = String(adm.pin||''); }catch(e){}
     try{ var _se=document.getElementById('settingEmail'); if(_se) _se.value = adm.email||''; }catch(e){}
+    tampilkanHalaman(ambilHalaman());
     initMap(); loadAll(); return;
   }
   let sess=null;
@@ -280,10 +282,7 @@ async function verifikasiGoogle(adm){
     try{ await sb.auth.signOut(); }catch(e){}
     lemparKeIndex(); return;
   }
-  if(emailGoogle !== emailBenar){
-    await tendangGoogleSalah(emailGoogle, emailBenar, adm.code||adm.kode||'admin');
-    return;
-  }
+  if(emailGoogle !== emailBenar){ await tendangGoogleSalah(emailGoogle, emailBenar, adm.code||adm.kode||'admin'); return; }
   try{ localStorage.setItem('ammo_admin_google_ok', emailGoogle); }catch(e){}
   try{ localStorage.removeItem('ammo_admin_logout_time'); sessionStorage.removeItem('ammo_admin_logout_time'); }catch(e){}
   document.getElementById('googleGate').classList.remove('show');
@@ -295,6 +294,7 @@ async function verifikasiGoogle(adm){
   try{ var _sp2=document.getElementById('settingPin'); if(_sp2) _sp2.value = String(adm.pin||''); }catch(e){}
   try{ var _se2=document.getElementById('settingEmail'); if(_se2) _se2.value = adm.email||''; }catch(e){}
   googleSudahDicek=true;
+  tampilkanHalaman(ambilHalaman());
   initMap(); loadAll();
 }
 async function cekSesi(){
@@ -324,8 +324,9 @@ async function cekSesi(){
   let adm = null;
   try{ const r = await sb.rpc('cek_pin_login', { p_code: codeVal, p_pin: pinVal }); if(r && !r.error && r.data && r.data.length) adm = r.data[0]; }catch(e){}
   if(!adm){ try{ const a = await sb.from('admin').select('*').ilike('code', codeVal).eq('pin', pinVal).maybeSingle(); if(a && a.data) adm = a.data; }catch(e){} }
-  if(!adm){ try{ const a2 = await sb.from('admin').select('*').ilike('code', codeVal).maybeSingle(); if(a2 && a2.data && String(a2.data.pin)===String(pinVal)) adm = a2.data; }catch(e){} }
-  if(!adm){ try{ const a3 = await sb.from('admin').select('*').eq('pin', pinVal).maybeSingle(); if(a3 && a3.data) adm = a3.data; }catch(e){} }
+  if(!adm){ try{ const a2 = await sb.from('admin').select('*').ilike('kode', codeVal).eq('pin', pinVal).maybeSingle(); if(a2 && a2.data) adm = a2.data; }catch(e){} }
+  if(!adm){ try{ const a3 = await sb.from('admin').select('*').ilike('code', codeVal).maybeSingle(); if(a3 && a3.data && String(a3.data.pin)===String(pinVal)) adm = a3.data; }catch(e){} }
+  if(!adm){ try{ const a4 = await sb.from('admin').select('*').eq('pin', pinVal).maybeSingle(); if(a4 && a4.data) adm = a4.data; }catch(e){} }
   if(!adm || String(adm.role||'admin').toLowerCase() !== 'admin'){
     const ip = await ambilIP();
     await catetMaling('Code+PIN di karcis salah / bukan admin. Code: '+codeVal+' PIN: '+pinVal, ip, 'MALING KARCIS PALSU');
@@ -338,13 +339,36 @@ async function cekSesi(){
 function initMap(){ if(mapObj) return; mapObj = L.map('mapReal', {zoomControl:false, attributionControl:false}).setView([adminLat, adminLng], 8); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19}).addTo(mapObj); mapCircle = L.circle([adminLat, adminLng], {radius:150000, color:'#f5d67b', fillColor:'#f5d67b', fillOpacity:0.12, weight:2}).addTo(mapObj); mapAdminMarker = L.marker([adminLat, adminLng]).addTo(mapObj).bindPopup('Posisi Admin (GPS)'); mapDriverLayer = L.layerGroup().addTo(mapObj); if(navigator.geolocation){ navigator.geolocation.getCurrentPosition(pos=>{ adminLat = pos.coords.latitude; adminLng = pos.coords.longitude; mapObj.setView([adminLat, adminLng], 8); mapCircle.setLatLng([adminLat, adminLng]); mapAdminMarker.setLatLng([adminLat, adminLng]); updateDriverPins(); }, ()=>{}, {enableHighAccuracy:true, timeout:8000}); } }
 function mapZoom(d){ if(!mapObj) return; mapObj.setZoom(mapObj.getZoom()+d); }
 function updateDriverPins(){ if(!mapObj || !mapDriverLayer) return; mapDriverLayer.clearLayers(); const withGps = cacheDrivers.filter(d=>d.lat && d.lng); withGps.forEach(d=>{ const m = L.marker([Number(d.lat), Number(d.lng)]).bindPopup(`<b>${esc(d.nama||'Driver')}</b><br>${esc(d.jenis_mobil||'')} • ${esc(d.plat_mobil||'')}<br>Status: ${esc(d.status||'')}`); mapDriverLayer.addLayer(m); }); }
+function gabungAntrianDobel(list){
+  const map = new Map();
+  (list||[]).forEach(a=>{
+    const k = String(a.pertanyaan||'').toLowerCase().trim();
+    if(!k) return;
+    if(!map.has(k)) map.set(k, a);
+    else { const lama = map.get(k); if(Number(a.id||0) > Number(lama.id||0)) map.set(k, a); }
+  });
+  return [...map.values()].sort((a,b)=> Number(b.id||0)-Number(a.id||0));
+}
+async function bersihinAntrianDobel(){
+  try{
+    const unik = gabungAntrianDobel(cacheAntrian);
+    const idUnik = new Set(unik.map(a=>String(a.id)));
+    const dobel = cacheAntrian.filter(a=>!idUnik.has(String(a.id)));
+    if(!dobel.length) return showSukses('Udah bersih, nggak ada antrian dobel.');
+    mintaPinHapus('Hapus '+dobel.length+' antrian dobel?', async ()=>{
+      for(const d of dobel){ try{ await sb.from('antrian').delete().eq('id', d.id); }catch(e){} }
+      loadAll(); showSukses(dobel.length+' antrian dobel udah dibersihin. Sekarang 1 pertanyaan = 1 antrian.');
+    });
+  }catch(e){ showError(e.message); }
+}
 async function loadAll(){
   if(!currentAdmin) return;
   simpanDraftSebelumRefresh();
   try{
-    const [pen, drv, book, pay, tarif, ant, black] = await Promise.all([ sb.from('penumpang').select('*').order('created_at',{ascending:false}).limit(50), sb.from('drivers').select('id,nama,no_wa,jenis_mobil,plat_mobil,status,lat,lng,created_at,kode,pin,code').order('created_at',{ascending:false}).limit(50), sb.from('bookings').select('*').order('created_at',{ascending:false}).limit(50), sb.from('payments').select('*').order('created_at',{ascending:false}).limit(50), sb.from('tarif').select('*').order('id',{ascending:true}).limit(50), sb.from('antrian').select('*').order('id',{ascending:false}).limit(50), sb.from('blacklist').select('*').order('created_at',{ascending:false}).limit(50) ]);
+    const [pen, drv, book, pay, tarif, ant, black] = await Promise.all([ sb.from('penumpang').select('*').order('created_at',{ascending:false}).limit(50), sb.from('drivers').select('id,nama,no_wa,jenis_mobil,plat_mobil,status,lat,lng,created_at,kode,code,pin').order('created_at',{ascending:false}).limit(50), sb.from('bookings').select('*').order('created_at',{ascending:false}).limit(50), sb.from('payments').select('*').order('created_at',{ascending:false}).limit(50), sb.from('tarif').select('*').order('id',{ascending:true}).limit(50), sb.from('antrian').select('*').order('id',{ascending:false}).limit(50), sb.from('blacklist').select('*').order('created_at',{ascending:false}).limit(50) ]);
     if(pen.error) throw pen.error; if(drv.error) throw drv.error; if(book.error) throw book.error; if(pay.error) throw pay.error;
-    cachePenumpang = pen.data||[]; cacheDrivers = drv.data||[]; cacheBookings = book.data||[]; cachePayments = pay.data||[]; cacheTarif = tarif.data||[]; cacheAntrian = ant.data||[];
+    cachePenumpang = pen.data||[]; cacheDrivers = drv.data||[]; cacheBookings = book.data||[];
+    cachePayments = pay.data||[]; cacheTarif = tarif.data||[]; cacheAntrian = gabungAntrianDobel(ant.data||[]);
     document.getElementById('statusSupabase').innerText='Terhubung ✅ - REAL';
     document.getElementById('statusSupabase').style.color='#25D366';
     document.getElementById('statPenumpang').innerText = cachePenumpang.length.toLocaleString('id-ID');
@@ -400,13 +424,51 @@ async function loadAll(){
   }catch(e){ document.getElementById('statusSupabase').innerText='GAGAL: '+e.message; document.getElementById('statusSupabase').style.color='#ff6b6b'; console.error(e); }
   loadBot(); loadUsers(); kembalikanDraft();
 }
-async function tambahDriver(){ const nama=document.getElementById('inNamaDrv').value.trim(), no_wa=document.getElementById('inWaDrv').value.trim(), plat_mobil=document.getElementById('inPlatDrv').value.trim(), jenis_mobil=document.getElementById('inJenisDrv').value.trim(); if(!nama) return showPopup('Belum Lengkap 😅','Isi nama driver dulu ya bro.','📝',[{text:'Oke, Isi Dulu',cls:'btn-terima',close:true}]); const kode = '#driver' + Date.now().toString().slice(-4); const pin = String(Math.floor(100000 + Math.random()*900000)); const {error}=await sb.from('drivers').insert([{nama,no_wa,plat_mobil,jenis_mobil,kode,pin,status:'menunggu'}]); if(error) return showError(error.message); document.getElementById('inNamaDrv').value='';document.getElementById('inWaDrv').value='';document.getElementById('inPlatDrv').value='';document.getElementById('inJenisDrv').value=''; loadAll(); showSukses('Driver ditambah. Kode & PIN tersimpan di database, bisa dilihat di tabel.'); }
+async function tambahDriver(){
+  const nama=document.getElementById('inNamaDrv').value.trim(), no_wa=document.getElementById('inWaDrv').value.trim(), plat_mobil=document.getElementById('inPlatDrv').value.trim(), jenis_mobil=document.getElementById('inJenisDrv').value.trim();
+  let kode = (document.getElementById('inKodeDrv') ? document.getElementById('inKodeDrv').value.trim() : '').replace(/^[#@]+/,'').toLowerCase();
+  let pin = (document.getElementById('inPinDrv') ? document.getElementById('inPinDrv').value.trim() : '');
+  if(!nama) return showPopup('Belum Lengkap 😅','Isi nama driver dulu ya bro.','📝',[{text:'Oke, Isi Dulu',cls:'btn-terima',close:true}]);
+  if(!kode) kode = 'driver' + Date.now().toString().slice(-4);
+  if(!pin) pin = String(Math.floor(100000 + Math.random()*900000));
+  if(pin.length<4) return showPopup('PIN Pendek 😅','PIN driver minimal 4 angka ya.','📝',[{text:'Oke',cls:'btn-terima',close:true}]);
+  try{
+    const cek = await sb.from('drivers').select('id').or('kode.eq.'+kode+',code.eq.'+kode).maybeSingle();
+    if(cek && cek.data) return showPopup('Code Udah Dipake 😅','Code '+kode+' udah dipake driver lain. Ganti code lain ya.','📝',[{text:'Oke',cls:'btn-terima',close:true}]);
+  }catch(e){}
+  const payload = {nama,no_wa,plat_mobil,jenis_mobil,kode:kode,code:kode,pin:pin,status:'menunggu'};
+  const {error}=await sb.from('drivers').insert([payload]);
+  if(error){
+    const {error:error2}=await sb.from('drivers').insert([{nama,no_wa,plat_mobil,jenis_mobil,kode:kode,pin:pin,status:'menunggu'}]);
+    if(error2) return showError(error2.message + ' - Cek kolom kode/code/pin di tabel drivers, harus ada.');
+  }
+  document.getElementById('inNamaDrv').value='';document.getElementById('inWaDrv').value='';document.getElementById('inPlatDrv').value='';document.getElementById('inJenisDrv').value='';
+  try{ document.getElementById('inKodeDrv').value=''; document.getElementById('inPinDrv').value=''; }catch(e){}
+  loadAll(); showSukses('Driver ditambah. Code: '+kode+' | PIN: '+pin+' - Udah nyambung ke database, bisa dilihat di tabel.');
+}
 async function verifikasiDriver(id,status){ const {error}=await sb.from('drivers').update({status}).eq('id',id); if(error) return showError(error.message); loadAll(); showSukses('Driver '+status); }
 async function hapusDriver(id){ mintaPinHapus('Hapus driver ini?', async ()=>{ await sb.from('drivers').delete().eq('id',id); loadAll(); showSukses('Driver udah dihapus.'); }); }
 async function selesaiOrder(id){ const {error}=await sb.from('bookings').update({status:'selesai'}).eq('id',id); if(error) return showError(error.message); loadAll(); showSukses('Order udah selesai.'); }
 async function hapusOrder(id){ mintaPinHapus('Hapus booking ini?', async ()=>{ await sb.from('bookings').delete().eq('id',id); loadAll(); showSukses('Booking udah dihapus.'); }); }
-async function jawabAntrian(id, pertanyaan){ const el=document.getElementById('jawab-'+id); const jawaban=el.value.trim(); if(!jawaban) return showPopup('Jawaban Kosong 😅','Isi jawaban dulu bro, baru klik Jawab.','✍️',[{text:'Oke',cls:'btn-terima',close:true}]); const {error}=await sb.from('antrian').update({jawaban:jawaban, status:'terjawab'}).eq('id',id); if(error) return showError(error.message); const {data:cek}=await sb.from('bot').select('*').eq('kunci',pertanyaan.toLowerCase()); if(!cek||!cek.length) await sb.from('bot').insert([{kunci:pertanyaan.toLowerCase(), jawaban:jawaban}]); delete draftAntrian['jawab-'+id]; showSukses('Udah kejawab + udah masuk ke Bot! Besok bot bisa jawab sendiri.'); loadAll(); }
-async function hapusAntrian(id, pertanyaan){ const item = cacheAntrian.find(a=>String(a.id)===String(id)); const sudahJawab = item && item.jawaban; if(!sudahJawab){ mintaPinHapus('Hapus antrian ini?', async ()=>{ const {error}=await sb.from('antrian').delete().eq('id',id); if(error) return showError(error.message); delete draftAntrian['jawab-'+id]; loadAll(); showSukses('Antrian udah dihapus, database jadi rapi ✅'); }); return; } showPopup('Hapus Antrian Ini?','"'+(pertanyaan||'')+'"\n\nJawaban ini udah ke-copy ke Bot. Mau hapus yang mana bro?\n\n• Hapus Antrian Aja = Bot tetep bisa jawab (kalau jawaban udah bener)\n• Hapus Antrian + Bot = Bot gak akan jawab ngawur lagi (kalau jawaban lu ternyata SALAH)','🗑️',[ {text:'Batal',cls:'btn-tolak',close:true}, {text:'Hapus Antrian Aja',cls:'btn-tolak',close:true,onClick: async ()=>{ mintaPinHapus('Hapus antrian aja?', async ()=>{ const {error}=await sb.from('antrian').delete().eq('id',id); if(error) return showError(error.message); loadAll(); showSukses('Antriannya aja yang kehapus. Bot-nya tetep aman, masih bisa jawab.'); }); }}, {text:'🗑️ Hapus Antrian + Bot',cls:'btn-terima',close:true,onClick: async ()=>{ mintaPinHapus('Hapus antrian + bot?', async ()=>{ const {error}=await sb.from('antrian').delete().eq('id',id); if(error) return showError(error.message); await sb.from('bot').delete().eq('kunci', pertanyaan.toLowerCase()); loadAll(); loadBot(); showSukses('Udah kehapus semua! Antrian + Bot-nya udah ilang. Bot gak akan jawab ngawur lagi ✅'); }); }} ]); }
+async function jawabAntrian(id, pertanyaan){
+  const el=document.getElementById('jawab-'+id); const jawaban=el.value.trim();
+  if(!jawaban) return showPopup('Jawaban Kosong 😅','Isi jawaban dulu bro, baru klik Jawab.','✍️',[{text:'Oke',cls:'btn-terima',close:true}]);
+  const {error}=await sb.from('antrian').update({jawaban:jawaban, status:'terjawab'}).eq('id',id);
+  if(error) return showError(error.message);
+  const {data:cek}=await sb.from('bot').select('*').eq('kunci',pertanyaan.toLowerCase());
+  if(!cek||!cek.length) await sb.from('bot').insert([{kunci:pertanyaan.toLowerCase(), jawaban:jawaban}]);
+  delete draftAntrian['jawab-'+id];
+  showSukses('Udah kejawab + udah masuk ke Bot! Besok bot bisa jawab sendiri.'); loadAll();
+}
+async function hapusAntrian(id, pertanyaan){
+  const item = cacheAntrian.find(a=>String(a.id)===String(id));
+  const sudahJawab = item && item.jawaban;
+  if(!sudahJawab){
+    mintaPinHapus('Hapus antrian ini?', async ()=>{ const {error}=await sb.from('antrian').delete().eq('id',id); if(error) return showError(error.message); delete draftAntrian['jawab-'+id]; loadAll(); showSukses('Antrian udah dihapus, database jadi rapi ✅'); });
+    return;
+  }
+  showPopup('Hapus Antrian Ini?','"'+(pertanyaan||'')+'"\n\nJawaban ini udah ke-copy ke Bot. Mau hapus yang mana bro?\n\n• Hapus Antrian Aja = Bot tetep bisa jawab (kalau jawaban udah bener)\n• Hapus Antrian + Bot = Bot gak akan jawab ngawur lagi (kalau jawaban lu ternyata SALAH)','🗑️',[ {text:'Batal',cls:'btn-tolak',close:true}, {text:'Hapus Antrian Aja',cls:'btn-tolak',close:true,onClick: async ()=>{ mintaPinHapus('Hapus antrian aja?', async ()=>{ const {error}=await sb.from('antrian').delete().eq('id',id); if(error) return showError(error.message); loadAll(); showSukses('Antriannya aja yang kehapus. Bot-nya tetep aman, masih bisa jawab.'); }); }}, {text:'🗑️ Hapus Antrian + Bot',cls:'btn-terima',close:true,onClick: async ()=>{ mintaPinHapus('Hapus antrian + bot?', async ()=>{ const {error}=await sb.from('antrian').delete().eq('id',id); if(error) return showError(error.message); await sb.from('bot').delete().eq('kunci', pertanyaan.toLowerCase()); loadAll(); loadBot(); showSukses('Udah kehapus semua! Antrian + Bot-nya udah ilang. Bot gak akan jawab ngawur lagi ✅'); }); }} ]);
+}
 async function hapusBlacklist(id){ mintaPinHapus('Hapus dari blacklist?', async ()=>{ await sb.from('blacklist').delete().eq('id',id); loadAll(); showSukses('Udah dihapus dari blacklist.'); }); }
 async function loadBot(){ const {data,error}=await sb.from('bot').select('*').order('kunci',{ascending:true}).limit(50); if(error){ document.getElementById('botTable').innerHTML='<tr><td colspan="3">Error: '+esc(error.message)+'</td></tr>'; return; } if(!data.length){ document.getElementById('botTable').innerHTML='<tr><td colspan="3">Belum ada data bot.</td></tr>'; return; } document.getElementById('botTable').innerHTML=data.map(b=>`<tr><td>${esc(b.kunci)}</td><td>${esc(b.jawaban)}</td><td><button class="btn btn-terima" onclick="editBot('${escAttr(b.kunci)}','${escAttr(b.jawaban)}')">✏️ Edit</button> <button class="btn btn-tolak" onclick="hapusBot('${escAttr(b.kunci)}')">Hapus</button></td></tr>`).join(''); }
 async function tambahBot(){ const kunci=document.getElementById('newKunci').value.trim(), jawaban=document.getElementById('newJawaban').value.trim(); if(!kunci||!jawaban) return showPopup('Belum Lengkap 😅','Isi kunci & jawaban dulu ya bro.','🤖',[{text:'Oke',cls:'btn-terima',close:true}]); const k=kunci.toLowerCase(); const {data:cek}=await sb.from('bot').select('*').eq('kunci',k); let error=null; if(cek && cek.length){ const r=await sb.from('bot').update({jawaban}).eq('kunci',k); error=r.error; } else { const r=await sb.from('bot').insert([{kunci:k,jawaban}]); error=r.error; } if(error) return showError(error.message); document.getElementById('newKunci').value='';document.getElementById('newJawaban').value='';loadBot(); showSukses('Bot berhasil diajarin / diedit.'); }
@@ -422,7 +484,7 @@ async function simpanPengaturan(){
     if(!kode) return showPopup('Belum Lengkap 😅','Isi Code admin dulu ya.','📝',[{text:'Oke',cls:'btn-terima',close:true}]);
     if(!pin || pin.length<4) return showPopup('PIN Pendek 😅','PIN minimal 4 angka ya.','📝',[{text:'Oke',cls:'btn-terima',close:true}]);
     if(!emailBaru || !emailBaru.includes('@')) return showPopup('Email Kosong 😅','Isi email Google admin yang boleh masuk ya, harus sama kayak Google lu.','📝',[{text:'Oke',cls:'btn-terima',close:true}]);
-    let upd={nama:nama, pin:pin, code:kode, email:emailBaru};
+    let upd={nama:nama, pin:pin, code:kode, kode:kode, email:emailBaru};
     let r=await sb.from('admin').update(upd).eq('id', currentAdmin.id);
     if(r.error){
       let r2=await sb.from('admin').update({nama:nama, pin:pin, email:emailBaru}).eq('id', currentAdmin.id);
@@ -430,7 +492,7 @@ async function simpanPengaturan(){
       showSukses('Nama + PIN + Email udah kesimpan. Code belum kesimpan karena kolom code belum ada di tabel admin.');
       return;
     }
-    currentAdmin.nama=nama; currentAdmin.code=kode; currentAdmin.pin=pin; currentAdmin.email=emailBaru; adminPinCache=String(pin);
+    currentAdmin.nama=nama; currentAdmin.code=kode; currentAdmin.kode=kode; currentAdmin.pin=pin; currentAdmin.email=emailBaru; adminPinCache=String(pin);
     document.getElementById('adminNameLabel').textContent = nama + ' - Super Admin';
     document.getElementById('adminTopLabel').textContent = nama + ' ▽';
     showSukses('Pengaturan udah kesimpan! Nama, Code, PIN, Email Google baru udah aktif. Besok masuk harus pake Google yang baru itu ya.');
