@@ -143,6 +143,7 @@ window.pendingKodeChat = '';
 window.getChatSessionId = function(){ let s = localStorage.getItem('ammo_chat_session'); if(!s){ s='anon-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8); localStorage.setItem('ammo_chat_session',s); } return s; };
 window.simpanChat = async function(sender,pesan){ try{ if(!window.supabaseClient) return; let pid=localStorage.getItem('ammo_supabase_penumpang_id')||null; let payload={sender:sender,message:pesan,session_id:window.getChatSessionId()}; if(pid) payload.penumpang_id=pid; await supabaseClient.from('chats').insert([payload]); }catch(e){} };
 // BOT BIKIN KARCIS - 1 fungsi, dipake chat + PIN, biar nggak beda-beda
+// INDEX = OJEK, CUMA NGANTAR. Code+PIN bener langsung anter ke admin/driver, nangkep malingnya di admin.
 window.buatKarcis = function(codeVal, pinVal, role, dataAkun){
   try{
     var tok = String(codeVal||'').toLowerCase().trim() + '|' + String(pinVal||'').trim() + '|' + (Date.now()+2*60*60*1000);
@@ -230,9 +231,6 @@ window.botReply = async function(pesan){
       return 'Supabase belum ke-load, cek koneksi internet / CDN supabase.';
     }
     if(q.includes('ongkos')||q.includes('harga')||q.includes('tarif')||q.includes('berapa')) return 'Ongkos kita hitung per km bro. 1-4 orang Rp 5.000/km, 5-7 orang Rp 6.500/km, minimal 10 km. Tinggal isi Dari & Tujuan di atas, pilih dari saran / peta, harga langsung muncul.';
-    if(q.includes('halo')||q.includes('hai')||q.includes('selamat')) return 'Halo! Selamat datang di Ammo Travel 🙏 Mau diantar ke mana hari ini?';
-    if(q.includes('wa')||q.includes('admin')) return 'Klik tombol WA Admin di bawah, nomor Admin 0858-9061-1111. Admin online ya.';
-    return 'Siap, kami bantu. Coba ceritain mau ke mana? Atau isi Dari & Tujuan di atas, pilih dari saran, harga langsung muncul.';
   }catch(e){ return 'Bot error: ' + e.message; }
 };
 window.openChat = function(){ try{ var m=document.getElementById('chatModal'); if(m){ m.classList.add('show'); m.style.display='flex'; } var pv=document.getElementById('pinView'); if(pv) pv.style.display='none'; var cv=document.getElementById('chatView'); if(cv) cv.style.display='block'; }catch(e){} };
@@ -266,19 +264,30 @@ window.kirimChat = function(){
     try{ inp.focus(); }catch(e){}
   }catch(e){ alert('kirimChat error: '+e.message); }
 };
+// FIX-REFRESH-BERSIH: Refresh harus NOL, jangan ada hantu _pendingBackup
 window._pendingBackup = null;
-try{ window._pendingBackup = localStorage.getItem('ammo_pending_order'); }catch(e){}
-window.bersihkanTujuan = function(){
+window.resetIndexBersih = function(){
   try{
-    var d = document.getElementById('dest');
-    if(d){ d.value=''; d.removeAttribute('value'); }
-    try{ localStorage.removeItem('masphus_order'); }catch(e){}
+    localStorage.removeItem('ammo_pending_order');
+    localStorage.removeItem('masphus_order');
+    localStorage.removeItem('ammo_mau_order');
+    window._pendingBackup = null;
+    try{ var lastGps = JSON.parse(localStorage.getItem('ammo_last_gps')||'null'); if(lastGps && lastGps.waktu && (Date.now() - lastGps.waktu > 10*60*1000)){ localStorage.removeItem('ammo_last_gps'); } }catch(e){}
+    try{ destCoord = null; }catch(e){}
+    try{ pickupCoord = null; }catch(e){}
+    try{ jumlahOrang = 6; }catch(e){}
+    var d = document.getElementById('dest'); if(d){ d.value=''; d.removeAttribute('value'); d.setAttribute('autocomplete','off'); }
+    var p = document.getElementById('pickup'); if(p){ p.value=''; }
     var s = document.getElementById('saranDest'); if(s) s.style.display='none';
+    var s2 = document.getElementById('saranPick'); if(s2) s2.style.display='none';
     var o = document.getElementById('ongkosPreview'); if(o) o.style.display='none';
+    try{ sembunyikanHarga(); }catch(e){}
+    try{ updateSwap(); }catch(e){}
   }catch(e){}
 };
-window.addEventListener('load', function(){ setTimeout(window.bersihkanTujuan, 100); setTimeout(window.bersihkanTujuan, 400); setTimeout(window.bersihkanTujuan, 1000); });
-window.addEventListener('pageshow', function(){ setTimeout(window.bersihkanTujuan, 100); setTimeout(window.bersihkanTujuan, 400); });
+window.bersihkanTujuan = window.resetIndexBersih;
+window.addEventListener('load', function(){ setTimeout(function(){ if(!mauLanjutOrder()) window.resetIndexBersih(); }, 100); });
+window.addEventListener('pageshow', function(){ setTimeout(function(){ if(!mauLanjutOrder()) window.resetIndexBersih(); }, 100); });
 </script>
 </head>
 <body>
@@ -292,7 +301,7 @@ window.addEventListener('pageshow', function(){ setTimeout(window.bersihkanTujua
 <div id="saranPick" class="saran-box"></div>
 <div class="swap-wrap"><button id="swapBtn" class="swap-btn" onclick="swapLokasi()" disabled title="Tukar Penjemputan & Tujuan">⇅</button></div>
 <div class="lbl">Tujuan</div>
-<div class="row"><input id="dest" placeholder="Ketik / Pilih Tujuan..." autocomplete="off" value="" name="tujuan_baru_xyz"><button class="btn-map" onclick="openMap('dest')">📍 Peta</button></div>
+<div class="row"><input id="dest" placeholder="Ketik / Pilih Tujuan..." autocomplete="new-password" value="" name="tujuan_baru_xyz_2" readonly onfocus="this.removeAttribute('readonly')"><button class="btn-map" onclick="openMap('dest')">📍 Peta</button></div>
 <div id="saranDest" class="saran-box"></div>
 <div class="lbl">Berapa Orang</div>
 <div class="orang-wrap">
@@ -439,8 +448,8 @@ function getDB(){try{return JSON.parse(localStorage.getItem('ammo_penumpang_db')
 function saveDB(db){localStorage.setItem('ammo_penumpang_db',JSON.stringify(db));}
 function getSesi(){try{let s=JSON.parse(localStorage.getItem('ammo_sesi')||'null');if(s&&(s.nama||s.hp||s.email))return s;return null;}catch(e){return null;}}
 function sudahLogin(s){ s = s || getSesi(); if(!s) return false; return !!(s.email || s.hp || s.google_email); }
-function simpanPendingOrder(){ localStorage.setItem('ammo_pending_order', JSON.stringify({ asal:$('pickup').value.trim(), tujuan:$('dest').value.trim(), asalCoord: pickupCoord, tujuanCoord: destCoord, jumlahOrang: jumlahOrang, tanggal: $('tanggalBerangkat')?$('tanggalBerangkat').value:'', jam: $('jamBerangkat')?$('jamBerangkat').value:'09:00', mauOrder: true, waktu: Date.now() })); try{ window._pendingBackup = localStorage.getItem('ammo_pending_order'); }catch(e){} }
-function pulihkanPendingOrder(){ try{ let raw = window._pendingBackup || localStorage.getItem('ammo_pending_order'); if(!raw) return null; let p=JSON.parse(raw); if(!p) return null; if(p.asal) $('pickup').value=p.asal; if(p.tujuan) $('dest').value=p.tujuan; if(p.asalCoord) pickupCoord=p.asalCoord; if(p.tujuanCoord) destCoord=p.tujuanCoord; if(p.jumlahOrang){ jumlahOrang=p.jumlahOrang; document.querySelectorAll('.orang-btn').forEach(x=>{ x.classList.toggle('aktif', parseInt(x.dataset.orang)===jumlahOrang); }); } if(p.tanggal && $('tanggalBerangkat')) $('tanggalBerangkat').value=p.tanggal; if(p.jam && $('jamBerangkat')) $('jamBerangkat').value=p.jam; updateSwap(); jadwalPreview(true); return p; }catch(e){ return null; } }
+function simpanPendingOrder(){ localStorage.setItem('ammo_pending_order', JSON.stringify({ asal:$('pickup').value.trim(), tujuan:$('dest').value.trim(), asalCoord: pickupCoord, tujuanCoord: destCoord, jumlahOrang: jumlahOrang, tanggal: $('tanggalBerangkat')?$('tanggalBerangkat').value:'', jam: $('jamBerangkat')?$('jamBerangkat').value:'09:00', mauOrder: true, waktu: Date.now() })); }
+function pulihkanPendingOrder(){ try{ if(!mauLanjutOrder()) return null; let raw = localStorage.getItem('ammo_pending_order'); if(!raw) return null; let p=JSON.parse(raw); if(!p) return null; if(p.waktu && (Date.now() - p.waktu > 30*60*1000)){ localStorage.removeItem('ammo_pending_order'); return null; } if(p.asal) $('pickup').value=p.asal; if(p.tujuan) $('dest').value=p.tujuan; if(p.asalCoord) pickupCoord=p.asalCoord; if(p.tujuanCoord) destCoord=p.tujuanCoord; if(p.jumlahOrang){ jumlahOrang=p.jumlahOrang; document.querySelectorAll('.orang-btn').forEach(x=>{ x.classList.toggle('aktif', parseInt(x.dataset.orang)===jumlahOrang); }); } if(p.tanggal && $('tanggalBerangkat')) $('tanggalBerangkat').value=p.tanggal; if(p.jam && $('jamBerangkat')) $('jamBerangkat').value=p.jam; updateSwap(); jadwalPreview(true); return p; }catch(e){ return null; } }
 function mauLanjutOrder(){ return localStorage.getItem('ammo_mau_order')==='1'; }
 function setMauOrder(v){ if(v) localStorage.setItem('ammo_mau_order','1'); else localStorage.removeItem('ammo_mau_order'); }
 function lanjutJikaMauOrder(){ if(!mauLanjutOrder()) return false; if(!$('pickup').value.trim() || !$('dest').value.trim() || !pickupCoord || !destCoord) return false; setMauOrder(false); localStorage.removeItem('ammo_pending_order'); simpanOrderDanLanjut(); return true; }
@@ -455,13 +464,13 @@ function togglePass(){let p=$('loginPass');p.type=p.type==='password'?'text':'pa
 async function loginWA(){ let hp=$('loginWA').value.trim(); if(!hp){showToast('WA Kosong','Isi No. WA dulu',true);return;} try{ if(window.supabaseClient){ let cek=await supabaseClient.from('penumpang').select('*').eq('no_wa',hp).maybeSingle(); if(cek.data){ let user={nama:cek.data.nama,hp:cek.data.no_wa,via:'WA',email:cek.data.google_email||'',google_id:cek.data.google_id||''}; localStorage.setItem('ammo_sesi',JSON.stringify(user)); localStorage.setItem('ammo_supabase_penumpang_id',cek.data.id); localStorage.setItem('ammo_last_hp',hp); tutupAkun(); if(!lanjutJikaMauOrder()){ showToast('Berhasil','Selamat datang, '+user.nama); } return; } } }catch(e){} let db=getDB();let user=db.find(u=>u.hp===hp); if(user){ localStorage.setItem('ammo_sesi',JSON.stringify(user)); localStorage.setItem('ammo_last_hp',hp); tutupAkun(); if(!lanjutJikaMauOrder()){ showToast('Berhasil','Selamat datang, '+user.nama); } } else{$('daftarModal').classList.add('show');$('namaDaftar').value='';$('hpDaftar').value=hp;} }
 function tanyaLogout(){try{$('logoutModal').classList.add('show');}catch(e){}}
 function tutupLogout(){try{$('logoutModal').classList.remove('show');}catch(e){}}
-async function logoutAkun(){ try{ if(window.supabaseClient) await supabaseClient.auth.signOut(); }catch(e){} localStorage.removeItem('ammo_sesi'); localStorage.removeItem('ammo_supabase_penumpang_id'); setMauOrder(false); googleSudahDiproses=false; tutupLogout();tutupAkun();showToast('Logout','Kamu berhasil logout'); }
+async function logoutAkun(){ try{ if(window.supabaseClient) await supabaseClient.auth.signOut(); }catch(e){} try{ ['ammo_sesi','ammo_supabase_penumpang_id','ammo_admin_token','ammo_role','ammo_admin_email','ammo_admin_nama','ammo_driver','ammo_driver_id','ammo_driver_nama','ammo_driver_token','ammo_pending_order','ammo_pending_target','ammo_pending_admin','masphus_order','ammo_mau_order'].forEach(k=>localStorage.removeItem(k)); ['ammo_admin_token','ammo_from_index','ammo_clear','ammo_must_clear_dest'].forEach(k=>sessionStorage.removeItem(k)); window._pendingBackup=null; }catch(e){} setMauOrder(false); googleSudahDiproses=false; tutupLogout();tutupAkun(); kosongkanTujuan(); showToast('Logout','Kamu berhasil logout, cache udah dibersihin'); }
 function tutupNamaBaru(){try{$('namaBaruModal').classList.remove('show');}catch(e){}}
 function buatAkunDariNama(){ let n=$('inputNamaBaru').value.trim(); if(!n){showToast('Nama Kosong','Isi nama dulu',true);return;} let user={nama:n,hp:pendingHP||localStorage.getItem('ammo_last_hp')||'',via:'WA'}; localStorage.setItem('ammo_sesi',JSON.stringify(user)); if(user.hp) localStorage.setItem('ammo_last_hp',user.hp); tutupNamaBaru(); tutupAkun(); if(!lanjutJikaMauOrder()){ showToast('Terdaftar','Akun dibuat, '+n); } }
 function openMap(mode){ try{ mapMode=mode; if(mode==='pickup'&&pickupCoord){tempLat=pickupCoord[0];tempLng=pickupCoord[1];} if(mode==='dest'&&destCoord){tempLat=destCoord[0];tempLng=destCoord[1];} let m=$('mapModal'); m.classList.add('show'); m.style.display='flex'; setTimeout(async()=>{ try{ if(!map){ map=L.map('map').setView([tempLat,tempLng],14); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map); marker=L.marker([tempLat,tempLng],{draggable:true}).addTo(map); marker.on('dragend',async()=>{ let p=marker.getLatLng();tempLat=p.lat;tempLng=p.lng; tempAddr=await reverseGeocode(tempLat,tempLng); $('mapAddr').textContent=tempAddr; }); map.on('click',async e=>{ tempLat=e.latlng.lat;tempLng=e.latlng.lng;marker.setLatLng(e.latlng); tempAddr=await reverseGeocode(tempLat,tempLng); $('mapAddr').textContent=tempAddr; }); }else{map.setView([tempLat,tempLng],14);marker.setLatLng([tempLat,tempLng]);} setTimeout(()=>{ try{ map.invalidateSize(); }catch(e){} }, 200); setTimeout(()=>{ try{ map.invalidateSize(); }catch(e){} }, 600); tempAddr=await reverseGeocode(tempLat,tempLng); $('mapAddr').textContent=tempAddr; }catch(e){ $('mapAddr').textContent='Peta gagal dimuat, coba lagi ya'; } },100); }catch(e){} }
 function closeMap(){try{let m=$('mapModal'); m.classList.remove('show'); m.style.display='none';}catch(e){}}
 function confirmMap(){ try{ let inp=mapMode==='pickup'?$('pickup'):$('dest'); inp.value=tempAddr; if(mapMode==='pickup'){pickupCoord=[tempLat,tempLng]; if($('gpsNote')) $('gpsNote').style.display='none';} else destCoord=[tempLat,tempLng]; try{ if(mapMode==='pickup') localStorage.setItem('ammo_last_gps', JSON.stringify({lat:tempLat,lon:tempLng,nama:tempAddr,waktu:Date.now()})); }catch(e){} closeMap();updateSwap();jadwalPreview(true); }catch(e){} }
-function kosongkanTujuan(){ try{ $('dest').value=''; destCoord=null; if($('saranDest')) $('saranDest').style.display='none'; sembunyikanHarga(); localStorage.removeItem('masphus_order'); updateSwap(); }catch(e){} }
+function kosongkanTujuan(){ try{ window.resetIndexBersih(); try{ document.querySelectorAll('.orang-btn').forEach(x=>{ x.classList.toggle('aktif', parseInt(x.dataset.orang)===6); }); }catch(e){} try{ let tt=$('tanggalBerangkat'); if(tt) tt.value=new Date().toISOString().slice(0,10); }catch(e){} try{ let jj=$('jamBerangkat'); if(jj) jj.value='09:00'; }catch(e){} }catch(e){} }
 try{ if(mauLanjutOrder()) pulihkanPendingOrder(); else kosongkanTujuan(); }catch(e){}
 window.addEventListener('pageshow',function(){ try{ if(mauLanjutOrder()){ pulihkanPendingOrder(); return; } kosongkanTujuan(); if(!$('pickup').value.trim()) isiPenjemputanOtomatis(); }catch(e){} });
 try{ isiPenjemputanOtomatis(); }catch(e){}
