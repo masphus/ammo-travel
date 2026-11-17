@@ -245,7 +245,6 @@ let previewTimer=null, saranTimer=null;
 let pendingHP='', pendingPass='';
 let jumlahOrang=6;
 let pendingRole=null;
-// PIN_ADMIN DIHAPUS - dulu PIN admin ditulis di sini, View Source langsung kebobol. Sekarang cek ke database lewat RPC cek_pin_login.
 let pendingKode='';
 let googleSudahDiproses=false;
 const $=id=>document.getElementById(id);
@@ -599,7 +598,7 @@ function confirmMap(){
   try{ if(mapMode==='pickup') localStorage.setItem('ammo_last_gps', JSON.stringify({lat:tempLat,lon:tempLng,nama:tempAddr,waktu:Date.now()})); }catch(e){}
   closeMap();updateSwap();jadwalPreview(true);
 }
-// ===== CHAT + LOGIN - DIPERBAIKI, #admin / #driver DIHAPUS =====
+// ===== CHAT + LOGIN - PINTU # / @ SAMAR, CEK DRIVER + ADMIN =====
 function getChatSessionId(){
   let s = localStorage.getItem('ammo_chat_session');
   if(!s){ s='anon-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8); localStorage.setItem('ammo_chat_session',s); }
@@ -658,7 +657,6 @@ async function cekPin(){
   $('pinMsg').textContent='PIN salah, coba lagi'; $('pinMsg').style.color='#ff6b81'; pinKode=''; renderPin(); return;
 }
 function backToChat(){pendingRole=null;pinKode='';renderPin();$('pinView').style.display='none';$('chatView').style.display='block';}
-// DIHAPUS: keydown P yang dulu langsung buka PIN driver. Sekarang tidak ada jalan pintas.
 async function simpanChat(sender,pesan){
   try{
     let pid=localStorage.getItem('ammo_supabase_penumpang_id')||null;
@@ -668,7 +666,46 @@ async function simpanChat(sender,pesan){
     await supabaseClient.from('chats').insert([payload]);
   }catch(e){console.log('Gagal simpan chat',e);}
 }
+// PINTU SAMAR: #123456 / @123456 = cek PIN ke admin + drivers. Salah = bales kayak chat biasa, jangan bilang salah.
+async function handleKodeKhusus(pesan){
+  let q = pesan.trim();
+  if(!/^[#@]\d{4,6}$/.test(q)) return null;
+  let kode = q.slice(1);
+  let kunci = 'ammo_kode_gagal';
+  let dataGagal = JSON.parse(localStorage.getItem(kunci) || '{"jumlah":0,"sampai":0}');
+  if(Date.now() < dataGagal.sampai) return null;
+  try{
+    let r = await supabaseClient.rpc('cek_pin_login', { p_pin: kode });
+    if(!r.data || !r.data.length){
+      dataGagal.jumlah += 1;
+      if(dataGagal.jumlah >= 3){ dataGagal.sampai = Date.now() + 60000; dataGagal.jumlah = 0; }
+      localStorage.setItem(kunci, JSON.stringify(dataGagal));
+      return null;
+    }
+    localStorage.setItem(kunci, JSON.stringify({jumlah:0,sampai:0}));
+    let d = r.data[0];
+    if(d.role === 'admin'){
+      localStorage.setItem('ammo_role','admin');
+      localStorage.setItem('ammo_admin_email', d.email || '');
+      localStorage.setItem('ammo_admin_nama', d.nama || '');
+      setTimeout(()=>{ window.location.href='admin.html'; }, 600);
+      return 'Siap, sebentar ya...';
+    }
+    if(d.role === 'driver'){
+      if(String(d.status||'').toLowerCase()!=='aktif' && String(d.status||'').toLowerCase()!=='active') return null;
+      localStorage.setItem('ammo_role','driver');
+      localStorage.setItem('ammo_driver', JSON.stringify(d));
+      localStorage.setItem('ammo_driver_id', d.id);
+      localStorage.setItem('ammo_driver_nama', d.nama);
+      setTimeout(()=>{ window.location.href='driver.html'; }, 600);
+      return 'Siap, sebentar ya...';
+    }
+    return null;
+  }catch(e){ return null; }
+}
 async function botReply(pesan){
+  let khusus = await handleKodeKhusus(pesan);
+  if(khusus) return khusus;
   let q=pesan.toLowerCase().trim();
   try{
     if(typeof supabaseClient!=='undefined'){
@@ -694,7 +731,6 @@ async function kirimChat(){
   inp.value='';
   if(!chatRateLimit()){ $('chatLog').innerHTML+='<div class="chatBubble">Sabar dulu bro, jangan spam 🙏</div>'; return; }
   if(await cekBlacklistChat()){ $('chatLog').innerHTML+='<div class="chatBubble">Maaf, akun kamu sedang dibatasi. Hubungi Admin via WA ya.</div>'; return; }
-  // TIDAK ADA LAGI #admin / #driver. Semua pesan dianggap chat biasa. Login hanya lewat tombol 🔐 Login Admin / Driver.
   let log=$('chatLog');
   log.innerHTML+='<div class="chatBubble"><b>Kamu:</b> '+escHtml(v)+'</div>';
   log.scrollTop=log.scrollHeight;
