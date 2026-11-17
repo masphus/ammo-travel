@@ -114,11 +114,9 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 .toast p{font-size:13px;color:#ddd}
 .toast button{border:none;background:#d4af37;border-radius:8px;padding:8px 12px;font-weight:900;cursor:pointer}
 .gps-note{font-size:12px;color:#d4af37;text-align:center;margin-top:6px;display:none}
-/* === CHAT MELAYANG - DI LUAR .phone, NGIKUTIN LAYAR HP, BISA DIKLIK === */
 .chat-float{position:fixed !important;right:16px !important;bottom:calc(76px + env(safe-area-inset-bottom)) !important;z-index:999 !important;pointer-events:auto !important;display:flex !important;margin:0 !important}
 .chat-float .chat{width:clamp(52px,14vw,62px);height:clamp(52px,14vw,62px);background:linear-gradient(145deg,#f5d67b,#d4af37,#9a7b1a);color:#000;box-shadow:0 8px 24px rgba(212,175,55,.45), inset 0 1px 0 rgba(255,255,255,.6);border:2px solid #f5d67b;pointer-events:auto !important;cursor:pointer !important}
 @media(max-width:360px){.chat-float{right:12px !important;bottom:calc(70px + env(safe-area-inset-bottom)) !important}}
-/* === LAYAR KUNCI - HITAM EMAS MEWAH === */
 #pinView{background:radial-gradient(circle at 50% 0%, #2a2100 0%, #000 45%, #000 100%) !important;border-top:2px solid #d4af37 !important;padding:28px 22px 18px !important;text-align:center}
 .lock-logo{width:72px;height:72px;margin:6px auto 10px;border-radius:50%;background:linear-gradient(145deg,#f5d67b,#9a7b1a);color:#000;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 0 0 4px #000, 0 0 0 6px #d4af37, 0 10px 30px rgba(212,175,55,.4)}
 .pinTitle{font-size:22px !important;letter-spacing:1px;color:#f5d67b !important}
@@ -133,6 +131,9 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 #pinMsg{color:#f5d67b}
 @keyframes goyang{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
 .goyang{animation:goyang .3s ease 2}
+/* FIX PETA */
+#mapModal{z-index:9999 !important}
+#mapModal.show{display:flex !important}
 </style>
 </head>
 <body>
@@ -141,12 +142,12 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 <div class="title"><h1>Mau Diantar <b>Kemana?</b></h1></div>
 <div class="form" autocomplete="off">
 <div class="lbl">Dari</div>
-<div class="row"><input id="pickup" placeholder="Ketik lokasi penjemputan..." autocomplete="off"><button class="btn-map" onclick="openMap('pickup')">📍 Peta</button></div>
+<div class="row"><input id="pickup" placeholder="📍 Mendeteksi lokasi GPS..." autocomplete="off"><button class="btn-map" type="button" onclick="openMap('pickup')">📍 Peta</button></div>
 <div id="gpsNote" class="gps-note">📍 Mendeteksi lokasi GPS kamu...</div>
 <div id="saranPick" class="saran-box"></div>
 <div class="swap-wrap"><button id="swapBtn" class="swap-btn" onclick="swapLokasi()" disabled title="Tukar Penjemputan & Tujuan">⇅</button></div>
 <div class="lbl">Tujuan</div>
-<div class="row"><input id="dest" placeholder="Ketik / Pilih Tujuan..." autocomplete="off" value=""><button class="btn-map" onclick="openMap('dest')">📍 Peta</button></div>
+<div class="row"><input id="dest" placeholder="Ketik / Pilih Tujuan..." autocomplete="off" value=""><button class="btn-map" type="button" onclick="openMap('dest')">📍 Peta</button></div>
 <div id="saranDest" class="saran-box"></div>
 <div class="lbl">Berapa Orang</div>
 <div class="orang-wrap">
@@ -267,7 +268,7 @@ let pendingRole=null;
 let pendingKode='';
 let pendingKodeChat='';
 let googleSudahDiproses=false;
-let gpsSudahDicoba=false;
+let gpsTimer=null, gpsSedangJalan=false, gpsPercobaan=0, userKetikManual=false;
 const $=id=>document.getElementById(id);
 const fmtRp=n=>'Rp. '+Math.round(n).toLocaleString('id-ID');
 function fmtJarak(m){let km=m/1000;return km>=100?Math.round(km).toLocaleString('id-ID')+' km':km.toFixed(1).replace('.',',')+' km';}
@@ -294,32 +295,45 @@ function pakaiGpsTersimpan(){
   }catch(e){}
   return false;
 }
-function isiPenjemputanOtomatis(force){
-  if(gpsSudahDicoba && !force) return;
-  gpsSudahDicoba=true;
-  if(!force && $('pickup').value.trim() && pickupCoord) return;
-  if(!force && $('pickup').value.trim() && $('pickup').value.indexOf('Mendeteksi')===-1) return;
-  if(pakaiGpsTersimpan() && !force) return;
-  if(!$('pickup').value.trim()) $('pickup').value='📍 Mendeteksi lokasi GPS...';
-  if($('gpsNote')) $('gpsNote').style.display='block';
+// GPS WAJIB TERUS MENCARI - retry tiap 6 detik sampai ketemu, tapi jangan nimpa ketikan user
+function cobaSatuKaliGPS(){
+  if(gpsSedangJalan) return;
+  if(pickupCoord) return;
+  if(userKetikManual) return;
   if(!navigator.geolocation){
     if($('gpsNote')) $('gpsNote').textContent='GPS tidak didukung, pilih dari Peta / ketik manual ya';
-    if($('pickup').value.indexOf('Mendeteksi')!==-1) $('pickup').value='Ketik lokasi penjemputan...';
     return;
   }
+  gpsSedangJalan=true;
+  gpsPercobaan++;
+  if($('gpsNote')){ $('gpsNote').style.display='block'; $('gpsNote').textContent='📍 Mencari lokasi GPS... (percobaan '+gpsPercobaan+')'; }
   navigator.geolocation.getCurrentPosition(async pos=>{
+    gpsSedangJalan=false;
     tempLat=pos.coords.latitude; tempLng=pos.coords.longitude;
     pickupCoord=[tempLat,tempLng];
     try{ localStorage.setItem('ammo_last_gps', JSON.stringify({lat:tempLat,lon:tempLng,nama:'',waktu:Date.now()})); }catch(e){}
     let a=await reverseGeocode(tempLat,tempLng);
     try{ localStorage.setItem('ammo_last_gps', JSON.stringify({lat:tempLat,lon:tempLng,nama:a,waktu:Date.now()})); }catch(e){}
-    $('pickup').value=a;
+    if(!userKetikManual){ $('pickup').value=a; }
     if($('gpsNote')) $('gpsNote').style.display='none';
     updateSwap(); jadwalPreview(true);
+    if(gpsTimer){ clearInterval(gpsTimer); gpsTimer=null; }
   }, (err)=>{
-    if($('gpsNote')) $('gpsNote').textContent='GPS nggak ketemu. Ketik manual / pilih dari Peta ya, bro.';
-    if($('pickup').value.indexOf('Mendeteksi')!==-1) $('pickup').value='Ketik lokasi penjemputan...';
-  }, {enableHighAccuracy:true, timeout:8000, maximumAge:60000});
+    gpsSedangJalan=false;
+    if($('gpsNote')) $('gpsNote').textContent='📍 GPS belum ketemu, nyoba lagi... Ketik manual juga bisa ya, bro.';
+    // jangan kosongin pickup, biar user tetep bisa ketik, GPS tetep nyoba di belakang
+  }, {enableHighAccuracy:true, timeout:8000, maximumAge:10000});
+}
+function isiPenjemputanOtomatis(force){
+  if(pickupCoord) return;
+  if(force) userKetikManual=false;
+  if(!force && $('pickup').value.trim() && pickupCoord) return;
+  if(pakaiGpsTersimpan()) return;
+  if(!$('pickup').value.trim()) $('pickup').value='📍 Mendeteksi lokasi GPS...';
+  cobaSatuKaliGPS();
+  if(!gpsTimer){
+    gpsTimer=setInterval(()=>{ if(!pickupCoord && !userKetikManual) cobaSatuKaliGPS(); }, 6000);
+  }
 }
 function jadwalPreview(langsung){clearTimeout(previewTimer);if(langsung)hitungPreview();else previewTimer=setTimeout(hitungPreview,800);}
 async function hitungPreview(){
@@ -356,7 +370,7 @@ async function cariSaran(q, boxEl, inputEl, isPickup){
       div.onclick=function(){
         inputEl.value=item.display_name;
         let coord=[parseFloat(item.lat), parseFloat(item.lon)];
-        if(isPickup){ pickupCoord=coord; if($('gpsNote')) $('gpsNote').style.display='none'; } else { destCoord=coord; }
+        if(isPickup){ pickupCoord=coord; userKetikManual=true; if($('gpsNote')) $('gpsNote').style.display='none'; } else { destCoord=coord; }
         boxEl.style.display='none';
         updateSwap(); jadwalPreview(true);
       };
@@ -590,32 +604,41 @@ function openMap(mode){
   mapMode=mode;
   if(mode==='pickup'&&pickupCoord){tempLat=pickupCoord[0];tempLng=pickupCoord[1];}
   if(mode==='dest'&&destCoord){tempLat=destCoord[0];tempLng=destCoord[1];}
-  $('mapModal').classList.add('show');
+  let m=$('mapModal');
+  m.classList.add('show');
+  m.style.display='flex';
   setTimeout(async()=>{
-    if(!map){
-      map=L.map('map').setView([tempLat,tempLng],14);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
-      marker=L.marker([tempLat,tempLng],{draggable:true}).addTo(map);
-      marker.on('dragend',async()=>{
-        let p=marker.getLatLng();tempLat=p.lat;tempLng=p.lng;
-        tempAddr=await reverseGeocode(tempLat,tempLng);
-        $('mapAddr').textContent=tempAddr;
-      });
-      map.on('click',async e=>{
-        tempLat=e.latlng.lat;tempLng=e.latlng.lng;marker.setLatLng(e.latlng);
-        tempAddr=await reverseGeocode(tempLat,tempLng);
-        $('mapAddr').textContent=tempAddr;
-      });
-    }else{map.setView([tempLat,tempLng],14);marker.setLatLng([tempLat,tempLng]);}
-    tempAddr=await reverseGeocode(tempLat,tempLng);
-    $('mapAddr').textContent=tempAddr;
-  },50);
+    try{
+      if(!map){
+        map=L.map('map').setView([tempLat,tempLng],14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
+        marker=L.marker([tempLat,tempLng],{draggable:true}).addTo(map);
+        marker.on('dragend',async()=>{
+          let p=marker.getLatLng();tempLat=p.lat;tempLng=p.lng;
+          tempAddr=await reverseGeocode(tempLat,tempLng);
+          $('mapAddr').textContent=tempAddr;
+        });
+        map.on('click',async e=>{
+          tempLat=e.latlng.lat;tempLng=e.latlng.lng;marker.setLatLng(e.latlng);
+          tempAddr=await reverseGeocode(tempLat,tempLng);
+          $('mapAddr').textContent=tempAddr;
+        });
+      }else{
+        map.setView([tempLat,tempLng],14);
+        marker.setLatLng([tempLat,tempLng]);
+      }
+      setTimeout(()=>{ try{ map.invalidateSize(); }catch(e){} }, 200);
+      setTimeout(()=>{ try{ map.invalidateSize(); }catch(e){} }, 600);
+      tempAddr=await reverseGeocode(tempLat,tempLng);
+      $('mapAddr').textContent=tempAddr;
+    }catch(e){ console.log('map error',e); $('mapAddr').textContent='Peta gagal dimuat, coba lagi ya'; }
+  },100);
 }
-function closeMap(){$('mapModal').classList.remove('show');}
+function closeMap(){let m=$('mapModal'); m.classList.remove('show'); m.style.display='none';}
 function confirmMap(){
   let inp=mapMode==='pickup'?$('pickup'):$('dest');
   inp.value=tempAddr;
-  if(mapMode==='pickup'){pickupCoord=[tempLat,tempLng]; if($('gpsNote')) $('gpsNote').style.display='none';}
+  if(mapMode==='pickup'){pickupCoord=[tempLat,tempLng]; userKetikManual=true; if($('gpsNote')) $('gpsNote').style.display='none';}
   else destCoord=[tempLat,tempLng];
   try{ if(mapMode==='pickup') localStorage.setItem('ammo_last_gps', JSON.stringify({lat:tempLat,lon:tempLng,nama:tempAddr,waktu:Date.now()})); }catch(e){}
   closeMap();updateSwap();jadwalPreview(true);
@@ -844,7 +867,14 @@ window.addEventListener('pageshow',function(){
 });
 isiPenjemputanOtomatis();
 try{let t=$('tanggalBerangkat');if(t&&!t.value)t.value=new Date().toISOString().slice(0,10);}catch(e){}
-$('pickup').addEventListener('input',()=>{ if($('gpsNote')) $('gpsNote').style.display='none'; pickupCoord=null;updateSwap();sembunyikanHarga();jadwalSaran($('pickup'),$('saranPick'),true);});
+$('pickup').addEventListener('input',()=>{
+  if($('gpsNote')) $('gpsNote').style.display='none';
+  let v=$('pickup').value.trim();
+  if(v && v.indexOf('Mendeteksi')===-1){ userKetikManual=true; pickupCoord=null; }
+  else { userKetikManual=false; }
+  updateSwap();sembunyikanHarga();jadwalSaran($('pickup'),$('saranPick'),true);
+});
+$('pickup').addEventListener('focus',()=>{ if(!$('pickup').value.trim() || $('pickup').value.indexOf('Mendeteksi')!==-1){ userKetikManual=false; isiPenjemputanOtomatis(true); } });
 $('dest').addEventListener('input',()=>{destCoord=null;updateSwap();sembunyikanHarga();jadwalSaran($('dest'),$('saranDest'),false);});
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -925,7 +955,6 @@ try{
   });
 }catch(e){}
 </script>
-<!-- TOMBOL CHAT MELAYANG - DI LUAR .phone, onclick LANGSUNG -->
 <div class="chat-float" id="chatFloat" onclick="openChat();return false;"><div class="chat" id="chatBtn" onclick="openChat();return false;">💬<i></i></div></div>
 <script>
 (function(){
