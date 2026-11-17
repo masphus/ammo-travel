@@ -3,150 +3,173 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Driver - Black Gold</title>
+<title>Chat - Black Gold</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
-body{background:#000;color:#fff;max-width:480px;margin:auto;min-height:100vh;padding-bottom:90px}
-.header{display:flex;justify-content:space-between;align-items:center;padding:20px 18px 10px}
-.header h1{font-size:28px;color:#D4AF37}
-.header h1 span{display:block;font-size:15px;color:#aaa;font-weight:400}
-.profile-img{width:58px;height:58px;border-radius:50%;border:2px solid #D4AF37;object-fit:cover;cursor:pointer}
-.divider{height:1px;background:linear-gradient(90deg,transparent,#D4AF37,transparent);margin:10px 18px}
-.card{margin:14px 18px;background:#0d0d0d;border:1px solid #D4AF37;border-radius:14px;padding:16px}
-.saldo-top{display:flex;justify-content:space-between;align-items:center}
-.saldo-top small{color:#D4AF37}
-.saldo-top h2{font-size:28px;margin-top:4px}
-.btn-gold{background:linear-gradient(180deg,#F5D67B,#D4AF37);color:#000;border:none;padding:9px 16px;border-radius:8px;font-weight:700;cursor:pointer}
-.btn-online{width:190px;margin:16px auto 4px;display:block;background:linear-gradient(180deg,#F5D67B,#D4AF37);color:#000;border:none;padding:11px;border-radius:25px;font-weight:800;font-size:16px;cursor:pointer}
-.btn-online.offline{background:#333;color:#999}
-.gps-info{text-align:center;font-size:12px;color:#D4AF37;margin-top:6px}
-.section-title{margin:20px 18px 10px;color:#D4AF37;font-weight:700}
-.order-card{margin:0 18px;background:#0d0d0d;border:1px solid #D4AF37;border-radius:14px;padding:16px}
-.badge{background:#D4AF37;color:#000;font-size:11px;font-weight:800;padding:3px 8px;border-radius:5px}
-.order-card h3{margin:8px 0 12px}
-.row{display:flex;gap:10px;margin:10px 0;font-size:14px}
-.pills{display:flex;gap:8px;margin-top:14px}
-.pill{border:1px solid #D4AF37;color:#D4AF37;padding:6px 10px;border-radius:8px;font-size:12px}
-.btn-terima{margin:12px 18px;width:calc(100% - 36px);background:linear-gradient(180deg,#F5D67B,#D4AF37);border:none;padding:14px;border-radius:10px;font-weight:800;font-size:16px;cursor:pointer}
-.list-item{margin:10px 18px;background:#0d0d0d;border:1px solid #333;border-left:5px solid #D4AF37;border-radius:10px;padding:13px;display:flex;justify-content:space-between;align-items:center}
-.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#0a0a0a;border-top:1px solid #D4AF37;display:flex;justify-content:space-around;padding:10px 0 14px;z-index:10}
-.nav-item{text-align:center;color:#999;font-size:12px;cursor:pointer;background:none;border:none}
-.nav-item.active{color:#D4AF37}
-.nav-item .icon{font-size:22px;display:block}
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:99;align-items:flex-end;justify-content:center}
-.modal.open{display:flex}
-.modal-box{background:#111;border:1px solid #D4AF37;border-top-left-radius:18px;border-top-right-radius:18px;width:100%;max-width:480px;padding:20px;max-height:85vh;overflow:auto}
-.modal-box h3{color:#D4AF37;margin-bottom:14px}
-label{font-size:13px;color:#D4AF37;display:block;margin:12px 0 5px}
-input{width:100%;padding:12px;background:#000;border:1px solid #D4AF37;border-radius:9px;color:#fff;outline:none}
-.flex{display:flex;gap:10px}
-.btn-close{background:#333;color:#fff;border:none;padding:12px;border-radius:9px;flex:1;cursor:pointer}
+body{background:#000;color:#fff;max-width:480px;margin:auto;min-height:100vh;display:flex;flex-direction:column}
+.top{padding:16px 18px;border-bottom:1px solid #D4AF37;display:flex;align-items:center;gap:12px;position:sticky;top:0;background:#000;z-index:10}
+.avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(180deg,#F5D67B,#D4AF37);display:flex;align-items:center;justify-content:center;font-size:22px}
+.top b{color:#D4AF37}
+.top small{color:#4CAF50;font-size:12px}
+.chat{flex:1;padding:16px 14px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;padding-bottom:20px}
+.bubble{max-width:80%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.5;animation:muncul .3s ease}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.bot{background:#111;border:1px solid #333;border-bottom-left-radius:4px;align-self:flex-start}
+.me{background:linear-gradient(180deg,#F5D67B,#D4AF37);color:#000;border-bottom-right-radius:4px;align-self:flex-end;font-weight:600}
+.ghost{background:#111;border:1px dashed #D4AF37;color:#D4AF37;align-self:flex-start;animation:kedip 1s infinite}
+@keyframes kedip{0%,100%{opacity:1}50%{opacity:.4}}
+.input-area{display:flex;gap:8px;padding:12px;background:#0a0a0a;border-top:1px solid #D4AF37;position:sticky;bottom:0}
+.input-area input{flex:1;padding:12px;background:#000;border:1px solid #D4AF37;border-radius:25px;color:#fff;outline:none}
+.input-area button{background:linear-gradient(180deg,#F5D67B,#D4AF37);border:none;width:46px;height:46px;border-radius:50%;font-size:18px;cursor:pointer}
+.hint{text-align:center;color:#444;font-size:11px;padding:6px}
 </style>
 </head>
 <body>
-<div class="header">
-  <div><h1 id="haloNama">Halo, ...</h1><span id="driverCode">Code: -</span></div>
-  <img id="fotoAtas" class="profile-img" src="https://via.placeholder.com/100" onclick="openSetting()">
+<div class="top">
+  <div class="avatar">🦆</div>
+  <div><b>Black Gold Bot</b><br><small>● Online - Balas Cepat</small></div>
 </div>
-<div class="divider"></div>
-<div class="card">
-  <div class="saldo-top"><div><small>💰 Saldo Emas</small><h2 id="saldo">Rp 0</h2></div><button class="btn-gold" onclick="alert('Top Up - hubungkan ke payments')">Top Up +</button></div>
-  <button id="btnOnline" class="btn-online" onclick="toggleOnline()">● ONLINE</button>
-  <div class="gps-info" id="gpsInfo">📍 GPS berjalan di latar belakang<br><b>GPS AKTIF</b></div>
+<div class="chat" id="chatBox"></div>
+<div class="hint">Ketik pesan apa aja, bot selalu online</div>
+<div class="input-area">
+  <input id="inp" placeholder="Ketik pesan..." autocomplete="off">
+  <button onclick="kirim()">➤</button>
 </div>
-<div class="section-title">🔔 Order Baru Masuk</div>
-<div class="order-card"><span class="badge">BARU</span><h3>Order #JD8742</h3>
-<div class="row">📍 <div><b>Pickup:</b><br>Jl. Sudirman No. 45, Jakarta Pusat</div></div>
-<div class="row">📍 <div><b>Tujuan:</b><br>Plaza Indonesia, Thamrin</div></div>
-<div class="pills"><span class="pill">↗ 3.2 km</span><span class="pill">🕒 12 menit</span><span class="pill">💰 Rp 42.000</span></div></div>
-<button class="btn-terima" onclick="alert('Order diterima!')">Terima Order →</button>
-<div class="section-title">☰ Daftar Order</div>
-<div class="list-item"><div><b>Order #JD8741 • Selesai</b><br><small>Kebayoran → Senayan • Rp 35.000</small></div><span style="color:#D4AF37">Selesai</span></div>
-<div class="bottom-nav">
-  <button class="nav-item active"><span class="icon">🏠</span>Beranda</button>
-  <button class="nav-item"><span class="icon">📋</span>Order</button>
-  <button class="nav-item" onclick="openSetting()"><span class="icon">⚙️</span>Setting</button>
-  <button class="nav-item" onclick="openSetting()"><span class="icon">👤</span>Profil</button>
-</div>
-<div class="modal" id="modalSetting"><div class="modal-box">
-<h3>⚙️ Setting Driver</h3>
-<center><img id="fotoSetting" src="https://via.placeholder.com/100" style="width:90px;height:90px;border-radius:50%;border:2px solid #D4AF37;object-fit:cover"><br><br>
-<input type="file" id="inputFoto" accept="image/*" style="display:none" onchange="gantiFoto(event)">
-<button class="btn-gold" onclick="document.getElementById('inputFoto').click()">Ganti Foto Profil</button></center>
-<label>Nama Driver</label><input id="inNama">
-<label>Nomor WA - kolom no_wa</label><input id="inWA">
-<label>PIN Driver</label><input id="inPIN" maxlength="6">
-<label>Code Driver</label><input id="inCode">
-<label>Plat Mobil</label><input id="inPlat">
-<label>Jenis Mobil</label><input id="inJenis">
-<div class="flex" style="margin-top:18px"><button class="btn-close" onclick="closeSetting()">Batal</button><button class="btn-gold" style="flex:2" onclick="simpanSetting()">Simpan Perubahan</button></div>
-</div></div>
+
 <script>
 const SUPABASE_URL = 'https://xxtgmohxdztesiubfxap.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let driverCodeLogin = localStorage.getItem('driver_code') || 'DRV001';
-let driver = null;
+let step = 'chat'; // chat -> minta_code -> minta_pin
+let tempCode = '';
+let tempRole = ''; // driver / admin
 
-async function loadDriver(){
-  const {data, error} = await supabase.from('drivers').select('*').eq('code', driverCodeLogin).single();
-  if(error){ alert('Driver tidak ketemu: '+error.message); return; }
-  driver = data;
-  document.getElementById('haloNama').textContent = 'Halo, ' + driver.nama;
-  document.getElementById('driverCode').textContent = 'Code: ' + driver.code;
-  document.getElementById('saldo').textContent = 'Rp ' + (driver.saldo || 0).toLocaleString('id-ID');
-  document.getElementById('fotoAtas').src = driver.foto_profil || 'https://via.placeholder.com/100';
-  document.getElementById('fotoSetting').src = driver.foto_profil || 'https://via.placeholder.com/100';
-  document.getElementById('inNama').value = driver.nama || '';
-  document.getElementById('inWA').value = driver.no_wa || '';
-  document.getElementById('inPIN').value = driver.pin || '';
-  document.getElementById('inCode').value = driver.code || '';
-  document.getElementById('inPlat').value = driver.plat_mobil || '';
-  document.getElementById('inJenis').value = driver.jenis_mobil || '';
-  updateOnlineBtn();
+const chatBox = document.getElementById('chatBox');
+const inp = document.getElementById('inp');
+
+function addBubble(text, who){
+  let d = document.createElement('div');
+  d.className = 'bubble ' + who;
+  d.innerHTML = text;
+  chatBox.appendChild(d);
+  chatBox.scrollTop = chatBox.scrollHeight;
+  return d;
 }
-function updateOnlineBtn(){
-  let btn = document.getElementById('btnOnline');
-  if(driver.is_online){ btn.textContent='● ONLINE'; btn.classList.remove('offline'); }
-  else{ btn.textContent='○ OFFLINE'; btn.classList.add('offline'); }
+function botKetik(text, delay=600){
+  let g = addBubble('👻 <i>mengetik...</i>', 'ghost');
+  setTimeout(()=>{
+    g.remove();
+    addBubble(text, 'bot');
+  }, delay);
 }
-async function toggleOnline(){
-  driver.is_online = !driver.is_online;
-  await supabase.from('drivers').update({is_online: driver.is_online, last_seen: new Date().toISOString()}).eq('id', driver.id);
-  updateOnlineBtn();
+
+// Pesan awal - keliatan kayak chat biasa
+setTimeout(()=>{ botKetik('Halo! Selamat datang di Black Gold 🖤💛<br>Mau pesan apa hari ini?'); }, 500);
+
+function kirim(){
+  let teks = inp.value.trim();
+  if(!teks) return;
+  // Tampilkan pesan user, kalau lagi isi PIN, samarkan jadi ****
+  if(step === 'minta_pin'){
+    addBubble('••••••', 'me');
+  } else {
+    addBubble(teks, 'me');
+  }
+  inp.value = '';
+  proses(teks);
 }
-function startGPS(){
-  if('geolocation' in navigator){
-    navigator.geolocation.watchPosition(async pos=>{
-      document.getElementById('gpsInfo').innerHTML = `📍 ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}<br><b>GPS AKTIF</b>`;
-      if(driver) await supabase.from('drivers').update({lat: pos.coords.latitude, lng: pos.coords.longitude, last_seen: new Date().toISOString()}).eq('id', driver.id);
-    }, null, {enableHighAccuracy:true});
+
+inp.addEventListener('keyup', e=>{ if(e.key==='Enter') kirim(); });
+
+async function proses(teks){
+  let lower = teks.toLowerCase();
+
+  // ===== STEP 1: PEMICU RAHASIA #bebek =====
+  if(step === 'chat'){
+    if(lower === '#bebek'){
+      step = 'minta_code';
+      setTimeout(()=>{
+        addBubble('👻 <b>Hantu muncul...</b><br>Shhh... jangan berisik.<br><br>Masukkan <b>CODE</b> kamu:', 'bot');
+      }, 400);
+      return;
+    }
+    // Chat biasa biar gak ketauan
+    if(lower.includes('halo') || lower.includes('hai') || lower.includes('hi')){
+      botKetik('Halo juga! Mau order taksi? Ketik <b>ORDER</b> ya 😊');
+    } else if(lower.includes('order')){
+      botKetik('Siap! Kamu mau dijemput dimana? Kirim lokasi / alamat kamu ya 📍');
+    } else if(lower.includes('harga') || lower.includes('tarif')){
+      botKetik('Tarif kita mulai Rp 15.000 aja, tergantung jarak. Mau cek tarif kemana?');
+    } else {
+      botKetik('Oke noted! Admin kita akan balas sebentar lagi ya 🙏<br><i>Kamu bisa ketik ORDER untuk pesan taksi.</i>');
+    }
+    return;
+  }
+
+  // ===== STEP 2: MINTA CODE =====
+  if(step === 'minta_code'){
+    tempCode = teks.trim().toUpperCase();
+    step = 'minta_pin';
+    // PIN nongol kayak hantu
+    let g = addBubble('👻 ...', 'ghost');
+    setTimeout(()=>{
+      g.remove();
+      addBubble('CODE diterima... 👻<br><br>Sekarang masukkan <b>PIN 6 digit</b> kamu:', 'bot');
+      inp.type = 'password';
+      inp.placeholder = 'Masukkan PIN...';
+    }, 800);
+    return;
+  }
+
+  // ===== STEP 3: MINTA PIN + CEK DATABASE =====
+  if(step === 'minta_pin'){
+    let pin = teks.trim();
+    addBubble('👻 <i>mengecek database...</i>', 'ghost');
+    
+    // Cek dulu di tabel DRIVERS
+    let {data: driver} = await supabase.from('drivers').select('*').eq('code', tempCode).eq('pin', pin).single();
+    
+    // Kalau gak ada di drivers, cek di tabel ADMIN
+    let isAdmin = false;
+    let dataUser = driver;
+    if(!driver){
+      let {data: admin} = await supabase.from('admin').select('*').eq('code', tempCode).eq('pin', pin).single();
+      if(admin){ dataUser = admin; isAdmin = true; }
+    }
+
+    // Hapus bubble hantu terakhir
+    let ghosts = document.querySelectorAll('.ghost');
+    ghosts.forEach(e=>e.remove());
+
+    if(!dataUser){
+      addBubble('👻 <b>CODE / PIN salah!</b><br>Hantu menghilang... 👻💨<br><br>Coba ketik <b>#bebek</b> lagi dari awal.', 'bot');
+      step = 'chat';
+      tempCode = '';
+      inp.type = 'text';
+      inp.placeholder = 'Ketik pesan...';
+      return;
+    }
+
+    // ===== BERHASIL! =====
+    addBubble(`👻 <b>BERHASIL!</b><br>Halo, ${dataUser.nama || tempCode}! 🎉<br>Membuka halaman kamu...`, 'bot');
+    inp.type = 'text';
+    
+    setTimeout(()=>{
+      if(isAdmin){
+        // Kalau admin, lempar ke admin.html
+        localStorage.setItem('admin_code', dataUser.code);
+        window.location.href = 'admin.html?c=' + dataUser.code + '&p=' + pin;
+      } else {
+        // Kalau driver, lempar ke driver.html sesuai CODE & PIN nya
+        // driver.html nanti yang validasi ulang & hapus ?c= &p= dari URL
+        window.location.href = 'driver.html?c=' + dataUser.code + '&p=' + pin;
+      }
+    }, 1200);
+    return;
   }
 }
-function openSetting(){ document.getElementById('modalSetting').classList.add('open'); }
-function closeSetting(){ document.getElementById('modalSetting').classList.remove('open'); }
-function gantiFoto(e){
-  let f=e.target.files[0]; if(!f) return;
-  let r=new FileReader(); r.onload=()=>{ document.getElementById('fotoSetting').src=r.result; document.getElementById('fotoSetting').dataset.newFoto=r.result; }; r.readAsDataURL(f);
-}
-async function simpanSetting(){
-  let updateData = {
-    nama: document.getElementById('inNama').value,
-    no_wa: document.getElementById('inWA').value,
-    pin: document.getElementById('inPIN').value,
-    code: document.getElementById('inCode').value,
-    plat_mobil: document.getElementById('inPlat').value,
-    jenis_mobil: document.getElementById('inJenis').value,
-  };
-  let newFoto = document.getElementById('fotoSetting').dataset.newFoto;
-  if(newFoto) updateData.foto_profil = newFoto;
-  const {error} = await supabase.from('drivers').update(updateData).eq('id', driver.id);
-  if(error) return alert('Gagal simpan: '+error.message);
-  closeSetting(); loadDriver(); alert('Setting tersimpan! Halo, '+updateData.nama);
-}
-loadDriver(); startGPS();
 </script>
 </body>
 </html>
