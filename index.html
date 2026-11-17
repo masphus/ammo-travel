@@ -8,7 +8,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-serif;color:#fff}
-.phone{max-width:430px;width:100%;margin:0 auto;background:#0f0f0f;position:relative;padding-bottom:140px;overflow:hidden;min-height:100vh}
+.phone{max-width:430px;width:100%;margin:0 auto;background:#0f0f0f;position:relative;padding-bottom:78px;overflow:hidden;min-height:100vh}
 .header{background:#000;color:#d4af37;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #d4af37}
 .logo-left{display:flex;align-items:center;gap:10px;min-width:0}
 .logo-left img{width:44px;height:44px;border-radius:50%;background:#fff;object-fit:cover;flex-shrink:0;border:2px solid #d4af37}
@@ -42,7 +42,7 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 .ongkos-preview .total{font-size:22px;font-weight:bold;color:#d4af37;white-space:nowrap}
 .ongkos-preview .voucher{font-size:14px;color:#aaa;margin-top:6px}
 .btn-cek{display:block;width:calc(100% - 32px);margin:14px 16px 0;background:#d4af37;color:#000;border:none;border-radius:12px;padding:16px;font-size:22px;font-weight:bold;cursor:pointer;position:relative;z-index:5}
-.order-spacer{height:90px}
+.order-spacer{height:12px}
 .chat{width:56px;height:56px;border-radius:50%;background:#d4af37;display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;position:relative}
 .chat i{position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:#ff4444;border-radius:50%;display:none}
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#000;border-top:1px solid #d4af37;display:flex;justify-content:space-around;padding:10px 0;z-index:20}
@@ -115,7 +115,7 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 .toast p{font-size:13px;color:#ddd}
 .toast button{border:none;background:#d4af37;border-radius:8px;padding:8px 12px;font-weight:900;cursor:pointer}
 .gps-note{font-size:12px;color:#d4af37;text-align:center;margin-top:6px;display:none}
-.chat-float{position:fixed !important;right:16px !important;bottom:calc(82px + env(safe-area-inset-bottom)) !important;z-index:999 !important;pointer-events:auto !important;display:flex !important;margin:0 !important}
+.chat-float{position:fixed !important;right:16px !important;bottom:calc(72px + env(safe-area-inset-bottom)) !important;z-index:999 !important;pointer-events:auto !important;display:flex !important;margin:0 !important}
 .chat-float .chat{width:clamp(52px,14vw,62px);height:clamp(52px,14vw,62px);background:linear-gradient(145deg,#f5d67b,#d4af37,#9a7b1a);color:#000;box-shadow:0 8px 24px rgba(212,175,55,.45), inset 0 1px 0 rgba(255,255,255,.6);border:2px solid #f5d67b;pointer-events:auto !important;cursor:pointer !important}
 #pinView{background:radial-gradient(circle at 50% 0%, #2a2100 0%, #000 45%, #000 100%) !important;border-top:2px solid #d4af37 !important;padding:28px 22px 18px !important;text-align:center}
 .lock-logo{width:72px;height:72px;margin:6px auto 10px;border-radius:50%;background:linear-gradient(145deg,#f5d67b,#9a7b1a);color:#000;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 0 0 4px #000, 0 0 0 6px #d4af37, 0 10px 30px rgba(212,175,55,.4)}
@@ -194,7 +194,7 @@ window.closeChat = function(){ try{ var m=document.getElementById('chatModal'); 
 <div id="chatView">
 <h3 style="text-align:center;color:#d4af37">💬 Chat dengan CS</h3>
 <div id="chatLog"><div class="chatBubble">Halo! Mau tanya apa? Ketik aja, misal: ongkos ke Cimaung berapa?</div></div>
-<div id="chatInputRow"><input id="chatInput" placeholder="Ketik pesan..." autocomplete="off"><button id="chatSend">➤</button></div>
+<div id="chatInputRow"><input id="chatInput" placeholder="Ketik pesan..." autocomplete="off"><button id="chatSend" type="button" onclick="kirimChat();return false;">➤</button></div>
 <div style="font-size:12px;color:#888;margin-top:6px;text-align:center">Dijawab Bot Ammo Travel • CS online</div>
 <div id="waRow" class="waRow">
 <a class="waBtn waAdmin" target="_blank" href="https://wa.me/6285899611111?text=Halo%20Admin%20Ammo%20Travel%2C%20mau%20tanya...">💬 WA Admin</a>
@@ -269,7 +269,6 @@ window.closeChat = function(){ try{ var m=document.getElementById('chatModal'); 
 <div id="toastWrap" class="toast-wrap"><div class="toast"><div class="ico" id="toastIco">✓</div><div style="flex:1"><b id="toastJudul">Berhasil</b><p id="toastIsi">-</p></div><button onclick="tutupToast()">OK</button></div></div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// BLOK 1: GPS + ORDER + PETA
 let pickupCoord=null, destCoord=null, mapMode='pickup';
 let map=null, marker=null, tempLat=-6.9175, tempLng=107.6191, tempAddr='Lokasi Saya Saat Ini';
 let previewTimer=null, saranTimer=null;
@@ -677,7 +676,6 @@ try{
 }catch(e){}
 </script>
 <script>
-// BLOK 2: CHAT + PIN - SEMUA DITEMPEL KE window, BIAR onclick BISA PANGGIL
 window.getChatSessionId = function(){
   let s = localStorage.getItem('ammo_chat_session');
   if(!s){ s='anon-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8); localStorage.setItem('ammo_chat_session',s); }
@@ -862,31 +860,45 @@ window.botReply = async function(pesan){
 };
 window.kirimChat = async function(){
   try{
-    let inp=$('chatInput');
-    let v=inp.value.trim(); if(!v) return;
-    inp.value='';
-    if(!chatRateLimit()){ $('chatLog').innerHTML+='<div class="chatBubble">Sabar dulu bro, jangan spam 🙏</div>'; return; }
-    if(await cekBlacklistChat()){ $('chatLog').innerHTML+='<div class="chatBubble">Maaf, akun kamu sedang dibatasi. Hubungi Admin via WA ya.</div>'; return; }
-    let log=$('chatLog');
-    log.innerHTML+='<div class="chatBubble"><b>Kamu:</b> '+escHtml(v)+'</div>';
-    log.scrollTop=log.scrollHeight;
-    simpanChat('user',v);
-    log.innerHTML+='<div class="chatBubble" id="botTyping">Bot sedang mengetik...</div>';
-    let jawab=await botReply(v);
-    let t=document.getElementById('botTyping'); if(t) t.remove();
-    log.innerHTML+='<div class="chatBubble"><b>Bot Ammo:</b> '+escHtml(jawab)+'</div>';
-    log.scrollTop=log.scrollHeight;
-    simpanChat('bot',jawab);
-  }catch(e){ console.log(e); }
+    let inp = document.getElementById('chatInput');
+    if(!inp) return;
+    let v = inp.value.trim();
+    if(!v) return;
+    inp.value = '';
+    inp.focus();
+    let log = document.getElementById('chatLog');
+    log.innerHTML += '<div class="chatBubble"><b>Kamu:</b> ' + escHtml(v) + '</div>';
+    log.scrollTop = log.scrollHeight;
+    try{ simpanChat('user', v); }catch(e){}
+    try{
+      let diblokir = await cekBlacklistChat();
+      if(diblokir){
+        log.innerHTML += '<div class="chatBubble">Maaf, akun kamu sedang dibatasi. Hubungi Admin via WA ya.</div>';
+        log.scrollTop = log.scrollHeight;
+        return;
+      }
+    }catch(e){}
+    log.innerHTML += '<div class="chatBubble" id="botTyping">Bot sedang mengetik...</div>';
+    log.scrollTop = log.scrollHeight;
+    let jawab = 'Siap, kami bantu. Coba ceritain mau ke mana?';
+    try{ jawab = await botReply(v); }catch(e){}
+    let t = document.getElementById('botTyping'); if(t) t.remove();
+    log.innerHTML += '<div class="chatBubble"><b>Bot Ammo:</b> ' + escHtml(jawab) + '</div>';
+    log.scrollTop = log.scrollHeight;
+    try{ simpanChat('bot', jawab); }catch(e){}
+  }catch(e){
+    try{
+      let log = document.getElementById('chatLog');
+      log.innerHTML += '<div class="chatBubble">Chat gagal kekirim, coba lagi ya bro 🙏</div>';
+    }catch(err){}
+  }
 };
 try{
-  if($('chatSend'))$('chatSend').addEventListener('click',kirimChat);
-  if($('chatInput'))$('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')kirimChat();});
+  if($('chatInput'))$('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();kirimChat();}});
   if($('chatModal'))$('chatModal').addEventListener('click',e=>{if(e.target.id==='chatModal')closeChat();});
 }catch(e){}
 </script>
 <script>
-// BLOK 3: SYNC PENUMPANG
 async function syncPenumpangKeSupabase(nama, hp, via, google_email, google_id){
   try{
     if(!window.supabaseClient) return null;
