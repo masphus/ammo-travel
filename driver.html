@@ -3,38 +3,94 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chat - Black Gold</title>
+<title>Driver - Black Gold</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
-body{background:#000;color:#fff;max-width:480px;margin:auto;min-height:100vh;display:flex;flex-direction:column}
-.top{padding:16px 18px;border-bottom:1px solid #D4AF37;display:flex;align-items:center;gap:12px;position:sticky;top:0;background:#000;z-index:10}
-.avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(180deg,#F5D67B,#D4AF37);display:flex;align-items:center;justify-content:center;font-size:22px}
-.top b{color:#D4AF37}
-.top small{color:#4CAF50;font-size:12px}
-.chat{flex:1;padding:16px 14px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;padding-bottom:20px}
-.bubble{max-width:80%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.5;animation:muncul .3s ease}
-@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.bot{background:#111;border:1px solid #333;border-bottom-left-radius:4px;align-self:flex-start}
-.me{background:linear-gradient(180deg,#F5D67B,#D4AF37);color:#000;border-bottom-right-radius:4px;align-self:flex-end;font-weight:600}
-.ghost{background:#111;border:1px dashed #D4AF37;color:#D4AF37;align-self:flex-start;animation:kedip 1s infinite}
-@keyframes kedip{0%,100%{opacity:1}50%{opacity:.4}}
-.input-area{display:flex;gap:8px;padding:12px;background:#0a0a0a;border-top:1px solid #D4AF37;position:sticky;bottom:0}
-.input-area input{flex:1;padding:12px;background:#000;border:1px solid #D4AF37;border-radius:25px;color:#fff;outline:none}
-.input-area button{background:linear-gradient(180deg,#F5D67B,#D4AF37);border:none;width:46px;height:46px;border-radius:50%;font-size:18px;cursor:pointer}
-.hint{text-align:center;color:#444;font-size:11px;padding:6px}
+body{background:#000;color:#fff;max-width:480px;margin:auto;min-height:100vh;position:relative;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at top right, rgba(212,175,55,.18), transparent 50%), radial-gradient(circle at bottom left, rgba(212,175,55,.12), transparent 50%);pointer-events:none}
+.top{padding:18px 20px 10px;display:flex;justify-content:space-between;align-items:center;position:relative}
+.top h1{font-size:26px;color:#E8C86A;font-weight:800}
+.avatar{width:58px;height:58px;border-radius:50%;border:2px solid #D4AF37;overflow:hidden;background:#222}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.garis{height:1px;background:linear-gradient(90deg,transparent,#D4AF37,transparent);margin:8px 20px 14px}
+.card-saldo{margin:0 20px;background:linear-gradient(180deg,#14100a,#0a0a0a);border:1px solid #D4AF37;border-radius:14px;padding:16px;position:relative;overflow:hidden}
+.card-saldo::before,.card-saldo::after{content:'';position:absolute;width:40px;height:40px;border:1px solid #D4AF37}
+.card-saldo::before{top:-1px;right:-1px;border-left:none;border-bottom:none;border-top-right-radius:14px}
+.card-saldo::after{bottom:-1px;left:-1px;border-right:none;border-top:none;border-bottom-left-radius:14px}
+.saldo-row{display:flex;justify-content:space-between;align-items:center}
+.saldo-row small{color:#D4AF37;font-size:13px}
+.saldo-row h2{font-size:26px;margin-top:2px}
+.btn-topup{background:linear-gradient(180deg,#F5D67B,#D4AF37);border:none;padding:9px 16px;border-radius:8px;font-weight:800;cursor:pointer;color:#000}
+.online-wrap{text-align:center;margin-top:14px}
+.btn-online{background:linear-gradient(180deg,#F5D67B,#D4AF37);border:none;padding:8px 22px;border-radius:20px;font-weight:800;cursor:pointer;color:#000;display:inline-flex;align-items:center;gap:8px}
+.btn-online.off{background:#222;color:#999;border:1px solid #444}
+.dot{width:10px;height:10px;border-radius:50%;background:#000}
+.dot.off{background:#ff4444}
+.online-wrap small{color:#4CAF50;font-size:12px;display:block;margin-top:6px}
+.online-wrap small.off{color:#888}
+h3{padding:18px 20px 10px;color:#E8C86A;font-size:17px}
+.card-order{margin:0 20px;background:#0d0d0d;border:1px solid #D4AF37;border-radius:12px;padding:16px;position:relative}
+.card-order::before,.card-order::after{content:'';position:absolute;width:18px;height:18px;border:1px solid #D4AF37}
+.card-order::before{top:-1px;right:-1px;border-left:none;border-bottom:none}
+.card-order::after{bottom:-1px;left:-1px;border-right:none;border-top:none}
+.badge{position:absolute;top:12px;left:12px;background:#D4AF37;color:#000;font-size:11px;font-weight:800;padding:3px 8px;border-radius:4px}
+.order-id{font-weight:800;font-size:17px;margin-top:22px}
+.pick{display:flex;gap:10px;margin-top:14px;padding-bottom:12px;border-bottom:1px dashed #444}
+.pick .ico{width:34px;height:34px;background:#D4AF37;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.pick small{color:#aaa;font-size:12px}
+.pick b{font-size:13px;font-weight:600}
+.chips{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.chip{border:1px solid #D4AF37;border-radius:20px;padding:6px 12px;font-size:12px;color:#E8C86A}
+.btn-terima{margin:14px 20px 0;width:calc(100% - 40px);background:linear-gradient(180deg,#F5D67B,#D4AF37);border:none;padding:14px;border-radius:10px;font-weight:800;font-size:16px;cursor:pointer;color:#000}
+.btn-terima:disabled{background:#222;color:#666}
+.daftar-head{padding:18px 20px 10px;display:flex;justify-content:space-between;align-items:center}
+.daftar-head h3{padding:0}
+.daftar-head a{color:#E8C86A;font-size:13px;text-decoration:none}
+.item{margin:0 20px 10px;background:#0d0d0d;border:1px solid #D4AF37;border-left:4px solid #D4AF37;border-radius:10px;padding:14px;display:flex;justify-content:space-between;align-items:center}
+.item b{font-size:13px}
+.item small{color:#aaa;font-size:12px}
+.sts{background:#5a4310;color:#E8C86A;font-size:11px;padding:5px 10px;border-radius:6px;white-space:nowrap}
+.nav{position:sticky;bottom:0;background:#000;border-top:1px solid #D4AF37;display:flex;justify-content:space-around;padding:10px 0 14px;margin-top:20px}
+.nav a{text-align:center;color:#888;text-decoration:none;font-size:12px}
+.nav a.aktif{color:#E8C86A}
+.nav span{display:block;font-size:20px}
+.empty{margin:0 20px;text-align:center;color:#777;font-size:13px;padding:14px;border:1px dashed #333;border-radius:10px}
+#loading{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:99;font-size:14px;color:#D4AF37}
 </style>
 </head>
 <body>
+<div id="loading">👻 Mengecek akses...</div>
+
 <div class="top">
-  <div class="avatar">🦆</div>
-  <div><b>Black Gold Bot</b><br><small>● Online - Balas Cepat</small></div>
+  <h1>Halo, <span id="namaDriver">Driver</span></h1>
+  <div class="avatar"><img id="fotoDriver" src="https://via.placeholder.com/100" alt="Driver"></div>
 </div>
-<div class="chat" id="chatBox"></div>
-<div class="hint">Ketik pesan apa aja, bot selalu online</div>
-<div class="input-area">
-  <input id="inp" placeholder="Ketik pesan..." autocomplete="off">
-  <button onclick="kirim()">➤</button>
+<div class="garis"></div>
+
+<div class="card-saldo">
+  <div class="saldo-row">
+    <div><small>🪙 Saldo Emas</small><h2 id="saldo">Rp 0</h2></div>
+    <button class="btn-topup" onclick="topup()">Top Up +</button>
+  </div>
+  <div class="online-wrap">
+    <button class="btn-online" id="btnOnline" onclick="toggleOnline()"><span class="dot" id="dotOnline"></span><span id="txtOnline">ONLINE</span></button>
+    <small id="txtStatus">● Aktif menerima order ●</small>
+  </div>
+</div>
+
+<h3>🔔 Order Baru Masuk</h3>
+<div id="orderBaru"></div>
+<button class="btn-terima" id="btnTerima" onclick="terimaOrder()">Terima Order →</button>
+
+<div class="daftar-head"><h3>☰ Daftar Order</h3><a href="#" onclick="loadRiwayat();return false;">Lihat Semua ›</a></div>
+<div id="daftarOrder"></div>
+
+<div class="nav">
+  <a href="#" class="aktif"><span>🏠</span>Beranda</a>
+  <a href="#" onclick="loadRiwayat();return false;"><span>📋</span>Order</a>
+  <a href="#" onclick="alert('Setting segera hadir');return false;"><span>⚙️</span>Setting</a>
+  <a href="#" onclick="logout();return false;"><span>👤</span>Profil</a>
 </div>
 
 <script>
@@ -42,134 +98,112 @@ const SUPABASE_URL = 'https://xxtgmohxdztesiubfxap.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let step = 'chat'; // chat -> minta_code -> minta_pin
-let tempCode = '';
-let tempRole = ''; // driver / admin
+let driver = null;
+let orderAktif = null;
 
-const chatBox = document.getElementById('chatBox');
-const inp = document.getElementById('inp');
+function rupiah(n){ return 'Rp ' + (n||0).toLocaleString('id-ID'); }
 
-function addBubble(text, who){
-  let d = document.createElement('div');
-  d.className = 'bubble ' + who;
-  d.innerHTML = text;
-  chatBox.appendChild(d);
-  chatBox.scrollTop = chatBox.scrollHeight;
-  return d;
-}
-function botKetik(text, delay=600){
-  let g = addBubble('👻 <i>mengetik...</i>', 'ghost');
-  setTimeout(()=>{
-    g.remove();
-    addBubble(text, 'bot');
-  }, delay);
-}
+// ========== PENGAMAN 404 ==========
+async function cekAkses(){
+  const params = new URLSearchParams(window.location.search);
+  let code = params.get('c');
+  let pin = params.get('p');
 
-// Pesan awal - keliatan kayak chat biasa
-setTimeout(()=>{ botKetik('Halo! Selamat datang di Black Gold 🖤💛<br>Mau pesan apa hari ini?'); }, 500);
-
-function kirim(){
-  let teks = inp.value.trim();
-  if(!teks) return;
-  // Tampilkan pesan user, kalau lagi isi PIN, samarkan jadi ****
-  if(step === 'minta_pin'){
-    addBubble('••••••', 'me');
+  // Kalau ada ?c= &p= dari chat #bebek, validasi ke database
+  if(code && pin){
+    let {data, error} = await supabase.from('drivers').select('*').eq('code', code.toUpperCase()).eq('pin', pin).single();
+    if(error || !data){
+      window.location.href = '404.html'; // SALAH -> mental ke 404
+      return;
+    }
+    driver = data;
+    // Simpan di session (hilang kalau tab ditutup) + bersihkan URL biar PIN gak keliatan
+    sessionStorage.setItem('driver_code', data.code);
+    sessionStorage.setItem('driver_id', data.id);
+    window.history.replaceState({}, '', 'driver.html');
+    await supabase.from('drivers').update({is_online:true, last_seen:new Date().toISOString()}).eq('id', data.id);
   } else {
-    addBubble(teks, 'me');
-  }
-  inp.value = '';
-  proses(teks);
-}
-
-inp.addEventListener('keyup', e=>{ if(e.key==='Enter') kirim(); });
-
-async function proses(teks){
-  let lower = teks.toLowerCase();
-
-  // ===== STEP 1: PEMICU RAHASIA #bebek =====
-  if(step === 'chat'){
-    if(lower === '#bebek'){
-      step = 'minta_code';
-      setTimeout(()=>{
-        addBubble('👻 <b>Hantu muncul...</b><br>Shhh... jangan berisik.<br><br>Masukkan <b>CODE</b> kamu:', 'bot');
-      }, 400);
+    // Kalau buka langsung TANPA ?c=&p= dan TANPA session -> langsung 404
+    let sessCode = sessionStorage.getItem('driver_code');
+    if(!sessCode){
+      window.location.href = '404.html';
       return;
     }
-    // Chat biasa biar gak ketauan
-    if(lower.includes('halo') || lower.includes('hai') || lower.includes('hi')){
-      botKetik('Halo juga! Mau order taksi? Ketik <b>ORDER</b> ya 😊');
-    } else if(lower.includes('order')){
-      botKetik('Siap! Kamu mau dijemput dimana? Kirim lokasi / alamat kamu ya 📍');
-    } else if(lower.includes('harga') || lower.includes('tarif')){
-      botKetik('Tarif kita mulai Rp 15.000 aja, tergantung jarak. Mau cek tarif kemana?');
-    } else {
-      botKetik('Oke noted! Admin kita akan balas sebentar lagi ya 🙏<br><i>Kamu bisa ketik ORDER untuk pesan taksi.</i>');
-    }
-    return;
+    let {data} = await supabase.from('drivers').select('*').eq('code', sessCode).single();
+    if(!data){ window.location.href='404.html'; return; }
+    driver = data;
   }
 
-  // ===== STEP 2: MINTA CODE =====
-  if(step === 'minta_code'){
-    tempCode = teks.trim().toUpperCase();
-    step = 'minta_pin';
-    // PIN nongol kayak hantu
-    let g = addBubble('👻 ...', 'ghost');
-    setTimeout(()=>{
-      g.remove();
-      addBubble('CODE diterima... 👻<br><br>Sekarang masukkan <b>PIN 6 digit</b> kamu:', 'bot');
-      inp.type = 'password';
-      inp.placeholder = 'Masukkan PIN...';
-    }, 800);
-    return;
-  }
-
-  // ===== STEP 3: MINTA PIN + CEK DATABASE =====
-  if(step === 'minta_pin'){
-    let pin = teks.trim();
-    addBubble('👻 <i>mengecek database...</i>', 'ghost');
-    
-    // Cek dulu di tabel DRIVERS
-    let {data: driver} = await supabase.from('drivers').select('*').eq('code', tempCode).eq('pin', pin).single();
-    
-    // Kalau gak ada di drivers, cek di tabel ADMIN
-    let isAdmin = false;
-    let dataUser = driver;
-    if(!driver){
-      let {data: admin} = await supabase.from('admin').select('*').eq('code', tempCode).eq('pin', pin).single();
-      if(admin){ dataUser = admin; isAdmin = true; }
-    }
-
-    // Hapus bubble hantu terakhir
-    let ghosts = document.querySelectorAll('.ghost');
-    ghosts.forEach(e=>e.remove());
-
-    if(!dataUser){
-      addBubble('👻 <b>CODE / PIN salah!</b><br>Hantu menghilang... 👻💨<br><br>Coba ketik <b>#bebek</b> lagi dari awal.', 'bot');
-      step = 'chat';
-      tempCode = '';
-      inp.type = 'text';
-      inp.placeholder = 'Ketik pesan...';
-      return;
-    }
-
-    // ===== BERHASIL! =====
-    addBubble(`👻 <b>BERHASIL!</b><br>Halo, ${dataUser.nama || tempCode}! 🎉<br>Membuka halaman kamu...`, 'bot');
-    inp.type = 'text';
-    
-    setTimeout(()=>{
-      if(isAdmin){
-        // Kalau admin, lempar ke admin.html
-        localStorage.setItem('admin_code', dataUser.code);
-        window.location.href = 'admin.html?c=' + dataUser.code + '&p=' + pin;
-      } else {
-        // Kalau driver, lempar ke driver.html sesuai CODE & PIN nya
-        // driver.html nanti yang validasi ulang & hapus ?c= &p= dari URL
-        window.location.href = 'driver.html?c=' + dataUser.code + '&p=' + pin;
-      }
-    }, 1200);
-    return;
-  }
+  document.getElementById('loading').style.display='none';
+  tampilDriver();
+  loadOrderBaru();
+  loadRiwayat();
+  // Realtime: kalau ada order baru, auto muncul
+  supabase.channel('orders-realtime').on('postgres_changes',{event:'*',schema:'public',table:'orders'},()=>{ loadOrderBaru(); loadRiwayat(); }).subscribe();
 }
+
+function tampilDriver(){
+  document.getElementById('namaDriver').textContent = driver.nama || 'Driver';
+  document.getElementById('saldo').textContent = rupiah(driver.saldo || driver.saldo_emas || 0);
+  if(driver.foto) document.getElementById('fotoDriver').src = driver.foto;
+  updateTombolOnline();
+}
+function updateTombolOnline(){
+  let btn=document.getElementById('btnOnline'), dot=document.getElementById('dotOnline'), txt=document.getElementById('txtOnline'), st=document.getElementById('txtStatus');
+  if(driver.is_online){ btn.classList.remove('off'); dot.classList.remove('off'); txt.textContent='ONLINE'; st.textContent='● Aktif menerima order ●'; st.classList.remove('off'); }
+  else { btn.classList.add('off'); dot.classList.add('off'); txt.textContent='OFFLINE'; st.textContent='● Kamu sedang offline ●'; st.classList.add('off'); }
+}
+async function toggleOnline(){
+  driver.is_online = !driver.is_online;
+  await supabase.from('drivers').update({is_online:driver.is_online, last_seen:new Date().toISOString()}).eq('id', driver.id);
+  updateTombolOnline();
+}
+async function loadOrderBaru(){
+  let {data} = await supabase.from('orders').select('*').eq('status','baru').order('created_at',{ascending:true}).limit(1).maybeSingle();
+  let box=document.getElementById('orderBaru');
+  let btn=document.getElementById('btnTerima');
+  if(!data){ orderAktif=null; box.innerHTML='<div class="empty">Belum ada order baru, tunggu ya bro... ☕</div>'; btn.disabled=true; return; }
+  orderAktif=data;
+  btn.disabled=false;
+  box.innerHTML=`
+  <div class="card-order">
+    <span class="badge">BARU</span>
+    <div class="order-id">Order #${data.kode || data.id.toString().slice(0,6).toUpperCase()}</div>
+    <div class="pick"><div class="ico">📍</div><div><small>Pickup:</small><br><b>${data.pickup || '-'}</b></div></div>
+    <div class="pick" style="border:none;padding-bottom:0"><div class="ico">📍</div><div><small>Tujuan:</small><br><b>${data.tujuan || data.destination || '-'}</b></div></div>
+    <div class="chips">
+      <span class="chip">↗ ${data.jarak || '3.2'} km</span>
+      <span class="chip">🕒 ${data.estimasi || '12'} menit</span>
+      <span class="chip">💰 ${rupiah(data.harga || data.tarif || 0)}</span>
+    </div>
+  </div>`;
+}
+async function terimaOrder(){
+  if(!orderAktif) return;
+  if(!confirm('Terima Order #' + (orderAktif.kode||'') + ' ?')) return;
+  await supabase.from('orders').update({status:'diterima', driver_id:driver.id, driver_code:driver.code, updated_at:new Date().toISOString()}).eq('id', orderAktif.id);
+  alert('Order diterima! Gas bro! 🛵💨');
+  loadOrderBaru(); loadRiwayat();
+}
+async function loadRiwayat(){
+  let {data} = await supabase.from('orders').select('*').eq('driver_id', driver.id).order('created_at',{ascending:false}).limit(10);
+  // Kalau driver belum pernah ambil order, tampilkan order selesai contoh dari semua order selesai biar gak kosong
+  if(!data || data.length===0){
+    let all = await supabase.from('orders').select('*').eq('status','selesai').order('created_at',{ascending:false}).limit(5);
+    data = all.data || [];
+  }
+  let box=document.getElementById('daftarOrder');
+  if(!data || data.length===0){ box.innerHTML='<div class="empty">Belum ada riwayat order.</div>'; return; }
+  box.innerHTML = data.map(o=>`
+    <div class="item">
+      <div><b>Order #${o.kode || o.id.toString().slice(0,6).toUpperCase()} • ${o.status==='selesai'?'Selesai':o.status||'Selesai'}</b><br><small>${o.pickup||''} → ${o.tujuan||o.destination||''} • ${rupiah(o.harga||o.tarif||0)}</small></div>
+      <span class="sts">${o.status==='selesai'?'Selesai':o.status||'Selesai'}</span>
+    </div>`).join('');
+}
+function topup(){ let n=prompt('Mau Top Up berapa? Contoh: 50000'); if(!n) return; alert('Top Up Rp '+Number(n).toLocaleString('id-ID')+' - Hubungi admin untuk konfirmasi ya bro!'); }
+function logout(){ if(confirm('Keluar?')){ sessionStorage.clear(); window.location.href='404.html'; } }
+
+cekAkses();
 </script>
 </body>
 </html>
