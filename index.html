@@ -159,7 +159,7 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 <div class="on"><span>🏠</span>Beranda</div>
 <div><span>🚗</span>Perjalanan</div>
 <div onclick="bukaVoucher()" style="cursor:pointer"><span>🎟️</span>Voucher</div>
-<div onclick="window.location.href='akun.html'" style="cursor:pointer"><span>👤</span>Profil</div>
+<div onclick="bukaAkun()" style="cursor:pointer"><span>👤</span>Profil</div>
 </div>
 <div id="chatModal" class="chat-modal"><div class="chat-box">
 <div id="chatView">
@@ -171,6 +171,7 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 <a class="waBtn waAdmin" target="_blank" href="https://wa.me/6285899611111?text=Halo%20Admin%20Ammo%20Travel%2C%20mau%20tanya...">💬 WA Admin</a>
 <a class="waBtn waCall" target="_blank" href="https://wa.me/6285899611111?text=Halo%20Admin%2C%20mau%20telpon%20lewat%20WA...">📞 Call Admin</a>
 </div>
+<div style="text-align:center;margin-top:8px"><a href="javascript:void(0)" onclick="bukaPin('login')" style="color:#888;font-size:12px;text-decoration:none">🔐 Login Admin / Driver</a></div>
 <button class="chat-close" onclick="closeChat()">Tutup</button>
 </div>
 <div id="pinView" style="display:none">
@@ -244,7 +245,7 @@ let previewTimer=null, saranTimer=null;
 let pendingHP='', pendingPass='';
 let jumlahOrang=6;
 let pendingRole=null;
-const PIN_ADMIN='258000';
+// PIN_ADMIN DIHAPUS - dulu PIN admin ditulis di sini, View Source langsung kebobol. Sekarang cek ke database lewat RPC cek_pin_login.
 let pendingKode='';
 let googleSudahDiproses=false;
 const $=id=>document.getElementById(id);
@@ -353,11 +354,9 @@ document.addEventListener('click', function(e){
 function getDB(){try{return JSON.parse(localStorage.getItem('ammo_penumpang_db')||'[]');}catch(e){return [];}}
 function saveDB(db){localStorage.setItem('ammo_penumpang_db',JSON.stringify(db));}
 function getSesi(){try{let s=JSON.parse(localStorage.getItem('ammo_sesi')||'null');if(s&&(s.nama||s.hp||s.email))return s;return null;}catch(e){return null;}}
-// ===== INTI BARU: CUKUP SALAH SATU - GOOGLE ATAU WA =====
 function sudahLogin(s){
   s = s || getSesi();
   if(!s) return false;
-  // Punya google_email aja cukup. Punya no_wa aja cukup. Gak perlu dua-duanya.
   return !!(s.email || s.hp || s.google_email);
 }
 function simpanPendingOrder(){
@@ -408,10 +407,7 @@ async function simpanOrderDanLanjut(){
   let jam=$('jamBerangkat')?$('jamBerangkat').value:'09:00';
   if(!pickupCoord||!destCoord){showToast('Pilih Dulu','Pilih Dari & Tujuan dari saran / peta dulu ya, jangan cuma diketik',true);return;}
   let sesi=getSesi();
-  // Kalau belum login sama sekali (gak ada google, gak ada WA) -> baru suruh login
   if(!sudahLogin(sesi)){ simpanPendingOrder(); setMauOrder(true); bukaAkun(); showToast('Login Dulu','Login pakai Google atau WA dulu ya, salah satu aja cukup',true); return; }
-  // Kalau sudah login (google ATAU WA), JANGAN suruh login yang satunya lagi.
-  // Langsung lanjut, dan lengkapi data di DB diam-diam kalau perlu.
   if(sesi.hp || sesi.email){
     try{ await syncPenumpangKeSupabase(sesi.nama||'Penumpang', sesi.hp||'', sesi.via||'Google', sesi.email||'', sesi.google_id||''); }catch(e){}
   }
@@ -452,9 +448,7 @@ async function cekDriver(){
   let a=$('pickup').value.trim(), b=$('dest').value.trim();
   if(!a||!b){showToast('Lengkapi Dulu','Isi Penjemputan dan Tujuan dulu Bro!',true);return;}
   if(a.indexOf('Mendeteksi')!==-1 && !pickupCoord){showToast('Tunggu GPS','Tunggu GPS keisi dulu ya, atau pilih dari Peta',true);return;}
-  // Sudah login (google ATAU WA) -> langsung order, gak usah cek yang lain
   if(sudahLogin()){ simpanOrderDanLanjut(); return; }
-  // Belum login sama sekali -> baru buka akun
   simpanPendingOrder(); setMauOrder(true); bukaAkun();
 }
 function tutupDaftar(){$('daftarModal').classList.remove('show');}
@@ -480,7 +474,6 @@ async function daftarPenumpang(via){
 }
 async function refreshProfilDariDB(){
   let s=getSesi(); if(!s) return null;
-  // Cari di DB pakai salah satu: google_email dulu, kalau gak ada baru no_wa
   try{
     let cek=null;
     if(s.email){
@@ -493,11 +486,9 @@ async function refreshProfilDariDB(){
       }
     }
     if(cek && cek.data){
-      // Kalau row di DB belum punya google_email padahal user login Google, lengkapi diam-diam
       if(s.email && !cek.data.google_email){
         try{ await supabaseClient.from('penumpang').update({google_email:s.email, google_id:s.google_id||null}).eq('id',cek.data.id); }catch(e){}
       }
-      // Kalau row belum punya no_wa padahal user punya WA, lengkapi diam-diam
       if(s.hp && !cek.data.no_wa){
         try{ await supabaseClient.from('penumpang').update({no_wa:s.hp}).eq('id',cek.data.id); }catch(e){}
       }
@@ -531,7 +522,6 @@ function togglePass(){let p=$('loginPass');p.type=p.type==='password'?'text':'pa
 async function loginWA(){
   let hp=$('loginWA').value.trim();
   if(!hp){showToast('WA Kosong','Isi No. WA dulu',true);return;}
-  // WA aja cukup, gak perlu Google lagi
   try{
     let cek=await supabaseClient.from('penumpang').select('*').eq('no_wa',hp).maybeSingle();
     if(cek.data){
@@ -609,13 +599,31 @@ function confirmMap(){
   try{ if(mapMode==='pickup') localStorage.setItem('ammo_last_gps', JSON.stringify({lat:tempLat,lon:tempLng,nama:tempAddr,waktu:Date.now()})); }catch(e){}
   closeMap();updateSwap();jadwalPreview(true);
 }
+// ===== CHAT + LOGIN - DIPERBAIKI, #admin / #driver DIHAPUS =====
+function getChatSessionId(){
+  let s = localStorage.getItem('ammo_chat_session');
+  if(!s){ s='anon-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8); localStorage.setItem('ammo_chat_session',s); }
+  return s;
+}
+function escHtml(v){ return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+let lastChatAt=0;
+function chatRateLimit(){ const now=Date.now(); if(now-lastChatAt<1500) return false; lastChatAt=now; return true; }
+async function cekBlacklistChat(){
+  try{
+    const s=(typeof getSesi==='function')?getSesi():null;
+    const hp=s?(s.hp||''):'';
+    if(!hp) return false;
+    const r=await supabaseClient.from('blacklist').select('id').eq('no_wa',hp).eq('status','blacklist').maybeSingle();
+    return !!r.data;
+  }catch(e){ return false; }
+}
 let pinKode='';
 function bukaPin(role,kode){
-  pendingRole=role; pendingKode=kode||'#driver';
+  pendingRole=role; pendingKode=kode||'';
   pinKode=''; renderPin();
   $('pinMsg').textContent='';
-  $('pinTitle').textContent = role==='admin' ? 'Masukkan PIN Admin' : 'Masukkan PIN Driver ('+pendingKode+')';
-  $('pinSub').textContent = role==='admin' ? 'Admin • Ammo Travel' : 'Driver • Ammo Travel';
+  $('pinTitle').textContent='Masukkan PIN';
+  $('pinSub').textContent='Admin / Driver • Ammo Travel';
   $('chatView').style.display='none';
   $('pinView').style.display='block';
 }
@@ -624,12 +632,42 @@ function delPin(){pinKode=pinKode.slice(0,-1);renderPin();}
 function clearPin(){pinKode='';renderPin();}
 function renderPin(){let boxes=document.querySelectorAll('.pinBox');boxes.forEach((b,i)=>{b.textContent=i<pinKode.length?'•':'';});}
 async function cekPin(){
-  if(pendingRole==='admin'){ if(pinKode===PIN_ADMIN){localStorage.setItem('ammo_role','admin');window.location.href='admin.html';return;} $('pinMsg').textContent='PIN salah, coba lagi'; $('pinMsg').style.color='#ff6b81'; pinKode='';renderPin(); return; }
-  if(pendingRole==='driver'){ $('pinMsg').textContent='Mengecek ke database...'; $('pinMsg').style.color='#facc15'; try{ let r=await supabaseClient.from('drivers').select('*').eq('kode',pendingKode).eq('pin',pinKode).maybeSingle(); if(r.data){localStorage.setItem('ammo_role','driver');localStorage.setItem('ammo_driver',JSON.stringify(r.data));localStorage.setItem('ammo_driver_id',r.data.id);localStorage.setItem('ammo_driver_nama',r.data.nama);window.location.href='driver.html';return;} }catch(e){console.log(e);} $('pinMsg').textContent='Kode / PIN salah, coba lagi'; $('pinMsg').style.color='#ff6b81'; pinKode='';renderPin(); return; }
+  $('pinMsg').textContent='Mengecek ke database...'; $('pinMsg').style.color='#facc15';
+  try{
+    const r=await supabaseClient.rpc('cek_pin_login',{p_pin:pinKode});
+    if(r.data && r.data.length){
+      const d=r.data[0];
+      if(d.role==='admin'){
+        localStorage.setItem('ammo_role','admin');
+        localStorage.setItem('ammo_admin_email',d.email||'');
+        localStorage.setItem('ammo_admin_nama',d.nama||'');
+        window.location.href='admin.html'; return;
+      }
+      if(d.role==='driver'){
+        if(String(d.status||'').toLowerCase()!=='aktif' && String(d.status||'').toLowerCase()!=='active'){
+          $('pinMsg').textContent='Akun driver belum aktif. Tunggu verifikasi admin.'; $('pinMsg').style.color='#ff6b81'; pinKode=''; renderPin(); return;
+        }
+        localStorage.setItem('ammo_role','driver');
+        localStorage.setItem('ammo_driver',JSON.stringify(d));
+        localStorage.setItem('ammo_driver_id',d.id);
+        localStorage.setItem('ammo_driver_nama',d.nama);
+        window.location.href='driver.html'; return;
+      }
+    }
+  }catch(e){console.log(e);}
+  $('pinMsg').textContent='PIN salah, coba lagi'; $('pinMsg').style.color='#ff6b81'; pinKode=''; renderPin(); return;
 }
 function backToChat(){pendingRole=null;pinKode='';renderPin();$('pinView').style.display='none';$('chatView').style.display='block';}
-document.addEventListener('keydown',e=>{if(e.key==='p'||e.key==='P'){openChat();bukaPin('driver');}});
-async function simpanChat(sender,pesan){try{let pid=localStorage.getItem('ammo_supabase_penumpang_id')||null;let payload={sender:sender,message:pesan};if(pid)payload.penumpang_id=pid;await supabaseClient.from('chats').insert([payload]);}catch(e){console.log('Gagal simpan chat',e);}}
+// DIHAPUS: keydown P yang dulu langsung buka PIN driver. Sekarang tidak ada jalan pintas.
+async function simpanChat(sender,pesan){
+  try{
+    let pid=localStorage.getItem('ammo_supabase_penumpang_id')||null;
+    if(pid && !(typeof getSesi==='function' && getSesi())) pid=null;
+    let payload={sender:sender,message:pesan,session_id:getChatSessionId()};
+    if(pid) payload.penumpang_id=pid;
+    await supabaseClient.from('chats').insert([payload]);
+  }catch(e){console.log('Gagal simpan chat',e);}
+}
 async function botReply(pesan){
   let q=pesan.toLowerCase().trim();
   try{
@@ -653,18 +691,18 @@ async function botReply(pesan){
 async function kirimChat(){
   let inp=$('chatInput');
   let v=inp.value.trim(); if(!v) return;
-  let low=v.toLowerCase().trim();
   inp.value='';
-  if(low==='#admin'){ bukaPin('admin'); return; }
-  if(low.startsWith('#')){ let cekK=await supabaseClient.from('drivers').select('kode').eq('kode',low).maybeSingle(); if(cekK.data){ bukaPin('driver',low); return; } let lg=$('chatLog'); lg.innerHTML+='<div class="chatBubble"><b>Bot Ammo:</b> Kode '+low+' tidak ditemukan.</div>'; return; }
+  if(!chatRateLimit()){ $('chatLog').innerHTML+='<div class="chatBubble">Sabar dulu bro, jangan spam 🙏</div>'; return; }
+  if(await cekBlacklistChat()){ $('chatLog').innerHTML+='<div class="chatBubble">Maaf, akun kamu sedang dibatasi. Hubungi Admin via WA ya.</div>'; return; }
+  // TIDAK ADA LAGI #admin / #driver. Semua pesan dianggap chat biasa. Login hanya lewat tombol 🔐 Login Admin / Driver.
   let log=$('chatLog');
-  log.innerHTML+='<div class="chatBubble"><b>Kamu:</b> '+v.replace(/</g,'&lt;')+'</div>';
+  log.innerHTML+='<div class="chatBubble"><b>Kamu:</b> '+escHtml(v)+'</div>';
   log.scrollTop=log.scrollHeight;
   simpanChat('user',v);
   log.innerHTML+='<div class="chatBubble" id="botTyping">Bot sedang mengetik...</div>';
   let jawab=await botReply(v);
   let t=document.getElementById('botTyping'); if(t) t.remove();
-  log.innerHTML+='<div class="chatBubble"><b>Bot Ammo:</b> '+jawab+'</div>';
+  log.innerHTML+='<div class="chatBubble"><b>Bot Ammo:</b> '+escHtml(jawab)+'</div>';
   log.scrollTop=log.scrollHeight;
   simpanChat('bot',jawab);
 }
@@ -717,21 +755,17 @@ $('dest').addEventListener('input',()=>{destCoord=null;updateSwap();sembunyikanH
 const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
 const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-// ===== SYNC PENUMPANG: CARI PAKAI GOOGLE ATAU WA, SALAH SATU AJA =====
 async function syncPenumpangKeSupabase(nama, hp, via, google_email, google_id){
   try{
     let cek=null;
-    // 1. Cari pakai google_email dulu kalau ada
     if(google_email){
       let c=await supabaseClient.from('penumpang').select('*').eq('google_email',google_email).maybeSingle();
       if(c.data) cek=c;
     }
-    // 2. Kalau gak ketemu, cari pakai no_wa kalau ada
     if((!cek || !cek.data) && hp){
       let c=await supabaseClient.from('penumpang').select('*').eq('no_wa',hp).maybeSingle();
       if(c.data) cek=c;
     }
-    // 3. Ketemu -> lengkapi kolom yang masih kosong, jangan bikin row baru
     if(cek && cek.data){
       let upd={};
       if(google_email && !cek.data.google_email) upd.google_email=google_email;
@@ -744,8 +778,6 @@ async function syncPenumpangKeSupabase(nama, hp, via, google_email, google_id){
       localStorage.setItem('ammo_supabase_penumpang_id',cek.data.id);
       return cek.data.id;
     }
-    // 4. Gak ketemu sama sekali -> baru insert 1 row
-    // Kalau dua-duanya kosong, jangan insert (gak ada identitas)
     if(!hp && !google_email) return null;
     let payload={nama:nama||'Penumpang', via:via||'Google'};
     if(hp) payload.no_wa=hp;
@@ -756,7 +788,6 @@ async function syncPenumpangKeSupabase(nama, hp, via, google_email, google_id){
   }catch(e){ console.log('sync gagal',e); }
   return null;
 }
-// ===== BALIK DARI GOOGLE: GOOGLE AJA CUKUP, GAK PERLU WA =====
 async function prosesBalikanGoogle(){
   if(googleSudahDiproses) return;
   googleSudahDiproses=true;
@@ -768,25 +799,20 @@ async function prosesBalikanGoogle(){
       let idGoogle=session.user.id||'';
       let sesiLama=getSesi();
       if(!sesiLama){
-        // Baru pertama kali Google -> bikin sesi dari Google aja, WA boleh kosong
         let user={nama:namaGoogle, hp:'', email:emailGoogle, google_id:idGoogle, via:'Google'};
         localStorage.setItem('ammo_sesi',JSON.stringify(user));
         sesiLama=user;
       } else {
-        // Sudah ada sesi WA -> jangan timpa, cuma tambahin google-nya
-        // Sudah ada sesi Google -> jangan timpa, cuma lengkapi
         let berubah=false;
         if(emailGoogle && !sesiLama.email){ sesiLama.email=emailGoogle; berubah=true; }
         if(idGoogle && !sesiLama.google_id){ sesiLama.google_id=idGoogle; berubah=true; }
         if(namaGoogle && !sesiLama.nama){ sesiLama.nama=namaGoogle; berubah=true; }
         if(berubah) localStorage.setItem('ammo_sesi',JSON.stringify(sesiLama));
       }
-      // Simpan / lengkapi di Supabase: google aja cukup
       if(emailGoogle){
         try{ await syncPenumpangKeSupabase(sesiLama.nama, sesiLama.hp||'', 'Google', emailGoogle, idGoogle); }catch(e){}
       }
       pulihkanPendingOrder();
-      // GAK ADA LAGI MODAL WA DI SINI. Google aja cukup, langsung lanjut order.
       if(mauLanjutOrder()){
         setTimeout(()=>{ lanjutJikaMauOrder(); }, 600);
       }
