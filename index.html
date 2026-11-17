@@ -8,7 +8,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-serif;color:#fff}
-.phone{max-width:430px;width:100%;margin:0 auto;background:#0f0f0f;position:relative;padding-bottom:78px;overflow:hidden;min-height:100vh}
+.phone{max-width:430px;width:100%;margin:0 auto;background:#0f0f0f;position:relative;padding-bottom:140px;overflow:hidden;min-height:100vh}
 .header{background:#000;color:#d4af37;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #d4af37}
 .logo-left{display:flex;align-items:center;gap:10px;min-width:0}
 .logo-left img{width:44px;height:44px;border-radius:50%;background:#fff;object-fit:cover;flex-shrink:0;border:2px solid #d4af37}
@@ -42,7 +42,7 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 .ongkos-preview .total{font-size:22px;font-weight:bold;color:#d4af37;white-space:nowrap}
 .ongkos-preview .voucher{font-size:14px;color:#aaa;margin-top:6px}
 .btn-cek{display:block;width:calc(100% - 32px);margin:14px 16px 0;background:#d4af37;color:#000;border:none;border-radius:12px;padding:16px;font-size:22px;font-weight:bold;cursor:pointer;position:relative;z-index:5}
-.order-spacer{height:12px}
+.order-spacer{height:90px}
 .chat{width:56px;height:56px;border-radius:50%;background:#d4af37;display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;position:relative}
 .chat i{position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:#ff4444;border-radius:50%;display:none}
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#000;border-top:1px solid #d4af37;display:flex;justify-content:space-around;padding:10px 0;z-index:20}
@@ -115,7 +115,7 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 .toast p{font-size:13px;color:#ddd}
 .toast button{border:none;background:#d4af37;border-radius:8px;padding:8px 12px;font-weight:900;cursor:pointer}
 .gps-note{font-size:12px;color:#d4af37;text-align:center;margin-top:6px;display:none}
-.chat-float{position:fixed !important;right:16px !important;bottom:calc(72px + env(safe-area-inset-bottom)) !important;z-index:999 !important;pointer-events:auto !important;display:flex !important;margin:0 !important}
+.chat-float{position:fixed !important;right:16px !important;bottom:calc(82px + env(safe-area-inset-bottom)) !important;z-index:999 !important;pointer-events:auto !important;display:flex !important;margin:0 !important}
 .chat-float .chat{width:clamp(52px,14vw,62px);height:clamp(52px,14vw,62px);background:linear-gradient(145deg,#f5d67b,#d4af37,#9a7b1a);color:#000;box-shadow:0 8px 24px rgba(212,175,55,.45), inset 0 1px 0 rgba(255,255,255,.6);border:2px solid #f5d67b;pointer-events:auto !important;cursor:pointer !important}
 #pinView{background:radial-gradient(circle at 50% 0%, #2a2100 0%, #000 45%, #000 100%) !important;border-top:2px solid #d4af37 !important;padding:28px 22px 18px !important;text-align:center}
 .lock-logo{width:72px;height:72px;margin:6px auto 10px;border-radius:50%;background:linear-gradient(145deg,#f5d67b,#9a7b1a);color:#000;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 0 0 4px #000, 0 0 0 6px #d4af37, 0 10px 30px rgba(212,175,55,.4)}
@@ -136,13 +136,61 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// === CHAT DI HEAD - DIPISAH BIAR NGGAK IKUT MATI KALAU SCRIPT BAWAH ERROR ===
 try{
-  const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
-  window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-}catch(e){ console.log('Supabase gagal load', e); window.supabaseClient = null; }
-window.openChat = function(){ try{ var m=document.getElementById('chatModal'); if(m){ m.classList.add('show'); m.style.display='flex'; } var pv=document.getElementById('pinView'); if(pv) pv.style.display='none'; var cv=document.getElementById('chatView'); if(cv) cv.style.display='block'; }catch(e){ console.log(e); } };
+  window.supabaseClient = supabase.createClient("https://xxtgmohxdztesiubfxap.supabase.co", "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv");
+}catch(e){ window.supabaseClient = null; }
+window.escHtml = function(v){ return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); };
+window.openChat = function(){ try{ var m=document.getElementById('chatModal'); if(m){ m.classList.add('show'); m.style.display='flex'; } var pv=document.getElementById('pinView'); if(pv) pv.style.display='none'; var cv=document.getElementById('chatView'); if(cv) cv.style.display='block'; }catch(e){} };
 window.closeChat = function(){ try{ var m=document.getElementById('chatModal'); if(m){ m.classList.remove('show'); m.style.display='none'; } try{ var inp=document.getElementById('chatInput'); if(inp) inp.blur(); }catch(e){} }catch(e){} };
+window.kirimChat = function(){
+  try{
+    var inp = document.getElementById('chatInput');
+    var log = document.getElementById('chatLog');
+    var btn = document.getElementById('chatSend');
+    if(!inp || !log) return;
+    var v = inp.value.trim();
+    if(!v){ try{ inp.focus(); }catch(e){} return; }
+    if(btn) btn.textContent = '...';
+    inp.value = '';
+    log.innerHTML += '<div class="chatBubble"><b>Kamu:</b> ' + window.escHtml(v) + '</div>';
+    log.scrollTop = log.scrollHeight;
+    log.innerHTML += '<div class="chatBubble" id="botTyping">Bot sedang mengetik...</div>';
+    log.scrollTop = log.scrollHeight;
+    if(typeof window.botReply === 'function'){
+      window.botReply(v).then(function(jawab){
+        var t = document.getElementById('botTyping'); if(t) t.remove();
+        log.innerHTML += '<div class="chatBubble"><b>Bot Ammo:</b> ' + window.escHtml(jawab||'Siap, kami bantu.') + '</div>';
+        log.scrollTop = log.scrollHeight;
+        try{ window.simpanChat && window.simpanChat('bot', jawab); }catch(e){}
+        if(btn) btn.textContent = '➤';
+      }).catch(function(){
+        var t2 = document.getElementById('botTyping'); if(t2) t2.remove();
+        log.innerHTML += '<div class="chatBubble"><b>Bot Ammo:</b> Siap, kami bantu. Coba ceritain mau ke mana?</div>';
+        if(btn) btn.textContent = '➤';
+      });
+    } else {
+      var t3 = document.getElementById('botTyping'); if(t3) t3.remove();
+      log.innerHTML += '<div class="chatBubble"><b>Bot Ammo:</b> Siap, kami bantu. Coba ceritain mau ke mana? (bot darurat)</div>';
+      if(btn) btn.textContent = '➤';
+    }
+    try{ window.simpanChat && window.simpanChat('user', v); }catch(e){}
+    try{ inp.focus(); }catch(e){}
+  }catch(e){ alert('kirimChat error: '+e.message); }
+};
+// === TUJUAN KOSONG - TELAT BIAR MENANG LAWAN RESTORE BROWSER, TAPI JANGAN HAPUS PENDING ORDER ===
+window.bersihkanTujuan = function(){
+  try{
+    if(localStorage.getItem('ammo_mau_order')==='1' || localStorage.getItem('ammo_pending_order')) return;
+    var d = document.getElementById('dest');
+    if(d){ d.value=''; d.removeAttribute('value'); }
+    try{ localStorage.removeItem('masphus_order'); }catch(e){}
+    var s = document.getElementById('saranDest'); if(s) s.style.display='none';
+    var o = document.getElementById('ongkosPreview'); if(o) o.style.display='none';
+  }catch(e){}
+};
+window.addEventListener('load', function(){ setTimeout(window.bersihkanTujuan, 100); setTimeout(window.bersihkanTujuan, 400); setTimeout(window.bersihkanTujuan, 1000); });
+window.addEventListener('pageshow', function(){ setTimeout(window.bersihkanTujuan, 100); setTimeout(window.bersihkanTujuan, 400); });
 </script>
 </head>
 <body>
@@ -156,7 +204,7 @@ window.closeChat = function(){ try{ var m=document.getElementById('chatModal'); 
 <div id="saranPick" class="saran-box"></div>
 <div class="swap-wrap"><button id="swapBtn" class="swap-btn" onclick="swapLokasi()" disabled title="Tukar Penjemputan & Tujuan">⇅</button></div>
 <div class="lbl">Tujuan</div>
-<div class="row"><input id="dest" placeholder="Ketik / Pilih Tujuan..." autocomplete="off" value=""><button class="btn-map" onclick="openMap('dest')">📍 Peta</button></div>
+<div class="row"><input id="dest" placeholder="Ketik / Pilih Tujuan..." autocomplete="off" value="" name="tujuan_baru_xyz"><button class="btn-map" onclick="openMap('dest')">📍 Peta</button></div>
 <div id="saranDest" class="saran-box"></div>
 <div class="lbl">Berapa Orang</div>
 <div class="orang-wrap">
@@ -404,7 +452,6 @@ function simpanPendingOrder(){
 }
 function pulihkanPendingOrder(){
   try{
-    if(!mauLanjutOrder()) return null;
     let p=JSON.parse(localStorage.getItem('ammo_pending_order')||'null');
     if(!p) return null;
     if(p.asal) $('pickup').value=p.asal;
@@ -437,8 +484,6 @@ async function simpanOrderDanLanjut(){
   let sesi=getSesi();
   if(!sudahLogin(sesi)){ simpanPendingOrder(); setMauOrder(true); bukaAkun(); showToast('Login Dulu','Login pakai Google atau WA dulu ya, salah satu aja cukup',true); return; }
   if(sesi.hp || sesi.email){ try{ await syncPenumpangKeSupabase(sesi.nama||'Penumpang', sesi.hp||'', sesi.via||'Google', sesi.email||'', sesi.google_id||''); }catch(e){} }
-  let tujuanFile = 'penumpang.html';
-  let jenisLayanan = 'Travel Penumpang';
   let jarakKm=null, totalHarga=null, voucherDapat=0, estimasiTeks='', durasiDetik=0, jarakMeter=0;
   try{
     let url=`https://router.project-osrm.org/route/v1/driving/${pickupCoord[1]},${pickupCoord[0]};${destCoord[1]},${destCoord[0]}?overview=false`;
@@ -461,14 +506,14 @@ async function simpanOrderDanLanjut(){
   localStorage.setItem('masphus_order',JSON.stringify({
     asal:{nama:a,lat:pickupCoord?pickupCoord[0]:null,lon:pickupCoord?pickupCoord[1]:null},
     tujuan:{nama:b,lat:destCoord?destCoord[0]:null,lon:destCoord?destCoord[1]:null},
-    waktu:Date.now(),jarak_km:jarakKm,jarak_meter:jarakMeter,total_harga:totalHarga,estimasi:estimasiTeks,durasi_detik:durasiDetik,jumlah_orang:jumlahOrang,voucher_didapat:voucherDapat,jenis_layanan:jenisLayanan,tanggal_berangkat:tgl,jam_berangkat:jam,nama_penumpang:sesi?sesi.nama:null,no_wa:sesi?sesi.hp:null,email:sesi?sesi.email:null,penumpang_id:localStorage.getItem('ammo_supabase_penumpang_id')||null,locked:true,sumber_hitung:'OSRM'
+    waktu:Date.now(),jarak_km:jarakKm,jarak_meter:jarakMeter,total_harga:totalHarga,estimasi:estimasiTeks,durasi_detik:durasiDetik,jumlah_orang:jumlahOrang,voucher_didapat:voucherDapat,jenis_layanan:'Travel Penumpang',tanggal_berangkat:tgl,jam_berangkat:jam,nama_penumpang:sesi?sesi.nama:null,no_wa:sesi?sesi.hp:null,email:sesi?sesi.email:null,penumpang_id:localStorage.getItem('ammo_supabase_penumpang_id')||null,locked:true,sumber_hitung:'OSRM'
   }));
   sessionStorage.setItem('ammo_from_index','1');
   sessionStorage.removeItem('ammo_clear');
   sessionStorage.removeItem('ammo_must_clear_dest');
   setMauOrder(false);
   localStorage.removeItem('ammo_pending_order');
-  window.location.href=tujuanFile;
+  window.location.href='penumpang.html';
 }
 async function cekDriver(){
   let a=$('pickup').value.trim(), b=$('dest').value.trim();
@@ -631,6 +676,7 @@ function confirmMap(){
 }
 function kosongkanTujuan(){
   try{
+    if(mauLanjutOrder() || localStorage.getItem('ammo_pending_order')) return;
     $('dest').value=''; destCoord=null;
     if($('saranDest')) $('saranDest').style.display='none';
     sembunyikanHarga();
@@ -638,24 +684,11 @@ function kosongkanTujuan(){
     updateSwap();
   }catch(e){}
 }
-function resetIndex(){
+try{ if(mauLanjutOrder()) pulihkanPendingOrder(); else kosongkanTujuan(); }catch(e){}
+window.addEventListener('pageshow',function(){
   try{
-    if(mauLanjutOrder()){ pulihkanPendingOrder(); return; }
-    localStorage.removeItem('ammo_pending_order');
+    if(mauLanjutOrder() || localStorage.getItem('ammo_pending_order')){ pulihkanPendingOrder(); return; }
     kosongkanTujuan();
-    sessionStorage.removeItem('ammo_clear');
-    sessionStorage.removeItem('ammo_must_clear_dest');
-    sessionStorage.removeItem('ammo_from_index');
-  }catch(e){}
-}
-try{ resetIndex(); }catch(e){}
-window.addEventListener('pageshow',function(e){
-  try{
-    if(mauLanjutOrder()){ pulihkanPendingOrder(); return; }
-    kosongkanTujuan();
-    sessionStorage.removeItem('ammo_clear');
-    sessionStorage.removeItem('ammo_must_clear_dest');
-    sessionStorage.removeItem('ammo_from_index');
     if(!$('pickup').value.trim()) isiPenjemputanOtomatis();
   }catch(e){}
 });
@@ -667,12 +700,14 @@ try{
 }catch(e){}
 </script>
 <script>
+// === CHAT + PIN + BOT DATABASE - SEMUA DITEMPEL KE window ===
 window.getChatSessionId = function(){
   let s = localStorage.getItem('ammo_chat_session');
   if(!s){ s='anon-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8); localStorage.setItem('ammo_chat_session',s); }
   return s;
 };
-window.escHtml = function(v){ return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); };
+let lastChatAt=0;
+window.chatRateLimit = function(){ const now=Date.now(); if(now-lastChatAt<1500) return false; lastChatAt=now; return true; };
 window.cekBlacklistChat = async function(){
   try{
     if(!window.supabaseClient) return false;
@@ -705,6 +740,32 @@ window.renderPin = function(){
     let boxes=document.querySelectorAll('.pinBox');
     boxes.forEach((b,i)=>{ b.classList.toggle('on', i<pinKode.length); });
   }catch(e){}
+};
+window.cariAkunByCode = async function(codeVal){
+  codeVal = String(codeVal||'').toLowerCase().trim();
+  if(!codeVal) return null;
+  try{
+    if(window.supabaseClient){
+      try{ let r = await supabaseClient.rpc('cek_code_saja', { p_code: codeVal }); if(r && !r.error && r.data && r.data.length) return r.data[0]; }catch(e){}
+      try{ let a = await supabaseClient.from('admin').select('*').ilike('code', codeVal).maybeSingle(); if(a && a.data) { a.data.role='admin'; return a.data; } }catch(e){}
+      try{ let d = await supabaseClient.from('drivers').select('*').ilike('code', codeVal).maybeSingle(); if(d && d.data) { d.data.role='driver'; return d.data; } }catch(e){}
+      try{ let d2 = await supabaseClient.from('driver').select('*').ilike('code', codeVal).maybeSingle(); if(d2 && d2.data) { d2.data.role='driver'; return d2.data; } }catch(e){}
+    }
+  }catch(e){}
+  return null;
+};
+window.cariAkunByCodePin = async function(codeVal, pinVal){
+  codeVal = String(codeVal||'').toLowerCase().trim(); pinVal = String(pinVal||'').trim();
+  if(!codeVal || !pinVal) return null;
+  try{
+    if(window.supabaseClient){
+      try{ let r = await supabaseClient.rpc('cek_pin_login', { p_code: codeVal, p_pin: pinVal }); if(r && !r.error && r.data && r.data.length) return r.data[0]; }catch(e){}
+      try{ let a = await supabaseClient.from('admin').select('*').ilike('code', codeVal).eq('pin', pinVal).maybeSingle(); if(a && a.data) { a.data.role='admin'; return a.data; } }catch(e){}
+      try{ let d = await supabaseClient.from('drivers').select('*').ilike('code', codeVal).eq('pin', pinVal).maybeSingle(); if(d && d.data) { d.data.role='driver'; return d.data; } }catch(e){}
+      try{ let d2 = await supabaseClient.from('driver').select('*').ilike('code', codeVal).eq('pin', pinVal).maybeSingle(); if(d2 && d2.data) { d2.data.role='driver'; return d2.data; } }catch(e){}
+    }
+  }catch(e){}
+  return null;
 };
 window.cekPin = async function(){
   try{
@@ -749,57 +810,6 @@ window.simpanChat = async function(sender,pesan){
     if(pid) payload.penumpang_id=pid;
     await supabaseClient.from('chats').insert([payload]);
   }catch(e){}
-};
-window.cariAkunByCode = async function(codeVal){
-  codeVal = String(codeVal||'').toLowerCase().trim();
-  if(!codeVal) return null;
-  try{
-    if(window.supabaseClient){
-      try{
-        let r = await supabaseClient.rpc('cek_code_saja', { p_code: codeVal });
-        if(r && !r.error && r.data && r.data.length) return r.data[0];
-      }catch(e){}
-      try{
-        let a = await supabaseClient.from('admin').select('*').ilike('code', codeVal).maybeSingle();
-        if(a && a.data) { a.data.role='admin'; return a.data; }
-      }catch(e){}
-      try{
-        let d = await supabaseClient.from('drivers').select('*').ilike('code', codeVal).maybeSingle();
-        if(d && d.data) { d.data.role='driver'; return d.data; }
-      }catch(e){}
-      try{
-        let d2 = await supabaseClient.from('driver').select('*').ilike('code', codeVal).maybeSingle();
-        if(d2 && d2.data) { d2.data.role='driver'; return d2.data; }
-      }catch(e){}
-    }
-  }catch(e){}
-  return null;
-};
-window.cariAkunByCodePin = async function(codeVal, pinVal){
-  codeVal = String(codeVal||'').toLowerCase().trim();
-  pinVal = String(pinVal||'').trim();
-  if(!codeVal || !pinVal) return null;
-  try{
-    if(window.supabaseClient){
-      try{
-        let r = await supabaseClient.rpc('cek_pin_login', { p_code: codeVal, p_pin: pinVal });
-        if(r && !r.error && r.data && r.data.length) return r.data[0];
-      }catch(e){}
-      try{
-        let a = await supabaseClient.from('admin').select('*').ilike('code', codeVal).eq('pin', pinVal).maybeSingle();
-        if(a && a.data) { a.data.role='admin'; return a.data; }
-      }catch(e){}
-      try{
-        let d = await supabaseClient.from('drivers').select('*').ilike('code', codeVal).eq('pin', pinVal).maybeSingle();
-        if(d && d.data) { d.data.role='driver'; return d.data; }
-      }catch(e){}
-      try{
-        let d2 = await supabaseClient.from('driver').select('*').ilike('code', codeVal).eq('pin', pinVal).maybeSingle();
-        if(d2 && d2.data) { d2.data.role='driver'; return d2.data; }
-      }catch(e){}
-    }
-  }catch(e){}
-  return null;
 };
 window.masukDenganCodePin = async function(codeVal, pinVal){
   let kunci = 'ammo_kode_gagal';
@@ -877,12 +887,13 @@ window.botReply = async function(pesan){
     let khusus = await handleKodeKhusus(pesan);
     if(khusus) return khusus;
     let q=String(pesan||'').toLowerCase().trim();
+    // === BOT BACA DATABASE TABEL bot ===
     try{
       if(window.supabaseClient){
         let r=await supabaseClient.from('bot').select('kunci,jawaban');
-        if(r && !r.error && r.data){
+        if(r && !r.error && r.data && r.data.length){
           let ketemu=r.data.find(row=>row.kunci && row.kunci.toLowerCase().trim()===q);
-          if(!ketemu){ketemu=r.data.find(row=>row.kunci && (q.includes(row.kunci.toLowerCase().trim()) || row.kunci.toLowerCase().trim().includes(q)));}
+          if(!ketemu){ ketemu=r.data.find(row=>row.kunci && row.kunci.toLowerCase().trim() && (q.includes(row.kunci.toLowerCase().trim()) || row.kunci.toLowerCase().trim().includes(q))); }
           if(ketemu && ketemu.jawaban) return ketemu.jawaban;
         }
       }
@@ -896,43 +907,12 @@ window.botReply = async function(pesan){
     return 'Siap, kami bantu. Coba ceritain mau ke mana? Atau isi Dari & Tujuan di atas, pilih dari saran, harga langsung muncul. Kalau mau cepat, klik WA Admin di bawah ya.';
   }catch(e){ return 'Siap, kami bantu. Coba ceritain mau ke mana?'; }
 };
-function kirimChat(){
-  try{
-    var inp = document.getElementById('chatInput');
-    if(!inp) return;
-    var v = inp.value.trim();
-    if(!v) return;
-    inp.value = '';
-    var log = document.getElementById('chatLog');
-    if(!log) return;
-    log.innerHTML += '<div class="chatBubble"><b>Kamu:</b> ' + window.escHtml(v) + '</div>';
-    log.scrollTop = log.scrollHeight;
-    try{ window.simpanChat('user', v); }catch(e){}
-    log.innerHTML += '<div class="chatBubble" id="botTyping">Bot sedang mengetik...</div>';
-    log.scrollTop = log.scrollHeight;
-    window.botReply(v).then(function(jawab){
-      try{
-        var t = document.getElementById('botTyping'); if(t) t.remove();
-        if(!jawab) jawab = 'Siap, kami bantu. Coba ceritain mau ke mana?';
-        log.innerHTML += '<div class="chatBubble"><b>Bot Ammo:</b> ' + window.escHtml(jawab) + '</div>';
-        log.scrollTop = log.scrollHeight;
-        try{ window.simpanChat('bot', jawab); }catch(e){}
-      }catch(e){}
-    }).catch(function(){
-      try{
-        var t2 = document.getElementById('botTyping'); if(t2) t2.remove();
-        log.innerHTML += '<div class="chatBubble"><b>Bot Ammo:</b> Siap, kami bantu. Coba ceritain mau ke mana?</div>';
-      }catch(e){}
-    });
-    setTimeout(function(){ try{ inp.focus({preventScroll:true}); }catch(e){ try{ inp.focus(); }catch(err){} } }, 50);
-  }catch(e){
-    try{
-      var log2 = document.getElementById('chatLog');
-      if(log2) log2.innerHTML += '<div class="chatBubble">Chat gagal kekirim, coba lagi ya bro 🙏</div>';
-    }catch(err){}
-  }
-}
-window.kirimChat = kirimChat;
+// Backup listener: kalau onclick gagal, ini yang jalan. Tanpa touchstart biar nggak ngebunuh click di HP
+try{
+  if($('chatSend')) $('chatSend').addEventListener('click', function(){ window.kirimChat(); });
+  if($('chatInput')) $('chatInput').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); window.kirimChat(); } });
+  if($('chatModal')) $('chatModal').addEventListener('click', function(e){ if(e.target.id==='chatModal') window.closeChat(); });
+}catch(e){}
 </script>
 <script>
 async function syncPenumpangKeSupabase(nama, hp, via, google_email, google_id){
@@ -973,7 +953,7 @@ async function prosesBalikanGoogle(){
   if(googleSudahDiproses) return;
   googleSudahDiproses=true;
   try{
-    if(!window.supabaseClient){ return; }
+    if(!window.supabaseClient){ pulihkanPendingOrder(); return; }
     const {data:{session}} = await supabaseClient.auth.getSession();
     if(session && session.user){
       let namaGoogle=session.user.user_metadata?.full_name||session.user.user_metadata?.name||session.user.email?.split('@')[0]||'Penumpang';
@@ -994,9 +974,12 @@ async function prosesBalikanGoogle(){
       if(emailGoogle){
         try{ await syncPenumpangKeSupabase(sesiLama.nama, sesiLama.hp||'', 'Google', emailGoogle, idGoogle); }catch(e){}
       }
+      pulihkanPendingOrder();
       if(mauLanjutOrder()){
         setTimeout(()=>{ lanjutJikaMauOrder(); }, 600);
       }
+    } else {
+      pulihkanPendingOrder();
     }
   }catch(e){}
 }
@@ -1018,14 +1001,6 @@ try{
     function go(e){ if(e){ e.preventDefault(); e.stopPropagation(); } window.openChat(); }
     if(f) f.addEventListener('click', go);
     if(b) b.addEventListener('click', go);
-    var inp=document.getElementById('chatInput');
-    if(inp){
-      inp.addEventListener('keydown', function(e){
-        if(e.key==='Enter'){ e.preventDefault(); kirimChat(); }
-      });
-    }
-    var m=document.getElementById('chatModal');
-    if(m) m.addEventListener('click', function(e){ if(e.target.id==='chatModal') window.closeChat(); });
   }catch(e){}
 })();
 </script>
