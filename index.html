@@ -42,7 +42,6 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 .ongkos-preview .total{font-size:22px;font-weight:bold;color:#d4af37;white-space:nowrap}
 .ongkos-preview .voucher{font-size:14px;color:#aaa;margin-top:6px}
 .btn-cek{display:block;width:calc(100% - 32px);margin:14px 16px 0;background:#d4af37;color:#000;border:none;border-radius:12px;padding:16px;font-size:22px;font-weight:bold;cursor:pointer}
-.chat-row{display:flex;justify-content:center;margin:14px 0}
 .chat{width:56px;height:56px;border-radius:50%;background:#d4af37;display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;position:relative}
 .chat i{position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:#ff4444;border-radius:50%;display:none}
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#000;border-top:1px solid #d4af37;display:flex;justify-content:space-around;padding:10px 0;z-index:20}
@@ -115,10 +114,10 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 .toast p{font-size:13px;color:#ddd}
 .toast button{border:none;background:#d4af37;border-radius:8px;padding:8px 12px;font-weight:900;cursor:pointer}
 .gps-note{font-size:12px;color:#d4af37;text-align:center;margin-top:6px;display:none}
-/* === CHAT MELAYANG - NGIKUTIN LAYAR HP === */
-.chat-row{position:fixed;right:16px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:90;margin:0}
-.chat{width:clamp(52px,14vw,62px);height:clamp(52px,14vw,62px);background:linear-gradient(145deg,#f5d67b,#d4af37,#9a7b1a);color:#000;box-shadow:0 8px 24px rgba(212,175,55,.45), inset 0 1px 0 rgba(255,255,255,.6);border:2px solid #f5d67b}
-@media(max-width:360px){.chat-row{right:12px;bottom:calc(70px + env(safe-area-inset-bottom))}}
+/* === CHAT MELAYANG - DI LUAR .phone, NGIKUTIN LAYAR HP, BISA DIKLIK === */
+.chat-float{position:fixed !important;right:16px !important;bottom:calc(76px + env(safe-area-inset-bottom)) !important;z-index:999 !important;pointer-events:auto !important;display:flex !important;margin:0 !important}
+.chat-float .chat{width:clamp(52px,14vw,62px);height:clamp(52px,14vw,62px);background:linear-gradient(145deg,#f5d67b,#d4af37,#9a7b1a);color:#000;box-shadow:0 8px 24px rgba(212,175,55,.45), inset 0 1px 0 rgba(255,255,255,.6);border:2px solid #f5d67b;pointer-events:auto !important;cursor:pointer !important}
+@media(max-width:360px){.chat-float{right:12px !important;bottom:calc(70px + env(safe-area-inset-bottom)) !important}}
 /* === LAYAR KUNCI - HITAM EMAS MEWAH === */
 #pinView{background:radial-gradient(circle at 50% 0%, #2a2100 0%, #000 45%, #000 100%) !important;border-top:2px solid #d4af37 !important;padding:28px 22px 18px !important;text-align:center}
 .lock-logo{width:72px;height:72px;margin:6px auto 10px;border-radius:50%;background:linear-gradient(145deg,#f5d67b,#9a7b1a);color:#000;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 0 0 4px #000, 0 0 0 6px #d4af37, 0 10px 30px rgba(212,175,55,.4)}
@@ -173,7 +172,6 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 </div>
 </div>
 <button class="btn-cek" onclick="cekDriver()">ORDER NOW</button>
-<div class="chat-row"><div class="chat" id="chatBtn" onclick="openChat()">💬<i></i></div></div>
 </div>
 <div class="nav" id="bottomNav">
 <div class="on"><span>🏠</span>Beranda</div>
@@ -586,6 +584,10 @@ function buatAkunDariNama(){
 }
 function openChat(){$('chatModal').classList.add('show');$('pinView').style.display='none';$('chatView').style.display='block';}
 function closeChat(){$('chatModal').classList.remove('show');}
+document.addEventListener('DOMContentLoaded', ()=>{
+  let f=$('chatFloat'); if(f) f.onclick=()=>{ openChat(); };
+  let b=$('chatBtn'); if(b) b.onclick=(e)=>{ e.stopPropagation(); openChat(); };
+});
 function openMap(mode){
   mapMode=mode;
   if(mode==='pickup'&&pickupCoord){tempLat=pickupCoord[0];tempLng=pickupCoord[1];}
@@ -620,7 +622,6 @@ function confirmMap(){
   try{ if(mapMode==='pickup') localStorage.setItem('ammo_last_gps', JSON.stringify({lat:tempLat,lon:tempLng,nama:tempAddr,waktu:Date.now()})); }catch(e){}
   closeMap();updateSwap();jadwalPreview(true);
 }
-// ===== CHAT + LOGIN - PINTU SAMAR, CEK CODE + PIN DI ADMIN + DRIVERS =====
 function getChatSessionId(){
   let s = localStorage.getItem('ammo_chat_session');
   if(!s){ s='anon-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8); localStorage.setItem('ammo_chat_session',s); }
@@ -931,5 +932,7 @@ try{
   });
 }catch(e){}
 </script>
+<!-- TOMBOL CHAT MELAYANG - DI LUAR .phone BIAR BISA DIKLIK -->
+<div class="chat-float" id="chatFloat"><div class="chat" id="chatBtn">💬<i></i></div></div>
 </body>
 </html>
