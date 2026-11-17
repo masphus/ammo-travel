@@ -117,7 +117,7 @@ textarea{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#11
     <a data-page="blacklist"><span class="mi">🚫</span> Blacklist</a>
     <a data-page="pengaturan"><span class="mi">⚙️</span> Pengaturan</a>
   </div>
-  <div style="padding:20px;color:#888;font-size:12px">Login sebagai:<br><b id="adminNameLabel" style="color:#f5d67b;font-size:15px">Memeriksa...</b><br><br><button class="btn btn-tolak" onclick="doLogout()" style="background:#ff0000;color:#fff;border:1px solid #ff0000;font-size:15px;padding:10px 18px;width:100%">🏃‍♂️ MINGGAT / KELUAR</button></div>
+  <div style="padding:20px;color:#888;font-size:12px">Login sebagai:<br><b id="adminNameLabel" style="color:#f5d67b;font-size:15px">Memeriksa...</b><br><br><button class="btn btn-tolak" onclick="doLogout()">Keluar</button></div>
 </div>
 
 <div class="main">
@@ -272,20 +272,59 @@ function bukaAntrianDariDashboard(id){
   setTimeout(()=>{ const el=document.getElementById('jawab-'+id); if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.focus(); el.style.border='2px solid #f5d67b'; } },300);
 }
 async function doLogout(){
-  await sb.auth.signOut();
+  try{ localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); localStorage.removeItem('ammo_role'); }catch(e){}
+  try{ await sb.auth.signOut(); }catch(e){}
   currentAdmin=null;
   lemparKeIndex();
 }
-// CEK ADMIN TANPA TOMBOL LOGIN - LANGSUNG LEMPAR KE INDEX KALAU BUKAN ADMIN
-// B2 - SATPAM BARU
-async function ambilIP(){ try{ const r=await fetch('https://api.ipify.org?format=json'); const j=await r.json(); return j.ip||'IP-tidak-kedetek'; }catch(e){ return 'IP-tidak-kedetek'; } }
-async function catetMaling(email, ip, jenis){ try{ await sb.from('blacklist').insert([{ no_wa: ip, alasan: '🚨 '+jenis+' - Coba masuk admin pake Google: '+email+' | IP: '+ip, jumlah_cancel: 1, status: 'blacklist' }]); }catch(e){ console.log('Gagal catet maling:', e.message); } }
+// ===== SATPAM ADMIN - NANGKEP MALING DI SINI, BUKAN DI INDEX =====
+// Index cuma nganter. Admin yang cek karcis. Karcis format dari index: code|pin|kadaluarsa (Date.now + 2 jam)
+async function ambilIP(){
+  try{ const r=await fetch('https://api.ipify.org?format=json'); const j=await r.json(); return j.ip||'IP-tidak-kedetek'; }catch(e){ return 'IP-tidak-kedetek'; }
+}
+async function catetMaling(kodeInfo, ip, jenis){
+  try{ await sb.from('blacklist').insert([{ no_wa: ip, alasan: '🚨 '+jenis+' - '+kodeInfo+' | IP: '+ip, jumlah_cancel: 1, status: 'blacklist' }]); }catch(e){ console.log('Gagal catet maling:', e.message); }
+}
 async function cekSesi(){
-  const {data} = await sb.auth.getSession();
-  if(!data?.session){ lemparKeIndex(); return; }
-  const email = data.session.user.email;
-  const {data:adm} = await sb.from('admin').select('*').eq('email', email.toLowerCase()).single();
-  if(!adm){ const ip=await ambilIP(); await catetMaling(email, ip, 'MALING'); await sb.auth.signOut(); lemparKeIndex(); return; }
+  let tok = '';
+  try{ tok = sessionStorage.getItem('ammo_admin_token') || localStorage.getItem('ammo_admin_token') || ''; }catch(e){}
+  if(!tok){
+    const ip = await ambilIP();
+    await catetMaling('Masuk admin tanpa karcis, langsung ketik admin.html', ip, 'MALING TANPA KARCIS');
+    lemparKeIndex(); return;
+  }
+  const parts = String(tok).split('|');
+  if(parts.length < 3){
+    const ip = await ambilIP();
+    await catetMaling('Karcis rusak: '+tok, ip, 'MALING KARCIS PALSU');
+    lemparKeIndex(); return;
+  }
+  const codeVal = String(parts[0]||'').toLowerCase().trim();
+  const pinVal = String(parts[1]||'').trim();
+  const expiry = Number(parts[2]||0);
+  if(!codeVal || !pinVal || !expiry || Date.now() > expiry){
+    const ip = await ambilIP();
+    await catetMaling('Karcis kadaluarsa / kosong. Code: '+codeVal, ip, 'MALING KARCIS KADALUARSA');
+    try{ localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); }catch(e){}
+    lemparKeIndex(); return;
+  }
+  let adm = null;
+  try{
+    const r = await sb.rpc('cek_pin_login', { p_code: codeVal, p_pin: pinVal });
+    if(r && !r.error && r.data && r.data.length) adm = r.data[0];
+  }catch(e){}
+  if(!adm){
+    try{
+      const a = await sb.from('admin').select('*').ilike('code', codeVal).eq('pin', pinVal).maybeSingle();
+      if(a && a.data) adm = a.data;
+    }catch(e){}
+  }
+  if(!adm || String(adm.role||'admin').toLowerCase() !== 'admin'){
+    const ip = await ambilIP();
+    await catetMaling('Code+PIN di karcis salah / bukan admin. Code: '+codeVal+' PIN: '+pinVal, ip, 'MALING KARCIS PALSU');
+    try{ localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); }catch(e){}
+    lemparKeIndex(); return;
+  }
   currentAdmin=adm; adminPinCache=String(adm.pin||'');
   document.getElementById('adminNameLabel').textContent = (adm.nama || adm.email) + ' - Super Admin';
   document.getElementById('adminTopLabel').textContent = (adm.nama || 'Admin') + ' ▽';
@@ -318,6 +357,7 @@ function mapZoom(d){
 function updateDriverPins(){
   if(!mapObj || !mapDriverLayer) return;
   mapDriverLayer.clearLayers();
+  // Pin = lokasi driver asli dari lat/lng. Kalau tidak ada lat/lng, tidak ada pin palsu.
   const withGps = cacheDrivers.filter(d=>d.lat && d.lng);
   withGps.forEach(d=>{
     const m = L.marker([Number(d.lat), Number(d.lng)]).bindPopup(`<b>${esc(d.nama||'Driver')}</b><br>${esc(d.jenis_mobil||'')} • ${esc(d.plat_mobil||'')}<br>Status: ${esc(d.status||'')}`);
