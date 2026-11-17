@@ -4,33 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Driver - Black Gold</title>
-<script>
-// ===== PENGAMAN KARCIS - BACA APA YANG DIBAWA BOT DARI INDEX =====
-(function(){
-  try{
-    var tok = localStorage.getItem('ammo_driver_token') || localStorage.getItem('ammo_admin_token') || '';
-    var role = localStorage.getItem('ammo_role') || '';
-    var driverJson = localStorage.getItem('ammo_driver') || '';
-    if(!tok || !driverJson || role !== 'driver'){
-      window.location.replace('404.html');
-      return;
-    }
-    var parts = String(tok).split('|');
-    if(parts.length < 3){
-      window.location.replace('404.html');
-      return;
-    }
-    var exp = Number(parts[2]);
-    if(!exp || Date.now() > exp){
-      try{ localStorage.removeItem('ammo_driver_token'); localStorage.removeItem('ammo_driver'); localStorage.removeItem('ammo_role'); }catch(e){}
-      window.location.replace('404.html');
-      return;
-    }
-  }catch(e){
-    window.location.replace('404.html');
-  }
-})();
-</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
@@ -83,11 +56,12 @@ h3{padding:18px 20px 10px;color:#E8C86A;font-size:17px}
 .nav a.aktif{color:#E8C86A}
 .nav span{display:block;font-size:20px}
 .empty{margin:0 20px;text-align:center;color:#777;font-size:13px;padding:14px;border:1px dashed #333;border-radius:10px}
-#loading{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:99;font-size:14px;color:#D4AF37}
+#loading{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:99;font-size:14px;color:#D4AF37;flex-direction:column;gap:10px}
+#loading button{background:#D4AF37;border:none;padding:10px 18px;border-radius:10px;font-weight:800;cursor:pointer;display:none}
 </style>
 </head>
 <body>
-<div id="loading">👻 Mengecek karcis...</div>
+<div id="loading"><div id="loadingTxt">👻 Mengecek karcis...</div><button id="btnBalik" onclick="keIndex()">⬅ Balik ke Beranda</button></div>
 
 <div class="top">
   <h1>Halo, <span id="namaDriver">Driver</span></h1>
@@ -123,80 +97,98 @@ h3{padding:18px 20px 10px;color:#E8C86A;font-size:17px}
 <script>
 const SUPABASE_URL = 'https://xxtgmohxdztesiubfxap.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let driver = null;
 let orderAktif = null;
-function rupiah(n){ return 'Rp ' + (n||0).toLocaleString('id-ID'); }
-function ke404(){ try{ localStorage.removeItem('ammo_driver_token'); localStorage.removeItem('ammo_driver'); localStorage.removeItem('ammo_role'); }catch(e){} window.location.replace('404.html'); }
+let sudahMasuk = false;
+function rupiah(n){ return 'Rp ' + (Number(n)||0).toLocaleString('id-ID'); }
+function keIndex(){
+  try{ localStorage.removeItem('ammo_driver_token'); localStorage.removeItem('ammo_driver'); localStorage.removeItem('ammo_driver_id'); localStorage.removeItem('ammo_driver_nama'); }catch(e){}
+  window.location.replace('index.html');
+}
+function gagal(msg){
+  if(sudahMasuk) return;
+  var t = document.getElementById('loadingTxt');
+  if(t) t.textContent = msg || 'Karcis tidak valid. Balik ke beranda ya.';
+  var b = document.getElementById('btnBalik');
+  if(b) b.style.display = 'block';
+}
+function esc(s){ return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// ===== BACA KARCIS DARI BOT + VALIDASI ULANG KE DATABASE =====
-// FIX PIN ANGKA: jangan .eq('pin', "123456") karena pin di DB itu int.
-// Caranya: cari pake code doang, lalu bandingin PIN pake String() biar 123456 == "123456"
+// FIX 1: Terima token dari ammo_driver_token ATAU ammo_admin_token (cadangan)
+// FIX 2: Jangan wajibin ammo_driver JSON & role di localStorage, validasi dari DB aja.
+// Karena index kadang nyimpen token admin di ammo_driver_token, jadi token bisa ketuker.
+function bacaKarcis(){
+  var tok = '';
+  try{ tok = localStorage.getItem('ammo_driver_token') || localStorage.getItem('ammo_admin_token') || sessionStorage.getItem('ammo_admin_token') || ''; }catch(e){}
+  if(!tok) return null;
+  var parts = String(tok).split('|');
+  if(parts.length < 3) return null;
+  var codeVal = String(parts[0]||'').replace(/^[#@]+/,'').toLowerCase().trim();
+  var pinVal = String(parts[1]||'').trim();
+  var exp = Number(parts[2]||0);
+  if(!codeVal || !pinVal || !exp || Date.now() > exp) return null;
+  return { codeVal: codeVal, pinVal: pinVal, exp: exp, raw: tok };
+}
+
 async function cekAkses(){
+  var k = bacaKarcis();
+  if(!k){ gagal('Karcis kosong / kadaluarsa. Login lagi dari beranda ya.'); return; }
+  var codeVal = k.codeVal, pinVal = k.pinVal;
+  var hasil = null;
+
+  // 1. RPC - WAJIB filter role driver, karena RPC sekarang UNION admin + driver
   try{
-    let tok = localStorage.getItem('ammo_driver_token') || '';
-    let role = localStorage.getItem('ammo_role') || '';
-    let driverKarcis = null;
-    try{ driverKarcis = JSON.parse(localStorage.getItem('ammo_driver') || 'null'); }catch(e){ driverKarcis = null; }
+    var r = await sb.rpc('cek_pin_login', { p_code: codeVal, p_pin: pinVal });
+    if(r && !r.error && r.data && r.data.length){
+      var list = Array.isArray(r.data) ? r.data : [r.data];
+      hasil = list.find(function(x){ return String(x.role||'').toLowerCase() === 'driver'; }) || null;
+      // Kalau RPC cuma ngembaliin admin (code ketuker), jangan dipake buat driver
+      if(!hasil && list.length && String(list[0].role||'').toLowerCase() === 'admin') hasil = null;
+    }
+  }catch(e){}
 
-    if(!tok || role !== 'driver' || !driverKarcis){ ke404(); return; }
-
-    let parts = String(tok).split('|');
-    let codeVal = String(parts[0]||'').toLowerCase().trim();
-    let pinVal = String(parts[1]||'').trim();
-    let exp = Number(parts[2]||0);
-    if(!codeVal || !pinVal || !exp || Date.now() > exp){ ke404(); return; }
-
-    // 1. Coba RPC dulu (kalau ada di Supabase lu)
-    let hasil = null;
+  // 2. Fallback tabel drivers - cari pake CODE doang, PIN dibandingin pake String()
+  if(!hasil){
     try{
-      let r = await supabase.rpc('cek_pin_login', { p_code: codeVal, p_pin: pinVal });
-      if(r && !r.error && r.data && r.data.length) hasil = r.data[0];
+      var d = await sb.from('drivers').select('*').ilike('code', codeVal).maybeSingle();
+      if(d && d.data && String(d.data.pin) === String(pinVal)) hasil = d.data;
     }catch(e){}
+  }
 
-    // 2. Fallback: tabel drivers - cari pake CODE doang
-    if(!hasil){
-      try{
-        let d = await supabase.from('drivers').select('*').ilike('code', codeVal).maybeSingle();
-        if(d && d.data && String(d.data.pin) === pinVal) hasil = d.data;
-      }catch(e){}
-    }
+  // 3. Fallback tabel driver lama
+  if(!hasil){
+    try{
+      var d2 = await sb.from('driver').select('*').ilike('code', codeVal).maybeSingle();
+      if(d2 && d2.data && String(d2.data.pin) === String(pinVal)) hasil = d2.data;
+    }catch(e){}
+  }
 
-    // 3. Fallback terakhir: tabel driver (kalau masih ada tabel lama)
-    if(!hasil){
-      try{
-        let d2 = await supabase.from('driver').select('*').ilike('code', codeVal).maybeSingle();
-        if(d2 && d2.data && String(d2.data.pin) === pinVal) hasil = d2.data;
-      }catch(e){}
-    }
+  if(!hasil){ gagal('Code / PIN driver tidak ketemu di database.'); return; }
 
-    // Code/Pin gak ketemu -> 404
-    if(!hasil){ ke404(); return; }
+  // Status harus aktif
+  var st = String(hasil.status || '').toLowerCase().trim();
+  if(st !== 'aktif' && st !== 'active'){ gagal('Akun driver belum aktif. Minta admin aktifin dulu ya.'); return; }
 
-    // Status harus aktif
-    let st = String(hasil.status || '').toLowerCase();
-    if(st !== 'aktif' && st !== 'active'){ ke404(); return; }
+  driver = hasil;
+  sudahMasuk = true;
+  try{ localStorage.setItem('ammo_driver', JSON.stringify(driver)); }catch(e){}
+  try{ localStorage.setItem('ammo_driver_id', driver.id); }catch(e){}
+  try{ localStorage.setItem('ammo_driver_nama', driver.nama || ''); }catch(e){}
+  try{ localStorage.setItem('ammo_role', 'driver'); }catch(e){}
+  // FIX 3: JANGAN update is_online / last_seen di sini. Kolom itu gak ada di tabel drivers,
+  // bikin request error terus. Online cukup di memori aja.
+  try{ localStorage.setItem('ammo_driver_token', codeVal + '|' + pinVal + '|' + k.exp); }catch(e){}
 
-    driver = hasil;
-    try{ localStorage.setItem('ammo_driver', JSON.stringify(driver)); }catch(e){}
-    try{ localStorage.setItem('ammo_driver_id', driver.id); }catch(e){}
-    try{ localStorage.setItem('ammo_driver_nama', driver.nama || ''); }catch(e){}
-
-    try{ await supabase.from('drivers').update({ is_online:true, last_seen:new Date().toISOString() }).eq('id', driver.id); }catch(e){}
-
-  }catch(e){ ke404(); return; }
-
-  document.getElementById('loading').style.display='none';
+  document.getElementById('loading').style.display = 'none';
   tampilDriver();
   loadOrderBaru();
   loadRiwayat();
   try{
-    supabase.channel('orders-realtime').on('postgres_changes',{event:'*',schema:'public',table:'orders'},()=>{ loadOrderBaru(); loadRiwayat(); }).subscribe();
+    sb.channel('bookings-realtime').on('postgres_changes',{event:'*',schema:'public',table:'bookings'},function(){ loadOrderBaru(); loadRiwayat(); }).subscribe();
   }catch(e){}
 }
-
-setTimeout(()=>{ if(!driver && document.getElementById('loading').style.display !== 'none'){ ke404(); } }, 5000);
 
 function tampilDriver(){
   document.getElementById('namaDriver').textContent = driver.nama || 'Driver';
@@ -205,58 +197,97 @@ function tampilDriver(){
   updateTombolOnline();
 }
 function updateTombolOnline(){
-  let btn=document.getElementById('btnOnline'), dot=document.getElementById('dotOnline'), txt=document.getElementById('txtOnline'), st=document.getElementById('txtStatus');
-  if(driver.is_online){ btn.classList.remove('off'); dot.classList.remove('off'); txt.textContent='ONLINE'; st.textContent='● Aktif menerima order ●'; st.classList.remove('off'); }
+  var btn=document.getElementById('btnOnline'), dot=document.getElementById('dotOnline'), txt=document.getElementById('txtOnline'), st=document.getElementById('txtStatus');
+  // Default ONLINE, karena status driver di DB udah aktif
+  var online = driver.is_online !== false;
+  if(online){ btn.classList.remove('off'); dot.classList.remove('off'); txt.textContent='ONLINE'; st.textContent='● Aktif menerima order ●'; st.classList.remove('off'); }
   else { btn.classList.add('off'); dot.classList.add('off'); txt.textContent='OFFLINE'; st.textContent='● Kamu sedang offline ●'; st.classList.add('off'); }
 }
-async function toggleOnline(){
-  driver.is_online = !driver.is_online;
-  try{ await supabase.from('drivers').update({is_online:driver.is_online, last_seen:new Date().toISOString()}).eq('id', driver.id); }catch(e){}
+function toggleOnline(){
+  driver.is_online = !(driver.is_online !== false);
   updateTombolOnline();
 }
+
+// FIX 4: Order asli ada di tabel bookings, bukan orders. Coba bookings dulu, baru orders.
+function normalisasiOrder(o){
+  if(!o) return null;
+  return {
+    id: o.id,
+    kode: o.kode || o.id,
+    pickup: o.pickup || o.dari_lokasi || o.dari || o.asal || '-',
+    tujuan: o.tujuan || o.destination || o.ke_lokasi || o.ke || '-',
+    jarak: o.jarak || o.jarak_km || o.jarak_meter || '-',
+    estimasi: o.estimasi || o.estimasi_teks || '-',
+    harga: o.harga || o.tarif || o.total_harga || o.nominal || 0,
+    status: o.status || '-'
+  };
+}
+async function ambilOrderBaru(){
+  // bookings = tabel asli penumpang.html / admin.html
+  try{
+    var b = await sb.from('bookings').select('*').eq('status','baru').order('created_at',{ascending:true}).limit(1).maybeSingle();
+    if(b && b.data) return normalisasiOrder(b.data);
+  }catch(e){}
+  try{
+    var o = await sb.from('orders').select('*').eq('status','baru').order('created_at',{ascending:true}).limit(1).maybeSingle();
+    if(o && o.data) return normalisasiOrder(o.data);
+  }catch(e){}
+  return null;
+}
 async function loadOrderBaru(){
-  let {data} = await supabase.from('orders').select('*').eq('status','baru').order('created_at',{ascending:true}).limit(1).maybeSingle();
-  let box=document.getElementById('orderBaru');
-  let btn=document.getElementById('btnTerima');
-  if(!data){ orderAktif=null; box.innerHTML='<div class="empty">Belum ada order baru, tunggu ya bro... ☕</div>'; btn.disabled=true; return; }
-  orderAktif=data;
-  btn.disabled=false;
-  box.innerHTML=`
-  <div class="card-order">
-    <span class="badge">BARU</span>
-    <div class="order-id">Order #${data.kode || data.id.toString().slice(0,6).toUpperCase()}</div>
-    <div class="pick"><div class="ico">📍</div><div><small>Pickup:</small><br><b>${data.pickup || '-'}</b></div></div>
-    <div class="pick" style="border:none;padding-bottom:0"><div class="ico">📍</div><div><small>Tujuan:</small><br><b>${data.tujuan || data.destination || '-'}</b></div></div>
-    <div class="chips">
-      <span class="chip">↗ ${data.jarak || data.jarak_km || '3.2'} km</span>
-      <span class="chip">🕒 ${data.estimasi || '12'} menit</span>
-      <span class="chip">💰 ${rupiah(data.harga || data.tarif || data.total_harga || 0)}</span>
-    </div>
-  </div>`;
+  try{
+    var data = await ambilOrderBaru();
+    var box=document.getElementById('orderBaru');
+    var btn=document.getElementById('btnTerima');
+    if(!data){ orderAktif=null; box.innerHTML='<div class="empty">Belum ada order baru, tunggu ya bro... ☕</div>'; btn.disabled=true; return; }
+    orderAktif=data;
+    btn.disabled=false;
+    box.innerHTML='<div class="card-order"><span class="badge">BARU</span><div class="order-id">Order #'+esc(String(data.kode).slice(0,6).toUpperCase())+'</div><div class="pick"><div class="ico">📍</div><div><small>Pickup:</small><br><b>'+esc(data.pickup)+'</b></div></div><div class="pick" style="border:none;padding-bottom:0"><div class="ico">📍</div><div><small>Tujuan:</small><br><b>'+esc(data.tujuan)+'</b></div></div><div class="chips"><span class="chip">↗ '+esc(data.jarak)+' km</span><span class="chip">🕒 '+esc(data.estimasi)+'</span><span class="chip">💰 '+rupiah(data.harga)+'</span></div></div>';
+  }catch(e){
+    document.getElementById('orderBaru').innerHTML='<div class="empty">Belum ada order baru, tunggu ya bro... ☕</div>';
+  }
 }
 async function terimaOrder(){
   if(!orderAktif) return;
   if(!confirm('Terima Order #' + (orderAktif.kode||'') + ' ?')) return;
-  await supabase.from('orders').update({status:'diterima', driver_id:driver.id, driver_code:driver.code, updated_at:new Date().toISOString()}).eq('id', orderAktif.id);
+  try{
+    var upd = { status:'diterima', driver_id: driver.id, driver_code: driver.code, updated_at: new Date().toISOString() };
+    var r1 = await sb.from('bookings').update(upd).eq('id', orderAktif.id);
+    if(r1 && r1.error) await sb.from('orders').update(upd).eq('id', orderAktif.id);
+  }catch(e){}
   alert('Order diterima! Gas bro! 🛵💨');
   loadOrderBaru(); loadRiwayat();
 }
 async function loadRiwayat(){
-  let {data} = await supabase.from('orders').select('*').eq('driver_id', driver.id).order('created_at',{ascending:false}).limit(10);
-  if(!data || data.length===0){
-    let all = await supabase.from('orders').select('*').eq('status','selesai').order('created_at',{ascending:false}).limit(5);
-    data = all.data || [];
+  if(!driver) return;
+  var box=document.getElementById('daftarOrder');
+  var data = [];
+  try{
+    var r = await sb.from('bookings').select('*').eq('driver_id', driver.id).order('created_at',{ascending:false}).limit(10);
+    if(r && r.data && r.data.length) data = r.data.map(normalisasiOrder);
+  }catch(e){}
+  if(!data.length){
+    try{
+      var r2 = await sb.from('bookings').select('*').eq('status','selesai').order('created_at',{ascending:false}).limit(5);
+      if(r2 && r2.data) data = r2.data.map(normalisasiOrder);
+    }catch(e){}
   }
-  let box=document.getElementById('daftarOrder');
+  if(!data.length){
+    try{
+      var r3 = await sb.from('orders').select('*').eq('driver_id', driver.id).order('created_at',{ascending:false}).limit(10);
+      if(r3 && r3.data) data = r3.data.map(normalisasiOrder);
+    }catch(e){}
+  }
   if(!data || data.length===0){ box.innerHTML='<div class="empty">Belum ada riwayat order.</div>'; return; }
-  box.innerHTML = data.map(o=>`
-    <div class="item">
-      <div><b>Order #${o.kode || o.id.toString().slice(0,6).toUpperCase()} • ${o.status==='selesai'?'Selesai':o.status||'Selesai'}</b><br><small>${o.pickup||''} → ${o.tujuan||o.destination||''} • ${rupiah(o.harga||o.tarif||o.total_harga||0)}</small></div>
-      <span class="sts">${o.status==='selesai'?'Selesai':o.status||'Selesai'}</span>
-    </div>`).join('');
+  box.innerHTML = data.map(function(o){
+    return '<div class="item"><div><b>Order #'+esc(String(o.kode).slice(0,6).toUpperCase())+' • '+(o.status==='selesai'?'Selesai':esc(o.status))+'</b><br><small>'+esc(o.pickup)+' → '+esc(o.tujuan)+' • '+rupiah(o.harga)+'</small></div><span class="sts">'+(o.status==='selesai'?'Selesai':esc(o.status))+'</span></div>';
+  }).join('');
 }
-function topup(){ let n=prompt('Mau Top Up berapa? Contoh: 50000'); if(!n) return; alert('Top Up Rp '+Number(n).toLocaleString('id-ID')+' - Hubungi admin untuk konfirmasi ya bro!'); }
+function topup(){ var n=prompt('Mau Top Up berapa? Contoh: 50000'); if(!n) return; alert('Top Up Rp '+Number(n).toLocaleString('id-ID')+' - Hubungi admin untuk konfirmasi ya bro!'); }
 function logout(){ if(confirm('Keluar?')){ try{ localStorage.removeItem('ammo_driver_token'); localStorage.removeItem('ammo_driver'); localStorage.removeItem('ammo_role'); localStorage.removeItem('ammo_driver_id'); localStorage.removeItem('ammo_driver_nama'); }catch(e){} window.location.replace('index.html'); } }
+
+// Timeout pengaman: kalau 8 detik belum masuk, jangan muter terus, kasih tombol balik
+setTimeout(function(){ if(!sudahMasuk && document.getElementById('loading').style.display !== 'none'){ gagal('Lama banget ngeceknya, kemungkinan jaringan / database lambat. Coba balik & login lagi ya.'); } }, 8000);
 
 cekAkses();
 </script>
