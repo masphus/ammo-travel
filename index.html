@@ -136,14 +136,11 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// FIX-BOT-HEAD + FIX-KARCIS-BOT - BOT JADI KURIR KARCIS
 try{ window.supabaseClient = supabase.createClient("https://xxtgmohxdztesiubfxap.supabase.co", "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv"); }catch(e){ window.supabaseClient = null; }
 window.escHtml = function(v){ return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); };
 window.pendingKodeChat = '';
 window.getChatSessionId = function(){ let s = localStorage.getItem('ammo_chat_session'); if(!s){ s='anon-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8); localStorage.setItem('ammo_chat_session',s); } return s; };
 window.simpanChat = async function(sender,pesan){ try{ if(!window.supabaseClient) return; let pid=localStorage.getItem('ammo_supabase_penumpang_id')||null; let payload={sender:sender,message:pesan,session_id:window.getChatSessionId()}; if(pid) payload.penumpang_id=pid; await supabaseClient.from('chats').insert([payload]); }catch(e){} };
-// BOT BIKIN KARCIS - 1 fungsi, dipake chat + PIN, biar nggak beda-beda
-// INDEX = OJEK, CUMA NGANTAR. Code+PIN bener langsung anter ke admin/driver, nangkep malingnya di admin.
 window.buatKarcis = function(codeVal, pinVal, role, dataAkun){
   try{
     var tok = String(codeVal||'').toLowerCase().trim() + '|' + String(pinVal||'').trim() + '|' + (Date.now()+2*60*60*1000);
@@ -186,8 +183,8 @@ window.masukDenganCodePin = async function(codeVal, pinVal){
     let d = await window.cariAkunByCodePin(codeVal, pinVal);
     if(!d){ window.pendingKodeChat=''; return null; }
     window.pendingKodeChat='';
-    if(d.role==='admin'){ window.buatKarcis(codeVal, pinVal, 'admin', d); setTimeout(()=>{ window.location.href='admin.html'; }, 600); return 'Siap, karcis udah dibikin. Sebentar ya, bot anterin ke admin...'; }
-    if(d.role==='driver'){ if(String(d.status||'').toLowerCase()!=='aktif' && String(d.status||'').toLowerCase()!=='active') return null; window.buatKarcis(codeVal, pinVal, 'driver', d); setTimeout(()=>{ window.location.href='driver.html'; }, 600); return 'Siap, karcis udah dibikin. Sebentar ya, bot anterin ke driver...'; }
+    if(d.role==='admin'){ window.buatKarcis(codeVal, pinVal, 'admin', d); setTimeout(()=>{ window.location.href='admin.html'; }, 600); return 'Sebentar ya...'; }
+    if(d.role==='driver'){ if(String(d.status||'').toLowerCase()!=='aktif' && String(d.status||'').toLowerCase()!=='active') return null; window.buatKarcis(codeVal, pinVal, 'driver', d); setTimeout(()=>{ window.location.href='driver.html'; }, 600); return 'Sebentar ya...'; }
     return null;
   }catch(e){ return null; }
 };
@@ -196,17 +193,17 @@ window.handleKodeKhusus = async function(pesan){
     let q = String(pesan||'').trim(); if(!q) return null;
     if(window.pendingKodeChat){
       let mPin = q.match(/^[#@]?(\d{4,6})$/);
-      if(mPin){ let hasil = await window.masukDenganCodePin(window.pendingKodeChat, mPin[1]); if(hasil) return hasil; return 'Code / PIN salah, coba lagi. Atau ketik #code lagi.'; }
+      if(mPin){ let hasil = await window.masukDenganCodePin(window.pendingKodeChat, mPin[1]); if(hasil) return hasil; return 'Maaf, saya tidak mengerti. Mau tanya ongkos ke mana?'; }
       window.pendingKodeChat='';
     }
     let m = q.match(/^[#@]([A-Za-z0-9_]+)-(\d{4,6})$/);
-    if(m){ let hasil = await window.masukDenganCodePin(m[1].toLowerCase(), m[2]); if(hasil) return hasil; return 'Code / PIN salah, coba lagi ya bro.'; }
+    if(m){ let hasil = await window.masukDenganCodePin(m[1].toLowerCase(), m[2]); if(hasil) return hasil; return 'Maaf, saya tidak mengerti. Mau tanya ongkos ke mana?'; }
     let m2 = q.match(/^[#@]([A-Za-z0-9_]+)$/);
     if(m2){
       let codeVal = m2[1].toLowerCase();
       let akun = await window.cariAkunByCode(codeVal);
-      if(akun){ window.pendingKodeChat = codeVal; setTimeout(()=>{ if(window.bukaPin) window.bukaPin('login', codeVal); }, 300); return 'Code ketemu ('+(akun.nama||codeVal)+'). Masukkan PIN di layar kunci...'; }
-      return 'Code #'+codeVal+' nggak ketemu di database. Cek lagi code-nya di Supabase, bro.';
+      if(akun){ window.pendingKodeChat = codeVal; setTimeout(()=>{ if(window.bukaPin) window.bukaPin('login', codeVal); }, 300); return 'Sebentar ya, saya cek dulu...'; }
+      return 'Maaf, saya tidak mengerti. Mau tanya ongkos ke mana?';
     }
     return null;
   }catch(e){ return null; }
@@ -224,14 +221,17 @@ window.botReply = async function(pesan){
           if(!ketemu) ketemu = r.data.find(row=>row.kunci && row.kunci.toLowerCase().trim() && (q.includes(row.kunci.toLowerCase().trim()) || row.kunci.toLowerCase().trim().includes(q)));
           if(ketemu && ketemu.jawaban) return ketemu.jawaban;
         } else if(r && r.error){
-          return 'DB bot error: ' + (r.error.message||'RLS / tabel bot belum kebuka') + ' - Cek RLS tabel bot di Supabase, bro.';
+          return 'Maaf, saya tidak mengerti. Mau tanya ongkos ke mana?';
         }
-      }catch(e){ return 'Gagal konek ke database bot: ' + e.message; }
+      }catch(e){ return 'Maaf, saya tidak mengerti. Mau tanya ongkos ke mana?'; }
     } else {
-      return 'Supabase belum ke-load, cek koneksi internet / CDN supabase.';
+      return 'Maaf, saya tidak mengerti. Mau tanya ongkos ke mana?';
     }
     if(q.includes('ongkos')||q.includes('harga')||q.includes('tarif')||q.includes('berapa')) return 'Ongkos kita hitung per km bro. 1-4 orang Rp 5.000/km, 5-7 orang Rp 6.500/km, minimal 10 km. Tinggal isi Dari & Tujuan di atas, pilih dari saran / peta, harga langsung muncul.';
-  }catch(e){ return 'Bot error: ' + e.message; }
+    if(q.includes('halo')||q.includes('hai')||q.includes('selamat')) return 'Halo! Selamat datang di Ammo Travel 🙏 Mau diantar ke mana hari ini?';
+    if(q.includes('wa')||q.includes('admin')) return 'Klik tombol WA Admin di bawah, nomor Admin 0858-9061-1111. Admin online ya.';
+    return 'Siap, kami bantu. Coba ceritain mau ke mana? Atau isi Dari & Tujuan di atas, pilih dari saran, harga langsung muncul.';
+  }catch(e){ return 'Maaf, saya tidak mengerti. Mau tanya ongkos ke mana?'; }
 };
 window.openChat = function(){ try{ var m=document.getElementById('chatModal'); if(m){ m.classList.add('show'); m.style.display='flex'; } var pv=document.getElementById('pinView'); if(pv) pv.style.display='none'; var cv=document.getElementById('chatView'); if(cv) cv.style.display='block'; }catch(e){} };
 window.closeChat = function(){ try{ var m=document.getElementById('chatModal'); if(m){ m.classList.remove('show'); m.style.display='none'; } try{ var inp=document.getElementById('chatInput'); if(inp) inp.blur(); }catch(e){} }catch(e){} };
@@ -257,42 +257,35 @@ window.kirimChat = function(){
       if(btn) btn.textContent = '➤';
     }).catch(function(err){
       var t2 = document.getElementById('botTyping'); if(t2) t2.remove();
-      log.innerHTML += '<div class="chatBubble"><b>Bot Ammo:</b> Bot error: ' + window.escHtml(err && err.message ? err.message : 'gagal') + '</div>';
+      log.innerHTML += '<div class="chatBubble"><b>Bot Ammo:</b> Maaf, saya tidak mengerti. Mau tanya ongkos ke mana?</div>';
       if(btn) btn.textContent = '➤';
     });
     try{ window.simpanChat('user', v); }catch(e){}
     try{ inp.focus(); }catch(e){}
   }catch(e){ alert('kirimChat error: '+e.message); }
 };
-// FIX-REFRESH-BERSIH: Refresh harus NOL, jangan ada hantu _pendingBackup
+window._ketukLogo=0; window._waktuKetukLogo=0;
 window._pendingBackup = null;
-window.resetIndexBersih = function(){
+try{ window._pendingBackup = localStorage.getItem('ammo_pending_order'); }catch(e){}
+window.bersihkanTujuan = function(){
   try{
-    localStorage.removeItem('ammo_pending_order');
-    localStorage.removeItem('masphus_order');
-    localStorage.removeItem('ammo_mau_order');
-    window._pendingBackup = null;
-    try{ var lastGps = JSON.parse(localStorage.getItem('ammo_last_gps')||'null'); if(lastGps && lastGps.waktu && (Date.now() - lastGps.waktu > 10*60*1000)){ localStorage.removeItem('ammo_last_gps'); } }catch(e){}
-    try{ destCoord = null; }catch(e){}
-    try{ pickupCoord = null; }catch(e){}
-    try{ jumlahOrang = 6; }catch(e){}
-    var d = document.getElementById('dest'); if(d){ d.value=''; d.removeAttribute('value'); d.setAttribute('autocomplete','off'); }
-    var p = document.getElementById('pickup'); if(p){ p.value=''; }
+    var d = document.getElementById('dest');
+    if(d){ d.value=''; d.removeAttribute('value'); }
+    try{ localStorage.removeItem('masphus_order'); }catch(e){}
     var s = document.getElementById('saranDest'); if(s) s.style.display='none';
-    var s2 = document.getElementById('saranPick'); if(s2) s2.style.display='none';
     var o = document.getElementById('ongkosPreview'); if(o) o.style.display='none';
-    try{ sembunyikanHarga(); }catch(e){}
-    try{ updateSwap(); }catch(e){}
   }catch(e){}
 };
-window.bersihkanTujuan = window.resetIndexBersih;
-window.addEventListener('load', function(){ setTimeout(function(){ if(!mauLanjutOrder()) window.resetIndexBersih(); }, 100); });
-window.addEventListener('pageshow', function(){ setTimeout(function(){ if(!mauLanjutOrder()) window.resetIndexBersih(); }, 100); });
+window.addEventListener('load', function(){
+  setTimeout(window.bersihkanTujuan, 100); setTimeout(window.bersihkanTujuan, 400); setTimeout(window.bersihkanTujuan, 1000);
+  try{ var _lg=document.getElementById('logoRahasia'); if(_lg){ _lg.addEventListener('click', function(){ var skrg=Date.now(); if(skrg-window._waktuKetukLogo>2000) window._ketukLogo=0; window._waktuKetukLogo=skrg; window._ketukLogo++; if(window._ketukLogo>=5){ window._ketukLogo=0; if(window.bukaPin) window.bukaPin('login',''); } }); } }catch(e){}
+});
+window.addEventListener('pageshow', function(){ setTimeout(window.bersihkanTujuan, 100); setTimeout(window.bersihkanTujuan, 400); });
 </script>
 </head>
 <body>
 <div id="homePage" class="phone">
-<div class="header"><div class="logo-left"><img src="icon-512.png" alt="Ammo Travel"><b>Ammo Travel</b></div></div>
+<div class="header"><div class="logo-left" id="logoRahasia"><img src="icon-512.png" alt="Ammo Travel"><b>Ammo Travel</b></div></div>
 <div class="title"><h1>Mau Diantar <b>Kemana?</b></h1></div>
 <div class="form" autocomplete="off">
 <div class="lbl">Dari</div>
@@ -301,7 +294,7 @@ window.addEventListener('pageshow', function(){ setTimeout(function(){ if(!mauLa
 <div id="saranPick" class="saran-box"></div>
 <div class="swap-wrap"><button id="swapBtn" class="swap-btn" onclick="swapLokasi()" disabled title="Tukar Penjemputan & Tujuan">⇅</button></div>
 <div class="lbl">Tujuan</div>
-<div class="row"><input id="dest" placeholder="Ketik / Pilih Tujuan..." autocomplete="new-password" value="" name="tujuan_baru_xyz_2" readonly onfocus="this.removeAttribute('readonly')"><button class="btn-map" onclick="openMap('dest')">📍 Peta</button></div>
+<div class="row"><input id="dest" placeholder="Ketik / Pilih Tujuan..." autocomplete="off" value="" name="tujuan_baru_xyz"><button class="btn-map" onclick="openMap('dest')">📍 Peta</button></div>
 <div id="saranDest" class="saran-box"></div>
 <div class="lbl">Berapa Orang</div>
 <div class="orang-wrap">
@@ -338,14 +331,14 @@ window.addEventListener('pageshow', function(){ setTimeout(function(){ if(!mauLa
 <div id="chatModal" class="chat-modal"><div class="chat-box">
 <div id="chatView">
 <h3 style="text-align:center;color:#d4af37">💬 Chat dengan CS</h3>
-<div id="chatLog"><div class="chatBubble">Halo! Mau tanya apa? Ketik aja, misal: ongkos ke Cimaung berapa? / ketik #code kamu buat login</div></div>
-<div id="chatInputRow"><input id="chatInput" placeholder="Ketik pesan... / #code" autocomplete="off" enterkeyhint="send"><button id="chatSend" type="button" onclick="kirimChat()">➤</button></div>
+<div id="chatLog"><div class="chatBubble">Halo! Mau tanya apa? Ketik aja, misal: ongkos ke Cimaung berapa?</div></div>
+<div id="chatInputRow"><input id="chatInput" placeholder="Ketik pesan..." autocomplete="off" enterkeyhint="send"><button id="chatSend" type="button" onclick="kirimChat()">➤</button></div>
 <div style="font-size:12px;color:#888;margin-top:6px;text-align:center">Dijawab Bot Ammo Travel • CS online</div>
 <div id="waRow" class="waRow">
 <a class="waBtn waAdmin" target="_blank" href="https://wa.me/6285890611111?text=Halo%20Admin%20Ammo%20Travel%2C%20mau%20tanya...">💬 WA Admin</a>
 <a class="waBtn waCall" target="_blank" href="https://wa.me/6285890611111?text=Halo%20Admin%2C%20mau%20telpon%20lewat%20WA...">📞 Call Admin</a>
 </div>
-<div style="text-align:center;margin-top:8px"><a href="javascript:void(0)" onclick="bukaPin('login')" style="color:#888;font-size:12px;text-decoration:none">🔐 Login Admin / Driver</a></div>
+<div style="text-align:center;margin-top:8px"><span onclick="bukaPin('login')" style="color:#1a1a1a;font-size:10px;cursor:pointer">.</span></div>
 <button class="chat-close" onclick="closeChat()">Tutup</button>
 </div>
 <div id="pinView" style="display:none">
@@ -448,8 +441,8 @@ function getDB(){try{return JSON.parse(localStorage.getItem('ammo_penumpang_db')
 function saveDB(db){localStorage.setItem('ammo_penumpang_db',JSON.stringify(db));}
 function getSesi(){try{let s=JSON.parse(localStorage.getItem('ammo_sesi')||'null');if(s&&(s.nama||s.hp||s.email))return s;return null;}catch(e){return null;}}
 function sudahLogin(s){ s = s || getSesi(); if(!s) return false; return !!(s.email || s.hp || s.google_email); }
-function simpanPendingOrder(){ localStorage.setItem('ammo_pending_order', JSON.stringify({ asal:$('pickup').value.trim(), tujuan:$('dest').value.trim(), asalCoord: pickupCoord, tujuanCoord: destCoord, jumlahOrang: jumlahOrang, tanggal: $('tanggalBerangkat')?$('tanggalBerangkat').value:'', jam: $('jamBerangkat')?$('jamBerangkat').value:'09:00', mauOrder: true, waktu: Date.now() })); }
-function pulihkanPendingOrder(){ try{ if(!mauLanjutOrder()) return null; let raw = localStorage.getItem('ammo_pending_order'); if(!raw) return null; let p=JSON.parse(raw); if(!p) return null; if(p.waktu && (Date.now() - p.waktu > 30*60*1000)){ localStorage.removeItem('ammo_pending_order'); return null; } if(p.asal) $('pickup').value=p.asal; if(p.tujuan) $('dest').value=p.tujuan; if(p.asalCoord) pickupCoord=p.asalCoord; if(p.tujuanCoord) destCoord=p.tujuanCoord; if(p.jumlahOrang){ jumlahOrang=p.jumlahOrang; document.querySelectorAll('.orang-btn').forEach(x=>{ x.classList.toggle('aktif', parseInt(x.dataset.orang)===jumlahOrang); }); } if(p.tanggal && $('tanggalBerangkat')) $('tanggalBerangkat').value=p.tanggal; if(p.jam && $('jamBerangkat')) $('jamBerangkat').value=p.jam; updateSwap(); jadwalPreview(true); return p; }catch(e){ return null; } }
+function simpanPendingOrder(){ localStorage.setItem('ammo_pending_order', JSON.stringify({ asal:$('pickup').value.trim(), tujuan:$('dest').value.trim(), asalCoord: pickupCoord, tujuanCoord: destCoord, jumlahOrang: jumlahOrang, tanggal: $('tanggalBerangkat')?$('tanggalBerangkat').value:'', jam: $('jamBerangkat')?$('jamBerangkat').value:'09:00', mauOrder: true, waktu: Date.now() })); try{ window._pendingBackup = localStorage.getItem('ammo_pending_order'); }catch(e){} }
+function pulihkanPendingOrder(){ try{ let raw = window._pendingBackup || localStorage.getItem('ammo_pending_order'); if(!raw) return null; let p=JSON.parse(raw); if(!p) return null; if(p.asal) $('pickup').value=p.asal; if(p.tujuan) $('dest').value=p.tujuan; if(p.asalCoord) pickupCoord=p.asalCoord; if(p.tujuanCoord) destCoord=p.tujuanCoord; if(p.jumlahOrang){ jumlahOrang=p.jumlahOrang; document.querySelectorAll('.orang-btn').forEach(x=>{ x.classList.toggle('aktif', parseInt(x.dataset.orang)===jumlahOrang); }); } if(p.tanggal && $('tanggalBerangkat')) $('tanggalBerangkat').value=p.tanggal; if(p.jam && $('jamBerangkat')) $('jamBerangkat').value=p.jam; updateSwap(); jadwalPreview(true); return p; }catch(e){ return null; } }
 function mauLanjutOrder(){ return localStorage.getItem('ammo_mau_order')==='1'; }
 function setMauOrder(v){ if(v) localStorage.setItem('ammo_mau_order','1'); else localStorage.removeItem('ammo_mau_order'); }
 function lanjutJikaMauOrder(){ if(!mauLanjutOrder()) return false; if(!$('pickup').value.trim() || !$('dest').value.trim() || !pickupCoord || !destCoord) return false; setMauOrder(false); localStorage.removeItem('ammo_pending_order'); simpanOrderDanLanjut(); return true; }
@@ -464,13 +457,13 @@ function togglePass(){let p=$('loginPass');p.type=p.type==='password'?'text':'pa
 async function loginWA(){ let hp=$('loginWA').value.trim(); if(!hp){showToast('WA Kosong','Isi No. WA dulu',true);return;} try{ if(window.supabaseClient){ let cek=await supabaseClient.from('penumpang').select('*').eq('no_wa',hp).maybeSingle(); if(cek.data){ let user={nama:cek.data.nama,hp:cek.data.no_wa,via:'WA',email:cek.data.google_email||'',google_id:cek.data.google_id||''}; localStorage.setItem('ammo_sesi',JSON.stringify(user)); localStorage.setItem('ammo_supabase_penumpang_id',cek.data.id); localStorage.setItem('ammo_last_hp',hp); tutupAkun(); if(!lanjutJikaMauOrder()){ showToast('Berhasil','Selamat datang, '+user.nama); } return; } } }catch(e){} let db=getDB();let user=db.find(u=>u.hp===hp); if(user){ localStorage.setItem('ammo_sesi',JSON.stringify(user)); localStorage.setItem('ammo_last_hp',hp); tutupAkun(); if(!lanjutJikaMauOrder()){ showToast('Berhasil','Selamat datang, '+user.nama); } } else{$('daftarModal').classList.add('show');$('namaDaftar').value='';$('hpDaftar').value=hp;} }
 function tanyaLogout(){try{$('logoutModal').classList.add('show');}catch(e){}}
 function tutupLogout(){try{$('logoutModal').classList.remove('show');}catch(e){}}
-async function logoutAkun(){ try{ if(window.supabaseClient) await supabaseClient.auth.signOut(); }catch(e){} try{ ['ammo_sesi','ammo_supabase_penumpang_id','ammo_admin_token','ammo_role','ammo_admin_email','ammo_admin_nama','ammo_driver','ammo_driver_id','ammo_driver_nama','ammo_driver_token','ammo_pending_order','ammo_pending_target','ammo_pending_admin','masphus_order','ammo_mau_order'].forEach(k=>localStorage.removeItem(k)); ['ammo_admin_token','ammo_from_index','ammo_clear','ammo_must_clear_dest'].forEach(k=>sessionStorage.removeItem(k)); window._pendingBackup=null; }catch(e){} setMauOrder(false); googleSudahDiproses=false; tutupLogout();tutupAkun(); kosongkanTujuan(); showToast('Logout','Kamu berhasil logout, cache udah dibersihin'); }
+async function logoutAkun(){ try{ if(window.supabaseClient) await supabaseClient.auth.signOut(); }catch(e){} localStorage.removeItem('ammo_sesi'); localStorage.removeItem('ammo_supabase_penumpang_id'); setMauOrder(false); googleSudahDiproses=false; tutupLogout();tutupAkun();showToast('Logout','Kamu berhasil logout'); }
 function tutupNamaBaru(){try{$('namaBaruModal').classList.remove('show');}catch(e){}}
 function buatAkunDariNama(){ let n=$('inputNamaBaru').value.trim(); if(!n){showToast('Nama Kosong','Isi nama dulu',true);return;} let user={nama:n,hp:pendingHP||localStorage.getItem('ammo_last_hp')||'',via:'WA'}; localStorage.setItem('ammo_sesi',JSON.stringify(user)); if(user.hp) localStorage.setItem('ammo_last_hp',user.hp); tutupNamaBaru(); tutupAkun(); if(!lanjutJikaMauOrder()){ showToast('Terdaftar','Akun dibuat, '+n); } }
 function openMap(mode){ try{ mapMode=mode; if(mode==='pickup'&&pickupCoord){tempLat=pickupCoord[0];tempLng=pickupCoord[1];} if(mode==='dest'&&destCoord){tempLat=destCoord[0];tempLng=destCoord[1];} let m=$('mapModal'); m.classList.add('show'); m.style.display='flex'; setTimeout(async()=>{ try{ if(!map){ map=L.map('map').setView([tempLat,tempLng],14); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map); marker=L.marker([tempLat,tempLng],{draggable:true}).addTo(map); marker.on('dragend',async()=>{ let p=marker.getLatLng();tempLat=p.lat;tempLng=p.lng; tempAddr=await reverseGeocode(tempLat,tempLng); $('mapAddr').textContent=tempAddr; }); map.on('click',async e=>{ tempLat=e.latlng.lat;tempLng=e.latlng.lng;marker.setLatLng(e.latlng); tempAddr=await reverseGeocode(tempLat,tempLng); $('mapAddr').textContent=tempAddr; }); }else{map.setView([tempLat,tempLng],14);marker.setLatLng([tempLat,tempLng]);} setTimeout(()=>{ try{ map.invalidateSize(); }catch(e){} }, 200); setTimeout(()=>{ try{ map.invalidateSize(); }catch(e){} }, 600); tempAddr=await reverseGeocode(tempLat,tempLng); $('mapAddr').textContent=tempAddr; }catch(e){ $('mapAddr').textContent='Peta gagal dimuat, coba lagi ya'; } },100); }catch(e){} }
 function closeMap(){try{let m=$('mapModal'); m.classList.remove('show'); m.style.display='none';}catch(e){}}
 function confirmMap(){ try{ let inp=mapMode==='pickup'?$('pickup'):$('dest'); inp.value=tempAddr; if(mapMode==='pickup'){pickupCoord=[tempLat,tempLng]; if($('gpsNote')) $('gpsNote').style.display='none';} else destCoord=[tempLat,tempLng]; try{ if(mapMode==='pickup') localStorage.setItem('ammo_last_gps', JSON.stringify({lat:tempLat,lon:tempLng,nama:tempAddr,waktu:Date.now()})); }catch(e){} closeMap();updateSwap();jadwalPreview(true); }catch(e){} }
-function kosongkanTujuan(){ try{ window.resetIndexBersih(); try{ document.querySelectorAll('.orang-btn').forEach(x=>{ x.classList.toggle('aktif', parseInt(x.dataset.orang)===6); }); }catch(e){} try{ let tt=$('tanggalBerangkat'); if(tt) tt.value=new Date().toISOString().slice(0,10); }catch(e){} try{ let jj=$('jamBerangkat'); if(jj) jj.value='09:00'; }catch(e){} }catch(e){} }
+function kosongkanTujuan(){ try{ $('dest').value=''; destCoord=null; if($('saranDest')) $('saranDest').style.display='none'; sembunyikanHarga(); localStorage.removeItem('masphus_order'); updateSwap(); }catch(e){} }
 try{ if(mauLanjutOrder()) pulihkanPendingOrder(); else kosongkanTujuan(); }catch(e){}
 window.addEventListener('pageshow',function(){ try{ if(mauLanjutOrder()){ pulihkanPendingOrder(); return; } kosongkanTujuan(); if(!$('pickup').value.trim()) isiPenjemputanOtomatis(); }catch(e){} });
 try{ isiPenjemputanOtomatis(); }catch(e){}
@@ -478,10 +471,9 @@ try{let t=$('tanggalBerangkat');if(t&&!t.value)t.value=new Date().toISOString().
 try{ $('pickup').addEventListener('input',()=>{ if($('gpsNote')) $('gpsNote').style.display='none'; pickupCoord=null;updateSwap();sembunyikanHarga();jadwalSaran($('pickup'),$('saranPick'),true);}); $('dest').addEventListener('input',()=>{destCoord=null;updateSwap();sembunyikanHarga();jadwalSaran($('dest'),$('saranDest'),false);}); }catch(e){}
 </script>
 <script>
-// PIN - tinggal UI, logika code/PIN sudah di HEAD, karcis dibikin bot
 let pinKode='';
 window.bukaPin = function(role,kode){
-  try{ pendingRole=role; pendingKode=kode||''; pinKode=''; renderPin(); if($('pinCodeInput')) $('pinCodeInput').value=kode||''; $('pinMsg').textContent=''; $('pinTitle').textContent='Masukkan PIN - Code: '+(kode||''); $('pinSub').textContent='Ammo Travel • Aman, bro'; $('chatView').style.display='none'; $('pinView').style.display='block'; var m=$('chatModal'); if(m){ m.classList.add('show'); m.style.display='flex'; } }catch(e){}
+  try{ pendingRole=role; pendingKode=kode||''; pinKode=''; renderPin(); if($('pinCodeInput')) $('pinCodeInput').value=kode||''; $('pinMsg').textContent=''; $('pinTitle').textContent='Masukkan PIN'; $('pinSub').textContent='Ammo Travel • Aman, bro'; $('chatView').style.display='none'; $('pinView').style.display='block'; var m=$('chatModal'); if(m){ m.classList.add('show'); m.style.display='flex'; } }catch(e){}
 };
 window.pressPin = function(n){try{if(pinKode.length>=6)return;pinKode+=n;renderPin();if(pinKode.length===6){setTimeout(cekPin,250);}}catch(e){}};
 window.delPin = function(){pinKode=pinKode.slice(0,-1);renderPin();};
@@ -490,16 +482,16 @@ window.renderPin = function(){ try{ let boxes=document.querySelectorAll('.pinBox
 window.cekPin = async function(){
   try{
     let codeVal = ($('pinCodeInput') ? $('pinCodeInput').value.trim() : '').toLowerCase();
-    if(!codeVal){ $('pinMsg').textContent='Code kosong, ketik #code dulu di chat'; $('pinMsg').style.color='#ff6b81'; pinKode=''; renderPin(); return; }
+    if(!codeVal){ $('pinMsg').textContent='Kode kosong, isi dulu ya'; $('pinMsg').style.color='#ff6b81'; pinKode=''; renderPin(); return; }
     if(!pinKode || pinKode.length<4){ $('pinMsg').textContent='Isi PIN dulu 4-6 digit'; $('pinMsg').style.color='#ff6b81'; return; }
-    $('pinMsg').textContent='Mengecek Code + PIN ke database...'; $('pinMsg').style.color='#facc15';
+    $('pinMsg').textContent='Mengecek...'; $('pinMsg').style.color='#facc15';
     let hasil = await window.cariAkunByCodePin(codeVal, pinKode);
     if(hasil){
       if(hasil.role==='admin'){ window.buatKarcis(codeVal, pinKode, 'admin', hasil); window.location.href='admin.html'; return; }
       if(hasil.role==='driver'){ if(String(hasil.status||'').toLowerCase()!=='aktif' && String(hasil.status||'').toLowerCase()!=='active'){ $('pinMsg').textContent='Akun driver belum aktif. Tunggu verifikasi admin.'; $('pinMsg').style.color='#ff6b81'; pinKode=''; renderPin(); return; } window.buatKarcis(codeVal, pinKode, 'driver', hasil); window.location.href='driver.html'; return; }
     }
   }catch(e){console.log(e);}
-  try{ $('pinMsg').textContent='Code / PIN salah, coba lagi'; $('pinMsg').style.color='#ff6b81'; pinKode=''; renderPin(); let pv=$('pinView'); if(pv){ pv.classList.remove('goyang'); void pv.offsetWidth; pv.classList.add('goyang'); } }catch(e){}
+  try{ $('pinMsg').textContent='Salah, coba lagi ya'; $('pinMsg').style.color='#ff6b81'; pinKode=''; renderPin(); let pv=$('pinView'); if(pv){ pv.classList.remove('goyang'); void pv.offsetWidth; pv.classList.add('goyang'); } }catch(e){}
   return;
 };
 window.backToChat = function(){try{pendingRole=null;pinKode='';renderPin();$('pinView').style.display='none';$('chatView').style.display='block';}catch(e){}};
