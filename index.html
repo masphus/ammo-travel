@@ -56,8 +56,8 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 .chat-box,.daftar-box{background:#1a1a1a;width:100%;max-width:430px;border-radius:20px 20px 0 0;padding:18px;max-height:85vh;overflow:auto}
 .chatBubble{background:#222;padding:10px 12px;border-radius:12px;margin:8px 0;font-size:14px;line-height:1.4}
 #chatInputRow{display:flex;gap:8px;margin-top:10px}
-#chatInput{flex:1;background:#111;border:1px solid #333;border-radius:12px;padding:12px;color:#fff;outline:none}
-#chatSend{background:#d4af37;border:none;border-radius:12px;padding:0 16px;font-weight:900;cursor:pointer}
+#chatInput{flex:1;background:#111;border:1px solid #333;border-radius:12px;padding:12px;color:#fff;outline:none;font-size:16px}
+#chatSend{background:#d4af37;border:none;border-radius:12px;padding:0 16px;font-weight:900;cursor:pointer;min-width:52px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
 .waRow{display:flex;gap:8px;margin-top:10px}
 .waBtn{flex:1;text-align:center;padding:12px;border-radius:12px;text-decoration:none;font-weight:900;font-size:13px}
 .waAdmin{background:#25D366;color:#fff}
@@ -141,8 +141,8 @@ try{
   const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
   window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 }catch(e){ console.log('Supabase gagal load', e); window.supabaseClient = null; }
-window.openChat = function(){ try{ var m=document.getElementById('chatModal'); if(m){ m.classList.add('show'); m.style.display='flex'; } var pv=document.getElementById('pinView'); if(pv) pv.style.display='none'; var cv=document.getElementById('chatView'); if(cv) cv.style.display='block'; }catch(e){ console.log(e); } };
-window.closeChat = function(){ try{ var m=document.getElementById('chatModal'); if(m){ m.classList.remove('show'); m.style.display='none'; } }catch(e){} };
+window.openChat = function(){ try{ var m=document.getElementById('chatModal'); if(m){ m.classList.add('show'); m.style.display='flex'; } var pv=document.getElementById('pinView'); if(pv) pv.style.display='none'; var cv=document.getElementById('chatView'); if(cv) cv.style.display='block'; setTimeout(function(){ var inp=document.getElementById('chatInput'); if(inp) inp.focus({preventScroll:true}); }, 150); }catch(e){ console.log(e); } };
+window.closeChat = function(){ try{ var m=document.getElementById('chatModal'); if(m){ m.classList.remove('show'); m.style.display='none'; } try{ var inp=document.getElementById('chatInput'); if(inp) inp.blur(); }catch(e){} }catch(e){} };
 </script>
 </head>
 <body>
@@ -194,11 +194,11 @@ window.closeChat = function(){ try{ var m=document.getElementById('chatModal'); 
 <div id="chatView">
 <h3 style="text-align:center;color:#d4af37">💬 Chat dengan CS</h3>
 <div id="chatLog"><div class="chatBubble">Halo! Mau tanya apa? Ketik aja, misal: ongkos ke Cimaung berapa?</div></div>
-<div id="chatInputRow"><input id="chatInput" placeholder="Ketik pesan..." autocomplete="off"><button id="chatSend" type="button" onclick="kirimChat();return false;">➤</button></div>
+<div id="chatInputRow"><input id="chatInput" placeholder="Ketik pesan..." autocomplete="off" enterkeyhint="send"><button id="chatSend" type="button" onmousedown="event.preventDefault();" ontouchstart="event.preventDefault(); window.kirimChat(); return false;" onclick="window.kirimChat(); return false;">➤</button></div>
 <div style="font-size:12px;color:#888;margin-top:6px;text-align:center">Dijawab Bot Ammo Travel • CS online</div>
 <div id="waRow" class="waRow">
-<a class="waBtn waAdmin" target="_blank" href="https://wa.me/6285899611111?text=Halo%20Admin%20Ammo%20Travel%2C%20mau%20tanya...">💬 WA Admin</a>
-<a class="waBtn waCall" target="_blank" href="https://wa.me/6285899611111?text=Halo%20Admin%2C%20mau%20telpon%20lewat%20WA...">📞 Call Admin</a>
+<a class="waBtn waAdmin" target="_blank" href="https://wa.me/6285890611111?text=Halo%20Admin%20Ammo%20Travel%2C%20mau%20tanya...">💬 WA Admin</a>
+<a class="waBtn waCall" target="_blank" href="https://wa.me/6285890611111?text=Halo%20Admin%2C%20mau%20telpon%20lewat%20WA...">📞 Call Admin</a>
 </div>
 <div style="text-align:center;margin-top:8px"><a href="javascript:void(0)" onclick="bukaPin('login')" style="color:#888;font-size:12px;text-decoration:none">🔐 Login Admin / Driver</a></div>
 <button class="chat-close" onclick="closeChat()">Tutup</button>
@@ -682,8 +682,6 @@ window.getChatSessionId = function(){
   return s;
 };
 window.escHtml = function(v){ return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); };
-let lastChatAt=0;
-window.chatRateLimit = function(){ const now=Date.now(); if(now-lastChatAt<1500) return false; lastChatAt=now; return true; };
 window.cekBlacklistChat = async function(){
   try{
     if(!window.supabaseClient) return false;
@@ -854,49 +852,49 @@ window.botReply = async function(pesan){
     if(q.includes('driver')||q.includes('sopir')) return 'Driver kita siap 24 jam. Order dulu lewat ORDER NOW, nanti driver terdekat langsung dihubungi.';
     if(q.includes('voucher')||q.includes('diskon')||q.includes('promo')) return 'Setiap order dapat voucher 5% dari total ongkos, bisa dipakai untuk order berikutnya. Voucher kamu bisa dicek di menu Voucher bawah.';
     if(q.includes('halo')||q.includes('hai')||q.includes('selamat')) return 'Halo! Selamat datang di Ammo Travel 🙏 Mau diantar ke mana hari ini? Ketik tujuanmu, atau isi Dari & Tujuan di atas ya.';
-    if(q.includes('wa')||q.includes('admin')||q.includes('telpon')||q.includes('hubungi')) return 'Bisa langsung klik tombol WA Admin di bawah, nomor Admin 0858-9961-1111. Admin online, dibalas secepatnya ya.';
+    if(q.includes('wa')||q.includes('admin')||q.includes('telpon')||q.includes('hubungi')) return 'Bisa langsung klik tombol WA Admin di bawah, nomor Admin 0858-9061-1111. Admin online, dibalas secepatnya ya.';
     return 'Siap, kami bantu. Coba ceritain mau ke mana? Atau isi Dari & Tujuan di atas, pilih dari saran, harga langsung muncul. Kalau mau cepat, klik WA Admin di bawah ya.';
   }catch(e){ return 'Siap, kami bantu. Coba ceritain mau ke mana?'; }
 };
-window.kirimChat = async function(){
+window.kirimChat = function(){
   try{
-    let inp = document.getElementById('chatInput');
-    if(!inp) return;
-    let v = inp.value.trim();
-    if(!v) return;
+    var inp = document.getElementById('chatInput');
+    if(!inp) return false;
+    var v = inp.value.trim();
+    if(!v) { try{ inp.focus({preventScroll:true}); }catch(e){ inp.focus(); } return false; }
     inp.value = '';
-    inp.focus();
-    let log = document.getElementById('chatLog');
-    log.innerHTML += '<div class="chatBubble"><b>Kamu:</b> ' + escHtml(v) + '</div>';
+    var log = document.getElementById('chatLog');
+    if(!log) return false;
+    log.innerHTML += '<div class="chatBubble"><b>Kamu:</b> ' + window.escHtml(v) + '</div>';
     log.scrollTop = log.scrollHeight;
-    try{ simpanChat('user', v); }catch(e){}
-    try{
-      let diblokir = await cekBlacklistChat();
-      if(diblokir){
-        log.innerHTML += '<div class="chatBubble">Maaf, akun kamu sedang dibatasi. Hubungi Admin via WA ya.</div>';
-        log.scrollTop = log.scrollHeight;
-        return;
-      }
-    }catch(e){}
+    try{ window.simpanChat('user', v); }catch(e){}
     log.innerHTML += '<div class="chatBubble" id="botTyping">Bot sedang mengetik...</div>';
     log.scrollTop = log.scrollHeight;
-    let jawab = 'Siap, kami bantu. Coba ceritain mau ke mana?';
-    try{ jawab = await botReply(v); }catch(e){}
-    let t = document.getElementById('botTyping'); if(t) t.remove();
-    log.innerHTML += '<div class="chatBubble"><b>Bot Ammo:</b> ' + escHtml(jawab) + '</div>';
-    log.scrollTop = log.scrollHeight;
-    try{ simpanChat('bot', jawab); }catch(e){}
+    window.botReply(v).then(function(jawab){
+      try{
+        var t = document.getElementById('botTyping'); if(t) t.remove();
+        if(!jawab) jawab = 'Siap, kami bantu. Coba ceritain mau ke mana?';
+        log.innerHTML += '<div class="chatBubble"><b>Bot Ammo:</b> ' + window.escHtml(jawab) + '</div>';
+        log.scrollTop = log.scrollHeight;
+        try{ window.simpanChat('bot', jawab); }catch(e){}
+      }catch(e){}
+    }).catch(function(){
+      try{
+        var t2 = document.getElementById('botTyping'); if(t2) t2.remove();
+        log.innerHTML += '<div class="chatBubble"><b>Bot Ammo:</b> Siap, kami bantu. Coba ceritain mau ke mana?</div>';
+      }catch(e){}
+    });
+    setTimeout(function(){ try{ inp.focus({preventScroll:true}); }catch(e){ try{ inp.focus(); }catch(err){} } }, 10);
+    setTimeout(function(){ try{ inp.focus({preventScroll:true}); }catch(e){} }, 150);
+    return false;
   }catch(e){
     try{
-      let log = document.getElementById('chatLog');
-      log.innerHTML += '<div class="chatBubble">Chat gagal kekirim, coba lagi ya bro 🙏</div>';
+      var log2 = document.getElementById('chatLog');
+      if(log2) log2.innerHTML += '<div class="chatBubble">Chat gagal kekirim, coba lagi ya bro 🙏</div>';
     }catch(err){}
+    return false;
   }
 };
-try{
-  if($('chatInput'))$('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();kirimChat();}});
-  if($('chatModal'))$('chatModal').addEventListener('click',e=>{if(e.target.id==='chatModal')closeChat();});
-}catch(e){}
 </script>
 <script>
 async function syncPenumpangKeSupabase(nama, hp, via, google_email, google_id){
@@ -987,6 +985,19 @@ try{
     if(b) b.addEventListener('click', go);
     if(f) f.addEventListener('touchstart', go, {passive:false});
     if(b) b.addEventListener('touchstart', go, {passive:false});
+    var inp=document.getElementById('chatInput');
+    if(inp){
+      inp.addEventListener('keydown', function(e){
+        if(e.key==='Enter'){ e.preventDefault(); window.kirimChat(); }
+      });
+    }
+    var m=document.getElementById('chatModal');
+    if(m) m.addEventListener('click', function(e){ if(e.target.id==='chatModal') window.closeChat(); });
+    var btn=document.getElementById('chatSend');
+    if(btn){
+      btn.addEventListener('mousedown', function(e){ e.preventDefault(); });
+      btn.addEventListener('touchstart', function(e){ e.preventDefault(); window.kirimChat(); }, {passive:false});
+    }
   }catch(e){}
 })();
 </script>
