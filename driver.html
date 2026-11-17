@@ -220,7 +220,7 @@ async function cekAkses(){
   if(!hasil){ try{ var d=await sb.from('drivers').select('*').ilike('code',codeVal).maybeSingle(); if(d&&d.data&&String(d.data.pin)===String(pinVal)) hasil=d.data; }catch(e){} }
   if(!hasil){ try{ var d2=await sb.from('driver').select('*').ilike('code',codeVal).maybeSingle(); if(d2&&d2.data&&String(d2.data.pin)===String(pinVal)) hasil=d2.data; }catch(e){} }
   if(!hasil){ gagal('Code / PIN driver tidak ketemu di database.'); return; }
-  var st=String(hasil.status||'').toLowerCase().trim(); if(st!=='aktif'&&st!=='active'){ gagal('Akun driver belum aktif. Minta admin aktifin dulu ya.'); return; }
+  var st=String(hasil.status||'').toLowerCase().trim(); if(st!=='aktif'&&st!=='active'&&st!=='online'&&st!=='offline'){ gagal('Akun driver belum aktif. Minta admin aktifin dulu ya.'); return; }
   driver=hasil; sudahMasuk=true;
   var fotoLokal = ambilFotoTersimpan();
   var fotoDb = driver.foto || driver.foto_url || driver.avatar || '';
@@ -235,10 +235,46 @@ async function cekAkses(){
   document.getElementById('loading').style.display='none';
   tampilDriver(); loadOrderBaru(); loadRiwayat();
   try{ sb.channel('bookings-realtime').on('postgres_changes',{event:'*',schema:'public',table:'bookings'},function(){ loadOrderBaru(); loadRiwayat(); }).subscribe(); }catch(e){}
+  // STATUS + SALDO REALTIME - kalo admin isi saldo / ubah status, HP driver langsung berubah
+  try{
+    sb.channel('status-driver-realtime').on('postgres_changes',{event:'UPDATE',schema:'public',table:'drivers'},function(payload){
+      if(payload && payload.new && String(payload.new.id)===String(driver.id)){
+        driver.is_online = payload.new.is_online;
+        driver.status = payload.new.status;
+        driver.saldo = payload.new.saldo;
+        driver.saldo_emas = payload.new.saldo_emas;
+        driver.last_seen = payload.new.last_seen;
+        try{ localStorage.setItem('ammo_driver', JSON.stringify(driver)); }catch(e){}
+        tampilDriver();
+        if(['ditolak','rejected','nonaktif','banned'].includes(String(driver.status||'').toLowerCase())){
+          popupAlert('Akun kamu dinonaktifkan admin. Hubungi admin ya.').then(function(){ logout(); });
+        }
+      }
+    }).subscribe();
+  }catch(e){}
+  // STATUS: update last_seen tiap 30 detik biar admin tau lu masih hidup / online
+  setInterval(async function(){
+    if(!driver) return;
+    try{ await sb.from('drivers').update({last_seen: new Date().toISOString(), is_online: driver.is_online === true}).eq('id', driver.id); }catch(e){}
+  }, 30000);
 }
-function tampilDriver(){
+async function tampilDriver(){
+  // SALDO + STATUS: ambil ulang dari database tiap tampil, jangan pake angka lama pas login
+  try{
+    if(driver && driver.id){
+      var r = await sb.from('drivers').select('status,is_online,saldo,saldo_emas,last_seen').eq('id', driver.id).maybeSingle();
+      if(r && r.data){
+        driver.status = r.data.status;
+        driver.is_online = r.data.is_online;
+        driver.saldo = r.data.saldo;
+        driver.saldo_emas = r.data.saldo_emas;
+        driver.last_seen = r.data.last_seen;
+      }
+    }
+  }catch(e){}
   document.getElementById('namaDriver').textContent=driver.nama||'Driver';
-  document.getElementById('saldo').textContent=rupiah(driver.saldo||driver.saldo_emas||driver.saldoEmas||0);
+  var s = Number(driver.saldo ?? driver.saldo_emas ?? 0) || 0;
+  document.getElementById('saldo').textContent=rupiah(s);
   var foto=driver.foto||driver.foto_url||driver.avatar||ambilFotoTersimpan()||'https://i.pravatar.cc/100?img=12';
   document.getElementById('fotoDriver').src=foto;
   var fp=document.getElementById('fotoPreview'); if(fp) fp.src=foto;
@@ -246,11 +282,26 @@ function tampilDriver(){
 }
 function updateTombolOnline(){
   var btn=document.getElementById('btnOnline'),dot=document.getElementById('dotOnline'),txt=document.getElementById('txtOnline'),st=document.getElementById('txtStatus');
-  var online=driver.is_online!==false;
+  var online = driver.is_online === true || String(driver.status||'').toLowerCase() === 'online';
+  if(['menunggu','pending','ditolak','rejected','nonaktif','banned'].includes(String(driver.status||'').toLowerCase())) online = false;
   if(online){ btn.classList.remove('off'); dot.classList.remove('off'); txt.textContent='ONLINE'; st.textContent='● Aktif menerima order ●'; st.classList.remove('off'); }
   else{ btn.classList.add('off'); dot.classList.add('off'); txt.textContent='OFFLINE'; st.textContent='● Kamu sedang offline ●'; st.classList.add('off'); }
 }
-function toggleOnline(){ driver.is_online=!(driver.is_online!==false); updateTombolOnline(); }
+async function toggleOnline(){
+  if(!driver) return;
+  var lagiOnline = driver.is_online === true || String(driver.status||'').toLowerCase() === 'online';
+  var mauOnline = !lagiOnline;
+  driver.is_online = mauOnline;
+  updateTombolOnline();
+  // STATUS: simpan BENERAN ke database, bukan cuma di layar
+  try{
+    var r = await sb.from('drivers').update({ is_online: mauOnline, last_seen: new Date().toISOString() }).eq('id', driver.id);
+    if(r && r.error){
+      await sb.from('drivers').update({ status: mauOnline ? 'aktif' : 'offline' }).eq('id', driver.id);
+    }
+    try{ localStorage.setItem('ammo_driver', JSON.stringify(driver)); }catch(e){}
+  }catch(e){}
+}
 function normalisasiOrder(o){
   if(!o) return null;
   var waktu = o.created_at || o.waktu || o.tanggal || o.updated_at || '';
@@ -364,13 +415,12 @@ async function topup(){
   if(!val) return;
   await popupAlert('Top Up Rp ' + Number(val).toLocaleString('id-ID') + ' - Hubungi admin untuk konfirmasi ya bro!', 'Top Up');
 }
-/* ===== LOGOUT DI DEPAN - FIX GAK BISA KELUAR ===== */
 async function logout(){
-  // Tutup dulu modal profil kalau kebuka, biar pop up konfirmasi gak ketutupan
   tutupProfil(); tutupPopup();
   var ok=await popupConfirm('Yakin mau keluar?\nNanti login lagi pake Code + PIN ya.', 'Keluar');
   if(!ok) return;
-  // Hapus SEMUA karcis, jangan sisain 1 pun, biar beneran keluar
+  // STATUS: set offline dulu sebelum keluar, biar di admin gak keliatan online terus
+  try{ await sb.from('drivers').update({is_online:false, last_seen: new Date().toISOString()}).eq('id', driver ? driver.id : 0); }catch(e){}
   try{
     localStorage.removeItem('ammo_driver_token');
     localStorage.removeItem('ammo_admin_token');
@@ -379,9 +429,7 @@ async function logout(){
     localStorage.removeItem('ammo_driver_id');
     localStorage.removeItem('ammo_driver_nama');
     localStorage.removeItem('ammo_role');
-    // Foto sengaja TIDAK dihapus, biar pas login lagi foto tetep ada
   }catch(e){}
-  // Paksa pindah ke beranda, gak pake back
   window.location.replace('index.html');
 }
 document.getElementById('profilModal').addEventListener('click', function(e){ if(e.target.id==='profilModal') tutupProfil(); });
