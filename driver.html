@@ -4,6 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Driver - Black Gold</title>
+<script>
+// ===== PENGAMAN INSTAN - JALAN SEBELUM APAPUN, GAK NUNGGU DATABASE =====
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  var adaParam = params.get('c') && params.get('p');
+  var lewatBebek = sessionStorage.getItem('lewat_bebek');
+  if(!adaParam && lewatBebek !== '1'){
+    window.location.replace('404.html');
+  }
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
@@ -100,47 +111,46 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let driver = null;
 let orderAktif = null;
-
 function rupiah(n){ return 'Rp ' + (n||0).toLocaleString('id-ID'); }
+function ke404(){ sessionStorage.removeItem('lewat_bebek'); window.location.replace('404.html'); }
 
-// ========== PENGAMAN 404 ==========
 async function cekAkses(){
   const params = new URLSearchParams(window.location.search);
   let code = params.get('c');
   let pin = params.get('p');
 
-  // Kalau ada ?c= &p= dari chat #bebek, validasi ke database
-  if(code && pin){
-    let {data, error} = await supabase.from('drivers').select('*').eq('code', code.toUpperCase()).eq('pin', pin).single();
-    if(error || !data){
-      window.location.href = '404.html'; // SALAH -> mental ke 404
-      return;
+  try{
+    if(code && pin){
+      let {data, error} = await supabase.from('drivers').select('*').eq('code', code.toUpperCase()).eq('pin', pin).single();
+      if(error || !data){ ke404(); return; }
+      driver = data;
+      sessionStorage.setItem('lewat_bebek','1');
+      sessionStorage.setItem('driver_code', data.code);
+      sessionStorage.setItem('driver_id', data.id);
+      window.history.replaceState({}, '', 'driver.html');
+      await supabase.from('drivers').update({is_online:true, last_seen:new Date().toISOString()}).eq('id', data.id);
+    } else {
+      let sessCode = sessionStorage.getItem('driver_code');
+      if(!sessCode || sessionStorage.getItem('lewat_bebek')!=='1'){ ke404(); return; }
+      let {data} = await supabase.from('drivers').select('*').eq('code', sessCode).single();
+      if(!data){ ke404(); return; }
+      driver = data;
     }
-    driver = data;
-    // Simpan di session (hilang kalau tab ditutup) + bersihkan URL biar PIN gak keliatan
-    sessionStorage.setItem('driver_code', data.code);
-    sessionStorage.setItem('driver_id', data.id);
-    window.history.replaceState({}, '', 'driver.html');
-    await supabase.from('drivers').update({is_online:true, last_seen:new Date().toISOString()}).eq('id', data.id);
-  } else {
-    // Kalau buka langsung TANPA ?c=&p= dan TANPA session -> langsung 404
-    let sessCode = sessionStorage.getItem('driver_code');
-    if(!sessCode){
-      window.location.href = '404.html';
-      return;
-    }
-    let {data} = await supabase.from('drivers').select('*').eq('code', sessCode).single();
-    if(!data){ window.location.href='404.html'; return; }
-    driver = data;
-  }
+  }catch(e){ ke404(); return; }
 
   document.getElementById('loading').style.display='none';
   tampilDriver();
   loadOrderBaru();
   loadRiwayat();
-  // Realtime: kalau ada order baru, auto muncul
   supabase.channel('orders-realtime').on('postgres_changes',{event:'*',schema:'public',table:'orders'},()=>{ loadOrderBaru(); loadRiwayat(); }).subscribe();
 }
+
+// Safety: kalau 5 detik masih loading, lempar ke 404, biar gak nyangkut kayak kemarin
+setTimeout(()=>{
+  if(document.getElementById('loading').style.display !== 'none' && !driver){
+    ke404();
+  }
+}, 5000);
 
 function tampilDriver(){
   document.getElementById('namaDriver').textContent = driver.nama || 'Driver';
@@ -187,7 +197,6 @@ async function terimaOrder(){
 }
 async function loadRiwayat(){
   let {data} = await supabase.from('orders').select('*').eq('driver_id', driver.id).order('created_at',{ascending:false}).limit(10);
-  // Kalau driver belum pernah ambil order, tampilkan order selesai contoh dari semua order selesai biar gak kosong
   if(!data || data.length===0){
     let all = await supabase.from('orders').select('*').eq('status','selesai').order('created_at',{ascending:false}).limit(5);
     data = all.data || [];
@@ -201,7 +210,7 @@ async function loadRiwayat(){
     </div>`).join('');
 }
 function topup(){ let n=prompt('Mau Top Up berapa? Contoh: 50000'); if(!n) return; alert('Top Up Rp '+Number(n).toLocaleString('id-ID')+' - Hubungi admin untuk konfirmasi ya bro!'); }
-function logout(){ if(confirm('Keluar?')){ sessionStorage.clear(); window.location.href='404.html'; } }
+function logout(){ if(confirm('Keluar?')){ sessionStorage.clear(); window.location.replace('404.html'); } }
 
 cekAkses();
 </script>
