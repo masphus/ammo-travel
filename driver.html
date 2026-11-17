@@ -61,20 +61,17 @@ h3{padding:20px 20px 12px;color:#E8C86A;font-size:19px;position:relative;z-index
 .empty{margin:0 20px;text-align:center;color:#777;font-size:13px;padding:14px;border:1px dashed #333;border-radius:10px;position:relative;z-index:1}
 #loading{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:99;font-size:14px;color:#D4AF37;flex-direction:column;gap:10px}
 #loading button{background:#D4AF37;border:none;padding:10px 18px;border-radius:10px;font-weight:800;cursor:pointer;display:none}
-/* ===== POP UP CANTIK - PENGGANTI alert/confirm/prompt ===== */
-.popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(3px);z-index:200;display:none;align-items:flex-end;justify-content:center;padding:0 0 0}
+.popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(3px);z-index:200;display:none;align-items:flex-end;justify-content:center}
 .popup-overlay.show{display:flex}
 .popup-card{background:#111;border:1px solid #D4AF37;border-bottom:none;border-radius:22px 22px 0 0;width:100%;max-width:480px;padding:22px 20px 26px;animation:naik .25s ease}
 @keyframes naik{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
 .popup-card h2{font-size:19px;color:#E8C86A;margin-bottom:8px}
 .popup-card p{font-size:14px;color:#ccc;line-height:1.5;white-space:pre-line}
 .popup-card input{width:100%;margin-top:14px;background:#000;border:1px solid #D4AF37;border-radius:10px;padding:13px;color:#fff;font-size:15px;outline:none}
-.popup-card input:focus{border-color:#F5D67B}
 .popup-btns{display:flex;gap:10px;margin-top:18px}
 .popup-btns button{flex:1;padding:13px;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer;border:none}
 .btn-emas{background:linear-gradient(180deg,#F5D67B,#D4AF37);color:#000}
 .btn-gelap{background:#222;color:#ccc;border:1px solid #444!important}
-/* ===== MODAL EDIT PROFIL ===== */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(3px);z-index:210;display:none;align-items:flex-end;justify-content:center}
 .modal-overlay.show{display:flex}
 .modal-card{background:#0d0d0d;border:1px solid #D4AF37;border-bottom:none;border-radius:22px 22px 0 0;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;padding:20px;animation:naik .25s ease}
@@ -84,6 +81,7 @@ h3{padding:20px 20px 12px;color:#E8C86A;font-size:19px;position:relative;z-index
 .foto-edit img{width:88px;height:88px;border-radius:50%;border:2px solid #D4AF37;object-fit:cover;background:#222}
 .foto-edit label{display:inline-block;margin-top:10px;background:#222;border:1px solid #D4AF37;color:#E8C86A;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer}
 .foto-edit input{display:none}
+.foto-info{font-size:11px;color:#888;margin-top:8px}
 .field{margin-bottom:12px}
 .field label{display:block;color:#D4AF37;font-size:13px;margin-bottom:6px;font-weight:700}
 .field input{width:100%;background:#000;border:1px solid #333;border-radius:10px;padding:13px;color:#fff;font-size:15px;outline:none}
@@ -127,13 +125,11 @@ h3{padding:20px 20px 12px;color:#E8C86A;font-size:19px;position:relative;z-index
   <a href="#" onclick="bukaProfil();return false;"><span>👤</span>Profil</a>
 </div>
 
-<!-- POP UP CANTIK -->
 <div id="popupOverlay" class="popup-overlay"><div class="popup-card"><h2 id="popupJudul">Ammo Travel</h2><p id="popupPesan"></p><input id="popupInput" style="display:none"><div class="popup-btns" id="popupBtns"></div></div></div>
 
-<!-- MODAL EDIT PROFIL -->
 <div id="profilModal" class="modal-overlay"><div class="modal-card">
   <h2>👤 Edit Profil Driver</h2><div class="sub">Ubah data lu, langsung kesimpan ke database.</div>
-  <div class="foto-edit"><img id="fotoPreview" src="https://i.pravatar.cc/100?img=12"><br><label for="inputFoto">📷 Ganti Foto Profil<input type="file" id="inputFoto" accept="image/*" onchange="previewFoto(event)"></label></div>
+  <div class="foto-edit"><img id="fotoPreview" src="https://i.pravatar.cc/100?img=12"><br><label for="inputFoto">📷 Ganti Foto Profil<input type="file" id="inputFoto" accept="image/*" onchange="previewFoto(event)"></label><div class="foto-info" id="fotoInfo">Foto otomatis dikompres biar enteng (max 800px, JPG 70%)</div></div>
   <div class="field"><label>Nama Driver</label><input id="editNama" placeholder="Ahmad"></div>
   <div class="field"><label>Code Login (kunci masuk)</label><input id="editCode" placeholder="sopir"><small>Contoh: sopir - dipake buat login #sopir</small></div>
   <div class="field"><label>PIN Login (4-6 angka)</label><input id="editPin" placeholder="123456" inputmode="numeric" maxlength="6"></div>
@@ -154,8 +150,6 @@ function rupiah(n){ return 'Rp ' + (Number(n)||0).toLocaleString('id-ID'); }
 function keIndex(){ try{ localStorage.removeItem('ammo_driver_token'); localStorage.removeItem('ammo_driver'); localStorage.removeItem('ammo_driver_id'); localStorage.removeItem('ammo_driver_nama'); }catch(e){} window.location.replace('index.html'); }
 function gagal(msg){ if(sudahMasuk) return; var t=document.getElementById('loadingTxt'); if(t) t.textContent=msg||'Karcis tidak valid.'; var b=document.getElementById('btnBalik'); if(b) b.style.display='block'; }
 function esc(s){ return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-/* ===== POP UP CANTIK - GANTI alert/confirm/prompt ===== */
 function tutupPopup(){ document.getElementById('popupOverlay').classList.remove('show'); }
 function showPopup(judul, pesan, opts){
   return new Promise(function(resolve){
@@ -185,7 +179,6 @@ function showPopup(judul, pesan, opts){
 }
 async function popupAlert(pesan, judul){ await showPopup(judul||'Ammo Travel', pesan, {}); }
 async function popupConfirm(pesan, judul){ return await showPopup(judul||'Konfirmasi', pesan, {confirm:true}); }
-
 function bacaKarcis(){
   var tok=''; try{ tok=localStorage.getItem('ammo_driver_token')||localStorage.getItem('ammo_admin_token')||sessionStorage.getItem('ammo_admin_token')||''; }catch(e){}
   if(!tok) return null;
@@ -253,8 +246,6 @@ async function loadRiwayat(){
   if(!data||!data.length){ box.innerHTML='<div class="empty">Belum ada riwayat order.</div>'; return; }
   box.innerHTML=data.map(function(o){ return '<div class="item"><div><b>Order #'+esc(String(o.kode).slice(0,6).toUpperCase())+' • '+(o.status==='selesai'?'Selesai':esc(o.status))+'</b><br><small>'+esc(o.pickup)+' → '+esc(o.tujuan)+' • '+rupiah(o.harga)+'</small></div><span class="sts">'+(o.status==='selesai'?'Selesai':esc(o.status))+'</span></div>'; }).join('');
 }
-
-/* ===== EDIT PROFIL DRIVER ===== */
 function bukaProfil(){
   if(!driver){ popupAlert('Tunggu, lagi ngecek karcis...'); return; }
   fotoBaru='';
@@ -266,15 +257,48 @@ function bukaProfil(){
   document.getElementById('editPlat').value=driver.plat_mobil||driver.plat||driver.plat_nomor||'';
   var foto=driver.foto||driver.foto_url||driver.avatar||'https://i.pravatar.cc/100?img=12';
   document.getElementById('fotoPreview').src=foto;
+  document.getElementById('fotoInfo').textContent='Foto otomatis dikompres biar enteng (max 800px, JPG 70%)';
   document.getElementById('infoKendaraan').innerHTML='🚗 <b>Kendaraan:</b> ' + esc(driver.jenis_mobil||driver.jenis_kendaraan||'-') + '<br>🔖 <b>Plat:</b> ' + esc(driver.plat_mobil||driver.plat||'-') + '<br>📱 <b>WA:</b> ' + esc(driver.no_wa||driver.no_hp||driver.telp||'-');
   document.getElementById('profilModal').classList.add('show');
 }
 function tutupProfil(){ document.getElementById('profilModal').classList.remove('show'); }
-function previewFoto(e){
+
+/* ===== KOMPRES FOTO - JANGAN PAKE MENTAHAN ===== */
+function kompresFoto(file){
+  return new Promise(function(resolve){
+    var img=new Image();
+    var url=URL.createObjectURL(file);
+    img.onload=function(){
+      var max=800, w=img.width, h=img.height;
+      if(w>max||h>max){ var rasio=Math.min(max/w, max/h); w=Math.round(w*rasio); h=Math.round(h*rasio); }
+      var canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h;
+      var ctx=canvas.getContext('2d'); ctx.drawImage(img,0,0,w,h);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL('image/jpeg', 0.7));
+    };
+    img.onerror=function(){ URL.revokeObjectURL(url); resolve(''); };
+    img.src=url;
+  });
+}
+async function previewFoto(e){
   var f=e.target.files && e.target.files[0]; if(!f) return;
-  var rd=new FileReader();
-  rd.onload=function(){ fotoBaru=rd.result; document.getElementById('fotoPreview').src=fotoBaru; document.getElementById('fotoDriver').src=fotoBaru; };
-  rd.readAsDataURL(f);
+  document.getElementById('fotoInfo').textContent='⏳ Lagi ngompres foto...';
+  // Foto kecil <300KB -> pake mentahan aja, biar gak pecah
+  if(f.size < 300*1024){
+    var rd=new FileReader();
+    rd.onload=function(){ fotoBaru=rd.result; document.getElementById('fotoPreview').src=fotoBaru; document.getElementById('fotoDriver').src=fotoBaru; document.getElementById('fotoInfo').textContent='Foto kecil, pake mentahan: ' + (f.size/1024).toFixed(0) + ' KB'; };
+    rd.readAsDataURL(f);
+    return;
+  }
+  // Foto gede -> kompres dulu
+  var hasil=await kompresFoto(f);
+  if(hasil){
+    fotoBaru=hasil;
+    document.getElementById('fotoPreview').src=fotoBaru;
+    document.getElementById('fotoDriver').src=fotoBaru;
+    var ukBaru=Math.round(hasil.length*3/4/1024);
+    document.getElementById('fotoInfo').textContent='✅ Dikompres: ' + (f.size/1024/1024).toFixed(1) + ' MB → ' + ukBaru + ' KB (800px, JPG 70%)';
+  }
 }
 async function simpanProfil(){
   if(!driver) return;
@@ -288,16 +312,14 @@ async function simpanProfil(){
   if(!code){ await popupAlert('Isi Code login dulu ya.'); return; }
   if(!pin || pin.length<4){ await popupAlert('PIN minimal 4 angka ya.'); return; }
   var upd={nama:nama,code:code,pin:pin,no_wa:wa,jenis_mobil:jenis,plat_mobil:plat};
-  if(fotoBaru) { upd.foto=fotoBaru; upd.foto_url=fotoBaru; }
-  // Coba update ke tabel drivers, kalau kolom foto belum ada, coba tanpa foto
+  if(fotoBaru){ upd.foto=fotoBaru; upd.foto_url=fotoBaru; }
   var r=await sb.from('drivers').update(upd).eq('id',driver.id);
   if(r && r.error && String(r.error.message||'').toLowerCase().includes('foto')){
     delete upd.foto; delete upd.foto_url;
     r=await sb.from('drivers').update(upd).eq('id',driver.id);
-    if(fotoBaru) await popupAlert('Foto belum kesimpan karena kolom foto belum ada di database.\nTapi data lain udah kesimpan.\n\nJalanin ini di SQL biar foto bisa kesimpan:\nALTER TABLE drivers ADD COLUMN IF NOT EXISTS foto text;');
+    if(fotoBaru) await popupAlert('Foto belum kesimpan karena kolom foto belum ada di database.\nTapi data lain udah kesimpan.\n\nJalanin ini di SQL:\nALTER TABLE drivers ADD COLUMN IF NOT EXISTS foto text;');
   }
   if(r && r.error){ await popupAlert('Gagal simpan: ' + r.error.message); return; }
-  // Update data lokal + karcis baru kalau code/pin berubah
   driver=Object.assign({}, driver, upd);
   try{
     var k=bacaKarcis(); var exp=k?k.exp:(Date.now()+2*60*60*1000);
@@ -306,8 +328,7 @@ async function simpanProfil(){
     localStorage.setItem('ammo_driver_token', code + '|' + pin + '|' + exp);
     localStorage.setItem('ammo_admin_token', code + '|' + pin + '|' + exp);
   }catch(e){}
-  tutupProfil();
-  tampilDriver();
+  tutupProfil(); tampilDriver();
   await popupAlert('Profil berhasil disimpan! ✅\nCode baru: ' + code + '\nPIN baru: ' + pin, 'Berhasil');
 }
 async function topup(){
