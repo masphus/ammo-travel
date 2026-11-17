@@ -141,7 +141,7 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 <div class="title"><h1>Mau Diantar <b>Kemana?</b></h1></div>
 <div class="form" autocomplete="off">
 <div class="lbl">Dari</div>
-<div class="row"><input id="pickup" placeholder="📍 Mendeteksi lokasi GPS..." autocomplete="off"><button class="btn-map" onclick="openMap('pickup')">📍 Peta</button></div>
+<div class="row"><input id="pickup" placeholder="Ketik lokasi penjemputan..." autocomplete="off"><button class="btn-map" onclick="openMap('pickup')">📍 Peta</button></div>
 <div id="gpsNote" class="gps-note">📍 Mendeteksi lokasi GPS kamu...</div>
 <div id="saranPick" class="saran-box"></div>
 <div class="swap-wrap"><button id="swapBtn" class="swap-btn" onclick="swapLokasi()" disabled title="Tukar Penjemputan & Tujuan">⇅</button></div>
@@ -267,6 +267,7 @@ let pendingRole=null;
 let pendingKode='';
 let pendingKodeChat='';
 let googleSudahDiproses=false;
+let gpsSudahDicoba=false;
 const $=id=>document.getElementById(id);
 const fmtRp=n=>'Rp. '+Math.round(n).toLocaleString('id-ID');
 function fmtJarak(m){let km=m/1000;return km>=100?Math.round(km).toLocaleString('id-ID')+' km':km.toFixed(1).replace('.',',')+' km';}
@@ -294,14 +295,16 @@ function pakaiGpsTersimpan(){
   return false;
 }
 function isiPenjemputanOtomatis(force){
+  if(gpsSudahDicoba && !force) return;
+  gpsSudahDicoba=true;
   if(!force && $('pickup').value.trim() && pickupCoord) return;
   if(!force && $('pickup').value.trim() && $('pickup').value.indexOf('Mendeteksi')===-1) return;
-  if(pakaiGpsTersimpan() && !force) { setTimeout(()=>isiPenjemputanOtomatis(true), 500); return; }
+  if(pakaiGpsTersimpan() && !force) return;
   if(!$('pickup').value.trim()) $('pickup').value='📍 Mendeteksi lokasi GPS...';
   if($('gpsNote')) $('gpsNote').style.display='block';
   if(!navigator.geolocation){
     if($('gpsNote')) $('gpsNote').textContent='GPS tidak didukung, pilih dari Peta / ketik manual ya';
-    if($('pickup').value.indexOf('Mendeteksi')!==-1) $('pickup').value='';
+    if($('pickup').value.indexOf('Mendeteksi')!==-1) $('pickup').value='Ketik lokasi penjemputan...';
     return;
   }
   navigator.geolocation.getCurrentPosition(async pos=>{
@@ -314,10 +317,9 @@ function isiPenjemputanOtomatis(force){
     if($('gpsNote')) $('gpsNote').style.display='none';
     updateSwap(); jadwalPreview(true);
   }, (err)=>{
-    if($('gpsNote')) $('gpsNote').textContent='Izin lokasi ditolak / GPS tidak ketemu. Ketik manual atau pilih dari Peta ya.';
-    if($('pickup').value.indexOf('Mendeteksi')!==-1) $('pickup').value='';
-    pakaiGpsTersimpan();
-  }, {enableHighAccuracy:true, timeout:10000, maximumAge:60000});
+    if($('gpsNote')) $('gpsNote').textContent='GPS nggak ketemu. Ketik manual / pilih dari Peta ya, bro.';
+    if($('pickup').value.indexOf('Mendeteksi')!==-1) $('pickup').value='Ketik lokasi penjemputan...';
+  }, {enableHighAccuracy:true, timeout:8000, maximumAge:60000});
 }
 function jadwalPreview(langsung){clearTimeout(previewTimer);if(langsung)hitungPreview();else previewTimer=setTimeout(hitungPreview,800);}
 async function hitungPreview(){
@@ -584,10 +586,6 @@ function buatAkunDariNama(){
 }
 function openChat(){$('chatModal').classList.add('show');$('pinView').style.display='none';$('chatView').style.display='block';}
 function closeChat(){$('chatModal').classList.remove('show');}
-document.addEventListener('DOMContentLoaded', ()=>{
-  let f=$('chatFloat'); if(f) f.onclick=()=>{ openChat(); };
-  let b=$('chatBtn'); if(b) b.onclick=(e)=>{ e.stopPropagation(); openChat(); };
-});
 function openMap(mode){
   mapMode=mode;
   if(mode==='pickup'&&pickupCoord){tempLat=pickupCoord[0];tempLng=pickupCoord[1];}
@@ -842,13 +840,8 @@ window.addEventListener('pageshow',function(){
   sessionStorage.removeItem('ammo_clear');
   sessionStorage.removeItem('ammo_must_clear_dest');
   sessionStorage.removeItem('ammo_from_index');
-  if(!$('pickup').value.trim())isiPenjemputanOtomatis();
+  if(!$('pickup').value.trim()) isiPenjemputanOtomatis();
 });
-setTimeout(function(){
-  if(!localStorage.getItem('ammo_pending_order') && !mauLanjutOrder()){
-    if(sessionStorage.getItem('ammo_clear')==='1'||sessionStorage.getItem('ammo_must_clear_dest')==='1')kosongkanTujuan();
-  }
-},500);
 isiPenjemputanOtomatis();
 try{let t=$('tanggalBerangkat');if(t&&!t.value)t.value=new Date().toISOString().slice(0,10);}catch(e){}
 $('pickup').addEventListener('input',()=>{ if($('gpsNote')) $('gpsNote').style.display='none'; pickupCoord=null;updateSwap();sembunyikanHarga();jadwalSaran($('pickup'),$('saranPick'),true);});
@@ -932,7 +925,16 @@ try{
   });
 }catch(e){}
 </script>
-<!-- TOMBOL CHAT MELAYANG - DI LUAR .phone BIAR BISA DIKLIK -->
-<div class="chat-float" id="chatFloat"><div class="chat" id="chatBtn">💬<i></i></div></div>
+<!-- TOMBOL CHAT MELAYANG - DI LUAR .phone, onclick LANGSUNG -->
+<div class="chat-float" id="chatFloat" onclick="openChat();return false;"><div class="chat" id="chatBtn" onclick="openChat();return false;">💬<i></i></div></div>
+<script>
+(function(){
+  var f=document.getElementById('chatFloat');
+  var b=document.getElementById('chatBtn');
+  if(f) f.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); openChat(); });
+  if(b) b.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); openChat(); });
+  if(f) f.addEventListener('touchstart', function(e){ e.preventDefault(); openChat(); }, {passive:false});
+})();
+</script>
 </body>
 </html>
