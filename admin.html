@@ -63,6 +63,14 @@ textarea{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#11
 .popup .p-btns{display:flex;gap:10px;justify-content:center;flex-direction:column}
 .popup .p-btns .btn{flex:1;padding:12px;width:100%}
 .popup .p-btns-row{display:flex;gap:10px}
+.google-gate{position:fixed;inset:0;background:#0a0a0a;z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.google-gate.show{display:flex}
+.google-card{background:#000;border:2px solid #d4af37;border-radius:18px;padding:28px;width:100%;max-width:420px;text-align:center}
+.google-card h2{color:#f5d67b;margin:12px 0 8px}
+.google-card p{color:#ccc;font-size:14px;line-height:1.5;margin-bottom:16px}
+.google-card .gbtn{width:100%;padding:14px;border:none;border-radius:12px;background:#fff;color:#000;font-weight:900;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
+.google-card .gbtn img{width:20px;height:20px}
+.google-card .gback{width:100%;margin-top:10px;padding:12px;background:#111;border:1px solid #333;color:#fff;border-radius:12px;cursor:pointer}
 @media(max-width:900px) and (orientation:portrait){
   .sidebar{display:none}.main{margin-left:0}
   #btnMenu{display:block}
@@ -117,12 +125,10 @@ textarea{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#11
     <a data-page="blacklist"><span class="mi">🚫</span> Blacklist</a>
     <a data-page="pengaturan"><span class="mi">⚙️</span> Pengaturan</a>
   </div>
-  <div style="padding:20px;color:#888;font-size:12px">Login sebagai:<br><b id="adminNameLabel" style="color:#f5d67b;font-size:15px">Memeriksa...</b><br><br><button class="btn btn-tolak" onclick="doLogout()">Keluar</button></div>
+  <div style="padding:20px;color:#888;font-size:12px">Login sebagai:<br><b id="adminNameLabel" style="color:#f5d67b;font-size:15px">Memeriksa...</b><br><small id="adminGoogleLabel" style="color:#aaa"></small><br><br><button class="btn btn-tolak" onclick="doLogout()">Keluar</button></div>
 </div>
-
 <div class="main">
   <div class="topbar"><button id="btnMenu" onclick="document.querySelector('.sidebar').style.display=document.querySelector('.sidebar').style.display==='block'?'none':'block';document.querySelector('.sidebar').style.position='fixed'">☰</button><h1>Ammo Travel - Super Admin</h1><div class="admin"><img src="https://i.pravatar.cc/100?img=47"> <span class="txt" id="adminTopLabel">Admin ▽</span></div></div>
-
   <div id="page-dashboard" class="page active">
     <div class="cards">
       <div class="card"><div class="ic">👥</div><p>Total Penumpang:</p><h2 id="statPenumpang">0</h2></div>
@@ -142,33 +148,27 @@ textarea{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#11
       <table><thead><tr><th>Nama</th><th>Mobil / Plat</th><th>Kode / PIN</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="driverTable"><tr><td colspan="5">Memuat...</td></tr></tbody></table>
     </div>
   </div>
-
   <div id="page-penumpang" class="page"><div class="box"><h3>👤 Data Penumpang - REAL dari tabel penumpang</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Total order dihitung dari tabel <b>bookings</b> pake <b>penumpang_id</b>.</p><table><thead><tr><th>Nama</th><th>No WA</th><th>Total Booking</th><th>Status</th></tr></thead><tbody id="penumpangTable"></tbody></table></div></div>
   <div id="page-driver" class="page"><div class="box"><h3>🧑‍✈️ Semua Driver - REAL dari tabel drivers</h3><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="inNamaDrv" placeholder="Nama Driver"><input id="inWaDrv" placeholder="No WA"><input id="inPlatDrv" placeholder="Plat - contoh: F 1234 AB"><input id="inJenisDrv" placeholder="Jenis Mobil - Avanza"><button class="btn btn-terima" onclick="tambahDriver()">+ Tambah Driver</button></div><table><thead><tr><th>Nama</th><th>Mobil / Plat</th><th>Kode / PIN</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="driverTable2"></tbody></table></div></div>
-  <div id="page-order" class="page"><div class="box"><h3>📋 Semua Order - REAL dari tabel bookings</h3><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="inDari" placeholder="Dari Lokasi"><input id="inTujuan" placeholder="Ke Lokasi"><input id="inHarga" type="number" placeholder="Total Harga Rp"><button class="btn btn-terima" onclick="tambahOrder()">+ Buat Booking</button></div><div id="allOrderList">Memuat...</div></div></div>
+  <div id="page-order" class="page"><div class="box"><h3>📋 Riwayat Order - REAL dari tabel bookings</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Ini cuma buat liat riwayat order penumpang. Order masuk otomatis dari penumpang, bukan dibikin dari sini.</p><div id="allOrderList">Memuat...</div></div></div>
   <div id="page-penghasilan" class="page"><div class="box"><h3>💰 Penghasilan - REAL dari tabel payments</h3><p style="margin:12px 0;font-size:20px">Hari ini: <b id="penghasilanHariIni">Rp 0</b></p><p style="color:#ccc;font-size:13px">Dihitung dari <b>payments.nominal</b> yang statusnya lunas / paid / sukses hari ini. Fee admin <b>7%</b> dari tabel tarif, bukan dari frontend.</p><div id="penghasilanList" style="margin-top:12px"></div><div style="margin-top:16px"><h3>💰 Tarif Aktif - REAL dari tabel tarif</h3><div id="tarifList"></div></div></div></div>
-
-  <div id="page-antrian" class="page"><div class="box"><h3>🔥 Antrian - Pertanyaan yang Bot Gak Tau</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Kalau user nanya yang bot gak tau, masuk kesini. Jawab disini, jawaban otomatis masuk ke tabel <b>bot</b> juga, biar besok bot bisa jawab sendiri. Kalau jawabannya SALAH, klik <b>🗑️ Hapus</b> lalu pilih <b>Hapus Antrian + Bot</b>, biar bot gak jawab ngawur lagi. Gak usah buka database.</p><div id="antrianList">Memuat...</div></div></div>
-
+  <div id="page-antrian" class="page"><div class="box"><h3>🔥 Antrian - Pertanyaan yang Bot Gak Tau</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Kalau user nanya yang bot gak tau, masuk kesini. Jawab disini, jawaban otomatis masuk ke tabel <b>bot</b> juga, biar besok bot bisa jawab sendiri.</p><div id="antrianList">Memuat...</div></div></div>
   <div id="page-chat" class="page">
     <div class="box"><h3>💬 Chat Penumpang + Ajari Bot</h3><p style="color:#ccc;font-size:13px;margin-top:5px">REAL dari tabel <b>chats</b>. Chat anonim dipisah per sesi, bukan dicampur jadi 1 grup. Centang "Simpan ke Bot" aktif, jawaban kamu masuk tabel <b>bot</b> juga.</p></div>
     <div class="chat-wrap" style="margin-top:15px">
       <div class="chat-list" id="userList"></div>
       <div class="chat-main">
-        <div style="padding:12px;background:#000;border-bottom:1px solid #d4af37;display:flex;justify-content:space-between;align-items:center;gap:8px"><b id="chatTitle">Pilih penumpang...</b><label class="toggle"><input type="checkbox" id="saveToBot" checked> Simpan ke Bot 🤖</label></div>
+        <div style="padding:12px;background:#000;border-bottom:1px solid #d4af37;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><b id="chatTitle">Pilih penumpang...</b><div style="display:flex;gap:8px;align-items:center"><label class="toggle"><input type="checkbox" id="saveToBot" checked> Simpan ke Bot 🤖</label><button class="btn btn-tolak" onclick="hapusChatSesi()" style="padding:8px 10px">🗑️ Hapus Chat Ini</button></div></div>
         <div id="chatBox"><p style="color:#888;text-align:center;margin-top:50px">Pilih chat di kiri dulu</p></div>
         <div class="chat-input"><input id="chatInput" placeholder="Ketik jawaban... lalu Enter / Kirim, auto kesimpan ke Bot"><button onclick="kirimPesan()">Kirim ➤</button></div>
       </div>
     </div>
   </div>
-
-  <div id="page-bot" class="page"><div class="box"><h3>🤖 Data Bot - REAL dari tabel bot</h3><p style="color:#ccc;font-size:13px">Tabel bot lu gak ada id, jadi hapus pake <b>kunci</b>. Kalau ada jawaban bot yang salah, hapus disini aja, gak usah buka database.</p><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="newKunci" placeholder="Kunci / Pertanyaan"><input id="newJawaban" placeholder="Jawaban Bot"><button class="btn btn-terima" onclick="tambahBot()">+ Tambah</button></div><table><thead><tr><th>Kunci</th><th>Jawaban</th><th>Aksi</th></tr></thead><tbody id="botTable"></tbody></table></div></div>
-
-  <div id="page-blacklist" class="page"><div class="box"><h3>🚫 Blacklist - Penumpang Nakal (Sering Cancel)</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Buat nandain penumpang yang udah order tapi sering dibatalkan.</p><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="inBlWa" placeholder="No WA Penumpang"><input id="inBlAlasan" placeholder="Alasan - cth: 3x cancel mendadak"><input id="inBlCancel" type="number" placeholder="Jumlah Cancel"><button class="btn btn-terima" onclick="tambahBlacklist()">+ Masukkan Blacklist</button></div><table><thead><tr><th>No WA</th><th>Alasan</th><th>Jumlah Cancel</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="blacklistTable"></tbody></table></div></div>
-
-  <div id="page-pengaturan" class="page"><div class="box"><h3>⚙️ Pengaturan</h3><p style="color:#ccc;margin:10px 0">Nama Admin</p><input id="namaAdmin" readonly><p style="color:#ccc;margin:10px 0">Tarif Aktif (dari tabel tarif)</p><div id="tarifSetting"></div><br><button class="btn btn-terima" onclick="showPopup('Tersimpan ✅','Pengaturan udah tersimpan di database.','💾',[{text:'Oke',cls:'btn-terima',close:true}])">💾 Simpan Pengaturan</button><p style="color:#888;font-size:12px;margin-top:14px">Supabase: https://xxtgmohxdztesiubfxap.supabase.co • Status: <span id="statusSupabase" style="color:#25D366">Menghubungkan...</span> • Fee: 7%</p></div></div>
+  <div id="page-bot" class="page"><div class="box"><h3>🤖 Data Bot - REAL dari tabel bot</h3><p style="color:#ccc;font-size:13px">Kalau ada jawaban bot yang salah, pencet <b>Edit</b> buat benerin hurufnya, nggak usah hapus + ketik ulang.</p><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="newKunci" placeholder="Kunci / Pertanyaan"><input id="newJawaban" placeholder="Jawaban Bot"><button class="btn btn-terima" onclick="tambahBot()">+ Tambah / Simpan</button></div><table><thead><tr><th>Kunci</th><th>Jawaban</th><th>Aksi</th></tr></thead><tbody id="botTable"></tbody></table></div></div>
+  <div id="page-blacklist" class="page"><div class="box"><h3>🚫 Blacklist - Otomatis</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Ini keisi otomatis kalau ada yang nyoba masuk admin tanpa kunci / Google-nya beda / karcisnya palsu. Nggak usah dimasukin manual. Kalau salah masuk, tinggal pencet Hapus.</p><table><thead><tr><th>No WA / Email</th><th>Alasan</th><th>Jumlah Cancel</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="blacklistTable"></tbody></table></div></div>
+  <div id="page-pengaturan" class="page"><div class="box"><h3>⚙️ Pengaturan</h3><p style="color:#ccc;margin:10px 0">Nama Admin</p><input id="namaAdmin"><p style="color:#ccc;margin:10px 0">Code Admin (kunci masuk, contoh: admin)</p><input id="settingKode" placeholder="Code admin"><p style="color:#ccc;margin:10px 0">PIN Admin (4-6 angka)</p><input id="settingPin" placeholder="PIN admin" inputmode="numeric"><p style="color:#888;font-size:12px;margin:6px 0">Ganti Code / PIN di sini, langsung keubah di database. Inget-inget yang baru ya, kalau lupa lu nggak bisa masuk lagi.</p><p style="color:#ccc;margin:10px 0">Email Google Admin (yang boleh masuk, harus sama kayak Google lu)</p><input id="settingEmail" placeholder="Email Google admin"><p style="color:#ccc;margin:10px 0">Tarif Aktif (dari tabel tarif)</p><div id="tarifSetting"></div><br><button class="btn btn-terima" onclick="simpanPengaturan()">💾 Simpan Pengaturan</button><p style="color:#888;font-size:12px;margin-top:14px">Supabase: https://xxtgmohxdztesiubfxap.supabase.co • Status: <span id="statusSupabase" style="color:#25D366">Menghubungkan...</span> • Fee: 7%</p></div></div>
 </div>
-
+<div id="googleGate" class="google-gate"><div class="google-card"><div style="font-size:44px">🔐</div><h2>Verifikasi Google Dulu, Bro</h2><p id="googleGateMsg">Code + PIN lu bener, udah dianter sampe depan pintu. Sekarang tunjukin KTP Google lu. Harus sama kayak email admin yang ada di database, kalau beda lu ditendang + dicatet.</p><p id="googleGateInfo" style="color:#f5d67b;font-weight:700"></p><button class="gbtn" onclick="loginGoogleAdmin()"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G"> Lanjut dengan Google</button><button class="gback" onclick="batalGoogle()">← Batal, Balik ke Depan</button><p style="color:#888;font-size:12px;margin-top:12px">Salah 3x pake Google orang lain = email Google itu dikunci, nggak bakal nemu lagi halaman admin.</p></div></div>
 <div class="popup-bg" id="popupBg" onclick="if(event.target===this) tutupPopup()">
   <div class="popup">
     <span class="p-ic" id="popupIc">✅</span>
@@ -177,11 +177,9 @@ textarea{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#11
     <div class="p-btns" id="popupBtns"></div>
   </div>
 </div>
-
 <div class="popup-bg" id="pinBg">
   <div class="popup"><span class="p-ic">🔐</span><h3>Konfirmasi PIN Admin</h3><p>Masukkan PIN admin dari tabel admin untuk hapus data.</p><input id="pinInput" type="password" inputmode="numeric" placeholder="PIN Admin" style="margin-bottom:12px"><div class="p-btns"><button class="btn btn-terima" onclick="confirmPinDelete()">Ya, Hapus</button><button class="btn btn-tolak" onclick="closePinModal()">Batal</button></div></div>
 </div>
-
 <script>
 const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
@@ -192,116 +190,131 @@ let currentUser=null, lastUserMsg="", currentUserLabel="", currentAdmin=null, ad
 let cacheBookings=[], cacheDrivers=[], cachePenumpang=[], cachePayments=[], cacheTarif=[], cacheAntrian=[];
 let sedangNgetik=false, draftAntrian={}, draftChat="", pendingDeleteFn=null;
 let mapObj=null, mapCircle=null, mapAdminMarker=null, mapDriverLayer=null, adminLat=-6.9175, adminLng=107.6191;
-
+let googleSudahDicek=false;
 function lemparKeIndex(){
-  // TIDAK ADA TOMBOL LOGIN DI ADMIN. Yang bukan admin langsung dilempar ke index.
+  try{ localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); }catch(e){}
   window.location.replace(INDEX_URL);
 }
 function rp(n){ return 'Rp ' + (Number(n)||0).toLocaleString('id-ID'); }
-function esc(s){
-  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
+function esc(s){ return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function escAttr(s){ return esc(s).replace(/\n/g,' '); }
-function todayStr(){
-  const parts = new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
-  return `${parts.find(p=>p.type==='year').value}-${parts.find(p=>p.type==='month').value}-${parts.find(p=>p.type==='day').value}`;
-}
+function todayStr(){ const parts = new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()); return `${parts.find(p=>p.type==='year').value}-${parts.find(p=>p.type==='month').value}-${parts.find(p=>p.type==='day').value}`; }
 document.addEventListener('focusin', e=>{ if(e.target.tagName==='INPUT' || e.target.tagName==='TEXTAREA') sedangNgetik=true; });
 document.addEventListener('focusout', e=>{ setTimeout(()=>{ if(document.activeElement.tagName!=='INPUT' && document.activeElement.tagName!=='TEXTAREA') sedangNgetik=false; }, 500); });
-document.addEventListener('input', e=>{
-  if(e.target.id && e.target.id.startsWith('jawab-')) draftAntrian[e.target.id]=e.target.value;
-  if(e.target.id==='chatInput') draftChat=e.target.value;
-});
-function simpanDraftSebelumRefresh(){
-  document.querySelectorAll('textarea[id^="jawab-"]').forEach(el=>{ draftAntrian[el.id]=el.value; });
-  const ci=document.getElementById('chatInput'); if(ci) draftChat=ci.value;
-}
-function kembalikanDraft(){
-  Object.keys(draftAntrian).forEach(id=>{ const el=document.getElementById(id); if(el && draftAntrian[id]) el.value=draftAntrian[id]; });
-  const ci=document.getElementById('chatInput'); if(ci && draftChat) ci.value=draftChat;
-}
-function showPopup(title, msg, icon, btns){
-  document.getElementById('popupIc').textContent = icon || '✅';
-  document.getElementById('popupTitle').textContent = title || 'Info';
-  document.getElementById('popupMsg').textContent = msg || '';
-  const wrap=document.getElementById('popupBtns'); wrap.innerHTML='';
-  const list = btns && btns.length ? btns : [{text:'Oke', cls:'btn-terima', close:true}];
-  list.forEach(b=>{
-    const el=document.createElement('button');
-    el.className='btn '+b.cls; el.textContent=b.text;
-    el.onclick=()=>{ tutupPopup(); if(b.onClick) b.onClick(); };
-    wrap.appendChild(el);
-  });
-  document.getElementById('popupBg').classList.add('show');
-}
+document.addEventListener('input', e=>{ if(e.target.id && e.target.id.startsWith('jawab-')) draftAntrian[e.target.id]=e.target.value; if(e.target.id==='chatInput') draftChat=e.target.value; });
+function simpanDraftSebelumRefresh(){ document.querySelectorAll('textarea[id^="jawab-"]').forEach(el=>{ draftAntrian[el.id]=el.value; }); const ci=document.getElementById('chatInput'); if(ci) draftChat=ci.value; }
+function kembalikanDraft(){ Object.keys(draftAntrian).forEach(id=>{ const el=document.getElementById(id); if(el && draftAntrian[id]) el.value=draftAntrian[id]; }); const ci=document.getElementById('chatInput'); if(ci && draftChat) ci.value=draftChat; }
+function showPopup(title, msg, icon, btns){ document.getElementById('popupIc').textContent = icon || '✅'; document.getElementById('popupTitle').textContent = title || 'Info'; document.getElementById('popupMsg').textContent = msg || ''; const wrap=document.getElementById('popupBtns'); wrap.innerHTML=''; const list = btns && btns.length ? btns : [{text:'Oke', cls:'btn-terima', close:true}]; list.forEach(b=>{ const el=document.createElement('button'); el.className='btn '+b.cls; el.textContent=b.text; el.onclick=()=>{ tutupPopup(); if(b.onClick) b.onClick(); }; wrap.appendChild(el); }); document.getElementById('popupBg').classList.add('show'); }
 function tutupPopup(){ document.getElementById('popupBg').classList.remove('show'); }
 function showError(msg){ showPopup('Gagal 😢', msg, '❌', [{text:'Oke',cls:'btn-terima',close:true}]); }
 function showSukses(msg){ showPopup('Berhasil ✅', msg, '✅', [{text:'Oke, Mantap',cls:'btn-terima',close:true}]); }
-function mintaPinHapus(msg, fn){
-  pendingDeleteFn = fn;
-  document.getElementById('pinInput').value='';
-  document.getElementById('pinBg').classList.add('show');
-  setTimeout(()=>document.getElementById('pinInput').focus(),100);
-}
+function showToast(judul,isi){ try{ showPopup(judul, isi, '✅', [{text:'Oke',cls:'btn-terima',close:true}]); }catch(e){ alert(judul+' - '+isi); } }
+function mintaPinHapus(msg, fn){ pendingDeleteFn = fn; document.getElementById('pinInput').value=''; document.getElementById('pinBg').classList.add('show'); setTimeout(()=>document.getElementById('pinInput').focus(),100); }
 function closePinModal(){ document.getElementById('pinBg').classList.remove('show'); pendingDeleteFn=null; }
-async function confirmPinDelete(){
-  const pin = document.getElementById('pinInput').value.trim();
-  if(!pin) return alert('Isi PIN dulu');
-  const {data} = await sb.from('admin').select('pin').eq('email', (currentAdmin?.email||'').toLowerCase()).single();
-  const pinBenar = data?.pin ? String(data.pin) : adminPinCache;
-  if(String(pin) !== String(pinBenar)){ alert('PIN salah. Hapus dibatalkan.'); return; }
-  closePinModal();
-  if(pendingDeleteFn){ const fn=pendingDeleteFn; pendingDeleteFn=null; await fn(); }
-}
-document.querySelectorAll('.menu a').forEach(a=>{
-  a.onclick=()=>{document.querySelectorAll('.menu a').forEach(x=>x.classList.remove('active'));a.classList.add('active');
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+a.dataset.page).classList.add('active');
-  if(window.innerWidth<=900 && window.matchMedia('(orientation: portrait)').matches) document.querySelector('.sidebar').style.display='none';}
-});
-function pindahKeHalaman(page){
-  document.querySelectorAll('.menu a').forEach(x=>x.classList.remove('active'));
-  const target=document.querySelector('.menu a[data-page="'+page+'"]');
-  if(target) target.classList.add('active');
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-function bukaAntrianDariDashboard(id){
-  pindahKeHalaman('antrian');
-  setTimeout(()=>{ const el=document.getElementById('jawab-'+id); if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.focus(); el.style.border='2px solid #f5d67b'; } },300);
-}
+async function confirmPinDelete(){ const pin = document.getElementById('pinInput').value.trim(); if(!pin) return alert('Isi PIN dulu'); const {data} = await sb.from('admin').select('pin').eq('email', (currentAdmin?.email||'').toLowerCase()).single(); const pinBenar = data?.pin ? String(data.pin) : adminPinCache; if(String(pin) !== String(pinBenar)){ alert('PIN salah. Hapus dibatalkan.'); return; } closePinModal(); if(pendingDeleteFn){ const fn=pendingDeleteFn; pendingDeleteFn=null; await fn(); } }
+document.querySelectorAll('.menu a').forEach(a=>{ a.onclick=()=>{document.querySelectorAll('.menu a').forEach(x=>x.classList.remove('active'));a.classList.add('active'); document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page-'+a.dataset.page).classList.add('active'); if(window.innerWidth<=900 && window.matchMedia('(orientation: portrait)').matches) document.querySelector('.sidebar').style.display='none';} });
+function pindahKeHalaman(page){ document.querySelectorAll('.menu a').forEach(x=>x.classList.remove('active')); const target=document.querySelector('.menu a[data-page="'+page+'"]'); if(target) target.classList.add('active'); document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page-'+page).classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
+function bukaAntrianDariDashboard(id){ pindahKeHalaman('antrian'); setTimeout(()=>{ const el=document.getElementById('jawab-'+id); if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.focus(); el.style.border='2px solid #f5d67b'; } },300); }
 async function doLogout(){
-  try{ localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); localStorage.removeItem('ammo_role'); }catch(e){}
+  try{ localStorage.setItem('ammo_admin_logout_time', String(Date.now())); sessionStorage.setItem('ammo_admin_logout_time', String(Date.now())); localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); localStorage.removeItem('ammo_role'); localStorage.removeItem('ammo_admin_email'); localStorage.removeItem('ammo_admin_nama'); localStorage.removeItem('ammo_driver_token'); localStorage.removeItem('ammo_admin_google_ok'); }catch(e){}
   try{ await sb.auth.signOut(); }catch(e){}
-  currentAdmin=null;
+  currentAdmin=null; googleSudahDicek=false;
+  try{ document.getElementById('googleGate').classList.remove('show'); }catch(e){}
   lemparKeIndex();
 }
-// ===== SATPAM ADMIN - NANGKEP MALING DI SINI, BUKAN DI INDEX =====
-// Index cuma nganter. Admin yang cek karcis. Karcis format dari index: code|pin|kadaluarsa (Date.now + 2 jam)
-async function ambilIP(){
-  try{ const r=await fetch('https://api.ipify.org?format=json'); const j=await r.json(); return j.ip||'IP-tidak-kedetek'; }catch(e){ return 'IP-tidak-kedetek'; }
+function batalGoogle(){
+  try{ localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); }catch(e){}
+  try{ sb.auth.signOut(); }catch(e){}
+  window.location.replace(INDEX_URL);
 }
-async function catetMaling(kodeInfo, ip, jenis){
-  try{ await sb.from('blacklist').insert([{ no_wa: ip, alasan: '🚨 '+jenis+' - '+kodeInfo+' | IP: '+ip, jumlah_cancel: 1, status: 'blacklist' }]); }catch(e){ console.log('Gagal catet maling:', e.message); }
+async function ambilIP(){ try{ const r=await fetch('https://api.ipify.org?format=json'); const j=await r.json(); return j.ip||'IP-tidak-kedetek'; }catch(e){ return 'IP-tidak-kedetek'; } }
+async function catetMaling(kodeInfo, ip, jenis){ try{ await sb.from('blacklist').insert([{ no_wa: ip, alasan: '🚨 '+jenis+' - '+kodeInfo+' | IP: '+ip, jumlah_cancel: 1, status: 'blacklist' }]); }catch(e){ console.log('Gagal catet maling:', e.message); } }
+async function catetGoogleSalah(emailGoogle, emailBenar, codeVal){
+  try{
+    const key='ammo_google_salah_'+String(codeVal||'admin').toLowerCase();
+    let hitung = Number(localStorage.getItem(key)||0)+1;
+    localStorage.setItem(key, String(hitung));
+    const ip = await ambilIP();
+    await sb.from('blacklist').insert([{ no_wa: emailGoogle, alasan: '🚨 GOOGLE BEDA ('+hitung+'/3) - Code: '+codeVal+' | Google masuk: '+emailGoogle+' | Google benar: '+emailBenar+' | IP: '+ip, jumlah_cancel: hitung, status: 'blacklist' }]);
+    return hitung;
+  }catch(e){ return 1; }
+}
+async function tendangGoogleSalah(emailGoogle, emailBenar, codeVal){
+  const hitung = await catetGoogleSalah(emailGoogle, emailBenar, codeVal);
+  try{ await sb.auth.signOut(); }catch(e){}
+  try{ localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); localStorage.removeItem('ammo_admin_google_ok'); }catch(e){}
+  if(hitung>=3){
+    try{ localStorage.setItem('ammo_google_blocked_'+String(emailGoogle).toLowerCase(), '1'); }catch(e){}
+    alert('Google lu beda 3x! Email '+emailGoogle+' udah dikunci. Nggak bakal nemu lagi halaman admin.');
+  } else {
+    alert('Google lu beda! Yang bener: '+emailBenar+' | Lu pake: '+emailGoogle+' | Salah ke-'+hitung+'/3. Kalau sampai 3x, email Google lu dikunci.');
+  }
+  lemparKeIndex();
+}
+async function loginGoogleAdmin(){
+  try{ await sb.auth.signInWithOAuth({provider:'google', options:{redirectTo: window.location.href}}); }catch(e){ alert('Gagal buka Google: '+e.message); }
+}
+async function verifikasiGoogle(adm){
+  const emailBenar = String(adm.email||'').toLowerCase().trim();
+  if(!emailBenar){
+    document.getElementById('adminNameLabel').textContent = (adm.nama || 'Admin') + ' - Super Admin';
+    document.getElementById('adminTopLabel').textContent = (adm.nama || 'Admin') + ' ▽';
+    document.getElementById('namaAdmin').value = adm.nama || '';
+    try{ var _sk=document.getElementById('settingKode'); if(_sk) _sk.value = adm.code||adm.kode||''; }catch(e){}
+    try{ var _sp=document.getElementById('settingPin'); if(_sp) _sp.value = String(adm.pin||''); }catch(e){}
+    try{ var _se=document.getElementById('settingEmail'); if(_se) _se.value = adm.email||''; }catch(e){}
+    initMap(); loadAll(); return;
+  }
+  let sess=null;
+  try{ const r = await sb.auth.getSession(); sess = r.data ? r.data.session : null; }catch(e){}
+  const emailGoogle = sess && sess.user ? String(sess.user.email||'').toLowerCase().trim() : '';
+  if(!emailGoogle){
+    document.getElementById('googleGateMsg').textContent = 'Code + PIN lu bener, udah dianter sampe depan pintu. Sekarang tunjukin KTP Google lu. Harus sama kayak email admin yang ada di database ('+emailBenar+'), kalau beda lu ditendang + dicatet.';
+    document.getElementById('googleGateInfo').textContent = 'Email yang boleh masuk: '+emailBenar;
+    document.getElementById('googleGate').classList.add('show');
+    return;
+  }
+  if(localStorage.getItem('ammo_google_blocked_'+emailGoogle)==='1'){
+    const ip = await ambilIP();
+    await catetMaling('Google yang udah diblokir 3x nyoba masuk lagi: '+emailGoogle, ip, 'MALING GOOGLE DIBLOKIR');
+    try{ await sb.auth.signOut(); }catch(e){}
+    lemparKeIndex(); return;
+  }
+  if(emailGoogle !== emailBenar){
+    await tendangGoogleSalah(emailGoogle, emailBenar, adm.code||adm.kode||'admin');
+    return;
+  }
+  try{ localStorage.setItem('ammo_admin_google_ok', emailGoogle); }catch(e){}
+  try{ localStorage.removeItem('ammo_admin_logout_time'); sessionStorage.removeItem('ammo_admin_logout_time'); }catch(e){}
+  document.getElementById('googleGate').classList.remove('show');
+  document.getElementById('adminNameLabel').textContent = (adm.nama || adm.email) + ' - Super Admin';
+  document.getElementById('adminTopLabel').textContent = (adm.nama || 'Admin') + ' ▽';
+  try{ document.getElementById('adminGoogleLabel').textContent = 'Google: '+emailGoogle+' ✅'; }catch(e){}
+  document.getElementById('namaAdmin').value = adm.nama || '';
+  try{ var _sk2=document.getElementById('settingKode'); if(_sk2) _sk2.value = adm.code||adm.kode||''; }catch(e){}
+  try{ var _sp2=document.getElementById('settingPin'); if(_sp2) _sp2.value = String(adm.pin||''); }catch(e){}
+  try{ var _se2=document.getElementById('settingEmail'); if(_se2) _se2.value = adm.email||''; }catch(e){}
+  googleSudahDicek=true;
+  initMap(); loadAll();
 }
 async function cekSesi(){
   let tok = '';
   try{ tok = sessionStorage.getItem('ammo_admin_token') || localStorage.getItem('ammo_admin_token') || ''; }catch(e){}
-  if(!tok){
-    const ip = await ambilIP();
-    await catetMaling('Masuk admin tanpa karcis, langsung ketik admin.html', ip, 'MALING TANPA KARCIS');
-    lemparKeIndex(); return;
-  }
+  if(!tok){ const ip = await ambilIP(); await catetMaling('Masuk admin tanpa karcis, langsung ketik admin.html', ip, 'MALING TANPA KARCIS'); lemparKeIndex(); return; }
   const parts = String(tok).split('|');
-  if(parts.length < 3){
-    const ip = await ambilIP();
-    await catetMaling('Karcis rusak: '+tok, ip, 'MALING KARCIS PALSU');
-    lemparKeIndex(); return;
-  }
-  const codeVal = String(parts[0]||'').toLowerCase().trim();
+  if(parts.length < 3){ const ip = await ambilIP(); await catetMaling('Karcis rusak: '+tok, ip, 'MALING KARCIS PALSU'); lemparKeIndex(); return; }
+  const codeVal = String(parts[0]||'').replace(/^[#@]+/,'').toLowerCase().trim();
   const pinVal = String(parts[1]||'').trim();
   const expiry = Number(parts[2]||0);
+  const dibuat = expiry ? expiry - 2*60*60*1000 : 0;
+  let jamLogout = 0;
+  try{ jamLogout = Number(localStorage.getItem('ammo_admin_logout_time')||sessionStorage.getItem('ammo_admin_logout_time')||0)||0; }catch(e){}
+  if(jamLogout && dibuat && dibuat < jamLogout){
+    try{ localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); }catch(e){}
+    const ip2 = await ambilIP();
+    await catetMaling('Karcis lama bekas logout dipakai lagi. Code: '+codeVal, ip2, 'MALING KARCIS BEKAS LOGOUT');
+    lemparKeIndex(); return;
+  }
   if(!codeVal || !pinVal || !expiry || Date.now() > expiry){
     const ip = await ambilIP();
     await catetMaling('Karcis kadaluarsa / kosong. Code: '+codeVal, ip, 'MALING KARCIS KADALUARSA');
@@ -309,16 +322,10 @@ async function cekSesi(){
     lemparKeIndex(); return;
   }
   let adm = null;
-  try{
-    const r = await sb.rpc('cek_pin_login', { p_code: codeVal, p_pin: pinVal });
-    if(r && !r.error && r.data && r.data.length) adm = r.data[0];
-  }catch(e){}
-  if(!adm){
-    try{
-      const a = await sb.from('admin').select('*').ilike('code', codeVal).eq('pin', pinVal).maybeSingle();
-      if(a && a.data) adm = a.data;
-    }catch(e){}
-  }
+  try{ const r = await sb.rpc('cek_pin_login', { p_code: codeVal, p_pin: pinVal }); if(r && !r.error && r.data && r.data.length) adm = r.data[0]; }catch(e){}
+  if(!adm){ try{ const a = await sb.from('admin').select('*').ilike('code', codeVal).eq('pin', pinVal).maybeSingle(); if(a && a.data) adm = a.data; }catch(e){} }
+  if(!adm){ try{ const a2 = await sb.from('admin').select('*').ilike('code', codeVal).maybeSingle(); if(a2 && a2.data && String(a2.data.pin)===String(pinVal)) adm = a2.data; }catch(e){} }
+  if(!adm){ try{ const a3 = await sb.from('admin').select('*').eq('pin', pinVal).maybeSingle(); if(a3 && a3.data) adm = a3.data; }catch(e){} }
   if(!adm || String(adm.role||'admin').toLowerCase() !== 'admin'){
     const ip = await ambilIP();
     await catetMaling('Code+PIN di karcis salah / bukan admin. Code: '+codeVal+' PIN: '+pinVal, ip, 'MALING KARCIS PALSU');
@@ -326,57 +333,16 @@ async function cekSesi(){
     lemparKeIndex(); return;
   }
   currentAdmin=adm; adminPinCache=String(adm.pin||'');
-  document.getElementById('adminNameLabel').textContent = (adm.nama || adm.email) + ' - Super Admin';
-  document.getElementById('adminTopLabel').textContent = (adm.nama || 'Admin') + ' ▽';
-  document.getElementById('namaAdmin').value = adm.nama || '';
-  initMap();
-  loadAll();
+  await verifikasiGoogle(adm);
 }
-// PETA REAL - KOTAK TETAP SAMA, RADIUS 150 KM DARI GPS ADMIN
-function initMap(){
-  if(mapObj) return;
-  mapObj = L.map('mapReal', {zoomControl:false, attributionControl:false}).setView([adminLat, adminLng], 8);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19}).addTo(mapObj);
-  mapCircle = L.circle([adminLat, adminLng], {radius:150000, color:'#f5d67b', fillColor:'#f5d67b', fillOpacity:0.12, weight:2}).addTo(mapObj);
-  mapAdminMarker = L.marker([adminLat, adminLng]).addTo(mapObj).bindPopup('Posisi Admin (GPS)');
-  mapDriverLayer = L.layerGroup().addTo(mapObj);
-  if(navigator.geolocation){
-    navigator.geolocation.getCurrentPosition(pos=>{
-      adminLat = pos.coords.latitude; adminLng = pos.coords.longitude;
-      mapObj.setView([adminLat, adminLng], 8);
-      mapCircle.setLatLng([adminLat, adminLng]);
-      mapAdminMarker.setLatLng([adminLat, adminLng]);
-      updateDriverPins();
-    }, ()=>{}, {enableHighAccuracy:true, timeout:8000});
-  }
-}
-function mapZoom(d){
-  if(!mapObj) return;
-  mapObj.setZoom(mapObj.getZoom()+d);
-}
-function updateDriverPins(){
-  if(!mapObj || !mapDriverLayer) return;
-  mapDriverLayer.clearLayers();
-  // Pin = lokasi driver asli dari lat/lng. Kalau tidak ada lat/lng, tidak ada pin palsu.
-  const withGps = cacheDrivers.filter(d=>d.lat && d.lng);
-  withGps.forEach(d=>{
-    const m = L.marker([Number(d.lat), Number(d.lng)]).bindPopup(`<b>${esc(d.nama||'Driver')}</b><br>${esc(d.jenis_mobil||'')} • ${esc(d.plat_mobil||'')}<br>Status: ${esc(d.status||'')}`);
-    mapDriverLayer.addLayer(m);
-  });
-}
+function initMap(){ if(mapObj) return; mapObj = L.map('mapReal', {zoomControl:false, attributionControl:false}).setView([adminLat, adminLng], 8); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19}).addTo(mapObj); mapCircle = L.circle([adminLat, adminLng], {radius:150000, color:'#f5d67b', fillColor:'#f5d67b', fillOpacity:0.12, weight:2}).addTo(mapObj); mapAdminMarker = L.marker([adminLat, adminLng]).addTo(mapObj).bindPopup('Posisi Admin (GPS)'); mapDriverLayer = L.layerGroup().addTo(mapObj); if(navigator.geolocation){ navigator.geolocation.getCurrentPosition(pos=>{ adminLat = pos.coords.latitude; adminLng = pos.coords.longitude; mapObj.setView([adminLat, adminLng], 8); mapCircle.setLatLng([adminLat, adminLng]); mapAdminMarker.setLatLng([adminLat, adminLng]); updateDriverPins(); }, ()=>{}, {enableHighAccuracy:true, timeout:8000}); } }
+function mapZoom(d){ if(!mapObj) return; mapObj.setZoom(mapObj.getZoom()+d); }
+function updateDriverPins(){ if(!mapObj || !mapDriverLayer) return; mapDriverLayer.clearLayers(); const withGps = cacheDrivers.filter(d=>d.lat && d.lng); withGps.forEach(d=>{ const m = L.marker([Number(d.lat), Number(d.lng)]).bindPopup(`<b>${esc(d.nama||'Driver')}</b><br>${esc(d.jenis_mobil||'')} • ${esc(d.plat_mobil||'')}<br>Status: ${esc(d.status||'')}`); mapDriverLayer.addLayer(m); }); }
 async function loadAll(){
   if(!currentAdmin) return;
   simpanDraftSebelumRefresh();
   try{
-    const [pen, drv, book, pay, tarif, ant, black] = await Promise.all([
-      sb.from('penumpang').select('*').order('created_at',{ascending:false}).limit(50),
-      sb.from('drivers').select('id,nama,no_wa,jenis_mobil,plat_mobil,status,lat,lng,created_at').order('created_at',{ascending:false}).limit(50),
-      sb.from('bookings').select('*').order('created_at',{ascending:false}).limit(50),
-      sb.from('payments').select('*').order('created_at',{ascending:false}).limit(50),
-      sb.from('tarif').select('*').order('id',{ascending:true}).limit(50),
-      sb.from('antrian').select('*').order('id',{ascending:false}).limit(50),
-      sb.from('blacklist').select('*').order('created_at',{ascending:false}).limit(50)
-    ]);
+    const [pen, drv, book, pay, tarif, ant, black] = await Promise.all([ sb.from('penumpang').select('*').order('created_at',{ascending:false}).limit(50), sb.from('drivers').select('id,nama,no_wa,jenis_mobil,plat_mobil,status,lat,lng,created_at,kode,pin,code').order('created_at',{ascending:false}).limit(50), sb.from('bookings').select('*').order('created_at',{ascending:false}).limit(50), sb.from('payments').select('*').order('created_at',{ascending:false}).limit(50), sb.from('tarif').select('*').order('id',{ascending:true}).limit(50), sb.from('antrian').select('*').order('id',{ascending:false}).limit(50), sb.from('blacklist').select('*').order('created_at',{ascending:false}).limit(50) ]);
     if(pen.error) throw pen.error; if(drv.error) throw drv.error; if(book.error) throw book.error; if(pay.error) throw pay.error;
     cachePenumpang = pen.data||[]; cacheDrivers = drv.data||[]; cacheBookings = book.data||[]; cachePayments = pay.data||[]; cacheTarif = tarif.data||[]; cacheAntrian = ant.data||[];
     document.getElementById('statusSupabase').innerText='Terhubung ✅ - REAL';
@@ -411,16 +377,13 @@ async function loadAll(){
     const menunggu = cacheDrivers.filter(d=>['menunggu','pending','baru','waiting'].includes(String(d.status||'').toLowerCase()));
     const dt = document.getElementById('driverTable');
     if(!menunggu.length) dt.innerHTML='<tr><td colspan="5">Tidak ada driver menunggu ✅</td></tr>';
-    else dt.innerHTML = menunggu.map(d=>`<tr><td>${esc(d.nama||'-')}</td><td>${esc(d.jenis_mobil||'-')} • ${esc(d.plat_mobil||'-')}</td><td><b>***</b><br><small style="color:#aaa">PIN: ***</small></td><td><span class="badge">Menunggu</span></td><td><button class="btn btn-terima" onclick="verifikasiDriver(${Number(d.id)},'aktif')">Terima</button> <button class="btn btn-tolak" onclick="verifikasiDriver(${Number(d.id)},'ditolak')">Tolak</button></td></tr>`).join('');
+    else dt.innerHTML = menunggu.map(d=>`<tr><td>${esc(d.nama||'-')}</td><td>${esc(d.jenis_mobil||'-')} • ${esc(d.plat_mobil||'-')}</td><td><b>${esc(d.kode||d.code||'-')}</b><br><small style="color:#aaa">PIN: ${esc(d.pin||'-')}</small></td><td><span class="badge">Menunggu</span></td><td><button class="btn btn-terima" onclick="verifikasiDriver(${Number(d.id)},'aktif')">Terima</button> <button class="btn btn-tolak" onclick="verifikasiDriver(${Number(d.id)},'ditolak')">Tolak</button></td></tr>`).join('');
     const dt2 = document.getElementById('driverTable2');
     if(!cacheDrivers.length) dt2.innerHTML='<tr><td colspan="5">Belum ada driver.</td></tr>';
-    else dt2.innerHTML = cacheDrivers.map(d=>`<tr><td>${esc(d.nama||'-')}<br><small style="color:#aaa">${esc(d.no_wa||'')}</small></td><td>${esc(d.jenis_mobil||'-')} • ${esc(d.plat_mobil||'-')}</td><td><b>***</b><br><small style="color:#aaa">PIN: ***</small></td><td><span class="badge ${d.status==='aktif'?'':'outline'}">${esc(d.status)}</span></td><td>${['menunggu','pending'].includes(String(d.status||'').toLowerCase())?`<button class="btn btn-terima" onclick="verifikasiDriver(${Number(d.id)},'aktif')">Terima</button> <button class="btn btn-tolak" onclick="verifikasiDriver(${Number(d.id)},'ditolak')">Tolak</button>`:`<button class="btn btn-tolak" onclick="hapusDriver(${Number(d.id)})">Hapus</button>`}</td></tr>`).join('');
+    else dt2.innerHTML = cacheDrivers.map(d=>`<tr><td>${esc(d.nama||'-')}<br><small style="color:#aaa">${esc(d.no_wa||'')}</small></td><td>${esc(d.jenis_mobil||'-')} • ${esc(d.plat_mobil||'-')}</td><td><b>${esc(d.kode||d.code||'-')}</b><br><small style="color:#aaa">PIN: ${esc(d.pin||'-')}</small></td><td><span class="badge ${d.status==='aktif'?'':'outline'}">${esc(d.status)}</span></td><td>${['menunggu','pending'].includes(String(d.status||'').toLowerCase())?`<button class="btn btn-terima" onclick="verifikasiDriver(${Number(d.id)},'aktif')">Terima</button> <button class="btn btn-tolak" onclick="verifikasiDriver(${Number(d.id)},'ditolak')">Tolak</button>`:`<button class="btn btn-tolak" onclick="hapusDriver(${Number(d.id)})">Hapus</button>`}</td></tr>`).join('');
     const pt = document.getElementById('penumpangTable');
     if(!cachePenumpang.length) pt.innerHTML='<tr><td colspan="4">Belum ada penumpang.</td></tr>';
-    else pt.innerHTML = cachePenumpang.map(p=>{
-      const jml = cacheBookings.filter(o=>o.penumpang_id===p.id).length;
-      return `<tr><td>${esc(p.nama||'-')}</td><td>${esc(p.no_wa||'-')}</td><td>${jml} booking</td><td><span class="badge">${esc(p.status||'Aktif')}</span></td></tr>`;
-    }).join('');
+    else pt.innerHTML = cachePenumpang.map(p=>{ const jml = cacheBookings.filter(o=>o.penumpang_id===p.id).length; return `<tr><td>${esc(p.nama||'-')}</td><td>${esc(p.no_wa||'-')}</td><td>${jml} booking</td><td><span class="badge">${esc(p.status||'Aktif')}</span></td></tr>`; }).join('');
     const belum = cacheAntrian.filter(a=>!a.jawaban);
     const antNotif = document.getElementById('antrianNotif');
     antNotif.innerText = belum.length; antNotif.style.display = belum.length?'inline':'none';
@@ -434,102 +397,64 @@ async function loadAll(){
     const blackData = black.data||[];
     if(!blackData.length) bl.innerHTML='<tr><td colspan="5">Belum ada blacklist. Bagus, berarti belum ada penumpang nakal.</td></tr>';
     else bl.innerHTML = blackData.map(b=>`<tr><td>${esc(b.no_wa||'-')}</td><td>${esc(b.alasan||'-')}</td><td>${b.jumlah_cancel||0}x</td><td><span class="badge outline">${esc(b.status||'blacklist')}</span></td><td><button class="btn btn-tolak" onclick="hapusBlacklist(${Number(b.id)})">Hapus</button></td></tr>`).join('');
-  }catch(e){
-    document.getElementById('statusSupabase').innerText='GAGAL: '+e.message;
-    document.getElementById('statusSupabase').style.color='#ff6b6b';
-    console.error(e);
-  }
-  loadBot(); loadUsers();
-  kembalikanDraft();
+  }catch(e){ document.getElementById('statusSupabase').innerText='GAGAL: '+e.message; document.getElementById('statusSupabase').style.color='#ff6b6b'; console.error(e); }
+  loadBot(); loadUsers(); kembalikanDraft();
 }
-async function tambahDriver(){
-  const nama=document.getElementById('inNamaDrv').value.trim(), no_wa=document.getElementById('inWaDrv').value.trim(), plat_mobil=document.getElementById('inPlatDrv').value.trim(), jenis_mobil=document.getElementById('inJenisDrv').value.trim();
-  if(!nama) return showPopup('Belum Lengkap 😅','Isi nama driver dulu ya bro.','📝',[{text:'Oke, Isi Dulu',cls:'btn-terima',close:true}]);
-  const kode = '#driver' + Date.now().toString().slice(-4);
-  const pin = String(Math.floor(100000 + Math.random()*900000));
-  const {error}=await sb.from('drivers').insert([{nama,no_wa,plat_mobil,jenis_mobil,kode,pin,status:'menunggu'}]);
-  if(error) return showError(error.message);
-  document.getElementById('inNamaDrv').value='';document.getElementById('inWaDrv').value='';document.getElementById('inPlatDrv').value='';document.getElementById('inJenisDrv').value=''; loadAll(); showSukses('Driver ditambah. Kode & PIN tersimpan di database, tidak ditampilkan.');
-}
+async function tambahDriver(){ const nama=document.getElementById('inNamaDrv').value.trim(), no_wa=document.getElementById('inWaDrv').value.trim(), plat_mobil=document.getElementById('inPlatDrv').value.trim(), jenis_mobil=document.getElementById('inJenisDrv').value.trim(); if(!nama) return showPopup('Belum Lengkap 😅','Isi nama driver dulu ya bro.','📝',[{text:'Oke, Isi Dulu',cls:'btn-terima',close:true}]); const kode = '#driver' + Date.now().toString().slice(-4); const pin = String(Math.floor(100000 + Math.random()*900000)); const {error}=await sb.from('drivers').insert([{nama,no_wa,plat_mobil,jenis_mobil,kode,pin,status:'menunggu'}]); if(error) return showError(error.message); document.getElementById('inNamaDrv').value='';document.getElementById('inWaDrv').value='';document.getElementById('inPlatDrv').value='';document.getElementById('inJenisDrv').value=''; loadAll(); showSukses('Driver ditambah. Kode & PIN tersimpan di database, bisa dilihat di tabel.'); }
 async function verifikasiDriver(id,status){ const {error}=await sb.from('drivers').update({status}).eq('id',id); if(error) return showError(error.message); loadAll(); showSukses('Driver '+status); }
 async function hapusDriver(id){ mintaPinHapus('Hapus driver ini?', async ()=>{ await sb.from('drivers').delete().eq('id',id); loadAll(); showSukses('Driver udah dihapus.'); }); }
-async function tambahOrder(){
-  const dari_lokasi=document.getElementById('inDari').value.trim(), ke_lokasi=document.getElementById('inTujuan').value.trim(), total_harga=parseInt(document.getElementById('inHarga').value||'0');
-  if(!dari_lokasi||!ke_lokasi) return showPopup('Belum Lengkap 😅','Isi Dari & Tujuan dulu ya bro.','📝',[{text:'Oke, Isi Dulu',cls:'btn-terima',close:true}]);
-  const {error}=await sb.from('bookings').insert([{dari_lokasi,ke_lokasi,total_harga,status:'menunggu',nama_penumpang:'Admin Input',tanggal_berangkat:todayStr()}]);
-  if(error) return showError(error.message);
-  document.getElementById('inDari').value='';document.getElementById('inTujuan').value='';document.getElementById('inHarga').value=''; loadAll(); showSukses('Booking berhasil dibuat.');
-}
 async function selesaiOrder(id){ const {error}=await sb.from('bookings').update({status:'selesai'}).eq('id',id); if(error) return showError(error.message); loadAll(); showSukses('Order udah selesai.'); }
 async function hapusOrder(id){ mintaPinHapus('Hapus booking ini?', async ()=>{ await sb.from('bookings').delete().eq('id',id); loadAll(); showSukses('Booking udah dihapus.'); }); }
-async function jawabAntrian(id, pertanyaan){
-  const el=document.getElementById('jawab-'+id); const jawaban=el.value.trim();
-  if(!jawaban) return showPopup('Jawaban Kosong 😅','Isi jawaban dulu bro, baru klik Jawab.','✍️',[{text:'Oke',cls:'btn-terima',close:true}]);
-  const {error}=await sb.from('antrian').update({jawaban:jawaban, status:'terjawab'}).eq('id',id);
-  if(error) return showError(error.message);
-  const {data:cek}=await sb.from('bot').select('*').eq('kunci',pertanyaan.toLowerCase());
-  if(!cek||!cek.length) await sb.from('bot').insert([{kunci:pertanyaan.toLowerCase(), jawaban:jawaban}]);
-  delete draftAntrian['jawab-'+id];
-  showSukses('Udah kejawab + udah masuk ke Bot! Besok bot bisa jawab sendiri.'); loadAll();
-}
-async function hapusAntrian(id, pertanyaan){
-  const item = cacheAntrian.find(a=>String(a.id)===String(id));
-  const sudahJawab = item && item.jawaban;
-  if(!sudahJawab){
-    mintaPinHapus('Hapus antrian ini?', async ()=>{
-      const {error}=await sb.from('antrian').delete().eq('id',id);
-      if(error) return showError(error.message);
-      delete draftAntrian['jawab-'+id];
-      loadAll(); showSukses('Antrian udah dihapus, database jadi rapi ✅');
-    });
-    return;
-  }
-  showPopup('Hapus Antrian Ini?','"'+(pertanyaan||'')+'"\n\nJawaban ini udah ke-copy ke Bot. Mau hapus yang mana bro?\n\n• Hapus Antrian Aja = Bot tetep bisa jawab (kalau jawaban udah bener)\n• Hapus Antrian + Bot = Bot gak akan jawab ngawur lagi (kalau jawaban lu ternyata SALAH)','🗑️',[
-    {text:'Batal',cls:'btn-tolak',close:true},
-    {text:'Hapus Antrian Aja',cls:'btn-tolak',close:true,onClick: async ()=>{
-      mintaPinHapus('Hapus antrian aja?', async ()=>{ const {error}=await sb.from('antrian').delete().eq('id',id); if(error) return showError(error.message); loadAll(); showSukses('Antriannya aja yang kehapus. Bot-nya tetep aman, masih bisa jawab.'); });
-    }},
-    {text:'🗑️ Hapus Antrian + Bot',cls:'btn-terima',close:true,onClick: async ()=>{
-      mintaPinHapus('Hapus antrian + bot?', async ()=>{ const {error}=await sb.from('antrian').delete().eq('id',id); if(error) return showError(error.message); await sb.from('bot').delete().eq('kunci', pertanyaan.toLowerCase()); loadAll(); loadBot(); showSukses('Udah kehapus semua! Antrian + Bot-nya udah ilang. Bot gak akan jawab ngawur lagi ✅'); });
-    }}
-  ]);
-}
-async function tambahBlacklist(){
-  const no_wa=document.getElementById('inBlWa').value.trim(), alasan=document.getElementById('inBlAlasan').value.trim(), jumlah_cancel=parseInt(document.getElementById('inBlCancel').value||'1');
-  if(!no_wa) return showPopup('Belum Lengkap 😅','Isi No WA dulu ya bro.','📝',[{text:'Oke, Isi Dulu',cls:'btn-terima',close:true}]);
-  const {error}=await sb.from('blacklist').insert([{no_wa, alasan, jumlah_cancel, status:'blacklist'}]);
-  if(error) return showError(error.message);
-  document.getElementById('inBlWa').value='';document.getElementById('inBlAlasan').value='';document.getElementById('inBlCancel').value=''; loadAll(); showSukses('Penumpang nakal masuk blacklist.');
-}
+async function jawabAntrian(id, pertanyaan){ const el=document.getElementById('jawab-'+id); const jawaban=el.value.trim(); if(!jawaban) return showPopup('Jawaban Kosong 😅','Isi jawaban dulu bro, baru klik Jawab.','✍️',[{text:'Oke',cls:'btn-terima',close:true}]); const {error}=await sb.from('antrian').update({jawaban:jawaban, status:'terjawab'}).eq('id',id); if(error) return showError(error.message); const {data:cek}=await sb.from('bot').select('*').eq('kunci',pertanyaan.toLowerCase()); if(!cek||!cek.length) await sb.from('bot').insert([{kunci:pertanyaan.toLowerCase(), jawaban:jawaban}]); delete draftAntrian['jawab-'+id]; showSukses('Udah kejawab + udah masuk ke Bot! Besok bot bisa jawab sendiri.'); loadAll(); }
+async function hapusAntrian(id, pertanyaan){ const item = cacheAntrian.find(a=>String(a.id)===String(id)); const sudahJawab = item && item.jawaban; if(!sudahJawab){ mintaPinHapus('Hapus antrian ini?', async ()=>{ const {error}=await sb.from('antrian').delete().eq('id',id); if(error) return showError(error.message); delete draftAntrian['jawab-'+id]; loadAll(); showSukses('Antrian udah dihapus, database jadi rapi ✅'); }); return; } showPopup('Hapus Antrian Ini?','"'+(pertanyaan||'')+'"\n\nJawaban ini udah ke-copy ke Bot. Mau hapus yang mana bro?\n\n• Hapus Antrian Aja = Bot tetep bisa jawab (kalau jawaban udah bener)\n• Hapus Antrian + Bot = Bot gak akan jawab ngawur lagi (kalau jawaban lu ternyata SALAH)','🗑️',[ {text:'Batal',cls:'btn-tolak',close:true}, {text:'Hapus Antrian Aja',cls:'btn-tolak',close:true,onClick: async ()=>{ mintaPinHapus('Hapus antrian aja?', async ()=>{ const {error}=await sb.from('antrian').delete().eq('id',id); if(error) return showError(error.message); loadAll(); showSukses('Antriannya aja yang kehapus. Bot-nya tetep aman, masih bisa jawab.'); }); }}, {text:'🗑️ Hapus Antrian + Bot',cls:'btn-terima',close:true,onClick: async ()=>{ mintaPinHapus('Hapus antrian + bot?', async ()=>{ const {error}=await sb.from('antrian').delete().eq('id',id); if(error) return showError(error.message); await sb.from('bot').delete().eq('kunci', pertanyaan.toLowerCase()); loadAll(); loadBot(); showSukses('Udah kehapus semua! Antrian + Bot-nya udah ilang. Bot gak akan jawab ngawur lagi ✅'); }); }} ]); }
 async function hapusBlacklist(id){ mintaPinHapus('Hapus dari blacklist?', async ()=>{ await sb.from('blacklist').delete().eq('id',id); loadAll(); showSukses('Udah dihapus dari blacklist.'); }); }
-async function loadBot(){
-  const {data,error}=await sb.from('bot').select('*').order('kunci',{ascending:true}).limit(50);
-  if(error){ document.getElementById('botTable').innerHTML='<tr><td colspan="3">Error: '+esc(error.message)+'</td></tr>'; return; }
-  if(!data.length){ document.getElementById('botTable').innerHTML='<tr><td colspan="3">Belum ada data bot.</td></tr>'; return; }
-  document.getElementById('botTable').innerHTML=data.map(b=>`<tr><td>${esc(b.kunci)}</td><td>${esc(b.jawaban)}</td><td><button class="btn btn-tolak" onclick="hapusBot('${escAttr(b.kunci)}')">Hapus</button></td></tr>`).join('');
+async function loadBot(){ const {data,error}=await sb.from('bot').select('*').order('kunci',{ascending:true}).limit(50); if(error){ document.getElementById('botTable').innerHTML='<tr><td colspan="3">Error: '+esc(error.message)+'</td></tr>'; return; } if(!data.length){ document.getElementById('botTable').innerHTML='<tr><td colspan="3">Belum ada data bot.</td></tr>'; return; } document.getElementById('botTable').innerHTML=data.map(b=>`<tr><td>${esc(b.kunci)}</td><td>${esc(b.jawaban)}</td><td><button class="btn btn-terima" onclick="editBot('${escAttr(b.kunci)}','${escAttr(b.jawaban)}')">✏️ Edit</button> <button class="btn btn-tolak" onclick="hapusBot('${escAttr(b.kunci)}')">Hapus</button></td></tr>`).join(''); }
+async function tambahBot(){ const kunci=document.getElementById('newKunci').value.trim(), jawaban=document.getElementById('newJawaban').value.trim(); if(!kunci||!jawaban) return showPopup('Belum Lengkap 😅','Isi kunci & jawaban dulu ya bro.','🤖',[{text:'Oke',cls:'btn-terima',close:true}]); const k=kunci.toLowerCase(); const {data:cek}=await sb.from('bot').select('*').eq('kunci',k); let error=null; if(cek && cek.length){ const r=await sb.from('bot').update({jawaban}).eq('kunci',k); error=r.error; } else { const r=await sb.from('bot').insert([{kunci:k,jawaban}]); error=r.error; } if(error) return showError(error.message); document.getElementById('newKunci').value='';document.getElementById('newJawaban').value='';loadBot(); showSukses('Bot berhasil diajarin / diedit.'); }
+function editBot(kunci, jawaban){ try{ document.getElementById('newKunci').value=kunci||''; document.getElementById('newJawaban').value=jawaban||''; pindahKeHalaman('bot'); setTimeout(()=>{ try{ document.getElementById('newJawaban').focus(); }catch(e){} },300); showToast('Edit Bot','Benerin tulisannya di atas, terus pencet Tambah / Simpan ya'); }catch(e){} }
+async function simpanPengaturan(){
+  try{
+    if(!currentAdmin) return showError('Belum login admin');
+    const nama=document.getElementById('namaAdmin').value.trim();
+    const kode=document.getElementById('settingKode').value.trim().replace(/^[#@]+/,'').toLowerCase();
+    const pin=document.getElementById('settingPin').value.trim();
+    const emailBaru=document.getElementById('settingEmail') ? document.getElementById('settingEmail').value.trim().toLowerCase() : '';
+    if(!nama) return showPopup('Belum Lengkap 😅','Isi nama admin dulu ya.','📝',[{text:'Oke',cls:'btn-terima',close:true}]);
+    if(!kode) return showPopup('Belum Lengkap 😅','Isi Code admin dulu ya.','📝',[{text:'Oke',cls:'btn-terima',close:true}]);
+    if(!pin || pin.length<4) return showPopup('PIN Pendek 😅','PIN minimal 4 angka ya.','📝',[{text:'Oke',cls:'btn-terima',close:true}]);
+    if(!emailBaru || !emailBaru.includes('@')) return showPopup('Email Kosong 😅','Isi email Google admin yang boleh masuk ya, harus sama kayak Google lu.','📝',[{text:'Oke',cls:'btn-terima',close:true}]);
+    let upd={nama:nama, pin:pin, code:kode, email:emailBaru};
+    let r=await sb.from('admin').update(upd).eq('id', currentAdmin.id);
+    if(r.error){
+      let r2=await sb.from('admin').update({nama:nama, pin:pin, email:emailBaru}).eq('id', currentAdmin.id);
+      if(r2.error) return showError('Gagal simpan: '+r2.error.message+' - Kemungkinan kolom code di tabel admin belum ada.');
+      showSukses('Nama + PIN + Email udah kesimpan. Code belum kesimpan karena kolom code belum ada di tabel admin.');
+      return;
+    }
+    currentAdmin.nama=nama; currentAdmin.code=kode; currentAdmin.pin=pin; currentAdmin.email=emailBaru; adminPinCache=String(pin);
+    document.getElementById('adminNameLabel').textContent = nama + ' - Super Admin';
+    document.getElementById('adminTopLabel').textContent = nama + ' ▽';
+    showSukses('Pengaturan udah kesimpan! Nama, Code, PIN, Email Google baru udah aktif. Besok masuk harus pake Google yang baru itu ya.');
+  }catch(e){ showError(e.message); }
 }
-async function tambahBot(){
-  const kunci=document.getElementById('newKunci').value.trim(), jawaban=document.getElementById('newJawaban').value.trim();
-  if(!kunci||!jawaban) return showPopup('Belum Lengkap 😅','Isi kunci & jawaban dulu ya bro.','🤖',[{text:'Oke',cls:'btn-terima',close:true}]);
-  const {error}=await sb.from('bot').insert([{kunci:kunci.toLowerCase(),jawaban}]);
-  if(error) return showError(error.message);
-  document.getElementById('newKunci').value='';document.getElementById('newJawaban').value='';loadBot(); showSukses('Bot berhasil diajarin.');
+async function hapusChatSesi(){
+  if(!currentUser) return showPopup('Pilih Dulu 😅','Pilih chat dulu yang mau dihapus.','💬',[{text:'Oke',cls:'btn-terima',close:true}]);
+  mintaPinHapus('Hapus semua chat orang ini?', async ()=>{
+    try{ if(currentUser.startsWith('anon:')){ const sid=currentUser.replace('anon:',''); await sb.from('chats').delete().or('session_id.eq.'+sid+',anon_id.eq.'+sid); } else { await sb.from('chats').delete().eq('penumpang_id', currentUser.replace('user:','')); } }catch(e){}
+    currentUser=null; currentUserLabel=''; document.getElementById('chatTitle').innerText='Pilih penumpang...'; document.getElementById('chatBox').innerHTML='<p style="color:#888;text-align:center">Chat udah dihapus ✅</p>'; loadUsers(); loadAll(); showSukses('Chat sampah udah dihapus.');
+  });
 }
 async function hapusBot(kunci){ mintaPinHapus('Hapus bot ini?', async ()=>{ await sb.from('bot').delete().eq('kunci',kunci); loadBot(); showSukses('Bot udah dihapus.'); }); }
 async function loadUsers(){
   const {data,error}=await sb.from('chats').select('*').order('created_at',{ascending:false}).limit(50);
   if(error||!data||!data.length){ document.getElementById('userList').innerHTML='<p style="color:#888;padding:12px">Belum ada chat. Chat dari index akan masuk sini.</p>'; document.getElementById('chatNotif').style.display='none'; return; }
   const map=new Map();
-  data.forEach(c=>{
-    const key = c.penumpang_id ? 'user:'+c.penumpang_id : 'anon:'+(c.session_id || c.anon_id || c.anon_session || 'anon-'+c.id);
-    if(!map.has(key)) map.set(key,c);
-  });
+  data.forEach(c=>{ const key = c.penumpang_id ? 'user:'+c.penumpang_id : 'anon:'+(c.session_id || c.anon_id || c.anon_session || 'anon-'+c.id); if(!map.has(key)) map.set(key,c); });
   const users=[...map.entries()];
   document.getElementById('userList').innerHTML=users.map(([key,u])=>{
     let label, sub;
     if(key.startsWith('anon:')){ label='Tamu Anonim #' + key.replace('anon:','').slice(0,8); sub='Sesi terpisah - tidak dicampur'; }
     else { const p = cachePenumpang.find(x=>x.id===u.penumpang_id); label = p ? (p.nama+' • '+p.no_wa) : String(u.penumpang_id).slice(0,8); sub=(u.message||'').slice(0,40); }
-    return `<div class="chat-user" onclick="bukaChat('${escAttr(key)}','${escAttr(label)}')"><b>${esc(label)}</b><small>${esc(sub)}</small></div>`;
+    return `<div class="chat-user" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div onclick="bukaChat('${escAttr(key)}','${escAttr(label)}')" style="flex:1"><b>${esc(label)}</b><small>${esc(sub)}</small></div><button class="btn btn-tolak" style="padding:6px 8px;font-size:12px" onclick="event.stopPropagation(); currentUser='${escAttr(key)}'; currentUserLabel='${escAttr(label)}'; hapusChatSesi();">🗑️</button></div>`;
   }).join('');
   document.getElementById('chatNotif').innerText=users.length; document.getElementById('chatNotif').style.display='inline';
 }
@@ -540,10 +465,7 @@ async function bukaChat(chatKey,nama){
     const sid = chatKey.replace('anon:','');
     const r1 = await sb.from('chats').select('*').or(`session_id.eq.${sid},anon_id.eq.${sid}`).order('created_at',{ascending:true}).limit(50);
     data = r1.data || [];
-    if(!data.length){
-      const r2 = await sb.from('chats').select('*').is('penumpang_id',null).order('created_at',{ascending:true}).limit(50);
-      data = r2.data || [];
-    }
+    if(!data.length){ const r2 = await sb.from('chats').select('*').is('penumpang_id',null).order('created_at',{ascending:true}).limit(50); data = r2.data || []; }
   } else {
     const pid = chatKey.replace('user:','');
     const r = await sb.from('chats').select('*').eq('penumpang_id',pid).order('created_at',{ascending:true}).limit(50);
@@ -551,11 +473,7 @@ async function bukaChat(chatKey,nama){
   }
   const box=document.getElementById('chatBox');
   if(!data||!data.length){box.innerHTML='<p style="color:#888;text-align:center">Belum ada chat</p>';return;}
-  box.innerHTML=data.map(c=>{
-    const cls = c.sender==='admin' ? 'admin' : 'user';
-    const who = c.sender==='admin' ? 'Admin' : (c.sender==='bot' ? 'Bot' : 'Penumpang');
-    return `<div class="msg ${cls}">${esc(c.message)}<small>${esc(who)} • ${c.created_at?new Date(c.created_at).toLocaleString('id-ID',{timeZone:'Asia/Jakarta'}):''}</small></div>`;
-  }).join('');
+  box.innerHTML=data.map(c=>{ const cls = c.sender==='admin' ? 'admin' : 'user'; const who = c.sender==='admin' ? 'Admin' : (c.sender==='bot' ? 'Bot' : 'Penumpang'); return `<div class="msg ${cls}">${esc(c.message)}<small>${esc(who)} • ${c.created_at?new Date(c.created_at).toLocaleString('id-ID',{timeZone:'Asia/Jakarta'}):''}</small></div>`; }).join('');
   box.scrollTop=box.scrollHeight;
   const lastUser=[...data].reverse().find(c=>c.sender==='user'); lastUserMsg=lastUser?lastUser.message:"";
 }
@@ -563,28 +481,17 @@ async function kirimPesan(){
   const input=document.getElementById('chatInput'); const pesan=input.value.trim();
   if(!pesan||!currentUser) return showPopup('Pilih Dulu 😅','Pilih penumpang dulu & ketik pesan ya bro.','💬',[{text:'Oke',cls:'btn-terima',close:true}]);
   let payload;
-  if(currentUser.startsWith('anon:')){
-    payload = {penumpang_id:null, session_id:currentUser.replace('anon:',''), sender:'admin', message:pesan};
-  } else {
-    payload = {penumpang_id:currentUser.replace('user:',''), sender:'admin', message:pesan};
-  }
+  if(currentUser.startsWith('anon:')){ payload = {penumpang_id:null, session_id:currentUser.replace('anon:',''), sender:'admin', message:pesan}; }
+  else { payload = {penumpang_id:currentUser.replace('user:',''), sender:'admin', message:pesan}; }
   const {error}=await sb.from('chats').insert([payload]);
   if(error) return showError(error.message);
-  if(document.getElementById('saveToBot').checked && lastUserMsg){
-    const {data:cek}=await sb.from('bot').select('*').eq('kunci',lastUserMsg.toLowerCase());
-    if(!cek||!cek.length){ await sb.from('bot').insert([{kunci:lastUserMsg.toLowerCase(), jawaban:pesan}]); showSukses('Jawaban kamu udah masuk ke Bot.'); loadBot(); }
-  }
+  if(document.getElementById('saveToBot').checked && lastUserMsg){ const {data:cek}=await sb.from('bot').select('*').eq('kunci',lastUserMsg.toLowerCase()); if(!cek||!cek.length){ await sb.from('bot').insert([{kunci:lastUserMsg.toLowerCase(), jawaban:pesan}]); showSukses('Jawaban kamu udah masuk ke Bot.'); loadBot(); } }
   draftChat=""; input.value=''; bukaChat(currentUser, currentUserLabel);
 }
 document.getElementById('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter') kirimPesan();});
 cekSesi();
-setInterval(()=>{
-  if(sedangNgetik) return;
-  if(document.getElementById('popupBg').classList.contains('show')) return;
-  if(document.getElementById('pinBg').classList.contains('show')) return;
-  if(!currentAdmin) return;
-  loadAll();
-}, 30000);
+try{ sb.auth.onAuthStateChange((event, session)=>{ if(event==='SIGNED_IN' && session && session.user && currentAdmin && !googleSudahDicek){ verifikasiGoogle(currentAdmin); } }); }catch(e){}
+setInterval(()=>{ if(sedangNgetik) return; if(document.getElementById('popupBg').classList.contains('show')) return; if(document.getElementById('pinBg').classList.contains('show')) return; if(!currentAdmin) return; if(document.getElementById('googleGate').classList.contains('show')) return; loadAll(); }, 30000);
 </script>
 </body>
 </html>
