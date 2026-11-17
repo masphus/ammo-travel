@@ -3,386 +3,360 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ammo Travel - Super Admin</title>
-<script>
-(function(){
-  try{
-    var tok = sessionStorage.getItem('ammo_admin_token') || localStorage.getItem('ammo_admin_token') || '';
-    if(!tok){ location.replace('index.html'); return; }
-    var p = String(tok).split('|');
-    if(p.length < 3 || !p[0] || !p[1] || !Number(p[2]) || Date.now() > Number(p[2])){ try{ localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); }catch(e){} location.replace('index.html'); return; }
-    var logout = Number(localStorage.getItem('ammo_admin_logout_time') || sessionStorage.getItem('ammo_admin_logout_time') || 0) || 0;
-    var dibuat = Number(p[2]) - 2*60*60*1000;
-    if(logout && dibuat && dibuat < logout){ try{ localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); }catch(e){} location.replace('index.html'); return; }
-    document.documentElement.style.visibility = 'hidden';
-  }catch(e){ location.replace('index.html'); }
-})();
-</script>
+<title>Admin - Black Gold</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
-body{background:#0a0a0a;color:#f5d67b;display:flex;min-height:100vh}
-.sidebar{width:260px;background:#000;border-right:1px solid #d4af37;position:fixed;height:100vh;padding:20px 0;flex-shrink:0;z-index:20;overflow-y:auto}
-.logo{display:flex;align-items:center;gap:10px;padding:0 20px 22px;font-weight:800;font-size:19px}
-.logo-icon{width:38px;height:38px;background:#f5d67b;color:#000;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
-.menu a{display:flex;gap:12px;align-items:center;padding:12px 20px;color:#f5d67b;cursor:pointer;font-size:15px}
-.menu a.active,.menu a:hover{background:#f5d67b;color:#000;font-weight:700;border-radius:0 12px 12px 0}
-.menu a .mi{width:22px;text-align:center}
-.menu a span.badge{margin-left:auto;background:red;color:#fff;padding:2px 7px;border-radius:10px;font-size:11px}
-.main{flex:1;margin-left:260px;padding:0 20px 20px;background:#151515;min-width:0}
-.topbar{background:#000;padding:14px 22px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #d4af37;margin:0 -20px 20px;position:sticky;top:0;z-index:10;gap:10px}
-.topbar h1{font-size:22px}
-.admin{display:flex;align-items:center;gap:10px;white-space:nowrap}
-.admin img{width:38px;height:38px;border-radius:50%;border:2px solid #d4af37;object-fit:cover}
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:18px}
-.card{background:#000;border:1px solid #d4af37;border-radius:12px;padding:16px 10px;text-align:center}
-.card .ic{font-size:22px;display:block}
-.card p{font-size:13px;margin-top:6px}.card h2{font-size:28px;margin-top:4px;color:#f5d67b}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:18px}
-.box{background:#000;border:1px solid #d4af37;border-radius:12px;padding:18px}
-.box-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px}.box-head h3{font-size:20px;color:#f5d67b}
-.order{border-bottom:1px solid #333;padding:12px 0;display:flex;justify-content:space-between;align-items:center;gap:10px}.order:last-child{border:none}
-.order small{color:#ccc}
-.badge{padding:7px 12px;border-radius:8px;font-size:12px;font-weight:700;background:#f5d67b;color:#000;white-space:nowrap}
-.badge.outline{background:transparent;color:#f5d67b;border:1px solid #d4af37}
-table{width:100%;border-collapse:collapse}th{text-align:left;padding:10px;border-bottom:1px solid #d4af37;color:#f5d67b;white-space:nowrap}td{padding:11px 10px;border-bottom:1px solid #333;color:#eee}
-.btn{padding:8px 14px;border-radius:8px;border:none;cursor:pointer;font-weight:700;white-space:nowrap}.btn-terima{background:#f5d67b;color:#000}.btn-tolak{background:#000;color:#f5d67b;border:1px solid #d4af37}
-.map{height:180px;border-radius:10px;overflow:hidden;position:relative;background:#222}
-.map .leaflet-container{height:180px;width:100%;background:#222;filter:grayscale(1) brightness(.9)}
-.map .ctrl{position:absolute;right:10px;top:10px;display:flex;gap:6px;z-index:500}.map .ctrl button{width:30px;height:30px;background:#f5d67b;border:none;border-radius:8px;font-weight:800;cursor:pointer}
-.chat-wrap{display:grid;grid-template-columns:280px 1fr;gap:15px;height:520px}
-.chat-list{background:#111;border:1px solid #333;border-radius:12px;overflow-y:auto}
-.chat-user{padding:12px;border-bottom:1px solid #333;cursor:pointer}.chat-user:hover{background:#222}
-.chat-user b{display:block;color:#fff}.chat-user small{color:#aaa}
-.chat-main{display:flex;flex-direction:column;background:#111;border:1px solid #333;border-radius:12px;overflow:hidden}
-#chatBox{flex:1;padding:15px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
-.msg{max-width:75%;padding:10px 12px;border-radius:12px;font-size:14px;color:#000}.msg.user{background:#fff;align-self:flex-start}.msg.admin{background:#f5d67b;align-self:flex-end}.msg small{display:block;font-size:10px;color:#555;margin-top:4px}
-.chat-input{display:flex;gap:8px;padding:10px;background:#000}.chat-input input{flex:1;padding:12px;border-radius:10px;border:1px solid #d4af37;background:#111;color:#fff}.chat-input button{padding:12px 16px;background:#f5d67b;border:none;border-radius:10px;font-weight:800;cursor:pointer}
-.page{display:none}.page.active{display:block}
-input,select{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#111;color:#fff;width:100%}
-textarea{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#111;color:#fff;width:100%;font-family:inherit}
-#btnMenu{display:none;background:#f5d67b;border:none;padding:8px 12px;border-radius:8px;font-weight:800;cursor:pointer}
-.order-klik{cursor:pointer}.order-klik:hover{background:#1a1a1a}
-#notify{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#f5d67b;color:#000;padding:10px 16px;border-radius:10px;font-weight:700;font-size:13px;z-index:9999;display:none;max-width:90%;text-align:center}
-@media(max-width:900px){.sidebar{display:none}.main{margin-left:0}#btnMenu{display:block}.cards{grid-template-columns:1fr 1fr}.row,.chat-wrap{grid-template-columns:1fr}.box{overflow-x:auto}}
+body{background:#000;color:#fff;max-width:520px;margin:auto;min-height:100vh;padding-bottom:90px}
+.top{padding:22px 20px 10px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.top h1{font-size:26px;color:#E8C86A;font-weight:800;line-height:1.1}
+.top small{font-size:13px;color:#aaa;font-weight:400}
+.btn-keluar{width:44px;height:44px;border-radius:50%;background:#2a0d0d;border:1.5px solid #ff6b81;color:#ff6b81;font-size:19px;cursor:pointer;flex-shrink:0}
+.garis{height:1px;background:linear-gradient(90deg,transparent,#D4AF37,transparent);margin:10px 20px 14px}
+.stat{display:flex;gap:10px;margin:0 20px;flex-wrap:wrap}
+.stat div{flex:1;min-width:100px;background:#0d0d0d;border:1px solid #D4AF37;border-radius:12px;padding:12px;text-align:center}
+.stat b{font-size:20px;color:#E8C86A;display:block}
+.stat small{color:#aaa;font-size:12px}
+.tabs{display:flex;gap:8px;margin:16px 20px 0;flex-wrap:wrap}
+.tabs button{flex:1;min-width:80px;padding:11px 6px;border-radius:10px;font-weight:800;cursor:pointer;border:1px solid #D4AF37;background:#111;color:#E8C86A;font-size:13px}
+.tabs button.aktif{background:linear-gradient(180deg,#F5D67B,#D4AF37);color:#000}
+h3{padding:18px 20px 10px;color:#E8C86A;font-size:18px}
+.card{margin:0 20px 10px;background:#0d0d0d;border:1px solid #D4AF37;border-left:4px solid #D4AF37;border-radius:12px;padding:14px}
+.card b{font-size:15px}
+.card small{color:#aaa;font-size:13px;line-height:1.5}
+.saldo{font-size:18px;color:#E8C86A;font-weight:800;margin:6px 0}
+.row-btn{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.row-btn button{flex:1;padding:10px 6px;border-radius:8px;font-weight:800;cursor:pointer;border:none;font-size:13px;min-width:80px}
+.btn-topup{background:linear-gradient(180deg,#F5D67B,#D4AF37);color:#000}
+.btn-kurang{background:#222;color:#ff6b81;border:1px solid #ff6b81!important}
+.btn-reset{background:#111;color:#888;border:1px solid #444!important}
+.btn-terima{background:#1a2a1a;color:#4CAF50;border:1px solid #4CAF50!important}
+.btn-tolak{background:#2a0d0d;color:#ff6b81;border:1px solid #ff6b81!important}
+.badge{display:inline-block;background:#5a4310;color:#E8C86A;font-size:11px;padding:4px 8px;border-radius:6px;font-weight:700}
+.badge.outline{background:#222;color:#888;border:1px solid #444}
+.empty{margin:0 20px;text-align:center;color:#777;padding:14px;border:1px dashed #333;border-radius:10px;font-size:13px;line-height:1.5}
+.riwayat{margin:0 20px 10px;background:#111;border:1px dashed #444;border-radius:10px;padding:12px;font-size:13px;line-height:1.6}
+.riwayat b{color:#E8C86A}
+.riwayat .plus{color:#4CAF50;font-weight:800}
+.riwayat .minus{color:#ff6b81;font-weight:800}
+.riwayat small{color:#888}
+.cari{margin:0 20px}
+.cari input{width:100%;background:#111;border:1px solid #D4AF37;border-radius:10px;padding:12px;color:#fff;outline:none;font-size:14px}
+#loading{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:99;color:#D4AF37;flex-direction:column;gap:10px;text-align:center;padding:20px}
+#loading button{background:#D4AF37;border:none;padding:10px 18px;border-radius:10px;font-weight:800;cursor:pointer;display:none}
+.popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(3px);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.popup-overlay.show{display:flex}
+.popup-card{background:#111;border:1px solid #D4AF37;border-bottom:none;border-radius:22px 22px 0 0;width:100%;max-width:520px;padding:22px 20px 26px;max-height:92vh;overflow-y:auto}
+.popup-card h2{font-size:19px;color:#E8C86A;margin-bottom:8px}
+.popup-card p{font-size:14px;color:#ccc;line-height:1.5;white-space:pre-line}
+.popup-card input{width:100%;margin-top:14px;background:#000;border:1px solid #D4AF37;border-radius:10px;padding:13px;color:#fff;font-size:16px;outline:none}
+.popup-btns{display:flex;gap:10px;margin-top:18px}
+.popup-btns button{flex:1;padding:13px;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer;border:none}
+.btn-emas{background:linear-gradient(180deg,#F5D67B,#D4AF37);color:#000}
+.btn-gelap{background:#222;color:#ccc;border:1px solid #444!important}
+.chip-topup{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.chip-topup button{background:#111;border:1px solid #D4AF37;color:#E8C86A;padding:8px 12px;border-radius:20px;cursor:pointer;font-weight:700;font-size:13px}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;background:#000;border-top:1px solid #D4AF37;display:flex;justify-content:space-around;padding:10px 0 14px;z-index:50}
+.nav a{text-align:center;color:#888;text-decoration:none;font-size:12px}
+.nav a.aktif{color:#E8C86A}
+.nav span{display:block;font-size:22px}
+#topupModal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
+#topupModal.show{display:flex}
+.topup-box{background:#111;border:2px solid #D4AF37;border-radius:18px;padding:22px;width:100%;max-width:400px}
+.topup-box h3{padding:0 0 10px;color:#E8C86A}
+.topup-box p{color:#ccc;font-size:13px;line-height:1.6}
+.topup-box input{width:100%;padding:13px;background:#000;border:1px solid #D4AF37;border-radius:10px;color:#fff;font-size:16px;outline:none;margin-top:12px}
 </style>
 </head>
 <body>
-<div id="notify"></div>
-<div class="sidebar">
-<div class="logo"><div class="logo-icon">🚕</div> Ammo Travel</div>
-<div class="menu">
-<a data-page="dashboard" class="active"><span class="mi">🏠</span> Dashboard</a>
-<a data-page="penumpang"><span class="mi">👤</span> Penumpang</a>
-<a data-page="driver"><span class="mi">🧑‍✈️</span> Driver</a>
-<a data-page="order"><span class="mi">📋</span> Order</a>
-<a data-page="penghasilan"><span class="mi">💰</span> Penghasilan</a>
-<a data-page="antrian"><span class="mi">🔥</span> Antrian <span class="badge" id="antrianNotif" style="display:none">0</span></a>
-<a data-page="chat"><span class="mi">💬</span> Chat <span class="badge" id="chatNotif" style="display:none">0</span></a>
-<a data-page="bot"><span class="mi">🤖</span> Data Bot</a>
-<a data-page="blacklist"><span class="mi">🚫</span> Blacklist</a>
-<a data-page="pengaturan"><span class="mi">⚙️</span> Pengaturan</a>
-</div>
-<div style="padding:20px;color:#888;font-size:12px">Login sebagai:<br><b id="adminNameLabel" style="color:#f5d67b;font-size:15px">Memeriksa...</b><br><small id="adminGoogleLabel" style="color:#aaa"></small><br><br><button class="btn btn-tolak" onclick="doLogout()">Keluar</button></div>
-</div>
-<div class="main">
-<div class="topbar"><button id="btnMenu" onclick="document.querySelector('.sidebar').style.display=document.querySelector('.sidebar').style.display==='block'?'none':'block';document.querySelector('.sidebar').style.position='fixed'">☰</button><h1>Ammo Travel - Super Admin</h1><div class="admin"><img src="https://i.pravatar.cc/100?img=47"> <span class="txt" id="adminTopLabel">Admin ▽</span></div></div>
+<div id="loading"><div id="loadingTxt">👻 Mengecek karcis admin...</div><button id="btnBalik" onclick="keIndex()">⬅ Balik ke Beranda</button></div>
 
-<div id="page-dashboard" class="page active">
-<div class="cards">
-<div class="card"><div class="ic">👥</div><p>Total Penumpang:</p><h2 id="statPenumpang">0</h2></div>
-<div class="card"><div class="ic">🧑‍✈️</div><p>Total Driver Aktif:</p><h2 id="statDriver">0</h2></div>
-<div class="card"><div class="ic">📋</div><p>Order Hari Ini:</p><h2 id="statOrder">0</h2></div>
-<div class="card"><div class="ic">💰</div><p>Pendapatan Hari Ini:</p><h2 id="statPendapatan">Rp 0</h2></div>
-</div>
-<div class="row">
-<div class="box"><div class="box-head"><h3>Order Live</h3><span id="orderAktif">• 0 Pesanan Aktif</span></div><div id="orderList">Memuat...</div></div>
-<div class="box"><div class="box-head"><h3>Driver Online</h3><span id="driverOnline">📍 • 0 Driver Online</span></div><div class="map"><div id="mapReal" style="height:100%;width:100%"></div><div class="ctrl"><button onclick="mapZoom(-1)">−</button><button onclick="mapZoom(1)">+</button></div></div><p style="color:#888;font-size:11px;margin-top:6px">Peta real • Radius 150 KM dari GPS admin • Pin = lokasi driver asli</p></div>
-</div>
-<div class="box"><div class="box-head"><h3>Antrian Belum Terjawab - Perlu Dijawab! <small style="font-size:12px;color:#aaa">👆 Klik untuk jawab</small></h3></div><div id="dashAntrian">Memuat...</div></div>
-<div class="box" style="margin-top:15px"><div class="box-head"><h3>Daftar Driver Menunggu Verifikasi</h3></div><table><thead><tr><th>Nama</th><th>Mobil / Plat</th><th>Code / PIN</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="driverTable"><tr><td colspan="5">Memuat...</td></tr></tbody></table></div>
+<div class="top"><h1>Admin<br><small id="adminNama">Black Gold</small></h1><button class="btn-keluar" onclick="logout()" title="Keluar">🚪</button></div>
+<div class="garis"></div>
+
+<div class="stat">
+  <div><b id="statDriver">0</b><small>Driver</small></div>
+  <div><b id="statPenumpang">0</b><small>Penumpang</small></div>
+  <div><b id="statOrder">0</b><small>Order</small></div>
+  <div><b id="statTotalSaldo">Rp 0</b><small>Total Saldo</small></div>
 </div>
 
-<div id="page-penumpang" class="page"><div class="box"><h3>👤 Data Penumpang - REAL dari tabel penumpang</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Total order dihitung dari tabel <b>bookings</b> pake <b>penumpang_id</b>.</p><table><thead><tr><th>Nama</th><th>No WA</th><th>Total Booking</th><th>Status</th></tr></thead><tbody id="penumpangTable"><tr><td colspan="4">Memuat...</td></tr></tbody></table></div></div>
-
-<div id="page-driver" class="page"><div class="box"><h3>🧑‍✈️ Semua Driver - REAL dari tabel drivers</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Code + PIN driver langsung nyambung ke database. Isi sendiri boleh, kalau kosong nanti dibikinin otomatis.</p><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="inNamaDrv" placeholder="Nama Driver"><input id="inWaDrv" placeholder="No WA"><input id="inPlatDrv" placeholder="Plat - contoh: F 1234 AB"><input id="inJenisDrv" placeholder="Jenis Mobil - Avanza"><input id="inCodeDrv" placeholder="Code driver - contoh: budi (boleh kosong)"><input id="inPinDrv" placeholder="PIN driver 4-6 angka (boleh kosong)" inputmode="numeric"><button class="btn btn-terima" onclick="tambahDriver()">+ Tambah Driver</button></div><table><thead><tr><th>Nama</th><th>Mobil / Plat</th><th>Code / PIN</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="driverTable2"><tr><td colspan="5">Memuat...</td></tr></tbody></table></div></div>
-
-<div id="page-order" class="page"><div class="box"><h3>📋 Riwayat Order - REAL dari tabel bookings</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Order masuk otomatis dari penumpang, bukan dibikin dari sini.</p><div id="allOrderList">Memuat...</div><br><button class="btn btn-tolak" onclick="loadAll()">🔄 Refresh Order</button></div></div>
-
-<div id="page-penghasilan" class="page"><div class="box"><h3>💰 Penghasilan - REAL dari tabel payments</h3><p style="margin:12px 0;font-size:20px">Hari ini: <b id="penghasilanHariIni">Rp 0</b></p><p style="color:#ccc;font-size:13px">Dihitung dari <b>payments.nominal</b> yang statusnya lunas / paid / sukses hari ini. Fee admin <b>7%</b>.</p><div id="penghasilanList" style="margin-top:12px">Memuat...</div><div style="margin-top:16px"><h3>💰 Tarif Aktif - REAL dari tabel tarif</h3><div id="tarifList">Memuat...</div></div></div></div>
-
-<div id="page-antrian" class="page"><div class="box"><h3>🔥 Antrian - REAL dari tabel antrian</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Jawab di sini, otomatis masuk ke Bot juga.</p><div style="margin:10px 0"><button class="btn btn-tolak" onclick="bersihinAntrianDobel()">🧹 Bersihin Antrian Dobel</button> <button class="btn btn-tolak" onclick="loadAll()">🔄 Refresh</button></div><div id="antrianList">Memuat...</div></div></div>
-
-<div id="page-chat" class="page"><div class="box"><h3>💬 Chat Penumpang + Ajari Bot</h3><p style="color:#ccc;font-size:13px;margin-top:5px">REAL dari tabel <b>chats</b>. Chat anonim dipisah per sesi.</p></div><div class="chat-wrap" style="margin-top:12px"><div class="chat-list" id="userList"><p style="color:#888;padding:12px">Memuat...</p></div><div class="chat-main"><div style="padding:14px;border-bottom:1px solid #333"><b id="chatTitle">Pilih penumpang...</b></div><div id="chatBox"><p style="color:#888;text-align:center">Pilih chat dulu</p></div><div class="chat-input"><input id="chatInput" placeholder="Ketik balasan..."><label style="display:flex;align-items:center;gap:6px;color:#fff;font-size:12px;white-space:nowrap"><input type="checkbox" id="saveToBot" checked style="width:auto"> Simpan ke Bot</label><button onclick="kirimPesan()">Kirim ➤</button></div></div></div></div>
-
-<div id="page-bot" class="page"><div class="box"><h3>🤖 Data Bot - REAL dari tabel bot</h3><p style="color:#ccc;font-size:13px">Kalau ada jawaban bot yang salah, pencet <b>Edit</b> buat benerin hurufnya.</p><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="newKunci" placeholder="Kunci / Pertanyaan"><input id="newJawaban" placeholder="Jawaban Bot"><button class="btn btn-terima" onclick="tambahBot()">+ Tambah / Simpan</button></div><table><thead><tr><th>Kunci</th><th>Jawaban</th><th>Aksi</th></tr></thead><tbody id="botTable"><tr><td colspan="3">Memuat...</td></tr></tbody></table></div></div>
-
-<div id="page-blacklist" class="page"><div class="box"><h3>🚫 Blacklist - Otomatis</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Keisi otomatis kalau ada yang nyoba masuk admin tanpa kunci / Google-nya beda. Kalau salah masuk, tinggal pencet Hapus.</p><table><thead><tr><th>No WA / Email</th><th>Alasan</th><th>Jumlah Cancel</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="blacklistTable"><tr><td colspan="5">Memuat...</td></tr></tbody></table></div></div>
-
-<div id="page-pengaturan" class="page"><div class="box"><h3>⚙️ Pengaturan</h3><p style="color:#ccc;margin:10px 0">Nama Admin</p><input id="namaAdmin"><p style="color:#ccc;margin:10px 0">Code Admin (kunci masuk, contoh: admin) - nyambung ke database</p><input id="settingCode" placeholder="Code admin"><p style="color:#ccc;margin:10px 0">PIN Admin (4-6 angka) - nyambung ke database</p><input id="settingPin" placeholder="PIN admin" inputmode="numeric"><p style="color:#ccc;margin:10px 0">Email Google Admin (yang boleh masuk, harus sama kayak Google lu)</p><input id="settingEmail" placeholder="Email Google admin"><p style="color:#888;font-size:12px;margin:6px 0">Ganti Code / PIN / Email di sini, langsung keubah di database.</p><p style="color:#ccc;margin:10px 0">Tarif Aktif (dari tabel tarif)</p><div id="tarifSetting"></div><br><button class="btn btn-terima" onclick="simpanPengaturan()">💾 Simpan Pengaturan</button><p style="color:#888;font-size:12px;margin-top:14px">Supabase: https://xxtgmohxdztesiubfxap.supabase.co • Status: <span id="statusSupabase" style="color:#25D366">Menghubungkan...</span> • Fee: 7%</p></div></div>
+<div class="tabs">
+  <button id="tabDriver" class="aktif" onclick="gantiTab('driver')">🚗 Driver</button>
+  <button id="tabPenumpang" onclick="gantiTab('penumpang')">🧍 Penumpang</button>
+  <button id="tabOrder" onclick="gantiTab('order')">📋 Order</button>
+  <button id="tabRiwayat" onclick="gantiTab('riwayat')">🧾 Riwayat Top Up</button>
 </div>
 
-<!-- FIX: Gate cuma Verifikasi Google doang. Gak ada tombol kembali, gak ada bocoran email, gak ada tulisan Code+PIN bener -->
-<div id="googleGate" style="position:fixed;inset:0;background:#0a0a0a;z-index:1000;display:none;align-items:center;justify-content:center;padding:20px"><div style="background:#000;border:2px solid #d4af37;border-radius:18px;padding:28px;width:100%;max-width:420px;text-align:center"><div style="font-size:44px">🔐</div><h2 style="color:#f5d67b;margin:12px 0 8px">Verifikasi Google</h2><button style="width:100%;padding:14px;border:none;border-radius:12px;background:#fff;color:#000;font-weight:900;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px" onclick="loginGoogleAdmin()"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G" style="width:20px;height:20px"> Lanjut dengan Google</button></div></div>
+<div id="wrapList">
+  <h3 id="judulList">🚗 Daftar Driver</h3>
+  <div class="cari"><input id="inputCari" placeholder="🔍 Cari nama / code / WA / plat..." oninput="renderList()"></div>
+  <div id="list" style="margin-top:10px"></div>
+</div>
+
+<div id="wrapRiwayat" style="display:none">
+  <h3>🧾 Riwayat Top Up</h3>
+  <div id="listRiwayat"></div>
+</div>
+
+<div class="nav">
+  <a href="#" class="aktif"><span>🏠</span>Beranda</a>
+  <a href="#" onclick="gantiTab('driver');return false;"><span>🚗</span>Driver</a>
+  <a href="#" onclick="gantiTab('penumpang');return false;"><span>🧍</span>Penumpang</a>
+  <a href="#" onclick="logout();return false;"><span>🚪</span>Keluar</a>
+</div>
+
+<div id="popupOverlay" class="popup-overlay"><div class="popup-card"><h2 id="popupJudul">Ammo Travel</h2><p id="popupPesan"></p><div id="popupChip"></div><input id="popupInput" style="display:none"><div class="popup-btns" id="popupBtns"></div></div></div>
+
+<div id="topupModal"><div class="topup-box">
+  <h3 id="topupJudul">💰 Top Up Saldo</h3>
+  <p id="topupInfo"></p>
+  <div class="chip-topup">
+    <button type="button" onclick="isiNominalTopUp(20000)">20rb</button>
+    <button type="button" onclick="isiNominalTopUp(50000)">50rb</button>
+    <button type="button" onclick="isiNominalTopUp(100000)">100rb</button>
+    <button type="button" onclick="isiNominalTopUp(200000)">200rb</button>
+    <button type="button" onclick="isiNominalTopUp(500000)">500rb</button>
+  </div>
+  <input id="topupNominal" type="number" inputmode="numeric" placeholder="Mau isi berapa? contoh: 50000">
+  <div class="popup-btns"><button class="btn-gelap" onclick="tutupTopUp()">Batal</button><button class="btn-emas" onclick="simpanTopUp()">💾 Simpan Saldo</button></div>
+</div></div>
 
 <script>
-const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const INDEX_URL = "index.html";
-const FEE_PERSEN = 7;
-let currentAdmin=null, adminPinCache='', currentUser=null, currentUserLabel='', lastUserMsg='', googleSudahDicek=false, sedangNgetik=false, draftAntrian={}, draftChat='';
-let cachePenumpang=[], cacheDrivers=[], cacheBookings=[], cachePayments=[], cacheTarif=[], cacheAntrian=[], cacheBlacklist=[];
-let mapObj=null, mapCircle=null, mapAdminMarker=null, mapDriverLayer=null, adminLat=-6.9175, adminLng=107.6191;
-let _notifyTimer=null;
-function notify(msg){ try{ const el=document.getElementById('notify'); if(!el) return; el.textContent=msg||''; el.style.display='block'; clearTimeout(_notifyTimer); _notifyTimer=setTimeout(()=>{ el.style.display='none'; },2500); }catch(e){} }
-function showError(msg){ console.warn(msg); notify(msg); }
-function showSukses(msg){ notify(msg); }
-function showPopup(t,msg){ notify(msg||t); }
-function showToast(j,t){ notify(t||j); }
-function lemparKeIndex(){ try{ localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); }catch(e){} window.location.replace(INDEX_URL); }
+const SUPABASE_URL = 'https://xxtgmohxdztesiubfxap.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let tabAktif='driver', cacheDrivers=[], cachePenumpang=[], cacheBookings=[], cacheRiwayat=[], currentAdmin=null, adminNama='Admin', topupTarget=null;
 function rp(n){ return 'Rp ' + (Number(n)||0).toLocaleString('id-ID'); }
-function esc(s){ return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-function escAttr(s){ return esc(s).replace(/\n/g,' '); }
-function todayStr(){ const p = new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()); return p.find(x=>x.type==='year').value+'-'+p.find(x=>x.type==='month').value+'-'+p.find(x=>x.type==='day').value; }
-function fmtTgl(v){ if(!v) return ''; try{ return new Date(v).toLocaleString('id-ID',{timeZone:'Asia/Jakarta'}); }catch(e){ return String(v); } }
-function tglAntrian(a){ return a.waktu || a.created_at || ''; }
-function namaBooking(o){ return o.nama_penumpang || o.nama || ('Penumpang #'+(o.penumpang_id||o.id)); }
-function ruteBooking(o){ const dari=o.dari_lokasi||o.dari||o.pickup||o.asal||'-'; const ke=o.ke_lokasi||o.ke||o.dropoff||o.tujuan||'-'; return dari+' → '+ke; }
-function hargaBooking(o){ return o.total_harga ?? o.total ?? o.harga ?? o.nominal ?? 0; }
-function tampilkanHalaman(page){ const p=page||'dashboard'; document.querySelectorAll('.menu a').forEach(x=>x.classList.remove('active')); const t=document.querySelector('.menu a[data-page="'+p+'"]'); if(t) t.classList.add('active'); document.querySelectorAll('.page').forEach(x=>x.classList.remove('active')); const el=document.getElementById('page-'+p); if(el) el.classList.add('active'); else document.getElementById('page-dashboard').classList.add('active'); simpanHalaman(p); window.scrollTo({top:0,behavior:'smooth'}); }
-function simpanHalaman(p){ try{ localStorage.setItem('ammo_admin_page',p); sessionStorage.setItem('ammo_admin_page',p); }catch(e){} }
-function ambilHalaman(){ try{ return localStorage.getItem('ammo_admin_page')||sessionStorage.getItem('ammo_admin_page')||'dashboard'; }catch(e){ return 'dashboard'; } }
-document.querySelectorAll('.menu a').forEach(a=>{ a.onclick=()=>{ tampilkanHalaman(a.dataset.page); if(window.innerWidth<=900) document.querySelector('.sidebar').style.display='none'; }; });
-function pindahKeHalaman(p){ tampilkanHalaman(p); }
-function bukaAntrianDariDashboard(id){ pindahKeHalaman('antrian'); setTimeout(()=>{ const el=document.getElementById('jawab-'+id); if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.focus(); el.style.border='2px solid #f5d67b'; } },300); }
-async function doLogout(){ try{ localStorage.setItem('ammo_admin_logout_time',String(Date.now())); sessionStorage.setItem('ammo_admin_logout_time',String(Date.now())); localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); localStorage.removeItem('ammo_role'); localStorage.removeItem('ammo_admin_email'); localStorage.removeItem('ammo_admin_nama'); localStorage.removeItem('ammo_driver_token'); localStorage.removeItem('ammo_admin_google_ok'); localStorage.removeItem('ammo_admin_page'); sessionStorage.removeItem('ammo_admin_page'); }catch(e){} try{ await sb.auth.signOut(); }catch(e){} currentAdmin=null; googleSudahDicek=false; try{ document.getElementById('googleGate').style.display='none'; }catch(e){} lemparKeIndex(); }
-async function ambilIP(){ try{ const r=await fetch('https://api.ipify.org?format=json'); const j=await r.json(); return j.ip||'IP-tidak-kedetek'; }catch(e){ return 'IP-tidak-kedetek'; } }
-function catetMaling(codeInfo,ip,jenis){
+function esc(s){ return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escAttr(s){ return String(s ?? '').replace(/"/g,'').replace(/'/g,''); }
+function fmtTanggal(v){ if(!v) return '-'; try{ return new Date(v).toLocaleString('id-ID',{timeZone:'Asia/Jakarta',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}); }catch(e){ return String(v); } }
+function notify(msg){ popupAlert(msg); }
+function keIndex(){ try{ localStorage.removeItem('ammo_admin_token'); localStorage.removeItem('ammo_driver_token'); sessionStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_driver_token'); }catch(e){} window.location.replace('index.html'); }
+function gagal(msg){ var t=document.getElementById('loadingTxt'); if(t) t.textContent=msg; var b=document.getElementById('btnBalik'); if(b) b.style.display='block'; }
+function getSaldoObj(o){ return Number(o.saldo ?? o.saldo_emas ?? o.saldo_voucher ?? 0)||0; }
+function tutupPopup(){ document.getElementById('popupOverlay').classList.remove('show'); }
+function showPopup(judul, pesan, opts){
+  return new Promise(function(resolve){
+    var ov=document.getElementById('popupOverlay');
+    document.getElementById('popupJudul').textContent=judul||'Ammo Travel';
+    document.getElementById('popupPesan').textContent=pesan||'';
+    var chip=document.getElementById('popupChip'); chip.innerHTML='';
+    if(opts && opts.chips){
+      var wrap=document.createElement('div'); wrap.className='chip-topup';
+      opts.chips.forEach(function(c){ var b=document.createElement('button'); b.type='button'; b.textContent=c.label; b.onclick=function(){ document.getElementById('popupInput').value=c.value; }; wrap.appendChild(b); });
+      chip.appendChild(wrap);
+    }
+    var inp=document.getElementById('popupInput');
+    var isInput = opts && opts.input;
+    inp.style.display = isInput ? 'block' : 'none';
+    inp.value = (opts && opts.value) || '';
+    inp.placeholder = (opts && opts.placeholder) || '';
+    inp.type = (opts && opts.inputType) || 'text';
+    inp.inputMode = (opts && opts.inputType==='number') ? 'numeric' : 'text';
+    var btns=document.getElementById('popupBtns'); btns.innerHTML='';
+    function selesai(v){ tutupPopup(); resolve(v); }
+    if(opts && opts.confirm){
+      var b1=document.createElement('button'); b1.className='btn-gelap'; b1.textContent=opts.batalText||'Batal'; b1.onclick=function(){ selesai(false); };
+      var b2=document.createElement('button'); b2.className='btn-emas'; b2.textContent=opts.okText||'Ya, Lanjut'; b2.onclick=function(){ selesai(isInput ? inp.value : true); };
+      btns.appendChild(b1); btns.appendChild(b2);
+    } else {
+      var b=document.createElement('button'); b.className='btn-emas'; b.textContent=(opts && opts.okText)||'Oke'; b.onclick=function(){ selesai(isInput ? inp.value : true); };
+      btns.appendChild(b);
+    }
+    ov.classList.add('show');
+    if(isInput) setTimeout(function(){ inp.focus(); },100);
+  });
+}
+async function popupAlert(pesan,judul){ await showPopup(judul||'Ammo Travel',pesan,{}); }
+async function popupConfirm(pesan,judul){ return await showPopup(judul||'Konfirmasi',pesan,{confirm:true}); }
+function bacaKarcis(){
+  var tok=''; try{ tok=localStorage.getItem('ammo_admin_token')||localStorage.getItem('ammo_driver_token')||sessionStorage.getItem('ammo_admin_token')||''; }catch(e){}
+  if(!tok) return null;
+  var p=String(tok).split('|'); if(p.length<3) return null;
+  return {codeVal:String(p[0]||'').replace(/^[#@]+/,'').toLowerCase().trim(), pinVal:String(p[1]||'').trim(), exp:Number(p[2]||0)};
+}
+async function cekAkses(){
+  var k=bacaKarcis();
+  if(!k || Date.now()>k.exp){ gagal('Karcis admin kadaluarsa. Login lagi dari beranda ya.'); return; }
+  var hasil=null;
+  try{ var r=await sb.rpc('cek_pin_login',{p_code:k.codeVal,p_pin:k.pinVal}); if(r&&!r.error&&r.data&&r.data.length){ var list=Array.isArray(r.data)?r.data:[r.data]; hasil=list.find(function(x){return String(x.role||'').toLowerCase()==='admin';})||null; } }catch(e){}
+  if(!hasil){ try{ var a=await sb.from('admin').select('*').ilike('code',k.codeVal).maybeSingle(); if(a&&a.data&&String(a.data.pin)===String(k.pinVal)) hasil=a.data; }catch(e){} }
+  if(!hasil){ gagal('Code / PIN admin tidak ketemu di database.'); return; }
+  currentAdmin=hasil; adminNama=hasil.nama||hasil.email||'Admin';
+  document.getElementById('adminNama').textContent=adminNama+' • Admin';
+  document.getElementById('loading').style.display='none';
+  loadAll();
   try{
-    fetch(SUPABASE_URL + '/rest/v1/blacklist', {
-      method:'POST', keepalive:true,
-      headers:{ 'apikey':SUPABASE_ANON_KEY, 'Authorization':'Bearer '+SUPABASE_ANON_KEY, 'Content-Type':'application/json', 'Prefer':'return=minimal' },
-      body: JSON.stringify([{ no_wa: ip, alasan:'🚨 '+jenis+' - '+codeInfo+' | IP: '+ip, jumlah_cancel:1, status:'blacklist' }])
-    }).catch(()=>{});
+    sb.channel('admin-realtime')
+      .on('postgres_changes',{event:'*',schema:'public',table:'drivers'},function(){ loadAll(); })
+      .on('postgres_changes',{event:'*',schema:'public',table:'penumpang'},function(){ loadAll(); })
+      .on('postgres_changes',{event:'*',schema:'public',table:'bookings'},function(){ loadAll(); })
+      .on('postgres_changes',{event:'*',schema:'public',table:'topup_riwayat'},function(){ loadRiwayat(); })
+      .subscribe();
   }catch(e){}
 }
-async function catetGoogleSalah(emailGoogle,emailBenar,codeVal){
-  try{
-    const key='ammo_google_salah_'+String(codeVal||'admin').toLowerCase();
-    let hitung=Number(localStorage.getItem(key)||0)+1;
-    localStorage.setItem(key,String(hitung));
-    const ip=await ambilIP();
-    try{
-      fetch(SUPABASE_URL + '/rest/v1/blacklist', {
-        method:'POST', keepalive:true,
-        headers:{ 'apikey':SUPABASE_ANON_KEY, 'Authorization':'Bearer '+SUPABASE_ANON_KEY, 'Content-Type':'application/json', 'Prefer':'return=minimal' },
-        body: JSON.stringify([{ no_wa: emailGoogle, alasan:'🚨 GOOGLE BEDA ('+hitung+'/3) | IP: '+ip, jumlah_cancel:hitung, status:'blacklist' }])
-      }).catch(()=>{});
-    }catch(e){}
-    return hitung;
-  }catch(e){ return 1; }
-}
-async function tendangGoogleSalah(emailGoogle,emailBenar,codeVal){
-  const hitung=await catetGoogleSalah(emailGoogle,emailBenar,codeVal);
-  if(hitung>=3){ try{ localStorage.setItem('ammo_google_blocked_'+String(emailGoogle).toLowerCase(),'1'); }catch(e){} }
-  try{ await sb.auth.signOut(); }catch(e){}
-  lemparKeIndex();
-}
-async function loginGoogleAdmin(){ try{ await sb.auth.signInWithOAuth({provider:'google', options:{redirectTo:window.location.href}}); }catch(e){ notify('Gagal buka Google'); } }
-async function verifikasiGoogle(adm){
-  const emailBenar=String(adm.email||'').toLowerCase().trim();
-  if(!emailBenar){ bukaAdmin(adm); return; }
-  let sess=null; try{ const r=await sb.auth.getSession(); sess=r.data?r.data.session:null; }catch(e){}
-  const emailGoogle=sess&&sess.user?String(sess.user.email||'').toLowerCase().trim():'';
-  if(!emailGoogle){
-    document.documentElement.style.visibility='visible';
-    document.getElementById('googleGate').style.display='flex';
-    return;
-  }
-  if(localStorage.getItem('ammo_google_blocked_'+emailGoogle)==='1'){
-    const ip=await ambilIP();
-    catetMaling('Google diblokir nyoba masuk lagi',ip,'MALING GOOGLE DIBLOKIR');
-    lemparKeIndex(); return;
-  }
-  if(emailGoogle!==emailBenar){ await tendangGoogleSalah(emailGoogle,emailBenar,adm.code||'admin'); return; }
-  try{ localStorage.setItem('ammo_admin_google_ok',emailGoogle); }catch(e){}
-  try{ localStorage.removeItem('ammo_admin_logout_time'); sessionStorage.removeItem('ammo_admin_logout_time'); }catch(e){}
-  bukaAdmin(adm,emailGoogle);
-}
-function bukaAdmin(adm,emailGoogle){
-  try{ document.getElementById('googleGate').style.display='none'; }catch(e){}
-  document.getElementById('adminNameLabel').textContent=(adm.nama||adm.email)+' - Super Admin';
-  document.getElementById('adminTopLabel').textContent=(adm.nama||'Admin')+' ▽';
-  try{ if(emailGoogle) document.getElementById('adminGoogleLabel').textContent='Google: '+emailGoogle+' ✅'; }catch(e){}
-  try{ document.getElementById('namaAdmin').value=adm.nama||''; }catch(e){}
-  try{ document.getElementById('settingCode').value=adm.code||''; }catch(e){}
-  try{ document.getElementById('settingPin').value=String(adm.pin||''); }catch(e){}
-  try{ document.getElementById('settingEmail').value=adm.email||''; }catch(e){}
-  googleSudahDicek=true;
-  document.documentElement.style.visibility='visible';
-  tampilkanHalaman(ambilHalaman()); initMap(); loadAll();
-}
-async function cekSesi(){
-  let tok=''; try{ tok=sessionStorage.getItem('ammo_admin_token')||localStorage.getItem('ammo_admin_token')||''; }catch(e){}
-  if(!tok){ lemparKeIndex(); return; }
-  const parts=String(tok).split('|');
-  if(parts.length<3){ lemparKeIndex(); return; }
-  const codeVal=String(parts[0]||'').replace(/^[#@]+/,'').toLowerCase().trim();
-  const pinVal=String(parts[1]||'').trim();
-  const expiry=Number(parts[2]||0);
-  const dibuat=expiry?expiry-2*60*60*1000:0;
-  let jamLogout=0; try{ jamLogout=Number(localStorage.getItem('ammo_admin_logout_time')||sessionStorage.getItem('ammo_admin_logout_time')||0)||0; }catch(e){}
-  if(jamLogout&&dibuat&&dibuat<jamLogout){ const ip=await ambilIP(); catetMaling('Karcis lama bekas logout dipakai lagi',ip,'MALING KARCIS BEKAS LOGOUT'); lemparKeIndex(); return; }
-  if(!codeVal||!pinVal||!expiry||Date.now()>expiry){ lemparKeIndex(); return; }
-  let adm=null;
-  try{ const r=await sb.rpc('cek_pin_login',{p_code:codeVal,p_pin:pinVal}); if(r&&!r.error&&r.data&&r.data.length) adm=r.data[0]; }catch(e){}
-  if(!adm){ try{ const a=await sb.from('admin').select('*').ilike('code',codeVal).eq('pin',pinVal).maybeSingle(); if(a&&a.data) adm=a.data; }catch(e){} }
-  if(!adm){ try{ const a3=await sb.from('admin').select('*').ilike('code',codeVal).maybeSingle(); if(a3&&a3.data&&String(a3.data.pin)===String(pinVal)) adm=a3.data; }catch(e){} }
-  if(!adm){ try{ const a4=await sb.from('admin').select('*').eq('pin',pinVal).maybeSingle(); if(a4&&a4.data) adm=a4.data; }catch(e){} }
-  if(!adm||String(adm.role||'admin').toLowerCase()!=='admin'){
-    ambilIP().then(ip=>{ catetMaling('Code+PIN salah / bukan admin',ip,'MALING KARCIS PALSU'); });
-    lemparKeIndex(); return;
-  }
-  currentAdmin=adm; adminPinCache=String(adm.pin||''); await verifikasiGoogle(adm);
-}
-function initMap(){ if(mapObj) return; mapObj=L.map('mapReal',{zoomControl:false,attributionControl:false}).setView([adminLat,adminLng],8); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(mapObj); mapCircle=L.circle([adminLat,adminLng],{radius:150000,color:'#f5d67b',fillColor:'#f5d67b',fillOpacity:0.12,weight:2}).addTo(mapObj); mapAdminMarker=L.marker([adminLat,adminLng]).addTo(mapObj).bindPopup('Posisi Admin (GPS)'); mapDriverLayer=L.layerGroup().addTo(mapObj); if(navigator.geolocation){ navigator.geolocation.getCurrentPosition(pos=>{ adminLat=pos.coords.latitude; adminLng=pos.coords.longitude; mapObj.setView([adminLat,adminLng],8); mapCircle.setLatLng([adminLat,adminLng]); mapAdminMarker.setLatLng([adminLat,adminLng]); updateDriverPins(); },()=>{},{enableHighAccuracy:true,timeout:8000}); } }
-function mapZoom(d){ if(!mapObj) return; mapObj.setZoom(mapObj.getZoom()+d); }
-function updateDriverPins(){ if(!mapObj||!mapDriverLayer) return; mapDriverLayer.clearLayers(); const withGps=cacheDrivers.filter(d=>d.lat&&d.lng); withGps.forEach(d=>{ const m=L.marker([Number(d.lat),Number(d.lng)]).bindPopup(`<b>${esc(d.nama||'Driver')}</b><br>${esc(d.jenis_mobil||'')} • ${esc(d.plat_mobil||'')}<br>Status: ${esc(d.status||'')}`); mapDriverLayer.addLayer(m); }); }
-function gabungAntrianDobel(list){ const map=new Map(); (list||[]).forEach(a=>{ const k=String(a.pertanyaan||'').toLowerCase().trim(); if(!k) return; if(!map.has(k)) map.set(k,a); else{ const lama=map.get(k); if(Number(a.id||0)>Number(lama.id||0)) map.set(k,a); } }); return [...map.values()].sort((a,b)=>Number(b.id||0)-Number(a.id||0)); }
-async function bersihinAntrianDobel(){ try{ const unik=gabungAntrianDobel(cacheAntrian); const idUnik=new Set(unik.map(a=>String(a.id))); const dobel=cacheAntrian.filter(a=>!idUnik.has(String(a.id))); if(!dobel.length) return showSukses('Udah bersih, nggak ada antrian dobel.'); for(const d of dobel){ try{ await sb.from('antrian').delete().eq('id',d.id); }catch(e){} } loadAll(); showSukses(dobel.length+' antrian dobel udah dibersihin.'); }catch(e){ showError(e.message); } }
-async function safeFetch(table,orderCol){
-  try{
-    let q=sb.from(table).select('*').limit(50);
-    if(orderCol) q=q.order(orderCol,{ascending:false});
-    const r=await q;
-    if(r.error){ console.warn('Gagal load '+table+':',r.error.message); return []; }
-    return r.data||[];
-  }catch(e){ console.warn('Gagal load '+table+':',e.message); return []; }
+function gantiTab(t){
+  tabAktif=t;
+  document.getElementById('tabDriver').classList.toggle('aktif', t==='driver');
+  document.getElementById('tabPenumpang').classList.toggle('aktif', t==='penumpang');
+  document.getElementById('tabOrder').classList.toggle('aktif', t==='order');
+  document.getElementById('tabRiwayat').classList.toggle('aktif', t==='riwayat');
+  document.getElementById('wrapList').style.display = t==='riwayat' ? 'none' : 'block';
+  document.getElementById('wrapRiwayat').style.display = t==='riwayat' ? 'block' : 'none';
+  document.getElementById('judulList').textContent = t==='driver' ? '🚗 Daftar Driver' : t==='penumpang' ? '🧍 Daftar Penumpang' : '📋 Daftar Order';
+  if(t==='riwayat') loadRiwayat(); else renderList();
 }
 async function loadAll(){
-  if(!currentAdmin) return;
-  simpanDraftSebelumRefresh();
-  const pen=await safeFetch('penumpang','created_at');
-  const drv=await safeFetch('drivers','created_at');
-  const book=await safeFetch('bookings','created_at');
-  const pay=await safeFetch('payments','created_at');
-  const tarif=await safeFetch('tarif','id');
-  const antRaw=await safeFetch('antrian','id');
-  const black=await safeFetch('blacklist','created_at');
-  cachePenumpang=pen; cacheDrivers=drv; cacheBookings=book; cachePayments=pay; cacheTarif=tarif; cacheAntrian=gabungAntrianDobel(antRaw); cacheBlacklist=black;
-  document.getElementById('statusSupabase').innerText='Terhubung ✅ - REAL'; document.getElementById('statusSupabase').style.color='#25D366';
-  document.getElementById('statPenumpang').innerText=cachePenumpang.length.toLocaleString('id-ID');
-  const aktif=cacheDrivers.filter(d=>['aktif','active','online','tersedia'].includes(String(d.status||'').toLowerCase()));
-  document.getElementById('statDriver').innerText=aktif.length;
-  document.getElementById('driverOnline').innerText='📍 • '+aktif.length+' Driver Online';
-  const today=todayStr();
-  const todayBookings=cacheBookings.filter(o=>((o.created_at||'').slice(0,10)===today||(o.tanggal_berangkat||'')===today));
-  document.getElementById('statOrder').innerText=todayBookings.length;
-  const payToday=cachePayments.filter(p=>((p.created_at||'').slice(0,10)===today));
-  const payLunas=payToday.filter(p=>['lunas','paid','sukses','success','selesai','completed'].includes(String(p.status||'').toLowerCase()));
-  const totalPendapatan=payLunas.reduce((s,p)=>s+(Number(p.nominal)||0),0);
-  document.getElementById('statPendapatan').innerText=rp(totalPendapatan);
-  document.getElementById('penghasilanHariIni').innerText=rp(totalPendapatan);
-  const aktifOrder=cacheBookings.filter(o=>!['selesai','completed','batal','cancelled'].includes(String(o.status||'').toLowerCase()));
-  document.getElementById('orderAktif').innerText='• '+aktifOrder.length+' Pesanan Aktif';
-  const listEl=document.getElementById('orderList');
-  if(!cacheBookings.length) listEl.innerHTML='<p style="color:#888">Belum ada booking. Data dari index lu akan muncul di sini.</p>';
-  else listEl.innerHTML=cacheBookings.slice(0,3).map(o=>`<div class="order"><div><b>BKG-${esc(o.id)}</b><br><small>${esc(namaBooking(o))} • ${esc(ruteBooking(o))}</small></div><span class="badge ${o.status==='selesai'?'outline':''}">${esc(o.status||'Baru')}</span></div>`).join('');
-  const allEl=document.getElementById('allOrderList');
-  if(!cacheBookings.length) allEl.innerHTML='<p style="color:#888">Belum ada booking.</p>';
-  else allEl.innerHTML=cacheBookings.map(o=>`<div class="order"><div><b>BKG-${esc(o.id)}</b><br><small>${esc(namaBooking(o))} (${esc(o.no_wa||'-')}) • ${esc(ruteBooking(o))} • ${esc(o.jenis_layanan||o.layanan||'')} • ${esc(o.tanggal_berangkat||'')} • ${fmtTgl(o.created_at)}</small></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><b>${rp(hargaBooking(o))}</b><span class="badge ${o.status==='selesai'?'outline':''}">${esc(o.status)}</span><button class="btn btn-terima" onclick="selesaiOrder(${Number(o.id)})">Selesai</button><button class="btn btn-tolak" onclick="hapusOrder(${Number(o.id)})">Hapus</button></div></div>`).join('');
-  const pengEl=document.getElementById('penghasilanList');
-  if(!cachePayments.length) pengEl.innerHTML='<p style="color:#888">Belum ada payments.</p>';
-  else pengEl.innerHTML=cachePayments.slice(0,20).map(p=>`<div class="order"><div><b>Payment #${esc(p.id)} • Booking #${esc(p.booking_id)}</b><br><small>${esc(p.metode||'-')} • ${fmtTgl(p.created_at)}</small></div><div><b>${rp(p.nominal)}</b> <span class="badge ${p.status==='lunas'?'':'outline'}">${esc(p.status)}</span></div></div>`).join('');
-  const tarifHtml=cacheTarif.length?cacheTarif.map(t=>`<div class="order"><div><b>${esc(t.jenis)}</b></div><b>${rp(t.harga_per_km)} / KM • Fee ${FEE_PERSEN}% ${t.is_active?'✅ Aktif':''}</b></div>`).join(''):'<p style="color:#888">Belum ada tarif • Fee default 7%</p>';
-  document.getElementById('tarifList').innerHTML=tarifHtml; document.getElementById('tarifSetting').innerHTML=tarifHtml;
-  updateDriverPins();
-  const menunggu=cacheDrivers.filter(d=>['menunggu','pending','baru','waiting'].includes(String(d.status||'').toLowerCase()));
-  const dt=document.getElementById('driverTable');
-  if(!menunggu.length) dt.innerHTML='<tr><td colspan="5">Tidak ada driver menunggu ✅</td></tr>';
-  else dt.innerHTML=menunggu.map(d=>`<tr><td>${esc(d.nama||'-')}</td><td>${esc(d.jenis_mobil||'-')} • ${esc(d.plat_mobil||'-')}</td><td><b>${esc(d.code||'-')}</b><br><small style="color:#aaa">PIN: ${esc(d.pin||'-')}</small></td><td><span class="badge">Menunggu</span></td><td><button class="btn btn-terima" onclick="verifikasiDriver(${Number(d.id)},'aktif')">Terima</button> <button class="btn btn-tolak" onclick="verifikasiDriver(${Number(d.id)},'ditolak')">Tolak</button></td></tr>`).join('');
-  const dt2=document.getElementById('driverTable2');
-  if(!cacheDrivers.length) dt2.innerHTML='<tr><td colspan="5">Belum ada driver.</td></tr>';
-  else dt2.innerHTML=cacheDrivers.map(d=>`<tr><td>${esc(d.nama||'-')}<br><small style="color:#aaa">${esc(d.no_wa||'')}</small></td><td>${esc(d.jenis_mobil||'-')} • ${esc(d.plat_mobil||'-')}</td><td><b>${esc(d.code||'-')}</b><br><small style="color:#aaa">PIN: ${esc(d.pin||'-')}</small></td><td><span class="badge ${d.status==='aktif'?'':'outline'}">${esc(d.status)}</span></td><td>${['menunggu','pending'].includes(String(d.status||'').toLowerCase())?`<button class="btn btn-terima" onclick="verifikasiDriver(${Number(d.id)},'aktif')">Terima</button> <button class="btn btn-tolak" onclick="verifikasiDriver(${Number(d.id)},'ditolak')">Tolak</button>`:`<button class="btn btn-tolak" onclick="hapusDriver(${Number(d.id)})">Hapus</button>`}</td></tr>`).join('');
-  const pt=document.getElementById('penumpangTable');
-  if(!cachePenumpang.length) pt.innerHTML='<tr><td colspan="4">Belum ada penumpang.</td></tr>';
-  else pt.innerHTML=cachePenumpang.map(p=>{ const jml=cacheBookings.filter(o=>String(o.penumpang_id)===String(p.id)).length; return `<tr><td>${esc(p.nama||'-')}</td><td>${esc(p.no_wa||'-')}</td><td>${jml} booking</td><td><span class="badge">${esc(p.status||'Aktif')}</span></td></tr>`; }).join('');
-  const belum=cacheAntrian.filter(a=>!a.jawaban);
-  const antNotif=document.getElementById('antrianNotif'); antNotif.innerText=belum.length; antNotif.style.display=belum.length?'inline':'none';
-  const dashAnt=document.getElementById('dashAntrian');
-  if(!belum.length) dashAnt.innerHTML='<p style="color:#888">Semua antrian sudah terjawab ✅</p>';
-  else dashAnt.innerHTML=belum.slice(0,5).map(a=>`<div class="order order-klik" onclick="bukaAntrianDariDashboard('${escAttr(a.id)}')"><div><b>${esc(a.pertanyaan)}</b><br><small>${esc(fmtTgl(tglAntrian(a)))} • ${esc(a.status)}</small></div><span class="badge outline">Belum Jawab ➤</span></div>`).join('');
-  const antList=document.getElementById('antrianList');
-  if(!cacheAntrian.length) antList.innerHTML='<p style="color:#888">Belum ada antrian.</p>';
-  else antList.innerHTML=cacheAntrian.map(a=>`<div class="order" style="align-items:flex-start;flex-direction:column"><div style="width:100%;display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><b>${esc(a.pertanyaan)}</b><br><small>${esc(fmtTgl(tglAntrian(a)))} • Status: ${esc(a.status)}</small></div><button class="btn btn-tolak" onclick="hapusAntrian('${escAttr(a.id)}','${escAttr(a.pertanyaan)}')">🗑️ Hapus</button></div>${a.jawaban?`<div style="margin-top:8px;color:#f5d67b">Jawaban: ${esc(a.jawaban)}</div>`: `<div style="display:flex;gap:8px;width:100%;margin-top:10px;flex-wrap:wrap"><textarea id="jawab-${escAttr(a.id)}" placeholder="Tulis jawaban lu..." style="flex:1" rows="4"></textarea><button class="btn btn-terima" onclick="jawabAntrian('${escAttr(a.id)}','${escAttr(a.pertanyaan)}')">Jawab & Ajari Bot</button></div>`}</div>`).join('');
-  const bl=document.getElementById('blacklistTable');
-  if(!black.length) bl.innerHTML='<tr><td colspan="5">Belum ada blacklist.</td></tr>';
-  else bl.innerHTML=black.map(b=>`<tr><td>${esc(b.no_wa||b.email||'-')}</td><td>${esc(b.alasan||'-')}</td><td>${b.jumlah_cancel||0}x</td><td><span class="badge outline">${esc(b.status||'blacklist')}</span></td><td><button class="btn btn-tolak" onclick="hapusBlacklist(${Number(b.id)})">Hapus</button></td></tr>`).join('');
-  loadBot(); loadUsers(); kembalikanDraft();
+  try{ var r=await sb.from('drivers').select('*').order('created_at',{ascending:false}); if(r&&r.data) cacheDrivers=r.data; }catch(e){}
+  try{ var p=await sb.from('penumpang').select('*').order('created_at',{ascending:false}); if(p&&p.data) cachePenumpang=p.data; }catch(e){}
+  try{ var b=await sb.from('bookings').select('*').order('created_at',{ascending:false}).limit(50); if(b&&b.data) cacheBookings=b.data; }catch(e){}
+  var total=0; cacheDrivers.forEach(function(d){ total+=getSaldoObj(d); }); cachePenumpang.forEach(function(d){ total+=getSaldoObj(d); });
+  document.getElementById('statDriver').textContent=cacheDrivers.length;
+  document.getElementById('statPenumpang').textContent=cachePenumpang.length;
+  document.getElementById('statOrder').textContent=cacheBookings.length;
+  document.getElementById('statTotalSaldo').textContent=rp(total);
+  if(tabAktif!=='riwayat') renderList();
 }
-async function tambahDriver(){
-  const nama=document.getElementById('inNamaDrv').value.trim(), no_wa=document.getElementById('inWaDrv').value.trim(), plat_mobil=document.getElementById('inPlatDrv').value.trim(), jenis_mobil=document.getElementById('inJenisDrv').value.trim();
-  let codeBaru=document.getElementById('inCodeDrv').value.trim().replace(/^[#@]+/,'').toLowerCase();
-  let pin=document.getElementById('inPinDrv').value.trim();
-  if(!nama) return notify('Isi nama driver dulu.');
-  if(!codeBaru) codeBaru=nama.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,12)||('drv'+Date.now().toString().slice(-4));
-  if(!pin) pin=String(Math.floor(1000+Math.random()*9000));
-  const {error}=await sb.from('drivers').insert([{nama,no_wa,plat_mobil,jenis_mobil,code:codeBaru,pin,status:'menunggu'}]);
-  if(error) return showError(error.message);
-  try{ document.getElementById('inNamaDrv').value=''; document.getElementById('inWaDrv').value=''; document.getElementById('inPlatDrv').value=''; document.getElementById('inJenisDrv').value=''; document.getElementById('inCodeDrv').value=''; document.getElementById('inPinDrv').value=''; }catch(e){}
-  loadAll(); showSukses('Driver ditambah. Code: '+codeBaru+' | PIN: '+pin);
+async function loadRiwayat(){
+  try{ var r=await sb.from('topup_riwayat').select('*').order('created_at',{ascending:false}).limit(30); if(r&&r.data) cacheRiwayat=r.data; }catch(e){ cacheRiwayat=[]; }
+  var box=document.getElementById('listRiwayat');
+  if(!cacheRiwayat.length){ box.innerHTML='<div class="empty">Belum ada riwayat top up.<br>Isi saldo 1x, langsung muncul di sini.</div>'; return; }
+  box.innerHTML=cacheRiwayat.map(function(x){
+    var isPlus=Number(x.nominal||0)>=0;
+    return '<div class="riwayat"><b>'+esc(x.target_nama||'-')+'</b> • '+esc(x.tipe||'')+'<br><span class="'+(isPlus?'plus':'minus')+'">'+(isPlus?'+ ':'')+rp(x.nominal)+'</span> • Saldo '+rp(x.saldo_sebelum)+' → '+rp(x.saldo_sesudah)+'<br><small>oleh '+esc(x.admin_nama||'Admin')+' • '+fmtTanggal(x.created_at)+'</small></div>';
+  }).join('');
 }
-async function verifikasiDriver(id,status){ const {error}=await sb.from('drivers').update({status}).eq('id',id); if(error) return showError(error.message); loadAll(); showSukses('Driver '+status); }
-async function hapusDriver(id){ await sb.from('drivers').delete().eq('id',id); loadAll(); showSukses('Driver udah dihapus.'); }
-async function selesaiOrder(id){ const {error}=await sb.from('bookings').update({status:'selesai'}).eq('id',id); if(error) return showError(error.message); loadAll(); showSukses('Order udah selesai.'); }
-async function hapusOrder(id){ await sb.from('bookings').delete().eq('id',id); loadAll(); showSukses('Booking udah dihapus.'); }
-async function jawabAntrian(id,pertanyaan){ const el=document.getElementById('jawab-'+id); const jawaban=el.value.trim(); if(!jawaban) return notify('Isi jawaban dulu bro.'); const {error}=await sb.from('antrian').update({jawaban:jawaban,status:'terjawab'}).eq('id',id); if(error) return showError(error.message); const {data:cek}=await sb.from('bot').select('*').eq('kunci',pertanyaan.toLowerCase()); if(!cek||!cek.length) await sb.from('bot').insert([{kunci:pertanyaan.toLowerCase(),jawaban:jawaban}]); delete draftAntrian['jawab-'+id]; showSukses('Udah kejawab + udah masuk ke Bot!'); loadAll(); }
-async function hapusAntrian(id,pertanyaan){
-  const item=cacheAntrian.find(a=>String(a.id)===String(id)); const sudahJawab=item&&item.jawaban;
-  const {error}=await sb.from('antrian').delete().eq('id',id); if(error) return showError(error.message);
-  if(sudahJawab){ try{ await sb.from('bot').delete().eq('kunci',pertanyaan.toLowerCase()); }catch(e){} }
-  delete draftAntrian['jawab-'+id]; loadAll(); showSukses('Antrian udah dihapus ✅');
+function renderList(){
+  var box=document.getElementById('list');
+  var cari=(document.getElementById('inputCari').value||'').toLowerCase().trim();
+  if(tabAktif==='driver'){
+    var list=cacheDrivers.filter(function(d){ if(!cari) return true; return String(d.nama||'').toLowerCase().includes(cari) || String(d.code||'').toLowerCase().includes(cari) || String(d.no_wa||d.no_hp||'').includes(cari) || String(d.plat_mobil||d.plat||'').toLowerCase().includes(cari); });
+    if(!list.length){ box.innerHTML='<div class="empty">Belum ada driver.<br>Coba cari nama lain, atau driver belum daftar.</div>'; return; }
+    box.innerHTML=list.map(function(d){
+      var isPending=['menunggu','pending'].includes(String(d.status||'').toLowerCase());
+      var btnVerif=isPending ? '<button class="btn-terima" onclick="verifikasiDriver('+Number(d.id)+',\'aktif\')">Terima</button> <button class="btn-tolak" onclick="verifikasiDriver('+Number(d.id)+',\'ditolak\')">Tolak</button>' : '<button class="btn-tolak" onclick="hapusDriver('+Number(d.id)+')">Hapus</button>';
+      return '<div class="card"><b>'+esc(d.nama||'Driver')+'</b><br><small>Code: #'+esc(d.code||'-')+' • PIN: '+esc(d.pin||'-')+'<br>'+esc(d.jenis_mobil||d.jenis_kendaraan||'-')+' • '+esc(d.plat_mobil||d.plat||'-')+'<br>WA: '+esc(d.no_wa||d.no_hp||d.telp||'-')+'</small><div><span class="badge '+(d.status==='aktif'?'':'outline')+'">'+esc(d.status||'Aktif')+'</span></div><div class="saldo">Saldo: '+rp(getSaldoObj(d))+'</div><div class="row-btn"><button class="btn-topup" onclick="bukaTopUp(\'driver\',\''+escAttr(d.id)+'\')">+ Top Up</button><button class="btn-kurang" onclick="kurangiSaldoCepat(\'driver\',\''+escAttr(d.id)+'\')">- Kurangi</button><button class="btn-reset" onclick="resetSaldo(\'driver\',\''+escAttr(d.id)+'\')">Reset 0</button></div><div class="row-btn">'+btnVerif+'</div></div>';
+    }).join('');
+  } else if(tabAktif==='penumpang'){
+    var list2=cachePenumpang.filter(function(d){ if(!cari) return true; return String(d.nama||'').toLowerCase().includes(cari) || String(d.no_wa||'').includes(cari) || String(d.google_email||'').toLowerCase().includes(cari); });
+    if(!list2.length){ box.innerHTML='<div class="empty">Belum ada penumpang.<br>Penumpang muncul otomatis setelah daftar di beranda (WA / Google).</div>'; return; }
+    box.innerHTML=list2.map(function(d){
+      var jml=cacheBookings.filter(function(o){ return String(o.penumpang_id)===String(d.id); }).length;
+      return '<div class="card"><b>'+esc(d.nama||'Penumpang')+'</b><br><small>WA: '+esc(d.no_wa||'-')+' • '+esc(d.google_email||d.email||'-')+'<br>Via: '+esc(d.via||'-')+' • '+jml+' booking • Status: '+esc(d.status||'Aktif')+'</small><div class="saldo">Saldo Voucher: '+rp(getSaldoObj(d))+'</div><div class="row-btn"><button class="btn-topup" onclick="bukaTopUp(\'penumpang\',\''+escAttr(d.id)+'\')">+ Top Up</button><button class="btn-kurang" onclick="kurangiSaldoCepat(\'penumpang\',\''+escAttr(d.id)+'\')">- Kurangi</button><button class="btn-reset" onclick="resetSaldo(\'penumpang\',\''+escAttr(d.id)+'\')">Reset 0</button></div></div>';
+    }).join('');
+  } else {
+    if(!cacheBookings.length){ box.innerHTML='<div class="empty">Belum ada order.</div>'; return; }
+    var list3=cacheBookings.filter(function(o){ if(!cari) return true; return String(o.pickup||'').toLowerCase().includes(cari) || String(o.tujuan||'').toLowerCase().includes(cari) || String(o.status||'').toLowerCase().includes(cari); });
+    box.innerHTML=list3.map(function(o){
+      return '<div class="card"><b>Order #'+esc(String(o.kode||o.id).slice(0,6).toUpperCase())+' • '+esc(o.status||'-')+'</b><br><small>📍 '+esc(o.pickup||'-')+' → '+esc(o.tujuan||'-')+'<br>💰 '+rp(o.harga||o.tarif||0)+' • '+fmtTanggal(o.created_at)+'</small></div>';
+    }).join('');
+  }
 }
-async function hapusBlacklist(id){ await sb.from('blacklist').delete().eq('id',id); loadAll(); showSukses('Udah dihapus dari blacklist.'); }
-async function loadBot(){ const {data,error}=await sb.from('bot').select('*').order('kunci',{ascending:true}).limit(50); if(error){ document.getElementById('botTable').innerHTML='<tr><td colspan="3">Error: '+esc(error.message)+'</td></tr>'; return; } if(!data.length){ document.getElementById('botTable').innerHTML='<tr><td colspan="3">Belum ada data bot.</td></tr>'; return; } document.getElementById('botTable').innerHTML=data.map(b=>`<tr><td>${esc(b.kunci)}</td><td>${esc(b.jawaban)}</td><td><button class="btn btn-terima" onclick="editBot('${escAttr(b.kunci)}','${escAttr(b.jawaban)}')">Edit</button> <button class="btn btn-tolak" onclick="hapusBot('${escAttr(b.kunci)}')">Hapus</button></td></tr>`).join(''); }
-async function tambahBot(){ const kunci=document.getElementById('newKunci').value.trim().toLowerCase(), jawaban=document.getElementById('newJawaban').value.trim(); if(!kunci||!jawaban) return notify('Isi kunci + jawaban bot dulu.'); const {data:cek}=await sb.from('bot').select('*').eq('kunci',kunci); if(cek&&cek.length){ const {error}=await sb.from('bot').update({jawaban}).eq('kunci',kunci); if(error) return showError(error.message); } else { const {error}=await sb.from('bot').insert([{kunci,jawaban}]); if(error) return showError(error.message); } document.getElementById('newKunci').value=''; document.getElementById('newJawaban').value=''; loadBot(); showSukses('Bot berhasil diajarin / diedit.'); }
-function editBot(kunci,jawaban){ try{ document.getElementById('newKunci').value=kunci||''; document.getElementById('newJawaban').value=jawaban||''; pindahKeHalaman('bot'); setTimeout(()=>{ try{ document.getElementById('newJawaban').focus(); }catch(e){} },300); notify('Benerin tulisannya di atas, terus pencet Tambah / Simpan'); }catch(e){} }
-async function hapusBot(kunci){ await sb.from('bot').delete().eq('kunci',kunci); loadBot(); showSukses('Bot udah dihapus.'); }
-async function simpanPengaturan(){
+/* ===== SALDO - NYAMBUNG KE DATABASE ===== */
+function isiNominalTopUp(n){ try{ document.getElementById('topupNominal').value=n; }catch(e){} }
+function tutupTopUp(){ document.getElementById('topupModal').classList.remove('show'); topupTarget=null; }
+function bukaTopUp(tipe, id){
+  var d = tipe==='driver' ? cacheDrivers.find(function(x){ return String(x.id)===String(id); }) : cachePenumpang.find(function(x){ return String(x.id)===String(id); });
+  if(!d){ notify('Data tidak ketemu, refresh dulu ya'); return; }
+  topupTarget={tipe:tipe, id:d.id, nama:d.nama||'User', sebelum:getSaldoObj(d)};
+  document.getElementById('topupJudul').textContent='💰 Top Up '+(tipe==='driver'?'Driver':'Penumpang');
+  document.getElementById('topupInfo').innerHTML='Buat <b style="color:#f5d67b">'+esc(topupTarget.nama)+'</b><br>Saldo sekarang: <b style="color:#f5d67b">'+rp(topupTarget.sebelum)+'</b><br>Diisi admin: <b>'+esc(adminNama)+'</b>';
+  document.getElementById('topupNominal').value='';
+  document.getElementById('topupModal').classList.add('show');
+  setTimeout(function(){ try{ document.getElementById('topupNominal').focus(); }catch(e){} },100);
+}
+async function simpanSaldoKeDB(tipe, id, saldoBaru){
+  var tabel = tipe==='driver' ? 'drivers' : 'penumpang';
+  var payload = tipe==='driver' ? {saldo:saldoBaru, saldo_emas:saldoBaru} : {saldo:saldoBaru, saldo_emas:saldoBaru, saldo_voucher:saldoBaru};
+  var r = await sb.from(tabel).update(payload).eq('id', id);
+  if(r && !r.error) return true;
+  var keys=Object.keys(payload);
+  for(var i=0;i<keys.length;i++){
+    var satu={}; satu[keys[i]]=saldoBaru;
+    var r2=await sb.from(tabel).update(satu).eq('id', id);
+    if(r2 && !r2.error) return true;
+  }
+  console.warn('simpanSaldo gagal', r && r.error);
+  return false;
+}
+async function catatRiwayatTopUp(tipe, targetId, targetNama, nominal, sebelum, sesudah){
+  try{ await sb.from('topup_riwayat').insert([{tipe:tipe, target_id:String(targetId), target_nama:targetNama, nominal:nominal, saldo_sebelum:sebelum, saldo_sesudah:sesudah, admin_nama:adminNama}]); }catch(e){}
+}
+async function simpanTopUp(){
+  if(!topupTarget) return;
+  var nominal=Number(String(document.getElementById('topupNominal').value||'').replace(/[^0-9]/g,''));
+  if(!nominal || nominal<=0){ notify('Isi nominal dulu bro'); return; }
+  var sesudah=topupTarget.sebelum+nominal;
+  var ok=await simpanSaldoKeDB(topupTarget.tipe, topupTarget.id, sesudah);
+  if(!ok){ notify('Gagal simpan! Jalanin SQL saldo dulu di Supabase'); return; }
+  await catatRiwayatTopUp(topupTarget.tipe, topupTarget.id, topupTarget.nama, nominal, topupTarget.sebelum, sesudah);
+  var arr=topupTarget.tipe==='driver' ? cacheDrivers : cachePenumpang;
+  var d=arr.find(function(x){ return String(x.id)===String(topupTarget.id); });
+  if(d){ d.saldo=sesudah; d.saldo_emas=sesudah; d.saldo_voucher=sesudah; }
+  tutupTopUp();
+  notify('Berhasil! Saldo '+topupTarget.nama+' jadi '+rp(sesudah));
+  loadAll();
+}
+async function kurangiSaldoCepat(tipe, id){
+  var d = tipe==='driver' ? cacheDrivers.find(function(x){ return String(x.id)===String(id); }) : cachePenumpang.find(function(x){ return String(x.id)===String(id); });
+  if(!d) return;
+  var val=await showPopup('Kurangi Saldo','Kurangi saldo '+(d.nama||'')+'\nSaldo sekarang: '+rp(getSaldoObj(d)),{input:true,inputType:'number',placeholder:'10000',okText:'- Kurangi',confirm:true});
+  if(!val) return;
+  var nominal=Number(String(val).replace(/[^0-9]/g,'')); if(!nominal) return;
+  var sebelum=getSaldoObj(d); var sesudah=Math.max(0, sebelum-nominal);
+  var ok=await simpanSaldoKeDB(tipe, d.id, sesudah);
+  if(!ok){ notify('Gagal, jalanin SQL saldo dulu ya'); return; }
+  await catatRiwayatTopUp(tipe, d.id, d.nama, -nominal, sebelum, sesudah);
+  d.saldo=sesudah; d.saldo_emas=sesudah; d.saldo_voucher=sesudah;
+  notify('Saldo dikurangi jadi '+rp(sesudah));
+  loadAll();
+}
+async function resetSaldo(tipe, id){
+  var d = tipe==='driver' ? cacheDrivers.find(function(x){ return String(x.id)===String(id); }) : cachePenumpang.find(function(x){ return String(x.id)===String(id); });
+  if(!d) return;
+  var sebelum=getSaldoObj(d);
+  var ok=await popupConfirm('Reset saldo '+(d.nama||'User')+' dari '+rp(sebelum)+' jadi Rp 0 ?','Reset Saldo'); if(!ok) return;
+  var berhasil=await simpanSaldoKeDB(tipe, d.id, 0);
+  if(!berhasil){ notify('Gagal, jalanin SQL saldo dulu ya'); return; }
+  await catatRiwayatTopUp(tipe, d.id, d.nama, -sebelum, sebelum, 0);
+  d.saldo=0; d.saldo_emas=0; d.saldo_voucher=0;
+  loadAll();
+}
+async function verifikasiDriver(id, statusBaru){
+  var r=await sb.from('drivers').update({status:statusBaru}).eq('id', id);
+  if(r && r.error){ notify('Gagal: '+r.error.message); return; }
+  notify('Driver '+statusBaru);
+  loadAll();
+}
+async function hapusDriver(id){
+  var ok=await popupConfirm('Yakin hapus driver ini?','Hapus Driver'); if(!ok) return;
+  var r=await sb.from('drivers').delete().eq('id', id);
+  if(r && r.error){ notify('Gagal: '+r.error.message); return; }
+  loadAll();
+}
+async function logout(){
+  try{ document.getElementById('popupOverlay').classList.remove('show'); }catch(e){}
+  try{ document.getElementById('topupModal').classList.remove('show'); }catch(e){}
+  var ok=confirm('Yakin mau keluar dari Admin?');
+  if(!ok) return;
   try{
-    if(!currentAdmin) return showError('Belum login admin');
-    const nama=document.getElementById('namaAdmin').value.trim();
-    const codeBaru=document.getElementById('settingCode').value.trim().replace(/^[#@]+/,'').toLowerCase();
-    const pin=document.getElementById('settingPin').value.trim();
-    const emailBaru=document.getElementById('settingEmail')?document.getElementById('settingEmail').value.trim().toLowerCase():'';
-    if(!nama) return notify('Isi nama admin dulu ya.');
-    if(!codeBaru) return notify('Isi Code admin dulu ya.');
-    if(!pin||pin.length<4) return notify('PIN minimal 4 angka ya.');
-    if(!emailBaru||!emailBaru.includes('@')) return notify('Isi email Google admin yang boleh masuk ya.');
-    let upd={nama:nama,pin:pin,code:codeBaru,email:emailBaru};
-    let r=await sb.from('admin').update(upd).eq('id',currentAdmin.id);
-    if(r.error) return showError('Gagal simpan: '+r.error.message);
-    currentAdmin.nama=nama; currentAdmin.code=codeBaru; currentAdmin.pin=pin; currentAdmin.email=emailBaru; adminPinCache=String(pin);
-    document.getElementById('adminNameLabel').textContent=nama+' - Super Admin'; document.getElementById('adminTopLabel').textContent=nama+' ▽';
-    showSukses('Pengaturan udah kesimpan!');
-  }catch(e){ showError(e.message); }
+    localStorage.removeItem('ammo_admin_token');
+    localStorage.removeItem('ammo_driver_token');
+    localStorage.removeItem('ammo_driver');
+    localStorage.removeItem('ammo_driver_id');
+    localStorage.removeItem('ammo_driver_nama');
+    localStorage.removeItem('ammo_admin_nama');
+    localStorage.removeItem('ammo_admin_email');
+    localStorage.removeItem('ammo_role');
+    sessionStorage.removeItem('ammo_admin_token');
+    sessionStorage.removeItem('ammo_driver_token');
+  }catch(e){}
+  window.location.replace('index.html?t=' + Date.now());
 }
-async function hapusChatSesi(){ if(!currentUser) return notify('Pilih chat dulu yang mau dihapus.'); try{ let res; if(currentUser.startsWith('anon:')){ const sid=currentUser.replace('anon:',''); if(/^anon-\d+$/.test(sid)){ const idAsli=Number(sid.replace('anon-','')); res=await sb.from('chats').delete().eq('id',idAsli).select(); } else { res=await sb.from('chats').delete().or('session_id.eq.'+sid+',anon_id.eq.'+sid).select(); } } else { res=await sb.from('chats').delete().eq('penumpang_id',currentUser.replace('user:','')).select(); } if(res.error) return showError('GAGAL HAPUS: '+res.error.message+' - Cek RLS DELETE di Supabase!'); if(!res.data || res.data.length===0) return showError('Gak kehapus! RLS DELETE di tabel chats belum dibuka. Supabase > Authentication > Policies > chats > buat policy DELETE = true'); }catch(e){ return showError('GAGAL HAPUS: '+e.message); } currentUser=null; currentUserLabel=''; document.getElementById('chatTitle').innerText='Pilih penumpang...'; document.getElementById('chatBox').innerHTML='<p style="color:#888;text-align:center">Chat udah dihapus ✅</p>'; loadUsers(); loadAll(); showSukses('Chat udah dihapus beneran.'); }
-async function loadUsers(){ const {data,error}=await sb.from('chats').select('*').order('created_at',{ascending:false}).limit(50); if(error||!data||!data.length){ document.getElementById('userList').innerHTML='<p style="color:#888;padding:12px">Belum ada chat. Chat dari index akan masuk sini.</p>'; document.getElementById('chatNotif').style.display='none'; return; } const map=new Map(); data.forEach(c=>{ const key=c.penumpang_id?'user:'+c.penumpang_id:'anon:'+(c.session_id||c.anon_id||c.anon_session||'anon-'+c.id); if(!map.has(key)) map.set(key,c); }); const users=[...map.entries()]; document.getElementById('userList').innerHTML=users.map(([key,u])=>{ let label,sub; if(key.startsWith('anon:')){ label='Tamu Anonim #'+key.replace('anon:','').slice(0,8); sub='Sesi terpisah - tidak dicampur'; } else { const p=cachePenumpang.find(x=>String(x.id)===String(u.penumpang_id)); label=p?(p.nama+' • '+p.no_wa):String(u.penumpang_id).slice(0,8); sub=(u.message||'').slice(0,40); } return `<div class="chat-user" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div onclick="bukaChat('${escAttr(key)}','${escAttr(label)}')" style="flex:1"><b>${esc(label)}</b><small>${esc(sub)}</small></div><button class="btn btn-tolak" style="padding:6px 8px;font-size:12px" onclick="event.stopPropagation(); currentUser='${escAttr(key)}'; currentUserLabel='${escAttr(label)}'; hapusChatSesi();">🗑️</button></div>`; }).join(''); document.getElementById('chatNotif').innerText=users.length; document.getElementById('chatNotif').style.display='inline'; }
-async function bukaChat(chatKey,nama){ currentUser=chatKey; currentUserLabel=nama; document.getElementById('chatTitle').innerText='Chat: '+nama; let data=[]; if(chatKey.startsWith('anon:')){ const sid=chatKey.replace('anon:',''); const r1=await sb.from('chats').select('*').or(`session_id.eq.${sid},anon_id.eq.${sid}`).order('created_at',{ascending:true}).limit(50); data=r1.data||[]; if(!data.length){ const r2=await sb.from('chats').select('*').is('penumpang_id',null).order('created_at',{ascending:true}).limit(50); data=r2.data||[]; } } else { const pid=chatKey.replace('user:',''); const r=await sb.from('chats').select('*').eq('penumpang_id',pid).order('created_at',{ascending:true}).limit(50); data=r.data||[]; } const box=document.getElementById('chatBox'); if(!data||!data.length){ box.innerHTML='<p style="color:#888;text-align:center">Belum ada chat</p>'; return; } box.innerHTML=data.map(c=>{ const cls=c.sender==='admin'?'admin':'user'; const who=c.sender==='admin'?'Admin':(c.sender==='bot'?'Bot':'Penumpang'); return `<div class="msg ${cls}">${esc(c.message)}<small>${esc(who)} • ${fmtTgl(c.created_at)}</small></div>`; }).join(''); box.scrollTop=box.scrollHeight; const lastUser=[...data].reverse().find(c=>c.sender==='user'); lastUserMsg=lastUser?lastUser.message:""; }
-async function kirimPesan(){ const input=document.getElementById('chatInput'); const pesan=input.value.trim(); if(!pesan||!currentUser) return notify('Pilih penumpang dulu & ketik pesan ya bro.'); let payload; if(currentUser.startsWith('anon:')){ payload={penumpang_id:null,session_id:currentUser.replace('anon:',''),sender:'admin',message:pesan}; } else { payload={penumpang_id:currentUser.replace('user:',''),sender:'admin',message:pesan}; } const {error}=await sb.from('chats').insert([payload]); if(error) return showError(error.message); if(document.getElementById('saveToBot').checked&&lastUserMsg){ const {data:cek}=await sb.from('bot').select('*').eq('kunci',lastUserMsg.toLowerCase()); if(!cek||!cek.length){ await sb.from('bot').insert([{kunci:lastUserMsg.toLowerCase(),jawaban:pesan}]); showSukses('Jawaban kamu udah masuk ke Bot.'); loadBot(); } } draftChat=""; input.value=''; bukaChat(currentUser,currentUserLabel); }
-document.addEventListener('focusin',e=>{ if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') sedangNgetik=true; });
-document.addEventListener('focusout',e=>{ setTimeout(()=>{ if(document.activeElement.tagName!=='INPUT'&&document.activeElement.tagName!=='TEXTAREA') sedangNgetik=false; },500); });
-document.addEventListener('input',e=>{ if(e.target.id&&e.target.id.startsWith('jawab-')) draftAntrian[e.target.id]=e.target.value; if(e.target.id==='chatInput') draftChat=e.target.value; });
-function simpanDraftSebelumRefresh(){ document.querySelectorAll('textarea[id^="jawab-"]').forEach(el=>{ draftAntrian[el.id]=el.value; }); const ci=document.getElementById('chatInput'); if(ci) draftChat=ci.value; }
-function kembalikanDraft(){ Object.keys(draftAntrian).forEach(id=>{ const el=document.getElementById(id); if(el&&draftAntrian[id]) el.value=draftAntrian[id]; }); const ci=document.getElementById('chatInput'); if(ci&&draftChat) ci.value=draftChat; }
-document.getElementById('chatInput').addEventListener('keydown',e=>{ if(e.key==='Enter') kirimPesan(); });
-cekSesi();
-try{ sb.auth.onAuthStateChange((event,session)=>{ if(event==='SIGNED_IN'&&session&&session.user&&currentAdmin&&!googleSudahDicek){ verifikasiGoogle(currentAdmin); } }); }catch(e){}
-setInterval(()=>{ if(sedangNgetik) return; if(!currentAdmin) return; if(document.getElementById('googleGate').style.display==='flex') return; loadAll(); },30000);
+document.getElementById('popupOverlay').addEventListener('click', function(e){ if(e.target.id==='popupOverlay') tutupPopup(); });
+document.getElementById('topupModal').addEventListener('click', function(e){ if(e.target.id==='topupModal') tutupTopUp(); });
+cekAkses();
 </script>
 </body>
 </html>
