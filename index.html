@@ -114,7 +114,6 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 .toast p{font-size:13px;color:#ddd}
 .toast button{border:none;background:#d4af37;border-radius:8px;padding:8px 12px;font-weight:900;cursor:pointer}
 .gps-note{font-size:12px;color:#d4af37;text-align:center;margin-top:6px;display:none}
-/* === CHAT MELAYANG + PIN HITAM EMAS - HANYA BAGIAN INI YANG DITAMBAH === */
 .chat-float{position:fixed !important;right:16px !important;bottom:calc(76px + env(safe-area-inset-bottom)) !important;z-index:999 !important;pointer-events:auto !important;display:flex !important;margin:0 !important}
 .chat-float .chat{width:clamp(52px,14vw,62px);height:clamp(52px,14vw,62px);background:linear-gradient(145deg,#f5d67b,#d4af37,#9a7b1a);color:#000;box-shadow:0 8px 24px rgba(212,175,55,.45), inset 0 1px 0 rgba(255,255,255,.6);border:2px solid #f5d67b;pointer-events:auto !important;cursor:pointer !important}
 @media(max-width:360px){.chat-float{right:12px !important;bottom:calc(70px + env(safe-area-inset-bottom)) !important}}
@@ -135,6 +134,14 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 #mapModal{z-index:9999 !important}
 #mapModal.show{display:flex !important}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+try{
+  const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
+  window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+}catch(e){ console.log('Supabase gagal load', e); window.supabaseClient = null; }
+</script>
 </head>
 <body>
 <div id="homePage" class="phone">
@@ -259,6 +266,7 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 <div id="toastWrap" class="toast-wrap"><div class="toast"><div class="ico" id="toastIco">✓</div><div style="flex:1"><b id="toastJudul">Berhasil</b><p id="toastIsi">-</p></div><button onclick="tutupToast()">OK</button></div></div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+// ===== BLOK 1: INTI - GPS + ORDER + PETA - JALAN SENDIRI, NGGAK NUNGGU CHAT =====
 let pickupCoord=null, destCoord=null, mapMode='pickup';
 let map=null, marker=null, tempLat=-6.9175, tempLng=107.6191, tempAddr='Lokasi Saya Saat Ini';
 let previewTimer=null, saranTimer=null;
@@ -274,15 +282,15 @@ function fmtJarak(m){let km=m/1000;return km>=100?Math.round(km).toLocaleString(
 function fmtEstimasi(detik){let m=Math.round(detik/60);let h=Math.floor(m/60),hari=Math.floor(h/24);h=h%24;let sisa=m%60;if(hari>0)return hari+' hari '+(h>0?h+' jam':'');if(h>0)return h+' jam '+(sisa>0?sisa+' menit':'');return m+' menit';}
 function haversine(a1,b1,a2,b2){let R=6371,dLat=(a2-a1)*Math.PI/180,dLon=(b2-b1)*Math.PI/180;let a=Math.sin(dLat/2)**2+Math.cos(a1*Math.PI/180)*Math.cos(a2*Math.PI/180)*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.sqrt(a));}
 function hitungOngkos(km,orang){let o=orang||jumlahOrang||1;let rate=o>=5?6500:5000;let kmTagih=Math.max(Math.round(km),10);let dasar=kmTagih*rate;let fee=Math.round(dasar*0.05);let total=dasar+fee;let voucher=Math.round(total*0.05);return {kmTagih:kmTagih,ongkos:total,dasar:dasar,fee:fee,voucher:voucher,rate:rate,orang:o};}
-function updateSwap(){ $('swapBtn').disabled=!($('pickup').value.trim() && $('dest').value.trim()); }
+function updateSwap(){ try{ $('swapBtn').disabled=!($('pickup').value.trim() && $('dest').value.trim()); }catch(e){} }
 let toastTimer=null;
-function showToast(judul,isi,error){$('toastJudul').textContent=judul;$('toastIsi').textContent=isi;$('toastIco').textContent=error?'!':'✓';$('toastWrap').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(tutupToast,3000);}
-function tutupToast(){$('toastWrap').classList.remove('show');}
+function showToast(judul,isi,error){try{$('toastJudul').textContent=judul;$('toastIsi').textContent=isi;$('toastIco').textContent=error?'!':'✓';$('toastWrap').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(tutupToast,3000);}catch(e){}}
+function tutupToast(){try{$('toastWrap').classList.remove('show');}catch(e){}}
 function bukaVoucher(){showToast('Voucher','Voucher kamu: Rp '+(localStorage.getItem('ammo_voucher')||0)+' - Berlaku selamanya');}
-function sembunyikanHarga(){$('ongkosPreview').style.display='none';$('prevJarak').textContent='-';$('prevEstimasi').textContent='-';$('prevOngkos').textContent='-';$('prevVoucher').textContent='Voucher didapat: -';}
+function sembunyikanHarga(){try{$('ongkosPreview').style.display='none';$('prevJarak').textContent='-';$('prevEstimasi').textContent='-';$('prevOngkos').textContent='-';$('prevVoucher').textContent='Voucher didapat: -';}catch(e){}}
 document.addEventListener('click',function(e){let b=e.target.closest('.orang-btn');if(!b)return;jumlahOrang=parseInt(b.dataset.orang);document.querySelectorAll('.orang-btn').forEach(x=>x.classList.remove('aktif'));b.classList.add('aktif');jadwalPreview(true);});
 function swapLokasi(){let a=$('pickup').value,b=$('dest').value;$('pickup').value=b;$('dest').value=a;let tc=pickupCoord;pickupCoord=destCoord;destCoord=tc;updateSwap();jadwalPreview(true);showToast('Ditukar','Dari & Tujuan berhasil ditukar');}
-async function reverseGeocode(lat,lng){try{let r=await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lng);let d=await r.json();return d.display_name||('Titik Peta ('+lat.toFixed(4)+', '+lat.toFixed(4)+')');}catch(e){return 'Titik Peta ('+lat.toFixed(4)+', '+lng.toFixed(4)+')';}}
+async function reverseGeocode(lat,lng){try{let r=await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lng);let d=await r.json();return d.display_name||('Titik Peta ('+lat.toFixed(4)+', '+lng.toFixed(4)+')');}catch(e){return 'Titik Peta ('+lat.toFixed(4)+', '+lng.toFixed(4)+')';}}
 function pakaiGpsTersimpan(){
   try{
     let last=JSON.parse(localStorage.getItem('ammo_last_gps')||'null');
@@ -295,31 +303,37 @@ function pakaiGpsTersimpan(){
   return false;
 }
 function isiPenjemputanOtomatis(force){
-  if(!force && $('pickup').value.trim() && pickupCoord) return;
-  if(!force && $('pickup').value.trim() && $('pickup').value.indexOf('Mendeteksi')===-1) return;
-  if(pakaiGpsTersimpan() && !force) { setTimeout(()=>isiPenjemputanOtomatis(true), 500); return; }
-  if(!$('pickup').value.trim()) $('pickup').value='📍 Mendeteksi lokasi GPS...';
-  if($('gpsNote')) $('gpsNote').style.display='block';
-  if(!navigator.geolocation){
-    if($('gpsNote')) $('gpsNote').textContent='GPS tidak didukung, pilih dari Peta / ketik manual ya';
-    if($('pickup').value.indexOf('Mendeteksi')!==-1) $('pickup').value='';
-    return;
-  }
-  navigator.geolocation.getCurrentPosition(async pos=>{
-    tempLat=pos.coords.latitude; tempLng=pos.coords.longitude;
-    pickupCoord=[tempLat,tempLng];
-    try{ localStorage.setItem('ammo_last_gps', JSON.stringify({lat:tempLat,lon:tempLng,nama:'',waktu:Date.now()})); }catch(e){}
-    let a=await reverseGeocode(tempLat,tempLng);
-    try{ localStorage.setItem('ammo_last_gps', JSON.stringify({lat:tempLat,lon:tempLng,nama:a,waktu:Date.now()})); }catch(e){}
-    $('pickup').value=a;
-    if($('gpsNote')) $('gpsNote').style.display='none';
-    updateSwap(); jadwalPreview(true);
-  }, (err)=>{
-    if($('gpsNote')) $('gpsNote').textContent='GPS belum ketemu, nyoba lagi... Ketik manual juga bisa ya, bro.';
-    if($('pickup').value.indexOf('Mendeteksi')!==-1) $('pickup').value='📍 Mendeteksi lokasi GPS...';
-    pakaiGpsTersimpan();
-    setTimeout(()=>{ if(!pickupCoord) isiPenjemputanOtomatis(true); }, 6000);
-  }, {enableHighAccuracy:true, timeout:10000, maximumAge:60000});
+  try{
+    if(!force && $('pickup').value.trim() && pickupCoord) return;
+    if(!force && $('pickup').value.trim() && $('pickup').value.indexOf('Mendeteksi')===-1) return;
+    if(pakaiGpsTersimpan() && !force) { setTimeout(()=>{ try{ isiPenjemputanOtomatis(true); }catch(e){} }, 500); return; }
+    if(!$('pickup').value.trim()) $('pickup').value='📍 Mendeteksi lokasi GPS...';
+    if($('gpsNote')) $('gpsNote').style.display='block';
+    if(!navigator.geolocation){
+      if($('gpsNote')) $('gpsNote').textContent='GPS tidak didukung, pilih dari Peta / ketik manual ya';
+      if($('pickup').value.indexOf('Mendeteksi')!==-1) $('pickup').value='';
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(async pos=>{
+      try{
+        tempLat=pos.coords.latitude; tempLng=pos.coords.longitude;
+        pickupCoord=[tempLat,tempLng];
+        try{ localStorage.setItem('ammo_last_gps', JSON.stringify({lat:tempLat,lon:tempLng,nama:'',waktu:Date.now()})); }catch(e){}
+        let a=await reverseGeocode(tempLat,tempLng);
+        try{ localStorage.setItem('ammo_last_gps', JSON.stringify({lat:tempLat,lon:tempLng,nama:a,waktu:Date.now()})); }catch(e){}
+        $('pickup').value=a;
+        if($('gpsNote')) $('gpsNote').style.display='none';
+        updateSwap(); jadwalPreview(true);
+      }catch(e){}
+    }, (err)=>{
+      try{
+        if($('gpsNote')) $('gpsNote').textContent='GPS belum ketemu, nyoba lagi... Ketik manual juga bisa ya, bro.';
+        if($('pickup').value.indexOf('Mendeteksi')!==-1) $('pickup').value='📍 Mendeteksi lokasi GPS...';
+        pakaiGpsTersimpan();
+        setTimeout(()=>{ if(!pickupCoord) { try{ isiPenjemputanOtomatis(true); }catch(e){} } }, 6000);
+      }catch(e){}
+    }, {enableHighAccuracy:true, timeout:10000, maximumAge:60000});
+  }catch(e){ console.log('GPS error, tapi nggak matiin yang lain', e); }
 }
 function jadwalPreview(langsung){clearTimeout(previewTimer);if(langsung)hitungPreview();else previewTimer=setTimeout(hitungPreview,800);}
 async function hitungPreview(){
@@ -369,28 +383,21 @@ function jadwalSaran(inputEl, boxEl, isPickup){
   saranTimer=setTimeout(function(){ cariSaran(inputEl.value.trim(), boxEl, inputEl, isPickup); }, 400);
 }
 document.addEventListener('click', function(e){
-  if(!$('saranPick').contains(e.target) && e.target.id!=='pickup') $('saranPick').style.display='none';
-  if(!$('saranDest').contains(e.target) && e.target.id!=='dest') $('saranDest').style.display='none';
+  try{
+    if(!$('saranPick').contains(e.target) && e.target.id!=='pickup') $('saranPick').style.display='none';
+    if(!$('saranDest').contains(e.target) && e.target.id!=='dest') $('saranDest').style.display='none';
+  }catch(e){}
 });
 function getDB(){try{return JSON.parse(localStorage.getItem('ammo_penumpang_db')||'[]');}catch(e){return [];}}
 function saveDB(db){localStorage.setItem('ammo_penumpang_db',JSON.stringify(db));}
 function getSesi(){try{let s=JSON.parse(localStorage.getItem('ammo_sesi')||'null');if(s&&(s.nama||s.hp||s.email))return s;return null;}catch(e){return null;}}
-function sudahLogin(s){
-  s = s || getSesi();
-  if(!s) return false;
-  return !!(s.email || s.hp || s.google_email);
-}
+function sudahLogin(s){ s = s || getSesi(); if(!s) return false; return !!(s.email || s.hp || s.google_email); }
 function simpanPendingOrder(){
   localStorage.setItem('ammo_pending_order', JSON.stringify({
-    asal:$('pickup').value.trim(),
-    tujuan:$('dest').value.trim(),
-    asalCoord: pickupCoord,
-    tujuanCoord: destCoord,
-    jumlahOrang: jumlahOrang,
-    tanggal: $('tanggalBerangkat')?$('tanggalBerangkat').value:'',
-    jam: $('jamBerangkat')?$('jamBerangkat').value:'09:00',
-    mauOrder: true,
-    waktu: Date.now()
+    asal:$('pickup').value.trim(), tujuan:$('dest').value.trim(),
+    asalCoord: pickupCoord, tujuanCoord: destCoord, jumlahOrang: jumlahOrang,
+    tanggal: $('tanggalBerangkat')?$('tanggalBerangkat').value:'', jam: $('jamBerangkat')?$('jamBerangkat').value:'09:00',
+    mauOrder: true, waktu: Date.now()
   }));
 }
 function pulihkanPendingOrder(){
@@ -401,10 +408,7 @@ function pulihkanPendingOrder(){
     if(p.tujuan) $('dest').value=p.tujuan;
     if(p.asalCoord) pickupCoord=p.asalCoord;
     if(p.tujuanCoord) destCoord=p.tujuanCoord;
-    if(p.jumlahOrang){
-      jumlahOrang=p.jumlahOrang;
-      document.querySelectorAll('.orang-btn').forEach(x=>{ x.classList.toggle('aktif', parseInt(x.dataset.orang)===jumlahOrang); });
-    }
+    if(p.jumlahOrang){ jumlahOrang=p.jumlahOrang; document.querySelectorAll('.orang-btn').forEach(x=>{ x.classList.toggle('aktif', parseInt(x.dataset.orang)===jumlahOrang); }); }
     if(p.tanggal && $('tanggalBerangkat')) $('tanggalBerangkat').value=p.tanggal;
     if(p.jam && $('jamBerangkat')) $('jamBerangkat').value=p.jam;
     updateSwap(); jadwalPreview(true);
@@ -429,10 +433,8 @@ async function simpanOrderDanLanjut(){
   if(!pickupCoord||!destCoord){showToast('Pilih Dulu','Pilih Dari & Tujuan dari saran / peta dulu ya, jangan cuma diketik',true);return;}
   let sesi=getSesi();
   if(!sudahLogin(sesi)){ simpanPendingOrder(); setMauOrder(true); bukaAkun(); showToast('Login Dulu','Login pakai Google atau WA dulu ya, salah satu aja cukup',true); return; }
-  if(sesi.hp || sesi.email){
-    try{ await syncPenumpangKeSupabase(sesi.nama||'Penumpang', sesi.hp||'', sesi.via||'Google', sesi.email||'', sesi.google_id||''); }catch(e){}
-  }
-  let tujuanFile = jumlahOrang <= 4 ? 'penumpang.html' : 'penumpang.html';
+  if(sesi.hp || sesi.email){ try{ await syncPenumpangKeSupabase(sesi.nama||'Penumpang', sesi.hp||'', sesi.via||'Google', sesi.email||'', sesi.google_id||''); }catch(e){} }
+  let tujuanFile = 'penumpang.html';
   let jenisLayanan = 'Travel Penumpang';
   let jarakKm=null, totalHarga=null, voucherDapat=0, estimasiTeks='', durasiDetik=0, jarakMeter=0;
   try{
@@ -472,47 +474,41 @@ async function cekDriver(){
   if(sudahLogin()){ simpanOrderDanLanjut(); return; }
   simpanPendingOrder(); setMauOrder(true); bukaAkun();
 }
-function tutupDaftar(){$('daftarModal').classList.remove('show');}
+function tutupDaftar(){try{$('daftarModal').classList.remove('show');}catch(e){}}
 async function daftarPenumpang(via){
-  if(via==='Google'){
-    simpanPendingOrder(); setMauOrder(true);
-    await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href}});
-    return;
-  }
-  let nama=$('namaDaftar').value.trim();
-  let hp=$('hpDaftar').value.trim();
-  if(!nama){showToast('Nama Kosong','Tolong Masukkan nama terlebih dahulu 🙏🙏🙏',true);return;}
-  if(!hp){showToast('No. WA Kosong','Isi No. WA dulu ya.',true);return;}
-  let db=getDB();
-  let user=db.find(u=>u.hp===hp);
-  if(!user){user={nama:nama,hp:hp,via:via,created:Date.now()};db.push(user);saveDB(db);}
-  else{user.nama=nama;user.via=via;saveDB(db);}
-  localStorage.setItem('ammo_sesi',JSON.stringify(user));
-  localStorage.setItem('ammo_last_hp',hp);
-  tutupDaftar(); tutupAkun();
-  try{await syncPenumpangKeSupabase(nama,hp,via,'','');}catch(e){console.log('Supabase penumpang gagal:',e);}
-  if(!lanjutJikaMauOrder()){ showToast('Terdaftar','Akun berhasil dibuat, '+nama); bukaAkun(); }
+  try{
+    if(via==='Google'){
+      simpanPendingOrder(); setMauOrder(true);
+      if(window.supabaseClient) await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href}});
+      return;
+    }
+    let nama=$('namaDaftar').value.trim();
+    let hp=$('hpDaftar').value.trim();
+    if(!nama){showToast('Nama Kosong','Tolong Masukkan nama terlebih dahulu 🙏🙏🙏',true);return;}
+    if(!hp){showToast('No. WA Kosong','Isi No. WA dulu ya.',true);return;}
+    let db=getDB();
+    let user=db.find(u=>u.hp===hp);
+    if(!user){user={nama:nama,hp:hp,via:via,created:Date.now()};db.push(user);saveDB(db);}
+    else{user.nama=nama;user.via=via;saveDB(db);}
+    localStorage.setItem('ammo_sesi',JSON.stringify(user));
+    localStorage.setItem('ammo_last_hp',hp);
+    tutupDaftar(); tutupAkun();
+    try{await syncPenumpangKeSupabase(nama,hp,via,'','');}catch(e){}
+    if(!lanjutJikaMauOrder()){ showToast('Terdaftar','Akun berhasil dibuat, '+nama); bukaAkun(); }
+  }catch(e){ console.log(e); }
 }
 async function refreshProfilDariDB(){
   let s=getSesi(); if(!s) return null;
   try{
+    if(!window.supabaseClient) return s;
     let cek=null;
-    if(s.email){
-      cek=await supabaseClient.from('penumpang').select('*').eq('google_email',s.email).maybeSingle();
-    }
+    if(s.email){ cek=await supabaseClient.from('penumpang').select('*').eq('google_email',s.email).maybeSingle(); }
     if(!cek || !cek.data){
-      if(s.hp){
-        let c2=await supabaseClient.from('penumpang').select('*').eq('no_wa',s.hp).maybeSingle();
-        if(c2.data) cek=c2;
-      }
+      if(s.hp){ let c2=await supabaseClient.from('penumpang').select('*').eq('no_wa',s.hp).maybeSingle(); if(c2.data) cek=c2; }
     }
     if(cek && cek.data){
-      if(s.email && !cek.data.google_email){
-        try{ await supabaseClient.from('penumpang').update({google_email:s.email, google_id:s.google_id||null}).eq('id',cek.data.id); }catch(e){}
-      }
-      if(s.hp && !cek.data.no_wa){
-        try{ await supabaseClient.from('penumpang').update({no_wa:s.hp}).eq('id',cek.data.id); }catch(e){}
-      }
+      if(s.email && !cek.data.google_email){ try{ await supabaseClient.from('penumpang').update({google_email:s.email, google_id:s.google_id||null}).eq('id',cek.data.id); }catch(e){} }
+      if(s.hp && !cek.data.no_wa){ try{ await supabaseClient.from('penumpang').update({no_wa:s.hp}).eq('id',cek.data.id); }catch(e){} }
       s.nama=cek.data.nama||s.nama;
       if(cek.data.no_wa) s.hp=cek.data.no_wa;
       if(cek.data.google_email) s.email=cek.data.google_email;
@@ -527,32 +523,36 @@ async function refreshProfilDariDB(){
   return s;
 }
 async function bukaAkun(){
-  let s=getSesi();
-  if(s){ s=await refreshProfilDariDB()||s; }
-  if(sudahLogin(s)){
-    $('akunSudahLogin').style.display='block';$('akunBelumLogin').style.display='none';
-    $('akunNama').textContent=s.nama||'Penumpang';
-    $('akunSub').innerHTML=(s.hp||'-')+' - Penumpang<br>akun '+(s.via||'WA')+': '+(s.email||'-');
-    if($('akunVoucher')) $('akunVoucher').textContent='Rp. '+(parseInt(localStorage.getItem('ammo_voucher')||'0')).toLocaleString('id-ID');
-    if($('akunPerjalanan')) $('akunPerjalanan').textContent=(s.total_perjalanan||0)+' Perjalanan';
-  }else{$('akunSudahLogin').style.display='none';$('akunBelumLogin').style.display='block';}
-  $('akunModal').classList.add('show');
+  try{
+    let s=getSesi();
+    if(s){ s=await refreshProfilDariDB()||s; }
+    if(sudahLogin(s)){
+      $('akunSudahLogin').style.display='block';$('akunBelumLogin').style.display='none';
+      $('akunNama').textContent=s.nama||'Penumpang';
+      $('akunSub').innerHTML=(s.hp||'-')+' - Penumpang<br>akun '+(s.via||'WA')+': '+(s.email||'-');
+      if($('akunVoucher')) $('akunVoucher').textContent='Rp. '+(parseInt(localStorage.getItem('ammo_voucher')||'0')).toLocaleString('id-ID');
+      if($('akunPerjalanan')) $('akunPerjalanan').textContent=(s.total_perjalanan||0)+' Perjalanan';
+    }else{$('akunSudahLogin').style.display='none';$('akunBelumLogin').style.display='block';}
+    $('akunModal').classList.add('show');
+  }catch(e){}
 }
-function tutupAkun(){$('akunModal').classList.remove('show');}
+function tutupAkun(){try{$('akunModal').classList.remove('show');}catch(e){}}
 function togglePass(){let p=$('loginPass');p.type=p.type==='password'?'text':'password';}
 async function loginWA(){
   let hp=$('loginWA').value.trim();
   if(!hp){showToast('WA Kosong','Isi No. WA dulu',true);return;}
   try{
-    let cek=await supabaseClient.from('penumpang').select('*').eq('no_wa',hp).maybeSingle();
-    if(cek.data){
-      let user={nama:cek.data.nama,hp:cek.data.no_wa,via:'WA',email:cek.data.google_email||'',google_id:cek.data.google_id||''};
-      localStorage.setItem('ammo_sesi',JSON.stringify(user));
-      localStorage.setItem('ammo_supabase_penumpang_id',cek.data.id);
-      localStorage.setItem('ammo_last_hp',hp);
-      tutupAkun();
-      if(!lanjutJikaMauOrder()){ showToast('Berhasil','Selamat datang, '+user.nama); }
-      return;
+    if(window.supabaseClient){
+      let cek=await supabaseClient.from('penumpang').select('*').eq('no_wa',hp).maybeSingle();
+      if(cek.data){
+        let user={nama:cek.data.nama,hp:cek.data.no_wa,via:'WA',email:cek.data.google_email||'',google_id:cek.data.google_id||''};
+        localStorage.setItem('ammo_sesi',JSON.stringify(user));
+        localStorage.setItem('ammo_supabase_penumpang_id',cek.data.id);
+        localStorage.setItem('ammo_last_hp',hp);
+        tutupAkun();
+        if(!lanjutJikaMauOrder()){ showToast('Berhasil','Selamat datang, '+user.nama); }
+        return;
+      }
     }
   }catch(e){}
   let db=getDB();let user=db.find(u=>u.hp===hp);
@@ -564,17 +564,17 @@ async function loginWA(){
   }
   else{$('daftarModal').classList.add('show');$('namaDaftar').value='';$('hpDaftar').value=hp;}
 }
-function tanyaLogout(){$('logoutModal').classList.add('show');}
-function tutupLogout(){$('logoutModal').classList.remove('show');}
+function tanyaLogout(){try{$('logoutModal').classList.add('show');}catch(e){}}
+function tutupLogout(){try{$('logoutModal').classList.remove('show');}catch(e){}}
 async function logoutAkun(){
-  try{ if(typeof supabaseClient!=='undefined') await supabaseClient.auth.signOut(); }catch(e){}
+  try{ if(window.supabaseClient) await supabaseClient.auth.signOut(); }catch(e){}
   localStorage.removeItem('ammo_sesi');
   localStorage.removeItem('ammo_supabase_penumpang_id');
   setMauOrder(false);
   googleSudahDiproses=false;
   tutupLogout();tutupAkun();showToast('Logout','Kamu berhasil logout');
 }
-function tutupNamaBaru(){$('namaBaruModal').classList.remove('show');}
+function tutupNamaBaru(){try{$('namaBaruModal').classList.remove('show');}catch(e){}}
 function buatAkunDariNama(){
   let n=$('inputNamaBaru').value.trim();
   if(!n){showToast('Nama Kosong','Isi nama dulu',true);return;}
@@ -584,46 +584,101 @@ function buatAkunDariNama(){
   tutupNamaBaru(); tutupAkun();
   if(!lanjutJikaMauOrder()){ showToast('Terdaftar','Akun dibuat, '+n); }
 }
-function openChat(){$('chatModal').classList.add('show');$('pinView').style.display='none';$('chatView').style.display='block';}
-function closeChat(){$('chatModal').classList.remove('show');}
 function openMap(mode){
-  mapMode=mode;
-  if(mode==='pickup'&&pickupCoord){tempLat=pickupCoord[0];tempLng=pickupCoord[1];}
-  if(mode==='dest'&&destCoord){tempLat=destCoord[0];tempLng=destCoord[1];}
-  let m=$('mapModal'); m.classList.add('show'); m.style.display='flex';
-  setTimeout(async()=>{
-    try{
-      if(!map){
-        map=L.map('map').setView([tempLat,tempLng],14);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
-        marker=L.marker([tempLat,tempLng],{draggable:true}).addTo(map);
-        marker.on('dragend',async()=>{
-          let p=marker.getLatLng();tempLat=p.lat;tempLng=p.lng;
-          tempAddr=await reverseGeocode(tempLat,tempLng);
-          $('mapAddr').textContent=tempAddr;
-        });
-        map.on('click',async e=>{
-          tempLat=e.latlng.lat;tempLng=e.latlng.lng;marker.setLatLng(e.latlng);
-          tempAddr=await reverseGeocode(tempLat,tempLng);
-          $('mapAddr').textContent=tempAddr;
-        });
-      }else{map.setView([tempLat,tempLng],14);marker.setLatLng([tempLat,tempLng]);}
-      setTimeout(()=>{ try{ map.invalidateSize(); }catch(e){} }, 200);
-      setTimeout(()=>{ try{ map.invalidateSize(); }catch(e){} }, 600);
-      tempAddr=await reverseGeocode(tempLat,tempLng);
-      $('mapAddr').textContent=tempAddr;
-    }catch(e){ $('mapAddr').textContent='Peta gagal dimuat, coba lagi ya'; }
-  },100);
+  try{
+    mapMode=mode;
+    if(mode==='pickup'&&pickupCoord){tempLat=pickupCoord[0];tempLng=pickupCoord[1];}
+    if(mode==='dest'&&destCoord){tempLat=destCoord[0];tempLng=destCoord[1];}
+    let m=$('mapModal'); m.classList.add('show'); m.style.display='flex';
+    setTimeout(async()=>{
+      try{
+        if(!map){
+          map=L.map('map').setView([tempLat,tempLng],14);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
+          marker=L.marker([tempLat,tempLng],{draggable:true}).addTo(map);
+          marker.on('dragend',async()=>{
+            let p=marker.getLatLng();tempLat=p.lat;tempLng=p.lng;
+            tempAddr=await reverseGeocode(tempLat,tempLng);
+            $('mapAddr').textContent=tempAddr;
+          });
+          map.on('click',async e=>{
+            tempLat=e.latlng.lat;tempLng=e.latlng.lng;marker.setLatLng(e.latlng);
+            tempAddr=await reverseGeocode(tempLat,tempLng);
+            $('mapAddr').textContent=tempAddr;
+          });
+        }else{map.setView([tempLat,tempLng],14);marker.setLatLng([tempLat,tempLng]);}
+        setTimeout(()=>{ try{ map.invalidateSize(); }catch(e){} }, 200);
+        setTimeout(()=>{ try{ map.invalidateSize(); }catch(e){} }, 600);
+        tempAddr=await reverseGeocode(tempLat,tempLng);
+        $('mapAddr').textContent=tempAddr;
+      }catch(e){ $('mapAddr').textContent='Peta gagal dimuat, coba lagi ya'; }
+    },100);
+  }catch(e){}
 }
-function closeMap(){let m=$('mapModal'); m.classList.remove('show'); m.style.display='none';}
+function closeMap(){try{let m=$('mapModal'); m.classList.remove('show'); m.style.display='none';}catch(e){}}
 function confirmMap(){
-  let inp=mapMode==='pickup'?$('pickup'):$('dest');
-  inp.value=tempAddr;
-  if(mapMode==='pickup'){pickupCoord=[tempLat,tempLng]; if($('gpsNote')) $('gpsNote').style.display='none';}
-  else destCoord=[tempLat,tempLng];
-  try{ if(mapMode==='pickup') localStorage.setItem('ammo_last_gps', JSON.stringify({lat:tempLat,lon:tempLng,nama:tempAddr,waktu:Date.now()})); }catch(e){}
-  closeMap();updateSwap();jadwalPreview(true);
+  try{
+    let inp=mapMode==='pickup'?$('pickup'):$('dest');
+    inp.value=tempAddr;
+    if(mapMode==='pickup'){pickupCoord=[tempLat,tempLng]; if($('gpsNote')) $('gpsNote').style.display='none';}
+    else destCoord=[tempLat,tempLng];
+    try{ if(mapMode==='pickup') localStorage.setItem('ammo_last_gps', JSON.stringify({lat:tempLat,lon:tempLng,nama:tempAddr,waktu:Date.now()})); }catch(e){}
+    closeMap();updateSwap();jadwalPreview(true);
+  }catch(e){}
 }
+function kosongkanTujuan(){
+  try{
+    if(localStorage.getItem('ammo_pending_order') || mauLanjutOrder()) return;
+    $('dest').value=''; destCoord=null;
+    $('saranDest').style.display='none';
+    sembunyikanHarga();
+    localStorage.removeItem('masphus_order');
+    updateSwap();
+  }catch(e){}
+}
+function resetIndex(){
+  try{
+    if(localStorage.getItem('ammo_pending_order') || mauLanjutOrder()) return;
+    let harusKosong=sessionStorage.getItem('ammo_clear')==='1'||sessionStorage.getItem('ammo_must_clear_dest')==='1'||sessionStorage.getItem('ammo_from_index')==='1'||localStorage.getItem('masphus_order')||(document.referrer&&document.referrer.indexOf('penumpang')!==-1);
+    if(harusKosong){
+      kosongkanTujuan();
+      sessionStorage.removeItem('ammo_clear');
+      sessionStorage.removeItem('ammo_must_clear_dest');
+      sessionStorage.removeItem('ammo_from_index');
+    }
+  }catch(e){}
+}
+try{ resetIndex(); }catch(e){}
+window.addEventListener('pageshow',function(){
+  try{
+    if(localStorage.getItem('ammo_pending_order') || mauLanjutOrder()){ pulihkanPendingOrder(); return; }
+    kosongkanTujuan();
+    sessionStorage.removeItem('ammo_clear');
+    sessionStorage.removeItem('ammo_must_clear_dest');
+    sessionStorage.removeItem('ammo_from_index');
+    if(!$('pickup').value.trim()) isiPenjemputanOtomatis();
+  }catch(e){}
+});
+setTimeout(function(){
+  try{
+    if(!localStorage.getItem('ammo_pending_order') && !mauLanjutOrder()){
+      if(sessionStorage.getItem('ammo_clear')==='1'||sessionStorage.getItem('ammo_must_clear_dest')==='1')kosongkanTujuan();
+    }
+  }catch(e){}
+},500);
+// GPS DIPANGGIL DI SINI, SENDIRI, NGGAK NUNGGU CHAT
+try{ isiPenjemputanOtomatis(); }catch(e){ console.log('GPS start gagal', e); }
+try{let t=$('tanggalBerangkat');if(t&&!t.value)t.value=new Date().toISOString().slice(0,10);}catch(e){}
+try{
+  $('pickup').addEventListener('input',()=>{ if($('gpsNote')) $('gpsNote').style.display='none'; pickupCoord=null;updateSwap();sembunyikanHarga();jadwalSaran($('pickup'),$('saranPick'),true);});
+  $('dest').addEventListener('input',()=>{destCoord=null;updateSwap();sembunyikanHarga();jadwalSaran($('dest'),$('saranDest'),false);});
+}catch(e){}
+</script>
+<script>
+// ===== BLOK 2: CHAT + PIN - TERPISAH TOTAL, KALAU ERROR NGGAK MATIIN GPS =====
+try{
+function openChat(){try{$('chatModal').classList.add('show');$('pinView').style.display='none';$('chatView').style.display='block';}catch(e){}}
+function closeChat(){try{$('chatModal').classList.remove('show');}catch(e){}}
 function getChatSessionId(){
   let s = localStorage.getItem('ammo_chat_session');
   if(!s){ s='anon-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8); localStorage.setItem('ammo_chat_session',s); }
@@ -634,6 +689,7 @@ let lastChatAt=0;
 function chatRateLimit(){ const now=Date.now(); if(now-lastChatAt<1500) return false; lastChatAt=now; return true; }
 async function cekBlacklistChat(){
   try{
+    if(!window.supabaseClient) return false;
     const s=(typeof getSesi==='function')?getSesi():null;
     const hp=s?(s.hp||'':'');
     if(!hp) return false;
@@ -643,29 +699,31 @@ async function cekBlacklistChat(){
 }
 let pinKode='';
 function bukaPin(role,kode){
-  pendingRole=role; pendingKode=kode||'';
-  pinKode=''; renderPin();
-  if($('pinCodeInput')) $('pinCodeInput').value=kode||'';
-  $('pinMsg').textContent='';
-  $('pinTitle').textContent='Masukkan PIN';
-  $('pinSub').textContent='Ammo Travel • Aman, bro';
-  $('chatView').style.display='none';
-  $('pinView').style.display='block';
+  try{
+    pendingRole=role; pendingKode=kode||'';
+    pinKode=''; renderPin();
+    if($('pinCodeInput')) $('pinCodeInput').value=kode||'';
+    $('pinMsg').textContent='';
+    $('pinTitle').textContent='Masukkan PIN';
+    $('pinSub').textContent='Ammo Travel • Aman, bro';
+    $('chatView').style.display='none';
+    $('pinView').style.display='block';
+  }catch(e){}
 }
-function pressPin(n){if(pinKode.length>=6)return;pinKode+=n;renderPin();if(pinKode.length===6){setTimeout(cekPin,250);}}
+function pressPin(n){try{if(pinKode.length>=6)return;pinKode+=n;renderPin();if(pinKode.length===6){setTimeout(cekPin,250);}}catch(e){}}
 function delPin(){pinKode=pinKode.slice(0,-1);renderPin();}
 function clearPin(){pinKode='';renderPin();}
 function renderPin(){
-  let boxes=document.querySelectorAll('.pinBox');
-  boxes.forEach((b,i)=>{ b.classList.toggle('on', i<pinKode.length); });
+  try{
+    let boxes=document.querySelectorAll('.pinBox');
+    boxes.forEach((b,i)=>{ b.classList.toggle('on', i<pinKode.length); });
+  }catch(e){}
 }
 async function cekPin(){
-  let codeVal = ($('pinCodeInput') ? $('pinCodeInput').value.trim() : '').toLowerCase();
-  if(!codeVal){
-    $('pinMsg').textContent='Isi Code dulu ya (contoh: ammo / masphus)'; $('pinMsg').style.color='#ff6b81'; pinKode=''; renderPin(); return;
-  }
-  $('pinMsg').textContent='Mengecek Code + PIN ke database...'; $('pinMsg').style.color='#facc15';
   try{
+    let codeVal = ($('pinCodeInput') ? $('pinCodeInput').value.trim() : '').toLowerCase();
+    if(!codeVal){ $('pinMsg').textContent='Isi Code dulu ya (contoh: ammo / masphus)'; $('pinMsg').style.color='#ff6b81'; pinKode=''; renderPin(); return; }
+    $('pinMsg').textContent='Mengecek Code + PIN ke database...'; $('pinMsg').style.color='#facc15';
     const r=await supabaseClient.rpc('cek_pin_login',{p_code:codeVal, p_pin:pinKode});
     if(r.data && r.data.length){
       const d=r.data[0];
@@ -688,13 +746,16 @@ async function cekPin(){
       }
     }
   }catch(e){console.log(e);}
-  $('pinMsg').textContent='Code / PIN salah, coba lagi'; $('pinMsg').style.color='#ff6b81'; pinKode=''; renderPin();
-  let pv=$('pinView'); if(pv){ pv.classList.remove('goyang'); void pv.offsetWidth; pv.classList.add('goyang'); }
+  try{
+    $('pinMsg').textContent='Code / PIN salah, coba lagi'; $('pinMsg').style.color='#ff6b81'; pinKode=''; renderPin();
+    let pv=$('pinView'); if(pv){ pv.classList.remove('goyang'); void pv.offsetWidth; pv.classList.add('goyang'); }
+  }catch(e){}
   return;
 }
-function backToChat(){pendingRole=null;pinKode='';renderPin();$('pinView').style.display='none';$('chatView').style.display='block';}
+function backToChat(){try{pendingRole=null;pinKode='';renderPin();$('pinView').style.display='none';$('chatView').style.display='block';}catch(e){}}
 async function simpanChat(sender,pesan){
   try{
+    if(!window.supabaseClient) return;
     let pid=localStorage.getItem('ammo_supabase_penumpang_id')||null;
     if(pid && !(typeof getSesi==='function' && getSesi())) pid=null;
     let payload={sender:sender,message:pesan,session_id:getChatSessionId()};
@@ -739,130 +800,98 @@ async function masukDenganCodePin(codeVal, pinVal){
   }catch(e){ return null; }
 }
 async function handleKodeKhusus(pesan){
-  let q = pesan.trim();
-  if(pendingKodeChat){
-    let mPin = q.match(/^[#@]?(\d{4,6})$/);
-    if(mPin){
-      let hasil = await masukDenganCodePin(pendingKodeChat, mPin[1]);
-      if(hasil) return hasil;
-      return 'Siap, kami bantu. Coba ceritain mau ke mana? Atau isi Dari & Tujuan di atas, pilih dari saran, harga langsung muncul. Kalau mau cepat, klik WA Admin di bawah ya.';
-    }
-    pendingKodeChat='';
-  }
-  let m = q.match(/^[#@]([A-Za-z0-9_]+)-(\d{4,6})$/);
-  if(m){
-    let codeVal = m[1].toLowerCase();
-    let pinVal = m[2];
-    let hasil = await masukDenganCodePin(codeVal, pinVal);
-    if(hasil) return hasil;
-    return null;
-  }
-  let m2 = q.match(/^[#@]([A-Za-z0-9_]+)$/);
-  if(m2){
-    let codeVal = m2[1].toLowerCase();
-    try{
-      let r = await supabaseClient.rpc('cek_code_saja', { p_code: codeVal });
-      if(r.data && r.data.length){
-        pendingKodeChat = codeVal;
-        setTimeout(()=>{ bukaPin('login', codeVal); }, 300);
-        return 'Code ketemu. Masukkan PIN di layar kunci...';
+  try{
+    let q = pesan.trim();
+    if(pendingKodeChat){
+      let mPin = q.match(/^[#@]?(\d{4,6})$/);
+      if(mPin){
+        let hasil = await masukDenganCodePin(pendingKodeChat, mPin[1]);
+        if(hasil) return hasil;
+        return 'Siap, kami bantu. Coba ceritain mau ke mana? Atau isi Dari & Tujuan di atas, pilih dari saran, harga langsung muncul. Kalau mau cepat, klik WA Admin di bawah ya.';
       }
-    }catch(e){}
+      pendingKodeChat='';
+    }
+    let m = q.match(/^[#@]([A-Za-z0-9_]+)-(\d{4,6})$/);
+    if(m){
+      let codeVal = m[1].toLowerCase();
+      let pinVal = m[2];
+      let hasil = await masukDenganCodePin(codeVal, pinVal);
+      if(hasil) return hasil;
+      return null;
+    }
+    let m2 = q.match(/^[#@]([A-Za-z0-9_]+)$/);
+    if(m2){
+      let codeVal = m2[1].toLowerCase();
+      try{
+        let r = await supabaseClient.rpc('cek_code_saja', { p_code: codeVal });
+        if(r.data && r.data.length){
+          pendingKodeChat = codeVal;
+          setTimeout(()=>{ bukaPin('login', codeVal); }, 300);
+          return 'Code ketemu. Masukkan PIN di layar kunci...';
+        }
+      }catch(e){}
+      return null;
+    }
+    if(/^[#@]\d{4,6}$/.test(q)) return null;
     return null;
-  }
-  if(/^[#@]\d{4,6}$/.test(q)) return null;
-  return null;
+  }catch(e){ return null; }
 }
 async function botReply(pesan){
-  let khusus = await handleKodeKhusus(pesan);
-  if(khusus) return khusus;
-  let q=pesan.toLowerCase().trim();
   try{
-    if(typeof supabaseClient!=='undefined'){
-      let r=await supabaseClient.from('bot').select('kunci,jawaban');
-      if(r && !r.error && r.data){
-        let ketemu=r.data.find(row=>row.kunci && row.kunci.toLowerCase().trim()===q);
-        if(!ketemu){ketemu=r.data.find(row=>row.kunci && (q.includes(row.kunci.toLowerCase().trim()) || row.kunci.toLowerCase().trim().includes(q)));}
-        if(ketemu && ketemu.jawaban) return ketemu.jawaban;
+    let khusus = await handleKodeKhusus(pesan);
+    if(khusus) return khusus;
+    let q=pesan.toLowerCase().trim();
+    try{
+      if(window.supabaseClient){
+        let r=await supabaseClient.from('bot').select('kunci,jawaban');
+        if(r && !r.error && r.data){
+          let ketemu=r.data.find(row=>row.kunci && row.kunci.toLowerCase().trim()===q);
+          if(!ketemu){ketemu=r.data.find(row=>row.kunci && (q.includes(row.kunci.toLowerCase().trim()) || row.kunci.toLowerCase().trim().includes(q)));}
+          if(ketemu && ketemu.jawaban) return ketemu.jawaban;
+        }
       }
-    }
-  }catch(e){}
-  if(q.includes('ongkos')||q.includes('harga')||q.includes('tarif')||q.includes('berapa')) return 'Ongkos kita hitung per km bro. 1-4 orang Rp 5.000/km, 5-7 orang Rp 6.500/km, minimal 10 km. Tinggal isi Dari & Tujuan di atas, pilih dari saran / peta, harga langsung muncul. Mau dibantu hitungin ke mana?';
-  if(q.includes('cianjur')||q.includes('bandung')||q.includes('jakarta')||q.includes('bogor')||q.includes('sukabumi')) return 'Siap, tinggal ketik tujuan lengkapnya di kolom Tujuan, pilih dari saran yang muncul, nanti ongkos + estimasi langsung muncul. Atau mau langsung WA Admin? Klik tombol WA Admin di bawah.';
-  if(q.includes('driver')||q.includes('sopir')) return 'Driver kita siap 24 jam. Order dulu lewat ORDER NOW, nanti driver terdekat langsung dihubungi.';
-  if(q.includes('voucher')||q.includes('diskon')||q.includes('promo')) return 'Setiap order dapat voucher 5% dari total ongkos, bisa dipakai untuk order berikutnya. Voucher kamu bisa dicek di menu Voucher bawah.';
-  if(q.includes('halo')||q.includes('hai')||q.includes('selamat')) return 'Halo! Selamat datang di Ammo Travel 🙏 Mau diantar ke mana hari ini? Ketik tujuanmu, atau isi Dari & Tujuan di atas ya.';
-  if(q.includes('wa')||q.includes('admin')||q.includes('telpon')||q.includes('hubungi')) return 'Bisa langsung klik tombol WA Admin di bawah, nomor Admin 0858-9961-1111. Admin online, dibalas secepatnya ya.';
-  return 'Siap, kami bantu. Coba ceritain mau ke mana? Atau isi Dari & Tujuan di atas, pilih dari saran, harga langsung muncul. Kalau mau cepat, klik WA Admin di bawah ya.';
+    }catch(e){}
+    if(q.includes('ongkos')||q.includes('harga')||q.includes('tarif')||q.includes('berapa')) return 'Ongkos kita hitung per km bro. 1-4 orang Rp 5.000/km, 5-7 orang Rp 6.500/km, minimal 10 km. Tinggal isi Dari & Tujuan di atas, pilih dari saran / peta, harga langsung muncul. Mau dibantu hitungin ke mana?';
+    if(q.includes('cianjur')||q.includes('bandung')||q.includes('jakarta')||q.includes('bogor')||q.includes('sukabumi')) return 'Siap, tinggal ketik tujuan lengkapnya di kolom Tujuan, pilih dari saran yang muncul, nanti ongkos + estimasi langsung muncul. Atau mau langsung WA Admin? Klik tombol WA Admin di bawah.';
+    if(q.includes('driver')||q.includes('sopir')) return 'Driver kita siap 24 jam. Order dulu lewat ORDER NOW, nanti driver terdekat langsung dihubungi.';
+    if(q.includes('voucher')||q.includes('diskon')||q.includes('promo')) return 'Setiap order dapat voucher 5% dari total ongkos, bisa dipakai untuk order berikutnya. Voucher kamu bisa dicek di menu Voucher bawah.';
+    if(q.includes('halo')||q.includes('hai')||q.includes('selamat')) return 'Halo! Selamat datang di Ammo Travel 🙏 Mau diantar ke mana hari ini? Ketik tujuanmu, atau isi Dari & Tujuan di atas ya.';
+    if(q.includes('wa')||q.includes('admin')||q.includes('telpon')||q.includes('hubungi')) return 'Bisa langsung klik tombol WA Admin di bawah, nomor Admin 0858-9961-1111. Admin online, dibalas secepatnya ya.';
+    return 'Siap, kami bantu. Coba ceritain mau ke mana? Atau isi Dari & Tujuan di atas, pilih dari saran, harga langsung muncul. Kalau mau cepat, klik WA Admin di bawah ya.';
+  }catch(e){ return 'Siap, kami bantu. Coba ceritain mau ke mana?'; }
 }
 async function kirimChat(){
-  let inp=$('chatInput');
-  let v=inp.value.trim(); if(!v) return;
-  inp.value='';
-  if(!chatRateLimit()){ $('chatLog').innerHTML+='<div class="chatBubble">Sabar dulu bro, jangan spam 🙏</div>'; return; }
-  if(await cekBlacklistChat()){ $('chatLog').innerHTML+='<div class="chatBubble">Maaf, akun kamu sedang dibatasi. Hubungi Admin via WA ya.</div>'; return; }
-  let log=$('chatLog');
-  log.innerHTML+='<div class="chatBubble"><b>Kamu:</b> '+escHtml(v)+'</div>';
-  log.scrollTop=log.scrollHeight;
-  simpanChat('user',v);
-  log.innerHTML+='<div class="chatBubble" id="botTyping">Bot sedang mengetik...</div>';
-  let jawab=await botReply(v);
-  let t=document.getElementById('botTyping'); if(t) t.remove();
-  log.innerHTML+='<div class="chatBubble"><b>Bot Ammo:</b> '+escHtml(jawab)+'</div>';
-  log.scrollTop=log.scrollHeight;
-  simpanChat('bot',jawab);
+  try{
+    let inp=$('chatInput');
+    let v=inp.value.trim(); if(!v) return;
+    inp.value='';
+    if(!chatRateLimit()){ $('chatLog').innerHTML+='<div class="chatBubble">Sabar dulu bro, jangan spam 🙏</div>'; return; }
+    if(await cekBlacklistChat()){ $('chatLog').innerHTML+='<div class="chatBubble">Maaf, akun kamu sedang dibatasi. Hubungi Admin via WA ya.</div>'; return; }
+    let log=$('chatLog');
+    log.innerHTML+='<div class="chatBubble"><b>Kamu:</b> '+escHtml(v)+'</div>';
+    log.scrollTop=log.scrollHeight;
+    simpanChat('user',v);
+    log.innerHTML+='<div class="chatBubble" id="botTyping">Bot sedang mengetik...</div>';
+    let jawab=await botReply(v);
+    let t=document.getElementById('botTyping'); if(t) t.remove();
+    log.innerHTML+='<div class="chatBubble"><b>Bot Ammo:</b> '+escHtml(jawab)+'</div>';
+    log.scrollTop=log.scrollHeight;
+    simpanChat('bot',jawab);
+  }catch(e){ console.log('Chat error, tapi GPS tetep jalan', e); }
 }
-if($('chatSend'))$('chatSend').addEventListener('click',kirimChat);
-if($('chatInput'))$('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')kirimChat();});
-if($('chatModal'))$('chatModal').addEventListener('click',e=>{if(e.target.id==='chatModal')closeChat();});
-function kosongkanTujuan(){
-  if(localStorage.getItem('ammo_pending_order') || mauLanjutOrder()) return;
-  $('dest').value='';
-  destCoord=null;
-  $('saranDest').style.display='none';
-  sembunyikanHarga();
-  localStorage.removeItem('masphus_order');
-  updateSwap();
-}
-function resetIndex(){
-  if(localStorage.getItem('ammo_pending_order') || mauLanjutOrder()) return;
-  let harusKosong=sessionStorage.getItem('ammo_clear')==='1'||sessionStorage.getItem('ammo_must_clear_dest')==='1'||sessionStorage.getItem('ammo_from_index')==='1'||localStorage.getItem('masphus_order')||(document.referrer&&document.referrer.indexOf('penumpang')!==-1);
-  if(harusKosong){
-    kosongkanTujuan();
-    sessionStorage.removeItem('ammo_clear');
-    sessionStorage.removeItem('ammo_must_clear_dest');
-    sessionStorage.removeItem('ammo_from_index');
-  }
-}
-resetIndex();
-window.addEventListener('pageshow',function(){
-  if(localStorage.getItem('ammo_pending_order') || mauLanjutOrder()){
-    pulihkanPendingOrder();
-    return;
-  }
-  kosongkanTujuan();
-  sessionStorage.removeItem('ammo_clear');
-  sessionStorage.removeItem('ammo_must_clear_dest');
-  sessionStorage.removeItem('ammo_from_index');
-  if(!$('pickup').value.trim())isiPenjemputanOtomatis();
-});
-setTimeout(function(){
-  if(!localStorage.getItem('ammo_pending_order') && !mauLanjutOrder()){
-    if(sessionStorage.getItem('ammo_clear')==='1'||sessionStorage.getItem('ammo_must_clear_dest')==='1')kosongkanTujuan();
-  }
-},500);
-isiPenjemputanOtomatis();
-try{let t=$('tanggalBerangkat');if(t&&!t.value)t.value=new Date().toISOString().slice(0,10);}catch(e){}
-$('pickup').addEventListener('input',()=>{ if($('gpsNote')) $('gpsNote').style.display='none'; pickupCoord=null;updateSwap();sembunyikanHarga();jadwalSaran($('pickup'),$('saranPick'),true);});
-$('dest').addEventListener('input',()=>{destCoord=null;updateSwap();sembunyikanHarga();jadwalSaran($('dest'),$('saranDest'),false);});
+try{
+  if($('chatSend'))$('chatSend').addEventListener('click',kirimChat);
+  if($('chatInput'))$('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')kirimChat();});
+  if($('chatModal'))$('chatModal').addEventListener('click',e=>{if(e.target.id==='chatModal')closeChat();});
+}catch(e){}
+}catch(e){ console.log('Blok Chat gagal load, GPS tetep jalan', e); }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
-const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// ===== BLOK 3: SYNC PENUMPANG - JUGA TERPISAH =====
+try{
 async function syncPenumpangKeSupabase(nama, hp, via, google_email, google_id){
   try{
+    if(!window.supabaseClient) return null;
     let cek=null;
     if(google_email){
       let c=await supabaseClient.from('penumpang').select('*').eq('google_email',google_email).maybeSingle();
@@ -898,6 +927,7 @@ async function prosesBalikanGoogle(){
   if(googleSudahDiproses) return;
   googleSudahDiproses=true;
   try{
+    if(!window.supabaseClient){ pulihkanPendingOrder(); return; }
     const {data:{session}} = await supabaseClient.auth.getSession();
     if(session && session.user){
       let namaGoogle=session.user.user_metadata?.full_name||session.user.user_metadata?.name||session.user.email?.split('@')[0]||'Penumpang';
@@ -929,19 +959,24 @@ async function prosesBalikanGoogle(){
 }
 prosesBalikanGoogle();
 try{
-  supabaseClient.auth.onAuthStateChange((event, session)=>{
-    if(event==='SIGNED_IN' && session && session.user){ prosesBalikanGoogle(); }
-  });
+  if(window.supabaseClient){
+    supabaseClient.auth.onAuthStateChange((event, session)=>{
+      if(event==='SIGNED_IN' && session && session.user){ prosesBalikanGoogle(); }
+    });
+  }
 }catch(e){}
+}catch(e){ console.log('Blok sync gagal, GPS tetep jalan', e); }
 </script>
 <div class="chat-float" id="chatFloat" onclick="openChat();return false;"><div class="chat" id="chatBtn" onclick="openChat();return false;">💬<i></i></div></div>
 <script>
 (function(){
-  var f=document.getElementById('chatFloat');
-  var b=document.getElementById('chatBtn');
-  if(f) f.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); openChat(); });
-  if(b) b.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); openChat(); });
-  if(f) f.addEventListener('touchstart', function(e){ e.preventDefault(); openChat(); }, {passive:false});
+  try{
+    var f=document.getElementById('chatFloat');
+    var b=document.getElementById('chatBtn');
+    if(f) f.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); openChat(); });
+    if(b) b.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); openChat(); });
+    if(f) f.addEventListener('touchstart', function(e){ e.preventDefault(); openChat(); }, {passive:false});
+  }catch(e){}
 })();
 </script>
 </body>
