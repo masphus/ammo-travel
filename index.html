@@ -71,6 +71,7 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 .pinPad{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
 .pinKey{padding:14px;border:1px solid #333;background:#111;color:#fff;border-radius:12px;font-size:18px;cursor:pointer}
 .pinBack{width:100%;margin-top:10px;padding:12px;background:transparent;border:none;color:#d4af37;cursor:pointer}
+.pinCodeInput{width:100%;background:#111;border:1px solid #d4af37;border-radius:12px;padding:12px;color:#fff;outline:none;margin:6px 0 6px;font-size:15px;text-align:center}
 .map-box{background:#1a1a1a;width:100%;max-width:430px;border-radius:20px 20px 0 0;padding:12px}
 #map{height:340px;border-radius:12px}
 .map-addr{font-size:13px;color:#aaa;padding:10px 4px}
@@ -176,8 +177,9 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 </div>
 <div id="pinView" style="display:none">
 <div style="text-align:center;color:#d4af37;font-size:18px;font-weight:800">💬 Chat dengan CS</div>
-<div class="pinTitle" id="pinTitle">Masukkan PIN</div>
-<div class="pinSub" id="pinSub">Driver / Admin</div>
+<div class="pinTitle" id="pinTitle">Masukkan Code + PIN</div>
+<div class="pinSub" id="pinSub">Isi Code dulu, baru PIN • Admin / Driver</div>
+<input id="pinCodeInput" class="pinCodeInput" placeholder="Code, contoh: masphus / joko / bebek" autocomplete="off">
 <div class="pinBoxes"><div class="pinBox"></div><div class="pinBox"></div><div class="pinBox"></div><div class="pinBox"></div><div class="pinBox"></div><div class="pinBox"></div></div>
 <div id="pinMsg"></div>
 <div class="pinPad">
@@ -598,7 +600,7 @@ function confirmMap(){
   try{ if(mapMode==='pickup') localStorage.setItem('ammo_last_gps', JSON.stringify({lat:tempLat,lon:tempLng,nama:tempAddr,waktu:Date.now()})); }catch(e){}
   closeMap();updateSwap();jadwalPreview(true);
 }
-// ===== CHAT + LOGIN - PINTU # / @ SAMAR, CEK DRIVER + ADMIN =====
+// ===== CHAT + LOGIN - PINTU # / @ SAMAR, CEK CODE + PIN DI ADMIN + DRIVERS =====
 function getChatSessionId(){
   let s = localStorage.getItem('ammo_chat_session');
   if(!s){ s='anon-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8); localStorage.setItem('ammo_chat_session',s); }
@@ -620,9 +622,10 @@ let pinKode='';
 function bukaPin(role,kode){
   pendingRole=role; pendingKode=kode||'';
   pinKode=''; renderPin();
+  if($('pinCodeInput')) $('pinCodeInput').value='';
   $('pinMsg').textContent='';
-  $('pinTitle').textContent='Masukkan PIN';
-  $('pinSub').textContent='Admin / Driver • Ammo Travel';
+  $('pinTitle').textContent='Masukkan Code + PIN';
+  $('pinSub').textContent='Isi Code dulu, baru PIN • Admin / Driver';
   $('chatView').style.display='none';
   $('pinView').style.display='block';
 }
@@ -631,9 +634,13 @@ function delPin(){pinKode=pinKode.slice(0,-1);renderPin();}
 function clearPin(){pinKode='';renderPin();}
 function renderPin(){let boxes=document.querySelectorAll('.pinBox');boxes.forEach((b,i)=>{b.textContent=i<pinKode.length?'•':'';});}
 async function cekPin(){
-  $('pinMsg').textContent='Mengecek ke database...'; $('pinMsg').style.color='#facc15';
+  let codeVal = ($('pinCodeInput') ? $('pinCodeInput').value.trim() : '').toLowerCase();
+  if(!codeVal){
+    $('pinMsg').textContent='Isi Code dulu ya (contoh: masphus / joko)'; $('pinMsg').style.color='#ff6b81'; pinKode=''; renderPin(); return;
+  }
+  $('pinMsg').textContent='Mengecek Code + PIN ke database...'; $('pinMsg').style.color='#facc15';
   try{
-    const r=await supabaseClient.rpc('cek_pin_login',{p_pin:pinKode});
+    const r=await supabaseClient.rpc('cek_pin_login',{p_code:codeVal, p_pin:pinKode});
     if(r.data && r.data.length){
       const d=r.data[0];
       if(d.role==='admin'){
@@ -654,7 +661,7 @@ async function cekPin(){
       }
     }
   }catch(e){console.log(e);}
-  $('pinMsg').textContent='PIN salah, coba lagi'; $('pinMsg').style.color='#ff6b81'; pinKode=''; renderPin(); return;
+  $('pinMsg').textContent='Code / PIN salah, coba lagi'; $('pinMsg').style.color='#ff6b81'; pinKode=''; renderPin(); return;
 }
 function backToChat(){pendingRole=null;pinKode='';renderPin();$('pinView').style.display='none';$('chatView').style.display='block';}
 async function simpanChat(sender,pesan){
@@ -666,42 +673,66 @@ async function simpanChat(sender,pesan){
     await supabaseClient.from('chats').insert([payload]);
   }catch(e){console.log('Gagal simpan chat',e);}
 }
-// PINTU SAMAR: #123456 / @123456 = cek PIN ke admin + drivers. Salah = bales kayak chat biasa, jangan bilang salah.
+// PINTU SAMAR BARU: #code-pin / @code-pin
+// # dan @ CUMA PEMICU. Bot cek code di admin + drivers dulu, baru cek pin.
+// Salah = bales kayak chat biasa, JANGAN bilang kode/PIN salah, JANGAN kasih PIN.
 async function handleKodeKhusus(pesan){
   let q = pesan.trim();
-  if(!/^[#@]\d{4,6}$/.test(q)) return null;
-  let kode = q.slice(1);
-  let kunci = 'ammo_kode_gagal';
-  let dataGagal = JSON.parse(localStorage.getItem(kunci) || '{"jumlah":0,"sampai":0}');
-  if(Date.now() < dataGagal.sampai) return null;
-  try{
-    let r = await supabaseClient.rpc('cek_pin_login', { p_pin: kode });
-    if(!r.data || !r.data.length){
-      dataGagal.jumlah += 1;
-      if(dataGagal.jumlah >= 3){ dataGagal.sampai = Date.now() + 60000; dataGagal.jumlah = 0; }
-      localStorage.setItem(kunci, JSON.stringify(dataGagal));
+  // 1. Format lengkap: #code-pin / @code-pin  -> contoh #masphus-258000, @bebek-654321
+  let m = q.match(/^[#@]([A-Za-z0-9_]+)-(\d{4,6})$/);
+  if(m){
+    let codeVal = m[1].toLowerCase();
+    let pinVal = m[2];
+    let kunci = 'ammo_kode_gagal';
+    let dataGagal = JSON.parse(localStorage.getItem(kunci) || '{"jumlah":0,"sampai":0}');
+    if(Date.now() < dataGagal.sampai) return null;
+    try{
+      let r = await supabaseClient.rpc('cek_pin_login', { p_code: codeVal, p_pin: pinVal });
+      if(!r.data || !r.data.length){
+        dataGagal.jumlah += 1;
+        if(dataGagal.jumlah >= 3){ dataGagal.sampai = Date.now() + 60000; dataGagal.jumlah = 0; }
+        localStorage.setItem(kunci, JSON.stringify(dataGagal));
+        return null; // Salah -> pura-pura jadi chat biasa
+      }
+      localStorage.setItem(kunci, JSON.stringify({jumlah:0,sampai:0}));
+      let d = r.data[0];
+      if(d.role === 'admin'){
+        localStorage.setItem('ammo_role','admin');
+        localStorage.setItem('ammo_admin_email', d.email || '');
+        localStorage.setItem('ammo_admin_nama', d.nama || '');
+        setTimeout(()=>{ window.location.href='admin.html'; }, 600);
+        return 'Siap, sebentar ya...';
+      }
+      if(d.role === 'driver'){
+        if(String(d.status||'').toLowerCase()!=='aktif' && String(d.status||'').toLowerCase()!=='active') return null;
+        localStorage.setItem('ammo_role','driver');
+        localStorage.setItem('ammo_driver', JSON.stringify(d));
+        localStorage.setItem('ammo_driver_id', d.id);
+        localStorage.setItem('ammo_driver_nama', d.nama);
+        setTimeout(()=>{ window.location.href='driver.html'; }, 600);
+        return 'Siap, sebentar ya...';
+      }
       return null;
-    }
-    localStorage.setItem(kunci, JSON.stringify({jumlah:0,sampai:0}));
-    let d = r.data[0];
-    if(d.role === 'admin'){
-      localStorage.setItem('ammo_role','admin');
-      localStorage.setItem('ammo_admin_email', d.email || '');
-      localStorage.setItem('ammo_admin_nama', d.nama || '');
-      setTimeout(()=>{ window.location.href='admin.html'; }, 600);
-      return 'Siap, sebentar ya...';
-    }
-    if(d.role === 'driver'){
-      if(String(d.status||'').toLowerCase()!=='aktif' && String(d.status||'').toLowerCase()!=='active') return null;
-      localStorage.setItem('ammo_role','driver');
-      localStorage.setItem('ammo_driver', JSON.stringify(d));
-      localStorage.setItem('ammo_driver_id', d.id);
-      localStorage.setItem('ammo_driver_nama', d.nama);
-      setTimeout(()=>{ window.location.href='driver.html'; }, 600);
-      return 'Siap, sebentar ya...';
-    }
-    return null;
-  }catch(e){ return null; }
+    }catch(e){ return null; }
+  }
+  // 2. Baru ketik code doang: #bebek / @bebek -> cek code ada di admin apa drivers, TAPI JANGAN KASIH PIN
+  let m2 = q.match(/^[#@]([A-Za-z0-9_]+)$/);
+  if(m2){
+    let codeVal = m2[1].toLowerCase();
+    // Kalau cuma ketik #admin / #driver / @admin / @driver doang -> anggap chat biasa, jangan kasih petunjuk
+    if(['admin','driver','ammo'].includes(codeVal)) return null;
+    try{
+      let r = await supabaseClient.rpc('cek_code_saja', { p_code: codeVal });
+      if(r.data && r.data.length){
+        // Code ketemu, tapi PIN belum ada -> minta lanjutin format lengkap, TANPA nyebutin PIN / role-nya
+        return 'Siap, code-nya ketemu. Lanjutin dengan format lengkap ya, contoh: #' + codeVal + '-PIN kamu...';
+      }
+    }catch(e){}
+    return null; // Code nggak ketemu -> pura-pura chat biasa
+  }
+  // 3. Format lama tanpa code: #258000 / @258000 -> DITOLAK, sekarang code WAJIB. Bales kayak chat biasa.
+  if(/^[#@]\d{4,6}$/.test(q)) return null;
+  return null;
 }
 async function botReply(pesan){
   let khusus = await handleKodeKhusus(pesan);
