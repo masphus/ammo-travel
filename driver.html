@@ -10,10 +10,13 @@
 html{background:#000}
 body{background:#000;color:#fff;max-width:480px;margin:auto;min-height:100vh;position:relative;overflow-x:hidden;padding-bottom:88px}
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at top right, rgba(212,175,55,.18), transparent 50%), radial-gradient(circle at bottom left, rgba(212,175,55,.12), transparent 50%);pointer-events:none}
-.top{padding:22px 20px 10px;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1}
-.top h1{font-size:28px;color:#E8C86A;font-weight:800;line-height:1.1}
+.top{padding:22px 20px 10px;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1;gap:10px}
+.top h1{font-size:28px;color:#E8C86A;font-weight:800;line-height:1.1;flex:1}
+.top-aksi{display:flex;gap:8px;align-items:center}
 .avatar{width:62px;height:62px;border-radius:50%;border:2px solid #D4AF37;overflow:hidden;background:#222;flex-shrink:0;cursor:pointer}
 .avatar img{width:100%;height:100%;object-fit:cover}
+.btn-keluar-depan{width:44px;height:44px;border-radius:50%;background:#2a0d0d;border:1.5px solid #ff6b81;color:#ff6b81;font-size:19px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.btn-keluar-depan:active{transform:scale(.92);background:#ff6b81;color:#fff}
 .garis{height:1px;background:linear-gradient(90deg,transparent,#D4AF37,transparent);margin:10px 20px 14px;position:relative;z-index:1}
 .card-saldo{margin:0 20px;background:linear-gradient(180deg,#14100a,#0a0a0a);border:1px solid #D4AF37;border-radius:16px;padding:16px;position:relative;overflow:hidden;z-index:1}
 .card-saldo::before,.card-saldo::after{content:'';position:absolute;width:42px;height:42px;border:1px solid #D4AF37;pointer-events:none}
@@ -31,6 +34,10 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle
 .dot.off{background:#ff4444}
 .online-wrap small{color:#4CAF50;font-size:13px;display:block;margin-top:7px}
 .online-wrap small.off{color:#888}
+.aksi-bawah{display:flex;gap:10px;margin:14px 20px 0}
+.aksi-bawah button{flex:1;padding:12px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;border:none}
+.btn-keluar-bawah{background:#1a0d0d;color:#ff6b81;border:1px solid #ff6b81!important}
+.btn-setting-bawah{background:#111;color:#E8C86A;border:1px solid #D4AF37!important}
 h3{padding:20px 20px 12px;color:#E8C86A;font-size:19px;position:relative;z-index:1}
 .card-order{margin:0 20px;background:#0d0d0d;border:1px solid #D4AF37;border-radius:14px;padding:16px;position:relative;z-index:1}
 .card-order::before,.card-order::after{content:'';position:absolute;width:20px;height:20px;border:1px solid #D4AF37;pointer-events:none}
@@ -103,7 +110,10 @@ h3{padding:20px 20px 12px;color:#E8C86A;font-size:19px;position:relative;z-index
 
 <div class="top">
   <h1>Halo, <span id="namaDriver">Driver</span></h1>
-  <div class="avatar" onclick="bukaProfil()"><img id="fotoDriver" src="https://i.pravatar.cc/100?img=12" alt="Driver"></div>
+  <div class="top-aksi">
+    <div class="avatar" onclick="bukaProfil()"><img id="fotoDriver" src="https://i.pravatar.cc/100?img=12" alt="Driver"></div>
+    <button class="btn-keluar-depan" onclick="logout()" title="Keluar">🚪</button>
+  </div>
 </div>
 <div class="garis"></div>
 
@@ -116,6 +126,11 @@ h3{padding:20px 20px 12px;color:#E8C86A;font-size:19px;position:relative;z-index
     <button class="btn-online" id="btnOnline" onclick="toggleOnline()"><span class="dot" id="dotOnline"></span><span id="txtOnline">ONLINE</span></button>
     <small id="txtStatus">● Aktif menerima order ●</small>
   </div>
+</div>
+
+<div class="aksi-bawah">
+  <button class="btn-setting-bawah" onclick="bukaProfil()">⚙️ Edit Profil</button>
+  <button class="btn-keluar-bawah" onclick="logout()">🚪 Keluar</button>
 </div>
 
 <h3>🔔 Order Baru Masuk</h3>
@@ -147,7 +162,6 @@ h3{padding:20px 20px 12px;color:#E8C86A;font-size:19px;position:relative;z-index
   <div class="field"><label>Plat Nomor</label><input id="editPlat" placeholder="F 1234 AB" style="text-transform:uppercase"></div>
   <div class="info-kendaraan" id="infoKendaraan">🚗 <b>Kendaraan:</b> -<br>🔖 <b>Plat:</b> -<br>📱 <b>WA:</b> -</div>
   <div class="popup-btns"><button class="btn-gelap" onclick="tutupProfil()">Batal</button><button class="btn-emas" onclick="simpanProfil()">💾 Simpan Profil</button></div>
-  <div class="popup-btns" style="margin-top:10px"><button class="btn-gelap" onclick="logout()" style="color:#ff6b81">🚪 Keluar / Logout</button></div>
 </div></div>
 
 <script>
@@ -156,10 +170,12 @@ const SUPABASE_KEY = 'sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let driver = null, orderAktif = null, sudahMasuk = false, fotoBaru = '', cacheRiwayat = [], kolomHilang = [];
 function rupiah(n){ return 'Rp ' + (Number(n)||0).toLocaleString('id-ID'); }
-function keIndex(){ try{ localStorage.removeItem('ammo_driver_token'); localStorage.removeItem('ammo_driver'); localStorage.removeItem('ammo_driver_id'); localStorage.removeItem('ammo_driver_nama'); }catch(e){} window.location.replace('index.html'); }
+function keIndex(){ try{ localStorage.removeItem('ammo_driver_token'); localStorage.removeItem('ammo_driver'); localStorage.removeItem('ammo_driver_id'); localStorage.removeItem('ammo_driver_nama'); localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); localStorage.removeItem('ammo_role'); }catch(e){} window.location.replace('index.html'); }
 function gagal(msg){ if(sudahMasuk) return; var t=document.getElementById('loadingTxt'); if(t) t.textContent=msg||'Karcis tidak valid.'; var b=document.getElementById('btnBalik'); if(b) b.style.display='block'; }
 function esc(s){ return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function fmtTanggal(v){ if(!v) return '-'; try{ return new Date(v).toLocaleString('id-ID',{timeZone:'Asia/Jakarta',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }catch(e){ return String(v); } }
+function ambilFotoTersimpan(){ try{ return localStorage.getItem('ammo_driver_foto') || ''; }catch(e){ return ''; } }
+function simpanFotoLokal(foto){ if(!foto) return; try{ localStorage.setItem('ammo_driver_foto', foto); }catch(e){ try{ localStorage.removeItem('ammo_driver_foto'); localStorage.setItem('ammo_driver_foto', foto); }catch(e2){} } }
 function tutupPopup(){ document.getElementById('popupOverlay').classList.remove('show'); }
 function showPopup(judul, pesan, opts){
   return new Promise(function(resolve){
@@ -206,7 +222,10 @@ async function cekAkses(){
   if(!hasil){ gagal('Code / PIN driver tidak ketemu di database.'); return; }
   var st=String(hasil.status||'').toLowerCase().trim(); if(st!=='aktif'&&st!=='active'){ gagal('Akun driver belum aktif. Minta admin aktifin dulu ya.'); return; }
   driver=hasil; sudahMasuk=true;
-  // Deteksi kolom yang belum ada: kalau nilainya undefined padahal harusnya ada, tandain
+  var fotoLokal = ambilFotoTersimpan();
+  var fotoDb = driver.foto || driver.foto_url || driver.avatar || '';
+  if(!fotoDb && fotoLokal){ driver.foto = fotoLokal; driver.foto_url = fotoLokal; driver.avatar = fotoLokal; }
+  else if(fotoDb){ simpanFotoLokal(fotoDb); }
   kolomHilang=[];
   if(!('no_wa' in driver) && !('no_hp' in driver)) kolomHilang.push('no_wa');
   if(!('jenis_mobil' in driver)) kolomHilang.push('jenis_mobil');
@@ -220,7 +239,7 @@ async function cekAkses(){
 function tampilDriver(){
   document.getElementById('namaDriver').textContent=driver.nama||'Driver';
   document.getElementById('saldo').textContent=rupiah(driver.saldo||driver.saldo_emas||driver.saldoEmas||0);
-  var foto=driver.foto||driver.foto_url||driver.avatar||'https://i.pravatar.cc/100?img=12';
+  var foto=driver.foto||driver.foto_url||driver.avatar||ambilFotoTersimpan()||'https://i.pravatar.cc/100?img=12';
   document.getElementById('fotoDriver').src=foto;
   var fp=document.getElementById('fotoPreview'); if(fp) fp.src=foto;
   updateTombolOnline();
@@ -286,15 +305,12 @@ function bukaProfil(){
   document.getElementById('editWa').value=driver.no_wa||driver.no_hp||driver.telp||driver.hp||'';
   document.getElementById('editJenis').value=driver.jenis_mobil||driver.jenis_kendaraan||driver.mobil||'';
   document.getElementById('editPlat').value=driver.plat_mobil||driver.plat||driver.plat_nomor||'';
-  var foto=driver.foto||driver.foto_url||driver.avatar||'https://i.pravatar.cc/100?img=12';
+  var foto=driver.foto||driver.foto_url||driver.avatar||ambilFotoTersimpan()||'https://i.pravatar.cc/100?img=12';
   document.getElementById('fotoPreview').src=foto;
   document.getElementById('fotoInfo').textContent='Foto otomatis dikompres biar enteng (max 800px, JPG 70%)';
   document.getElementById('infoKendaraan').innerHTML='🚗 <b>Kendaraan:</b> ' + esc(driver.jenis_mobil||driver.jenis_kendaraan||'-') + '<br>🔖 <b>Plat:</b> ' + esc(driver.plat_mobil||driver.plat||'-') + '<br>📱 <b>WA:</b> ' + esc(driver.no_wa||driver.no_hp||driver.telp||'-');
   var warn=document.getElementById('warnDb');
-  if(kolomHilang.length){
-    warn.style.display='block';
-    warn.innerHTML='⚠️ Kolom ini belum ada di database, jadi belum bisa kesimpan permanen: <b>'+kolomHilang.join(', ')+'</b><br>Jalanin SQL di bawah di Supabase, terus refresh halaman ini.';
-  } else { warn.style.display='none'; }
+  if(kolomHilang.length){ warn.style.display='block'; warn.innerHTML='⚠️ Kolom ini belum ada di database, jadi belum bisa kesimpan permanen: <b>'+kolomHilang.join(', ')+'</b><br>Jalanin SQL di bawah di Supabase, terus refresh halaman ini.'; } else { warn.style.display='none'; }
   document.getElementById('profilModal').classList.add('show');
 }
 function tutupProfil(){ document.getElementById('profilModal').classList.remove('show'); }
@@ -309,11 +325,10 @@ function kompresFoto(file){
 async function previewFoto(e){
   var f=e.target.files && e.target.files[0]; if(!f) return;
   document.getElementById('fotoInfo').textContent='⏳ Lagi ngompres foto...';
-  if(f.size < 300*1024){ var rd=new FileReader(); rd.onload=function(){ fotoBaru=rd.result; document.getElementById('fotoPreview').src=fotoBaru; document.getElementById('fotoDriver').src=fotoBaru; document.getElementById('fotoInfo').textContent='Foto kecil, pake mentahan: ' + (f.size/1024).toFixed(0) + ' KB'; }; rd.readAsDataURL(f); return; }
+  if(f.size < 300*1024){ var rd=new FileReader(); rd.onload=function(){ fotoBaru=rd.result; document.getElementById('fotoPreview').src=fotoBaru; document.getElementById('fotoDriver').src=fotoBaru; simpanFotoLokal(fotoBaru); document.getElementById('fotoInfo').textContent='Foto kecil, pake mentahan: ' + (f.size/1024).toFixed(0) + ' KB'; }; rd.readAsDataURL(f); return; }
   var hasil=await kompresFoto(f);
-  if(hasil){ fotoBaru=hasil; document.getElementById('fotoPreview').src=fotoBaru; document.getElementById('fotoDriver').src=fotoBaru; var ukBaru=Math.round(hasil.length*3/4/1024); document.getElementById('fotoInfo').textContent='✅ Dikompres: ' + (f.size/1024/1024).toFixed(1) + ' MB → ' + ukBaru + ' KB (800px, JPG 70%)'; }
+  if(hasil){ fotoBaru=hasil; document.getElementById('fotoPreview').src=fotoBaru; document.getElementById('fotoDriver').src=fotoBaru; simpanFotoLokal(hasil); var ukBaru=Math.round(hasil.length*3/4/1024); document.getElementById('fotoInfo').textContent='✅ Dikompres: ' + (f.size/1024/1024).toFixed(1) + ' MB → ' + ukBaru + ' KB (800px, JPG 70%)'; }
 }
-/* FIX KOLOM HILANG: coba simpan, kalau ada kolom yang gak ada, buang kolom itu & coba lagi, sampai berhasil */
 async function simpanProfil(){
   if(!driver) return;
   var nama=document.getElementById('editNama').value.trim();
@@ -326,40 +341,47 @@ async function simpanProfil(){
   if(!code){ await popupAlert('Isi Code login dulu ya.'); return; }
   if(!pin || pin.length<4){ await popupAlert('PIN minimal 4 angka ya.'); return; }
   var upd={nama:nama,code:code,pin:pin,no_wa:wa,no_hp:wa,telp:wa,jenis_mobil:jenis,jenis_kendaraan:jenis,plat_mobil:plat,plat:plat};
-  if(fotoBaru){ upd.foto=fotoBaru; upd.foto_url=fotoBaru; upd.avatar=fotoBaru; }
+  if(fotoBaru){ upd.foto=fotoBaru; upd.foto_url=fotoBaru; upd.avatar=fotoBaru; simpanFotoLokal(fotoBaru); }
+  else { var fotoLama = driver.foto||driver.foto_url||driver.avatar||ambilFotoTersimpan(); if(fotoLama){ upd.foto=fotoLama; upd.foto_url=fotoLama; upd.avatar=fotoLama; } }
   var gagalKolom=[];
-  // Coba sampai 6x, tiap gagal karena kolom gak ada, buang kolom itu
   for(var i=0;i<6;i++){
     var r=await sb.from('drivers').update(upd).eq('id',driver.id);
     if(!r || !r.error) break;
     var msg=String(r.error.message||'');
     var m=msg.match(/column "?drivers"?\.?"?([a-z_0-9]+)"? does not exist/i) || msg.match(/column "([a-z_0-9]+)" does not exist/i) || msg.match(/Could not find the '([a-z_0-9]+)' column/i);
-    if(m && m[1]){
-      var col=m[1]; gagalKolom.push(col); delete upd[col];
-      // Kalau foto yang gagal, coba hapus semua varian foto
-      if(col==='foto'||col==='foto_url'||col==='avatar'){ delete upd.foto; delete upd.foto_url; delete upd.avatar; }
-      continue;
-    }
+    if(m && m[1]){ var col=m[1]; gagalKolom.push(col); delete upd[col]; if(col==='foto'||col==='foto_url'||col==='avatar'){ delete upd.foto; delete upd.foto_url; delete upd.avatar; } continue; }
     await popupAlert('Gagal simpan: ' + msg); return;
   }
   driver=Object.assign({}, driver, upd);
+  if(fotoBaru) simpanFotoLokal(fotoBaru); else if(driver.foto) simpanFotoLokal(driver.foto);
   try{ var k=bacaKarcis(); var exp=k?k.exp:(Date.now()+2*60*60*1000); localStorage.setItem('ammo_driver',JSON.stringify(driver)); localStorage.setItem('ammo_driver_nama',nama); localStorage.setItem('ammo_driver_token', code + '|' + pin + '|' + exp); localStorage.setItem('ammo_admin_token', code + '|' + pin + '|' + exp); }catch(e){}
   tutupProfil(); tampilDriver();
-  if(gagalKolom.length){
-    await popupAlert('Profil berhasil disimpan, TAPI kolom ini belum ada di database jadi belum kesimpan:\n' + gagalKolom.join(', ') + '\n\nJalanin SQL di Supabase biar lengkap, terus simpan ulang.', 'Tersimpan Sebagian');
-  } else {
-    await popupAlert('Profil berhasil disimpan! ✅\nCode baru: ' + code + '\nPIN baru: ' + pin, 'Berhasil');
-  }
+  if(gagalKolom.length){ await popupAlert('Profil berhasil disimpan, TAPI kolom ini belum ada di database jadi belum kesimpan permanen:\n' + gagalKolom.join(', ') + '\n\nFoto tetep kesimpan di HP lu, tapi biar permanen di semua HP, jalanin SQL foto di Supabase, terus simpan ulang.', 'Tersimpan Sebagian'); }
+  else { await popupAlert('Profil berhasil disimpan! ✅\nCode baru: ' + code + '\nPIN baru: ' + pin, 'Berhasil'); }
 }
 async function topup(){
   var val=await showPopup('Top Up Saldo', 'Mau Top Up berapa? Contoh: 50000', {input:true, inputType:'number', placeholder:'50000', okText:'Top Up'});
   if(!val) return;
   await popupAlert('Top Up Rp ' + Number(val).toLocaleString('id-ID') + ' - Hubungi admin untuk konfirmasi ya bro!', 'Top Up');
 }
+/* ===== LOGOUT DI DEPAN - FIX GAK BISA KELUAR ===== */
 async function logout(){
-  var ok=await popupConfirm('Yakin mau keluar?', 'Keluar');
+  // Tutup dulu modal profil kalau kebuka, biar pop up konfirmasi gak ketutupan
+  tutupProfil(); tutupPopup();
+  var ok=await popupConfirm('Yakin mau keluar?\nNanti login lagi pake Code + PIN ya.', 'Keluar');
   if(!ok) return;
-  try{ localStorage.removeItem('ammo_driver_token'); localStorage.removeItem('ammo_driver'); localStorage.removeItem('ammo_role'); localStorage.removeItem('ammo_driver_id'); localStorage.removeItem('ammo_driver_nama'); }catch(e){}
+  // Hapus SEMUA karcis, jangan sisain 1 pun, biar beneran keluar
+  try{
+    localStorage.removeItem('ammo_driver_token');
+    localStorage.removeItem('ammo_admin_token');
+    sessionStorage.removeItem('ammo_admin_token');
+    localStorage.removeItem('ammo_driver');
+    localStorage.removeItem('ammo_driver_id');
+    localStorage.removeItem('ammo_driver_nama');
+    localStorage.removeItem('ammo_role');
+    // Foto sengaja TIDAK dihapus, biar pas login lagi foto tetep ada
+  }catch(e){}
+  // Paksa pindah ke beranda, gak pake back
   window.location.replace('index.html');
 }
 document.getElementById('profilModal').addEventListener('click', function(e){ if(e.target.id==='profilModal') tutupProfil(); });
