@@ -145,11 +145,11 @@ textarea{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#11
     </div>
     <div class="box"><div class="box-head"><h3>Antrian Belum Terjawab - Perlu Dijawab! <small style="font-size:12px;color:#aaa;font-weight:400">👆 Klik untuk jawab</small></h3></div><div id="dashAntrian">Memuat...</div></div>
     <div class="box" style="margin-top:15px"><div class="box-head"><h3>Daftar Driver Menunggu Verifikasi</h3></div>
-      <table><thead><tr><th>Nama</th><th>Mobil / Plat</th><th>Kode / PIN</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="driverTable"><tr><td colspan="5">Memuat...</td></tr></tbody></table>
+      <table><thead><tr><th>Nama</th><th>Mobil / Plat</th><th>Code / PIN</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="driverTable"><tr><td colspan="5">Memuat...</td></tr></tbody></table>
     </div>
   </div>
   <div id="page-penumpang" class="page"><div class="box"><h3>👤 Data Penumpang - REAL dari tabel penumpang</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Total order dihitung dari tabel <b>bookings</b> pake <b>penumpang_id</b>.</p><table><thead><tr><th>Nama</th><th>No WA</th><th>Total Booking</th><th>Status</th></tr></thead><tbody id="penumpangTable"></tbody></table></div></div>
-  <div id="page-driver" class="page"><div class="box"><h3>🧑‍✈️ Semua Driver - REAL dari tabel drivers</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Code + PIN driver langsung nyambung ke database. Isi sendiri boleh, kalau kosong nanti dibikinin otomatis.</p><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="inNamaDrv" placeholder="Nama Driver"><input id="inWaDrv" placeholder="No WA"><input id="inPlatDrv" placeholder="Plat - contoh: F 1234 AB"><input id="inJenisDrv" placeholder="Jenis Mobil - Avanza"><input id="inKodeDrv" placeholder="Code driver - contoh: budi (boleh kosong)"><input id="inPinDrv" placeholder="PIN driver 4-6 angka (boleh kosong)" inputmode="numeric"><button class="btn btn-terima" onclick="tambahDriver()">+ Tambah Driver</button></div><table><thead><tr><th>Nama</th><th>Mobil / Plat</th><th>Kode / PIN</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="driverTable2"></tbody></table></div></div>
+  <div id="page-driver" class="page"><div class="box"><h3>🧑‍✈️ Semua Driver - REAL dari tabel drivers</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Code + PIN driver langsung nyambung ke database. Isi sendiri boleh, kalau kosong nanti dibikinin otomatis.</p><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="inNamaDrv" placeholder="Nama Driver"><input id="inWaDrv" placeholder="No WA"><input id="inPlatDrv" placeholder="Plat - contoh: F 1234 AB"><input id="inJenisDrv" placeholder="Jenis Mobil - Avanza"><input id="inCodeDrv" placeholder="Code driver - contoh: budi (boleh kosong)"><input id="inPinDrv" placeholder="PIN driver 4-6 angka (boleh kosong)" inputmode="numeric"><button class="btn btn-terima" onclick="tambahDriver()">+ Tambah Driver</button></div><table><thead><tr><th>Nama</th><th>Mobil / Plat</th><th>Code / PIN</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="driverTable2"></tbody></table></div></div>
   <div id="page-order" class="page"><div class="box"><h3>📋 Riwayat Order - REAL dari tabel bookings</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Ini cuma buat liat riwayat order penumpang. Order masuk otomatis dari penumpang, bukan dibikin dari sini. Jadi nggak bakal dobel gara-gara ke-pencet.</p><div id="allOrderList">Memuat...</div></div></div>
   <div id="page-penghasilan" class="page"><div class="box"><h3>💰 Penghasilan - REAL dari tabel payments</h3><p style="margin:12px 0;font-size:20px">Hari ini: <b id="penghasilanHariIni">Rp 0</b></p><p style="color:#ccc;font-size:13px">Dihitung dari <b>payments.nominal</b> yang statusnya lunas / paid / sukses hari ini. Fee admin <b>7%</b> dari tabel tarif, bukan dari frontend.</p><div id="penghasilanList" style="margin-top:12px"></div><div style="margin-top:16px"><h3>💰 Tarif Aktif - REAL dari tabel tarif</h3><div id="tarifList"></div></div></div></div>
   <div id="page-antrian" class="page"><div class="box"><h3>🔥 Antrian - Pertanyaan yang Bot Gak Tau</h3><p style="color:#ccc;font-size:13px;margin:8px 0">1 pertanyaan = 1 antrian. Kalau ada yang nanya sama, digabung jadi 1, nggak dibikin baru terus. <button class="btn btn-tolak" onclick="bersihinAntrianDobel()" style="margin-left:6px">🧹 Bersihin Antrian Dobel</button></p><div id="antrianList">Memuat...</div></div></div>
@@ -166,7 +166,7 @@ textarea{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#11
   </div>
   <div id="page-bot" class="page"><div class="box"><h3>🤖 Data Bot - REAL dari tabel bot</h3><p style="color:#ccc;font-size:13px">Kalau ada jawaban bot yang salah, pencet <b>Edit</b> buat benerin hurufnya, nggak usah hapus + ketik ulang.</p><div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><input id="newKunci" placeholder="Kunci / Pertanyaan"><input id="newJawaban" placeholder="Jawaban Bot"><button class="btn btn-terima" onclick="tambahBot()">+ Tambah / Simpan</button></div><table><thead><tr><th>Kunci</th><th>Jawaban</th><th>Aksi</th></tr></thead><tbody id="botTable"></tbody></table></div></div>
   <div id="page-blacklist" class="page"><div class="box"><h3>🚫 Blacklist - Otomatis</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Ini keisi otomatis kalau ada yang nyoba masuk admin tanpa kunci / Google-nya beda / karcisnya palsu. Nggak usah dimasukin manual. Kalau salah masuk, tinggal pencet Hapus.</p><table><thead><tr><th>No WA / Email</th><th>Alasan</th><th>Jumlah Cancel</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="blacklistTable"></tbody></table></div></div>
-  <div id="page-pengaturan" class="page"><div class="box"><h3>⚙️ Pengaturan</h3><p style="color:#ccc;margin:10px 0">Nama Admin</p><input id="namaAdmin"><p style="color:#ccc;margin:10px 0">Code Admin (kunci masuk, contoh: admin) - nyambung ke database</p><input id="settingKode" placeholder="Code admin"><p style="color:#ccc;margin:10px 0">PIN Admin (4-6 angka) - nyambung ke database</p><input id="settingPin" placeholder="PIN admin" inputmode="numeric"><p style="color:#ccc;margin:10px 0">Email Google Admin (yang boleh masuk, harus sama kayak Google lu)</p><input id="settingEmail" placeholder="Email Google admin"><p style="color:#888;font-size:12px;margin:6px 0">Ganti Code / PIN / Email di sini, langsung keubah di database. Inget-inget yang baru ya, kalau lupa lu nggak bisa masuk lagi.</p><p style="color:#ccc;margin:10px 0">Tarif Aktif (dari tabel tarif)</p><div id="tarifSetting"></div><br><button class="btn btn-terima" onclick="simpanPengaturan()">💾 Simpan Pengaturan</button><p style="color:#888;font-size:12px;margin-top:14px">Supabase: https://xxtgmohxdztesiubfxap.supabase.co • Status: <span id="statusSupabase" style="color:#25D366">Menghubungkan...</span> • Fee: 7%</p></div></div>
+  <div id="page-pengaturan" class="page"><div class="box"><h3>⚙️ Pengaturan</h3><p style="color:#ccc;margin:10px 0">Nama Admin</p><input id="namaAdmin"><p style="color:#ccc;margin:10px 0">Code Admin (kunci masuk, contoh: admin) - nyambung ke database</p><input id="settingCode" placeholder="Code admin"><p style="color:#ccc;margin:10px 0">PIN Admin (4-6 angka) - nyambung ke database</p><input id="settingPin" placeholder="PIN admin" inputmode="numeric"><p style="color:#ccc;margin:10px 0">Email Google Admin (yang boleh masuk, harus sama kayak Google lu)</p><input id="settingEmail" placeholder="Email Google admin"><p style="color:#888;font-size:12px;margin:6px 0">Ganti Code / PIN / Email di sini, langsung keubah di database. Inget-inget yang baru ya, kalau lupa lu nggak bisa masuk lagi.</p><p style="color:#ccc;margin:10px 0">Tarif Aktif (dari tabel tarif)</p><div id="tarifSetting"></div><br><button class="btn btn-terima" onclick="simpanPengaturan()">💾 Simpan Pengaturan</button><p style="color:#888;font-size:12px;margin-top:14px">Supabase: https://xxtgmohxdztesiubfxap.supabase.co • Status: <span id="statusSupabase" style="color:#25D366">Menghubungkan...</span> • Fee: 7%</p></div></div>
 </div>
 <div id="googleGate" class="google-gate"><div class="google-card"><div style="font-size:44px">🔐</div><h2>Verifikasi Google Dulu, Bro</h2><p id="googleGateMsg">Code + PIN lu bener, udah dianter sampe depan pintu. Sekarang tunjukin KTP Google lu. Harus sama kayak email admin yang ada di database, kalau beda lu ditendang + dicatet.</p><p id="googleGateInfo" style="color:#f5d67b;font-weight:700"></p><button class="gbtn" onclick="loginGoogleAdmin()"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G"> Lanjut dengan Google</button><button class="gback" onclick="batalGoogle()">← Batal, Balik ke Depan</button><p style="color:#888;font-size:12px;margin-top:12px">Salah 3x pake Google orang lain = email Google itu dikunci, nggak bakal nemu lagi halaman admin.</p></div></div>
 <div class="popup-bg" id="popupBg" onclick="if(event.target===this) tutupPopup()">
@@ -235,7 +235,7 @@ async function doLogout(){
 }
 function batalGoogle(){ try{ localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); }catch(e){} try{ sb.auth.signOut(); }catch(e){} window.location.replace(INDEX_URL); }
 async function ambilIP(){ try{ const r=await fetch('https://api.ipify.org?format=json'); const j=await r.json(); return j.ip||'IP-tidak-kedetek'; }catch(e){ return 'IP-tidak-kedetek'; } }
-async function catetMaling(kodeInfo, ip, jenis){ try{ await sb.from('blacklist').insert([{ no_wa: ip, alasan: '🚨 '+jenis+' - '+kodeInfo+' | IP: '+ip, jumlah_cancel: 1, status: 'blacklist' }]); }catch(e){ console.log('Gagal catet maling:', e.message); } }
+async function catetMaling(codeInfo, ip, jenis){ try{ await sb.from('blacklist').insert([{ no_wa: ip, alasan: '🚨 '+jenis+' - '+codeInfo+' | IP: '+ip, jumlah_cancel: 1, status: 'blacklist' }]); }catch(e){ console.log('Gagal catet maling:', e.message); } }
 async function catetGoogleSalah(emailGoogle, emailBenar, codeVal){
   try{
     const key='ammo_google_salah_'+String(codeVal||'admin').toLowerCase();
@@ -261,7 +261,7 @@ async function verifikasiGoogle(adm){
     document.getElementById('adminNameLabel').textContent = (adm.nama || 'Admin') + ' - Super Admin';
     document.getElementById('adminTopLabel').textContent = (adm.nama || 'Admin') + ' ▽';
     document.getElementById('namaAdmin').value = adm.nama || '';
-    try{ var _sk=document.getElementById('settingKode'); if(_sk) _sk.value = adm.code||adm.kode||''; }catch(e){}
+    try{ var _sk=document.getElementById('settingCode'); if(_sk) _sk.value = adm.code||''; }catch(e){}
     try{ var _sp=document.getElementById('settingPin'); if(_sp) _sp.value = String(adm.pin||''); }catch(e){}
     try{ var _se=document.getElementById('settingEmail'); if(_se) _se.value = adm.email||''; }catch(e){}
     tampilkanHalaman(ambilHalaman());
@@ -282,7 +282,7 @@ async function verifikasiGoogle(adm){
     try{ await sb.auth.signOut(); }catch(e){}
     lemparKeIndex(); return;
   }
-  if(emailGoogle !== emailBenar){ await tendangGoogleSalah(emailGoogle, emailBenar, adm.code||adm.kode||'admin'); return; }
+  if(emailGoogle !== emailBenar){ await tendangGoogleSalah(emailGoogle, emailBenar, adm.code||'admin'); return; }
   try{ localStorage.setItem('ammo_admin_google_ok', emailGoogle); }catch(e){}
   try{ localStorage.removeItem('ammo_admin_logout_time'); sessionStorage.removeItem('ammo_admin_logout_time'); }catch(e){}
   document.getElementById('googleGate').classList.remove('show');
@@ -290,7 +290,7 @@ async function verifikasiGoogle(adm){
   document.getElementById('adminTopLabel').textContent = (adm.nama || 'Admin') + ' ▽';
   try{ document.getElementById('adminGoogleLabel').textContent = 'Google: '+emailGoogle+' ✅'; }catch(e){}
   document.getElementById('namaAdmin').value = adm.nama || '';
-  try{ var _sk2=document.getElementById('settingKode'); if(_sk2) _sk2.value = adm.code||adm.kode||''; }catch(e){}
+  try{ var _sk2=document.getElementById('settingCode'); if(_sk2) _sk2.value = adm.code||''; }catch(e){}
   try{ var _sp2=document.getElementById('settingPin'); if(_sp2) _sp2.value = String(adm.pin||''); }catch(e){}
   try{ var _se2=document.getElementById('settingEmail'); if(_se2) _se2.value = adm.email||''; }catch(e){}
   googleSudahDicek=true;
@@ -324,7 +324,6 @@ async function cekSesi(){
   let adm = null;
   try{ const r = await sb.rpc('cek_pin_login', { p_code: codeVal, p_pin: pinVal }); if(r && !r.error && r.data && r.data.length) adm = r.data[0]; }catch(e){}
   if(!adm){ try{ const a = await sb.from('admin').select('*').ilike('code', codeVal).eq('pin', pinVal).maybeSingle(); if(a && a.data) adm = a.data; }catch(e){} }
-  if(!adm){ try{ const a2 = await sb.from('admin').select('*').ilike('kode', codeVal).eq('pin', pinVal).maybeSingle(); if(a2 && a2.data) adm = a2.data; }catch(e){} }
   if(!adm){ try{ const a3 = await sb.from('admin').select('*').ilike('code', codeVal).maybeSingle(); if(a3 && a3.data && String(a3.data.pin)===String(pinVal)) adm = a3.data; }catch(e){} }
   if(!adm){ try{ const a4 = await sb.from('admin').select('*').eq('pin', pinVal).maybeSingle(); if(a4 && a4.data) adm = a4.data; }catch(e){} }
   if(!adm || String(adm.role||'admin').toLowerCase() !== 'admin'){
@@ -365,7 +364,7 @@ async function loadAll(){
   if(!currentAdmin) return;
   simpanDraftSebelumRefresh();
   try{
-    const [pen, drv, book, pay, tarif, ant, black] = await Promise.all([ sb.from('penumpang').select('*').order('created_at',{ascending:false}).limit(50), sb.from('drivers').select('id,nama,no_wa,jenis_mobil,plat_mobil,status,lat,lng,created_at,kode,code,pin').order('created_at',{ascending:false}).limit(50), sb.from('bookings').select('*').order('created_at',{ascending:false}).limit(50), sb.from('payments').select('*').order('created_at',{ascending:false}).limit(50), sb.from('tarif').select('*').order('id',{ascending:true}).limit(50), sb.from('antrian').select('*').order('id',{ascending:false}).limit(50), sb.from('blacklist').select('*').order('created_at',{ascending:false}).limit(50) ]);
+    const [pen, drv, book, pay, tarif, ant, black] = await Promise.all([ sb.from('penumpang').select('*').order('created_at',{ascending:false}).limit(50), sb.from('drivers').select('id,nama,no_wa,jenis_mobil,plat_mobil,status,lat,lng,created_at,code,pin').order('created_at',{ascending:false}).limit(50), sb.from('bookings').select('*').order('created_at',{ascending:false}).limit(50), sb.from('payments').select('*').order('created_at',{ascending:false}).limit(50), sb.from('tarif').select('*').order('id',{ascending:true}).limit(50), sb.from('antrian').select('*').order('id',{ascending:false}).limit(50), sb.from('blacklist').select('*').order('created_at',{ascending:false}).limit(50) ]);
     if(pen.error) throw pen.error; if(drv.error) throw drv.error; if(book.error) throw book.error; if(pay.error) throw pay.error;
     cachePenumpang = pen.data||[]; cacheDrivers = drv.data||[]; cacheBookings = book.data||[];
     cachePayments = pay.data||[]; cacheTarif = tarif.data||[]; cacheAntrian = gabungAntrianDobel(ant.data||[]);
@@ -401,10 +400,10 @@ async function loadAll(){
     const menunggu = cacheDrivers.filter(d=>['menunggu','pending','baru','waiting'].includes(String(d.status||'').toLowerCase()));
     const dt = document.getElementById('driverTable');
     if(!menunggu.length) dt.innerHTML='<tr><td colspan="5">Tidak ada driver menunggu ✅</td></tr>';
-    else dt.innerHTML = menunggu.map(d=>`<tr><td>${esc(d.nama||'-')}</td><td>${esc(d.jenis_mobil||'-')} • ${esc(d.plat_mobil||'-')}</td><td><b>${esc(d.kode||d.code||'-')}</b><br><small style="color:#aaa">PIN: ${esc(d.pin||'-')}</small></td><td><span class="badge">Menunggu</span></td><td><button class="btn btn-terima" onclick="verifikasiDriver(${Number(d.id)},'aktif')">Terima</button> <button class="btn btn-tolak" onclick="verifikasiDriver(${Number(d.id)},'ditolak')">Tolak</button></td></tr>`).join('');
+    else dt.innerHTML = menunggu.map(d=>`<tr><td>${esc(d.nama||'-')}</td><td>${esc(d.jenis_mobil||'-')} • ${esc(d.plat_mobil||'-')}</td><td><b>${esc(d.code||'-')}</b><br><small style="color:#aaa">PIN: ${esc(d.pin||'-')}</small></td><td><span class="badge">Menunggu</span></td><td><button class="btn btn-terima" onclick="verifikasiDriver(${Number(d.id)},'aktif')">Terima</button> <button class="btn btn-tolak" onclick="verifikasiDriver(${Number(d.id)},'ditolak')">Tolak</button></td></tr>`).join('');
     const dt2 = document.getElementById('driverTable2');
     if(!cacheDrivers.length) dt2.innerHTML='<tr><td colspan="5">Belum ada driver.</td></tr>';
-    else dt2.innerHTML = cacheDrivers.map(d=>`<tr><td>${esc(d.nama||'-')}<br><small style="color:#aaa">${esc(d.no_wa||'')}</small></td><td>${esc(d.jenis_mobil||'-')} • ${esc(d.plat_mobil||'-')}</td><td><b>${esc(d.kode||d.code||'-')}</b><br><small style="color:#aaa">PIN: ${esc(d.pin||'-')}</small></td><td><span class="badge ${d.status==='aktif'?'':'outline'}">${esc(d.status)}</span></td><td>${['menunggu','pending'].includes(String(d.status||'').toLowerCase())?`<button class="btn btn-terima" onclick="verifikasiDriver(${Number(d.id)},'aktif')">Terima</button> <button class="btn btn-tolak" onclick="verifikasiDriver(${Number(d.id)},'ditolak')">Tolak</button>`:`<button class="btn btn-tolak" onclick="hapusDriver(${Number(d.id)})">Hapus</button>`}</td></tr>`).join('');
+    else dt2.innerHTML = cacheDrivers.map(d=>`<tr><td>${esc(d.nama||'-')}<br><small style="color:#aaa">${esc(d.no_wa||'')}</small></td><td>${esc(d.jenis_mobil||'-')} • ${esc(d.plat_mobil||'-')}</td><td><b>${esc(d.code||'-')}</b><br><small style="color:#aaa">PIN: ${esc(d.pin||'-')}</small></td><td><span class="badge ${d.status==='aktif'?'':'outline'}">${esc(d.status)}</span></td><td>${['menunggu','pending'].includes(String(d.status||'').toLowerCase())?`<button class="btn btn-terima" onclick="verifikasiDriver(${Number(d.id)},'aktif')">Terima</button> <button class="btn btn-tolak" onclick="verifikasiDriver(${Number(d.id)},'ditolak')">Tolak</button>`:`<button class="btn btn-tolak" onclick="hapusDriver(${Number(d.id)})">Hapus</button>`}</td></tr>`).join('');
     const pt = document.getElementById('penumpangTable');
     if(!cachePenumpang.length) pt.innerHTML='<tr><td colspan="4">Belum ada penumpang.</td></tr>';
     else pt.innerHTML = cachePenumpang.map(p=>{ const jml = cacheBookings.filter(o=>o.penumpang_id===p.id).length; return `<tr><td>${esc(p.nama||'-')}</td><td>${esc(p.no_wa||'-')}</td><td>${jml} booking</td><td><span class="badge">${esc(p.status||'Aktif')}</span></td></tr>`; }).join('');
@@ -426,25 +425,22 @@ async function loadAll(){
 }
 async function tambahDriver(){
   const nama=document.getElementById('inNamaDrv').value.trim(), no_wa=document.getElementById('inWaDrv').value.trim(), plat_mobil=document.getElementById('inPlatDrv').value.trim(), jenis_mobil=document.getElementById('inJenisDrv').value.trim();
-  let kode = (document.getElementById('inKodeDrv') ? document.getElementById('inKodeDrv').value.trim() : '').replace(/^[#@]+/,'').toLowerCase();
+  let codeBaru = (document.getElementById('inCodeDrv') ? document.getElementById('inCodeDrv').value.trim() : '').replace(/^[#@]+/,'').toLowerCase();
   let pin = (document.getElementById('inPinDrv') ? document.getElementById('inPinDrv').value.trim() : '');
   if(!nama) return showPopup('Belum Lengkap 😅','Isi nama driver dulu ya bro.','📝',[{text:'Oke, Isi Dulu',cls:'btn-terima',close:true}]);
-  if(!kode) kode = 'driver' + Date.now().toString().slice(-4);
+  if(!codeBaru) codeBaru = 'driver' + Date.now().toString().slice(-4);
   if(!pin) pin = String(Math.floor(100000 + Math.random()*900000));
   if(pin.length<4) return showPopup('PIN Pendek 😅','PIN driver minimal 4 angka ya.','📝',[{text:'Oke',cls:'btn-terima',close:true}]);
   try{
-    const cek = await sb.from('drivers').select('id').or('kode.eq.'+kode+',code.eq.'+kode).maybeSingle();
-    if(cek && cek.data) return showPopup('Code Udah Dipake 😅','Code '+kode+' udah dipake driver lain. Ganti code lain ya.','📝',[{text:'Oke',cls:'btn-terima',close:true}]);
+    const cek = await sb.from('drivers').select('id').eq('code', codeBaru).maybeSingle();
+    if(cek && cek.data) return showPopup('Code Udah Dipake 😅','Code '+codeBaru+' udah dipake driver lain. Ganti code lain ya.','📝',[{text:'Oke',cls:'btn-terima',close:true}]);
   }catch(e){}
-  const payload = {nama,no_wa,plat_mobil,jenis_mobil,kode:kode,code:kode,pin:pin,status:'menunggu'};
+  const payload = {nama,no_wa,plat_mobil,jenis_mobil,code:codeBaru,pin:pin,status:'menunggu'};
   const {error}=await sb.from('drivers').insert([payload]);
-  if(error){
-    const {error:error2}=await sb.from('drivers').insert([{nama,no_wa,plat_mobil,jenis_mobil,kode:kode,pin:pin,status:'menunggu'}]);
-    if(error2) return showError(error2.message + ' - Cek kolom kode/code/pin di tabel drivers, harus ada.');
-  }
+  if(error) return showError(error.message + ' - Cek kolom code / pin di tabel drivers, harus ada.');
   document.getElementById('inNamaDrv').value='';document.getElementById('inWaDrv').value='';document.getElementById('inPlatDrv').value='';document.getElementById('inJenisDrv').value='';
-  try{ document.getElementById('inKodeDrv').value=''; document.getElementById('inPinDrv').value=''; }catch(e){}
-  loadAll(); showSukses('Driver ditambah. Code: '+kode+' | PIN: '+pin+' - Udah nyambung ke database, bisa dilihat di tabel.');
+  try{ document.getElementById('inCodeDrv').value=''; document.getElementById('inPinDrv').value=''; }catch(e){}
+  loadAll(); showSukses('Driver ditambah. Code: '+codeBaru+' | PIN: '+pin+' - Udah nyambung ke database, bisa dilihat di tabel.');
 }
 async function verifikasiDriver(id,status){ const {error}=await sb.from('drivers').update({status}).eq('id',id); if(error) return showError(error.message); loadAll(); showSukses('Driver '+status); }
 async function hapusDriver(id){ mintaPinHapus('Hapus driver ini?', async ()=>{ await sb.from('drivers').delete().eq('id',id); loadAll(); showSukses('Driver udah dihapus.'); }); }
@@ -477,22 +473,17 @@ async function simpanPengaturan(){
   try{
     if(!currentAdmin) return showError('Belum login admin');
     const nama=document.getElementById('namaAdmin').value.trim();
-    const kode=document.getElementById('settingKode').value.trim().replace(/^[#@]+/,'').toLowerCase();
+    const codeBaru=document.getElementById('settingCode').value.trim().replace(/^[#@]+/,'').toLowerCase();
     const pin=document.getElementById('settingPin').value.trim();
     const emailBaru=document.getElementById('settingEmail') ? document.getElementById('settingEmail').value.trim().toLowerCase() : '';
     if(!nama) return showPopup('Belum Lengkap 😅','Isi nama admin dulu ya.','📝',[{text:'Oke',cls:'btn-terima',close:true}]);
-    if(!kode) return showPopup('Belum Lengkap 😅','Isi Code admin dulu ya.','📝',[{text:'Oke',cls:'btn-terima',close:true}]);
+    if(!codeBaru) return showPopup('Belum Lengkap 😅','Isi Code admin dulu ya.','📝',[{text:'Oke',cls:'btn-terima',close:true}]);
     if(!pin || pin.length<4) return showPopup('PIN Pendek 😅','PIN minimal 4 angka ya.','📝',[{text:'Oke',cls:'btn-terima',close:true}]);
     if(!emailBaru || !emailBaru.includes('@')) return showPopup('Email Kosong 😅','Isi email Google admin yang boleh masuk ya, harus sama kayak Google lu.','📝',[{text:'Oke',cls:'btn-terima',close:true}]);
-    let upd={nama:nama, pin:pin, code:kode, kode:kode, email:emailBaru};
+    let upd={nama:nama, pin:pin, code:codeBaru, email:emailBaru};
     let r=await sb.from('admin').update(upd).eq('id', currentAdmin.id);
-    if(r.error){
-      let r2=await sb.from('admin').update({nama:nama, pin:pin, email:emailBaru}).eq('id', currentAdmin.id);
-      if(r2.error) return showError('Gagal simpan: '+r2.error.message+' - Kemungkinan kolom code di tabel admin belum ada.');
-      showSukses('Nama + PIN + Email udah kesimpan. Code belum kesimpan karena kolom code belum ada di tabel admin.');
-      return;
-    }
-    currentAdmin.nama=nama; currentAdmin.code=kode; currentAdmin.kode=kode; currentAdmin.pin=pin; currentAdmin.email=emailBaru; adminPinCache=String(pin);
+    if(r.error) return showError('Gagal simpan: '+r.error.message+' - Kemungkinan kolom code di tabel admin belum ada.');
+    currentAdmin.nama=nama; currentAdmin.code=codeBaru; currentAdmin.pin=pin; currentAdmin.email=emailBaru; adminPinCache=String(pin);
     document.getElementById('adminNameLabel').textContent = nama + ' - Super Admin';
     document.getElementById('adminTopLabel').textContent = nama + ' ▽';
     showSukses('Pengaturan udah kesimpan! Nama, Code, PIN, Email Google baru udah aktif. Besok masuk harus pake Google yang baru itu ya.');
