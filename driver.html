@@ -6,32 +6,26 @@
 <title>Driver - Black Gold</title>
 <script>
 // ===== PENGAMAN KARCIS - BACA APA YANG DIBAWA BOT DARI INDEX =====
-// Bot dari index.html TIDAK bawa URL ?c=&p=
-// Bot bawa karcis di localStorage: ammo_driver_token, ammo_driver, ammo_role
 (function(){
   try{
     var tok = localStorage.getItem('ammo_driver_token') || localStorage.getItem('ammo_admin_token') || '';
     var role = localStorage.getItem('ammo_role') || '';
     var driverJson = localStorage.getItem('ammo_driver') || '';
-    // 1. Harus ada karcis
     if(!tok || !driverJson || role !== 'driver'){
       window.location.replace('404.html');
       return;
     }
-    // 2. Format karcis harus: code|pin|expiry
     var parts = String(tok).split('|');
     if(parts.length < 3){
       window.location.replace('404.html');
       return;
     }
-    // 3. Karcis kadaluarsa? (bot bikin 2 jam)
     var exp = Number(parts[2]);
     if(!exp || Date.now() > exp){
       try{ localStorage.removeItem('ammo_driver_token'); localStorage.removeItem('ammo_driver'); localStorage.removeItem('ammo_role'); }catch(e){}
       window.location.replace('404.html');
       return;
     }
-    // Lolos pengecekan awal, validasi status aktif nyusul di bawah via database
   }catch(e){
     window.location.replace('404.html');
   }
@@ -137,9 +131,10 @@ function rupiah(n){ return 'Rp ' + (n||0).toLocaleString('id-ID'); }
 function ke404(){ try{ localStorage.removeItem('ammo_driver_token'); localStorage.removeItem('ammo_driver'); localStorage.removeItem('ammo_role'); }catch(e){} window.location.replace('404.html'); }
 
 // ===== BACA KARCIS DARI BOT + VALIDASI ULANG KE DATABASE =====
+// FIX PIN ANGKA: jangan .eq('pin', "123456") karena pin di DB itu int.
+// Caranya: cari pake code doang, lalu bandingin PIN pake String() biar 123456 == "123456"
 async function cekAkses(){
   try{
-    // 1. Baca karcis yang dibawa bot dari index.html
     let tok = localStorage.getItem('ammo_driver_token') || '';
     let role = localStorage.getItem('ammo_role') || '';
     let driverKarcis = null;
@@ -148,47 +143,46 @@ async function cekAkses(){
     if(!tok || role !== 'driver' || !driverKarcis){ ke404(); return; }
 
     let parts = String(tok).split('|');
-    let codeVal = String(parts[0]||'').toLowerCase().trim(); // sopir
-    let pinVal = String(parts[1]||'').trim(); // 123456
+    let codeVal = String(parts[0]||'').toLowerCase().trim();
+    let pinVal = String(parts[1]||'').trim();
     let exp = Number(parts[2]||0);
     if(!codeVal || !pinVal || !exp || Date.now() > exp){ ke404(); return; }
 
-    // 2. Validasi ulang code + pin ke database, persis kayak bot di index.html
-    // Coba RPC dulu (kalau ada), kalau gagal fallback ke tabel langsung
+    // 1. Coba RPC dulu (kalau ada di Supabase lu)
     let hasil = null;
     try{
       let r = await supabase.rpc('cek_pin_login', { p_code: codeVal, p_pin: pinVal });
       if(r && !r.error && r.data && r.data.length) hasil = r.data[0];
     }catch(e){}
 
-    if(!hasil){
-      // Fallback: tabel drivers, lalu driver (sesuai index.html)
-      try{
-        let d = await supabase.from('drivers').select('*').ilike('code', codeVal).eq('pin', pinVal).maybeSingle();
-        if(d && d.data) hasil = d.data;
-      }catch(e){}
-    }
+    // 2. Fallback: tabel drivers - cari pake CODE doang
     if(!hasil){
       try{
-        let d2 = await supabase.from('driver').select('*').ilike('code', codeVal).eq('pin', pinVal).maybeSingle();
-        if(d2 && d2.data) hasil = d2.data;
+        let d = await supabase.from('drivers').select('*').ilike('code', codeVal).maybeSingle();
+        if(d && d.data && String(d.data.pin) === pinVal) hasil = d.data;
       }catch(e){}
     }
 
-    // 3. Code/Pin gak ketemu di database -> 404
+    // 3. Fallback terakhir: tabel driver (kalau masih ada tabel lama)
+    if(!hasil){
+      try{
+        let d2 = await supabase.from('driver').select('*').ilike('code', codeVal).maybeSingle();
+        if(d2 && d2.data && String(d2.data.pin) === pinVal) hasil = d2.data;
+      }catch(e){}
+    }
+
+    // Code/Pin gak ketemu -> 404
     if(!hasil){ ke404(); return; }
 
-    // 4. Status belum aktif -> GAK BISA MASUK (sesuai kesepakatan kita)
+    // Status harus aktif
     let st = String(hasil.status || '').toLowerCase();
     if(st !== 'aktif' && st !== 'active'){ ke404(); return; }
 
     driver = hasil;
-    // Update karcis lokal biar data terbaru (nama, saldo, foto)
     try{ localStorage.setItem('ammo_driver', JSON.stringify(driver)); }catch(e){}
     try{ localStorage.setItem('ammo_driver_id', driver.id); }catch(e){}
     try{ localStorage.setItem('ammo_driver_nama', driver.nama || ''); }catch(e){}
 
-    // Set driver jadi online
     try{ await supabase.from('drivers').update({ is_online:true, last_seen:new Date().toISOString() }).eq('id', driver.id); }catch(e){}
 
   }catch(e){ ke404(); return; }
@@ -197,13 +191,11 @@ async function cekAkses(){
   tampilDriver();
   loadOrderBaru();
   loadRiwayat();
-  // Realtime: order baru langsung muncul tanpa refresh
   try{
     supabase.channel('orders-realtime').on('postgres_changes',{event:'*',schema:'public',table:'orders'},()=>{ loadOrderBaru(); loadRiwayat(); }).subscribe();
   }catch(e){}
 }
 
-// Safety: kalau 5 detik masih loading, lempar ke 404 biar gak nyangkut
 setTimeout(()=>{ if(!driver && document.getElementById('loading').style.display !== 'none'){ ke404(); } }, 5000);
 
 function tampilDriver(){
