@@ -6,56 +6,65 @@
 <title>Driver - Black Gold</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
-body{background:#000;color:#fff;max-width:480px;margin:auto;min-height:100vh;position:relative;overflow-x:hidden}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
+html{background:#000}
+body{background:#000;color:#fff;max-width:480px;margin:auto;min-height:100vh;position:relative;overflow-x:hidden;padding-bottom:88px}
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at top right, rgba(212,175,55,.18), transparent 50%), radial-gradient(circle at bottom left, rgba(212,175,55,.12), transparent 50%);pointer-events:none}
-.top{padding:18px 20px 10px;display:flex;justify-content:space-between;align-items:center;position:relative}
-.top h1{font-size:26px;color:#E8C86A;font-weight:800}
-.avatar{width:58px;height:58px;border-radius:50%;border:2px solid #D4AF37;overflow:hidden;background:#222}
+/* ===== TOP - SAMA KAYAK GAMBAR ===== */
+.top{padding:22px 20px 10px;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1}
+.top h1{font-size:28px;color:#E8C86A;font-weight:800;line-height:1.1;letter-spacing:.2px}
+.top h1 span{color:#E8C86A}
+.avatar{width:62px;height:62px;border-radius:50%;border:2px solid #D4AF37;overflow:hidden;background:#222;flex-shrink:0}
 .avatar img{width:100%;height:100%;object-fit:cover}
-.garis{height:1px;background:linear-gradient(90deg,transparent,#D4AF37,transparent);margin:8px 20px 14px}
-.card-saldo{margin:0 20px;background:linear-gradient(180deg,#14100a,#0a0a0a);border:1px solid #D4AF37;border-radius:14px;padding:16px;position:relative;overflow:hidden}
-.card-saldo::before,.card-saldo::after{content:'';position:absolute;width:40px;height:40px;border:1px solid #D4AF37}
-.card-saldo::before{top:-1px;right:-1px;border-left:none;border-bottom:none;border-top-right-radius:14px}
-.card-saldo::after{bottom:-1px;left:-1px;border-right:none;border-top:none;border-bottom-left-radius:14px}
-.saldo-row{display:flex;justify-content:space-between;align-items:center}
-.saldo-row small{color:#D4AF37;font-size:13px}
-.saldo-row h2{font-size:26px;margin-top:2px}
-.btn-topup{background:linear-gradient(180deg,#F5D67B,#D4AF37);border:none;padding:9px 16px;border-radius:8px;font-weight:800;cursor:pointer;color:#000}
-.online-wrap{text-align:center;margin-top:14px}
-.btn-online{background:linear-gradient(180deg,#F5D67B,#D4AF37);border:none;padding:8px 22px;border-radius:20px;font-weight:800;cursor:pointer;color:#000;display:inline-flex;align-items:center;gap:8px}
+.garis{height:1px;background:linear-gradient(90deg,transparent,#D4AF37,transparent);margin:10px 20px 14px;position:relative;z-index:1}
+/* ===== SALDO - SAMA KAYAK GAMBAR ===== */
+.card-saldo{margin:0 20px;background:linear-gradient(180deg,#14100a,#0a0a0a);border:1px solid #D4AF37;border-radius:16px;padding:16px;position:relative;overflow:hidden;z-index:1}
+.card-saldo::before,.card-saldo::after{content:'';position:absolute;width:42px;height:42px;border:1px solid #D4AF37;pointer-events:none}
+.card-saldo::before{top:-1px;right:-1px;border-left:none;border-bottom:none;border-top-right-radius:16px}
+.card-saldo::after{bottom:-1px;left:-1px;border-right:none;border-top:none;border-bottom-left-radius:16px}
+.saldo-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.saldo-row small{color:#D4AF37;font-size:14px;display:flex;align-items:center;gap:7px}
+.saldo-row small::before{content:'$';width:28px;height:28px;background:linear-gradient(180deg,#F5D67B,#D4AF37);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:15px}
+.saldo-row h2{font-size:28px;margin-top:5px;letter-spacing:.3px;color:#fff}
+.btn-topup{background:linear-gradient(180deg,#F5D67B,#D4AF37);border:none;padding:10px 16px;border-radius:8px;font-weight:800;cursor:pointer;color:#000;font-size:15px;white-space:nowrap}
+.online-wrap{text-align:center;margin-top:16px}
+.btn-online{background:linear-gradient(180deg,#F5D67B,#D4AF37);border:none;padding:9px 26px;border-radius:22px;font-weight:800;cursor:pointer;color:#000;display:inline-flex;align-items:center;gap:9px;font-size:16px}
 .btn-online.off{background:#222;color:#999;border:1px solid #444}
-.dot{width:10px;height:10px;border-radius:50%;background:#000}
+.dot{width:11px;height:11px;border-radius:50%;background:#000}
 .dot.off{background:#ff4444}
-.online-wrap small{color:#4CAF50;font-size:12px;display:block;margin-top:6px}
+.online-wrap small{color:#4CAF50;font-size:13px;display:block;margin-top:7px}
 .online-wrap small.off{color:#888}
-h3{padding:18px 20px 10px;color:#E8C86A;font-size:17px}
-.card-order{margin:0 20px;background:#0d0d0d;border:1px solid #D4AF37;border-radius:12px;padding:16px;position:relative}
-.card-order::before,.card-order::after{content:'';position:absolute;width:18px;height:18px;border:1px solid #D4AF37}
+h3{padding:20px 20px 12px;color:#E8C86A;font-size:19px;position:relative;z-index:1}
+/* ===== ORDER BARU - SAMA KAYAK GAMBAR ===== */
+.card-order{margin:0 20px;background:#0d0d0d;border:1px solid #D4AF37;border-radius:14px;padding:16px;position:relative;z-index:1}
+.card-order::before,.card-order::after{content:'';position:absolute;width:20px;height:20px;border:1px solid #D4AF37;pointer-events:none}
 .card-order::before{top:-1px;right:-1px;border-left:none;border-bottom:none}
 .card-order::after{bottom:-1px;left:-1px;border-right:none;border-top:none}
-.badge{position:absolute;top:12px;left:12px;background:#D4AF37;color:#000;font-size:11px;font-weight:800;padding:3px 8px;border-radius:4px}
-.order-id{font-weight:800;font-size:17px;margin-top:22px}
-.pick{display:flex;gap:10px;margin-top:14px;padding-bottom:12px;border-bottom:1px dashed #444}
-.pick .ico{width:34px;height:34px;background:#D4AF37;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.pick small{color:#aaa;font-size:12px}
-.pick b{font-size:13px;font-weight:600}
-.chips{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-.chip{border:1px solid #D4AF37;border-radius:20px;padding:6px 12px;font-size:12px;color:#E8C86A}
-.btn-terima{margin:14px 20px 0;width:calc(100% - 40px);background:linear-gradient(180deg,#F5D67B,#D4AF37);border:none;padding:14px;border-radius:10px;font-weight:800;font-size:16px;cursor:pointer;color:#000}
+.badge{display:inline-block;background:#D4AF37;color:#000;font-size:12px;font-weight:800;padding:4px 10px;border-radius:5px;margin-bottom:10px;position:static}
+.order-id{font-weight:800;font-size:19px;color:#fff}
+.pick{display:flex;gap:12px;margin-top:14px;padding-bottom:12px;border-bottom:1px dashed #444}
+.pick:last-of-type{border:none;padding-bottom:0}
+.pick .ico{width:36px;height:36px;background:#D4AF37;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;color:#000}
+.pick small{color:#aaa;font-size:13px}
+.pick b{font-size:14px;font-weight:600;line-height:1.4;color:#fff}
+.chips{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.chip{border:1px solid #D4AF37;border-radius:20px;padding:7px 12px;font-size:13px;color:#E8C86A;background:#111}
+.btn-terima{margin:14px 20px 0;width:calc(100% - 40px);background:linear-gradient(180deg,#F5D67B,#D4AF37);border:none;padding:15px;border-radius:12px;font-weight:800;font-size:17px;cursor:pointer;color:#000;position:relative;z-index:1}
 .btn-terima:disabled{background:#222;color:#666}
-.daftar-head{padding:18px 20px 10px;display:flex;justify-content:space-between;align-items:center}
+/* ===== DAFTAR ORDER - SAMA KAYAK GAMBAR ===== */
+.daftar-head{padding:20px 20px 12px;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1}
 .daftar-head h3{padding:0}
-.daftar-head a{color:#E8C86A;font-size:13px;text-decoration:none}
-.item{margin:0 20px 10px;background:#0d0d0d;border:1px solid #D4AF37;border-left:4px solid #D4AF37;border-radius:10px;padding:14px;display:flex;justify-content:space-between;align-items:center}
-.item b{font-size:13px}
-.item small{color:#aaa;font-size:12px}
-.sts{background:#5a4310;color:#E8C86A;font-size:11px;padding:5px 10px;border-radius:6px;white-space:nowrap}
-.nav{position:sticky;bottom:0;background:#000;border-top:1px solid #D4AF37;display:flex;justify-content:space-around;padding:10px 0 14px;margin-top:20px}
+.daftar-head a{color:#E8C86A;font-size:14px;text-decoration:none}
+.item{margin:0 20px 10px;background:#0d0d0d;border:1px solid #D4AF37;border-left:4px solid #D4AF37;border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;position:relative;z-index:1}
+.item b{font-size:14px;color:#fff}
+.item small{color:#aaa;font-size:13px}
+.sts{background:#5a4310;color:#E8C86A;font-size:12px;padding:6px 10px;border-radius:7px;white-space:nowrap}
+/* ===== BOTTOM NAV - SAMA KAYAK GAMBAR ===== */
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#000;border-top:1px solid #D4AF37;display:flex;justify-content:space-around;padding:10px 0 14px;z-index:50}
 .nav a{text-align:center;color:#888;text-decoration:none;font-size:12px}
 .nav a.aktif{color:#E8C86A}
-.nav span{display:block;font-size:20px}
-.empty{margin:0 20px;text-align:center;color:#777;font-size:13px;padding:14px;border:1px dashed #333;border-radius:10px}
+.nav span{display:block;font-size:22px}
+.empty{margin:0 20px;text-align:center;color:#777;font-size:13px;padding:14px;border:1px dashed #333;border-radius:10px;position:relative;z-index:1}
 #loading{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:99;font-size:14px;color:#D4AF37;flex-direction:column;gap:10px}
 #loading button{background:#D4AF37;border:none;padding:10px 18px;border-radius:10px;font-weight:800;cursor:pointer;display:none}
 </style>
