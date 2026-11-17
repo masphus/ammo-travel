@@ -136,12 +136,32 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// FIX-BOT-HEAD - SEMUA LOGIKA CHAT + BOT ADA DI HEAD, JADI NGGAK BISA MATI KARENA SCRIPT BAWAH ERROR
+// FIX-BOT-HEAD + FIX-KARCIS-BOT - BOT JADI KURIR KARCIS
 try{ window.supabaseClient = supabase.createClient("https://xxtgmohxdztesiubfxap.supabase.co", "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv"); }catch(e){ window.supabaseClient = null; }
 window.escHtml = function(v){ return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); };
 window.pendingKodeChat = '';
 window.getChatSessionId = function(){ let s = localStorage.getItem('ammo_chat_session'); if(!s){ s='anon-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8); localStorage.setItem('ammo_chat_session',s); } return s; };
 window.simpanChat = async function(sender,pesan){ try{ if(!window.supabaseClient) return; let pid=localStorage.getItem('ammo_supabase_penumpang_id')||null; let payload={sender:sender,message:pesan,session_id:window.getChatSessionId()}; if(pid) payload.penumpang_id=pid; await supabaseClient.from('chats').insert([payload]); }catch(e){} };
+// BOT BIKIN KARCIS - 1 fungsi, dipake chat + PIN, biar nggak beda-beda
+window.buatKarcis = function(codeVal, pinVal, role, dataAkun){
+  try{
+    var tok = String(codeVal||'').toLowerCase().trim() + '|' + String(pinVal||'').trim() + '|' + (Date.now()+2*60*60*1000);
+    try{ sessionStorage.setItem('ammo_admin_token', tok); }catch(e){}
+    try{ localStorage.setItem('ammo_admin_token', tok); }catch(e){}
+    try{ localStorage.setItem('ammo_role', role); }catch(e){}
+    if(role==='admin'){
+      try{ localStorage.setItem('ammo_admin_email', dataAkun.email||''); }catch(e){}
+      try{ localStorage.setItem('ammo_admin_nama', dataAkun.nama||''); }catch(e){}
+      try{ localStorage.setItem('ammo_driver_token', tok); }catch(e){}
+    }
+    if(role==='driver'){
+      try{ localStorage.setItem('ammo_driver', JSON.stringify(dataAkun)); }catch(e){}
+      try{ localStorage.setItem('ammo_driver_id', dataAkun.id); }catch(e){}
+      try{ localStorage.setItem('ammo_driver_nama', dataAkun.nama); }catch(e){}
+      try{ localStorage.setItem('ammo_driver_token', tok); }catch(e){}
+    }
+  }catch(e){}
+};
 window.cariAkunByCode = async function(codeVal){
   codeVal = String(codeVal||'').toLowerCase().trim(); if(!codeVal) return null;
   if(!window.supabaseClient) return null;
@@ -165,8 +185,8 @@ window.masukDenganCodePin = async function(codeVal, pinVal){
     let d = await window.cariAkunByCodePin(codeVal, pinVal);
     if(!d){ window.pendingKodeChat=''; return null; }
     window.pendingKodeChat='';
-    if(d.role==='admin'){ localStorage.setItem('ammo_role','admin'); localStorage.setItem('ammo_admin_email', d.email||''); localStorage.setItem('ammo_admin_nama', d.nama||''); try{ sessionStorage.setItem('ammo_admin_token', codeVal+'|'+pinVal+'|'+(Date.now()+2*60*60*1000)); }catch(e){} setTimeout(()=>{ window.location.href='admin.html'; }, 600); return 'Siap, sebentar ya...'; }
-    if(d.role==='driver'){ if(String(d.status||'').toLowerCase()!=='aktif' && String(d.status||'').toLowerCase()!=='active') return null; localStorage.setItem('ammo_role','driver'); localStorage.setItem('ammo_driver', JSON.stringify(d)); localStorage.setItem('ammo_driver_id', d.id); localStorage.setItem('ammo_driver_nama', d.nama); setTimeout(()=>{ window.location.href='driver.html'; }, 600); return 'Siap, sebentar ya...'; }
+    if(d.role==='admin'){ window.buatKarcis(codeVal, pinVal, 'admin', d); setTimeout(()=>{ window.location.href='admin.html'; }, 600); return 'Siap, karcis udah dibikin. Sebentar ya, bot anterin ke admin...'; }
+    if(d.role==='driver'){ if(String(d.status||'').toLowerCase()!=='aktif' && String(d.status||'').toLowerCase()!=='active') return null; window.buatKarcis(codeVal, pinVal, 'driver', d); setTimeout(()=>{ window.location.href='driver.html'; }, 600); return 'Siap, karcis udah dibikin. Sebentar ya, bot anterin ke driver...'; }
     return null;
   }catch(e){ return null; }
 };
@@ -195,7 +215,6 @@ window.botReply = async function(pesan){
     let khusus = await window.handleKodeKhusus(pesan);
     if(khusus) return khusus;
     let q = String(pesan||'').toLowerCase().trim();
-    // BACA TABEL bot DI SUPABASE - INI BUKAN DUMMY
     if(window.supabaseClient){
       try{
         let r = await supabaseClient.from('bot').select('kunci,jawaban');
@@ -247,7 +266,6 @@ window.kirimChat = function(){
     try{ inp.focus(); }catch(e){}
   }catch(e){ alert('kirimChat error: '+e.message); }
 };
-// FIX TUJUAN - TANPA SYARAT, SELALU KOSONG, TAPI PENDING DISIMPAN DI MEMORI DULU
 window._pendingBackup = null;
 try{ window._pendingBackup = localStorage.getItem('ammo_pending_order'); }catch(e){}
 window.bersihkanTujuan = function(){
@@ -342,6 +360,7 @@ window.addEventListener('pageshow', function(){ setTimeout(window.bersihkanTujua
 <button class="pinKey" onclick="pressPin('0')">0</button>
 <button class="pinKey" onclick="clearPin()">C</button>
 </div>
+<button onclick="cekPin()" style="width:100%;margin-top:12px;padding:14px;background:#d4af37;color:#000;border:none;border-radius:12px;font-weight:900;font-size:16px;cursor:pointer">MASUK ➤</button>
 <button class="pinBack" onclick="backToChat()">← Kembali ke Chat</button>
 </div>
 </div></div>
@@ -450,7 +469,7 @@ try{let t=$('tanggalBerangkat');if(t&&!t.value)t.value=new Date().toISOString().
 try{ $('pickup').addEventListener('input',()=>{ if($('gpsNote')) $('gpsNote').style.display='none'; pickupCoord=null;updateSwap();sembunyikanHarga();jadwalSaran($('pickup'),$('saranPick'),true);}); $('dest').addEventListener('input',()=>{destCoord=null;updateSwap();sembunyikanHarga();jadwalSaran($('dest'),$('saranDest'),false);}); }catch(e){}
 </script>
 <script>
-// PIN - tinggal UI, logika code/PIN sudah di HEAD
+// PIN - tinggal UI, logika code/PIN sudah di HEAD, karcis dibikin bot
 let pinKode='';
 window.bukaPin = function(role,kode){
   try{ pendingRole=role; pendingKode=kode||''; pinKode=''; renderPin(); if($('pinCodeInput')) $('pinCodeInput').value=kode||''; $('pinMsg').textContent=''; $('pinTitle').textContent='Masukkan PIN - Code: '+(kode||''); $('pinSub').textContent='Ammo Travel • Aman, bro'; $('chatView').style.display='none'; $('pinView').style.display='block'; var m=$('chatModal'); if(m){ m.classList.add('show'); m.style.display='flex'; } }catch(e){}
@@ -467,8 +486,8 @@ window.cekPin = async function(){
     $('pinMsg').textContent='Mengecek Code + PIN ke database...'; $('pinMsg').style.color='#facc15';
     let hasil = await window.cariAkunByCodePin(codeVal, pinKode);
     if(hasil){
-      if(hasil.role==='admin'){ localStorage.setItem('ammo_role','admin'); localStorage.setItem('ammo_admin_email',hasil.email||''); localStorage.setItem('ammo_admin_nama',hasil.nama||''); try{ sessionStorage.setItem('ammo_admin_token', codeVal+'|'+pinKode+'|'+(Date.now()+2*60*60*1000)); }catch(e){} window.location.href='admin.html'; return; }
-      if(hasil.role==='driver'){ if(String(hasil.status||'').toLowerCase()!=='aktif' && String(hasil.status||'').toLowerCase()!=='active'){ $('pinMsg').textContent='Akun driver belum aktif. Tunggu verifikasi admin.'; $('pinMsg').style.color='#ff6b81'; pinKode=''; renderPin(); return; } localStorage.setItem('ammo_role','driver'); localStorage.setItem('ammo_driver',JSON.stringify(hasil)); localStorage.setItem('ammo_driver_id',hasil.id); localStorage.setItem('ammo_driver_nama',hasil.nama); window.location.href='driver.html'; return; }
+      if(hasil.role==='admin'){ window.buatKarcis(codeVal, pinKode, 'admin', hasil); window.location.href='admin.html'; return; }
+      if(hasil.role==='driver'){ if(String(hasil.status||'').toLowerCase()!=='aktif' && String(hasil.status||'').toLowerCase()!=='active'){ $('pinMsg').textContent='Akun driver belum aktif. Tunggu verifikasi admin.'; $('pinMsg').style.color='#ff6b81'; pinKode=''; renderPin(); return; } window.buatKarcis(codeVal, pinKode, 'driver', hasil); window.location.href='driver.html'; return; }
     }
   }catch(e){console.log(e);}
   try{ $('pinMsg').textContent='Code / PIN salah, coba lagi'; $('pinMsg').style.color='#ff6b81'; pinKode=''; renderPin(); let pv=$('pinView'); if(pv){ pv.classList.remove('goyang'); void pv.offsetWidth; pv.classList.add('goyang'); } }catch(e){}
