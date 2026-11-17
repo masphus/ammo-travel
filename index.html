@@ -8,7 +8,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-serif;color:#fff}
-.phone{max-width:430px;width:100%;margin:0 auto;background:#0f0f0f;position:relative;padding-bottom:16px;overflow:hidden;min-height:100vh}
+.phone{max-width:430px;width:100%;margin:0 auto;background:#0f0f0f;position:relative;padding-bottom:140px;overflow:hidden;min-height:100vh}
 .header{background:#000;color:#d4af37;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #d4af37}
 .logo-left{display:flex;align-items:center;gap:10px;min-width:0}
 .logo-left img{width:44px;height:44px;border-radius:50%;background:#fff;object-fit:cover;flex-shrink:0;border:2px solid #d4af37}
@@ -41,7 +41,8 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 .ongkos-preview .meta b{display:block;font-size:16px;color:#fff}
 .ongkos-preview .total{font-size:22px;font-weight:bold;color:#d4af37;white-space:nowrap}
 .ongkos-preview .voucher{font-size:14px;color:#aaa;margin-top:6px}
-.btn-cek{display:block;width:calc(100% - 32px);margin:14px 16px 0;background:#d4af37;color:#000;border:none;border-radius:12px;padding:16px;font-size:22px;font-weight:bold;cursor:pointer}
+.btn-cek{display:block;width:calc(100% - 32px);margin:14px 16px 0;background:#d4af37;color:#000;border:none;border-radius:12px;padding:16px;font-size:22px;font-weight:bold;cursor:pointer;position:relative;z-index:5}
+.order-spacer{height:90px}
 .chat{width:56px;height:56px;border-radius:50%;background:#d4af37;display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;position:relative}
 .chat i{position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:#ff4444;border-radius:50%;display:none}
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#000;border-top:1px solid #d4af37;display:flex;justify-content:space-around;padding:10px 0;z-index:20}
@@ -114,9 +115,8 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 .toast p{font-size:13px;color:#ddd}
 .toast button{border:none;background:#d4af37;border-radius:8px;padding:8px 12px;font-weight:900;cursor:pointer}
 .gps-note{font-size:12px;color:#d4af37;text-align:center;margin-top:6px;display:none}
-.chat-float{position:fixed !important;right:16px !important;bottom:calc(76px + env(safe-area-inset-bottom)) !important;z-index:999 !important;pointer-events:auto !important;display:flex !important;margin:0 !important}
+.chat-float{position:fixed !important;right:16px !important;bottom:calc(82px + env(safe-area-inset-bottom)) !important;z-index:999 !important;pointer-events:auto !important;display:flex !important;margin:0 !important}
 .chat-float .chat{width:clamp(52px,14vw,62px);height:clamp(52px,14vw,62px);background:linear-gradient(145deg,#f5d67b,#d4af37,#9a7b1a);color:#000;box-shadow:0 8px 24px rgba(212,175,55,.45), inset 0 1px 0 rgba(255,255,255,.6);border:2px solid #f5d67b;pointer-events:auto !important;cursor:pointer !important}
-@media(max-width:360px){.chat-float{right:12px !important;bottom:calc(70px + env(safe-area-inset-bottom)) !important}}
 #pinView{background:radial-gradient(circle at 50% 0%, #2a2100 0%, #000 45%, #000 100%) !important;border-top:2px solid #d4af37 !important;padding:28px 22px 18px !important;text-align:center}
 .lock-logo{width:72px;height:72px;margin:6px auto 10px;border-radius:50%;background:linear-gradient(145deg,#f5d67b,#9a7b1a);color:#000;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 0 0 4px #000, 0 0 0 6px #d4af37, 0 10px 30px rgba(212,175,55,.4)}
 .pinTitle{font-size:22px !important;letter-spacing:1px;color:#f5d67b !important}
@@ -141,6 +141,8 @@ try{
   const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
   window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 }catch(e){ console.log('Supabase gagal load', e); window.supabaseClient = null; }
+window.openChat = function(){ try{ var m=document.getElementById('chatModal'); if(m){ m.classList.add('show'); m.style.display='flex'; } var pv=document.getElementById('pinView'); if(pv) pv.style.display='none'; var cv=document.getElementById('chatView'); if(cv) cv.style.display='block'; }catch(e){ console.log(e); } };
+window.closeChat = function(){ try{ var m=document.getElementById('chatModal'); if(m){ m.classList.remove('show'); m.style.display='none'; } }catch(e){} };
 </script>
 </head>
 <body>
@@ -180,6 +182,7 @@ try{
 </div>
 </div>
 <button class="btn-cek" onclick="cekDriver()">ORDER NOW</button>
+<div class="order-spacer"></div>
 </div>
 <div class="nav" id="bottomNav">
 <div class="on"><span>🏠</span>Beranda</div>
@@ -266,7 +269,7 @@ try{
 <div id="toastWrap" class="toast-wrap"><div class="toast"><div class="ico" id="toastIco">✓</div><div style="flex:1"><b id="toastJudul">Berhasil</b><p id="toastIsi">-</p></div><button onclick="tutupToast()">OK</button></div></div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// ===== BLOK 1: INTI - GPS + ORDER + PETA - JALAN SENDIRI, NGGAK NUNGGU CHAT =====
+// BLOK 1: GPS + ORDER + PETA
 let pickupCoord=null, destCoord=null, mapMode='pickup';
 let map=null, marker=null, tempLat=-6.9175, tempLng=107.6191, tempAddr='Lokasi Saya Saat Ini';
 let previewTimer=null, saranTimer=null;
@@ -333,7 +336,7 @@ function isiPenjemputanOtomatis(force){
         setTimeout(()=>{ if(!pickupCoord) { try{ isiPenjemputanOtomatis(true); }catch(e){} } }, 6000);
       }catch(e){}
     }, {enableHighAccuracy:true, timeout:10000, maximumAge:60000});
-  }catch(e){ console.log('GPS error, tapi nggak matiin yang lain', e); }
+  }catch(e){}
 }
 function jadwalPreview(langsung){clearTimeout(previewTimer);if(langsung)hitungPreview();else previewTimer=setTimeout(hitungPreview,800);}
 async function hitungPreview(){
@@ -495,7 +498,7 @@ async function daftarPenumpang(via){
     tutupDaftar(); tutupAkun();
     try{await syncPenumpangKeSupabase(nama,hp,via,'','');}catch(e){}
     if(!lanjutJikaMauOrder()){ showToast('Terdaftar','Akun berhasil dibuat, '+nama); bukaAkun(); }
-  }catch(e){ console.log(e); }
+  }catch(e){}
 }
 async function refreshProfilDariDB(){
   let s=getSesi(); if(!s) return null;
@@ -666,8 +669,7 @@ setTimeout(function(){
     }
   }catch(e){}
 },500);
-// GPS DIPANGGIL DI SINI, SENDIRI, NGGAK NUNGGU CHAT
-try{ isiPenjemputanOtomatis(); }catch(e){ console.log('GPS start gagal', e); }
+try{ isiPenjemputanOtomatis(); }catch(e){}
 try{let t=$('tanggalBerangkat');if(t&&!t.value)t.value=new Date().toISOString().slice(0,10);}catch(e){}
 try{
   $('pickup').addEventListener('input',()=>{ if($('gpsNote')) $('gpsNote').style.display='none'; pickupCoord=null;updateSwap();sembunyikanHarga();jadwalSaran($('pickup'),$('saranPick'),true);});
@@ -675,19 +677,16 @@ try{
 }catch(e){}
 </script>
 <script>
-// ===== BLOK 2: CHAT + PIN - TERPISAH TOTAL, KALAU ERROR NGGAK MATIIN GPS =====
-try{
-function openChat(){try{$('chatModal').classList.add('show');$('pinView').style.display='none';$('chatView').style.display='block';}catch(e){}}
-function closeChat(){try{$('chatModal').classList.remove('show');}catch(e){}}
-function getChatSessionId(){
+// BLOK 2: CHAT + PIN - SEMUA DITEMPEL KE window, BIAR onclick BISA PANGGIL
+window.getChatSessionId = function(){
   let s = localStorage.getItem('ammo_chat_session');
   if(!s){ s='anon-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8); localStorage.setItem('ammo_chat_session',s); }
   return s;
-}
-function escHtml(v){ return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+};
+window.escHtml = function(v){ return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); };
 let lastChatAt=0;
-function chatRateLimit(){ const now=Date.now(); if(now-lastChatAt<1500) return false; lastChatAt=now; return true; }
-async function cekBlacklistChat(){
+window.chatRateLimit = function(){ const now=Date.now(); if(now-lastChatAt<1500) return false; lastChatAt=now; return true; };
+window.cekBlacklistChat = async function(){
   try{
     if(!window.supabaseClient) return false;
     const s=(typeof getSesi==='function')?getSesi():null;
@@ -696,9 +695,9 @@ async function cekBlacklistChat(){
     const r=await supabaseClient.from('blacklist').select('id').eq('no_wa',hp).eq('status','blacklist').maybeSingle();
     return !!r.data;
   }catch(e){ return false; }
-}
+};
 let pinKode='';
-function bukaPin(role,kode){
+window.bukaPin = function(role,kode){
   try{
     pendingRole=role; pendingKode=kode||'';
     pinKode=''; renderPin();
@@ -708,18 +707,19 @@ function bukaPin(role,kode){
     $('pinSub').textContent='Ammo Travel • Aman, bro';
     $('chatView').style.display='none';
     $('pinView').style.display='block';
+    var m=$('chatModal'); if(m){ m.classList.add('show'); m.style.display='flex'; }
   }catch(e){}
-}
-function pressPin(n){try{if(pinKode.length>=6)return;pinKode+=n;renderPin();if(pinKode.length===6){setTimeout(cekPin,250);}}catch(e){}}
-function delPin(){pinKode=pinKode.slice(0,-1);renderPin();}
-function clearPin(){pinKode='';renderPin();}
-function renderPin(){
+};
+window.pressPin = function(n){try{if(pinKode.length>=6)return;pinKode+=n;renderPin();if(pinKode.length===6){setTimeout(cekPin,250);}}catch(e){}};
+window.delPin = function(){pinKode=pinKode.slice(0,-1);renderPin();};
+window.clearPin = function(){pinKode='';renderPin();};
+window.renderPin = function(){
   try{
     let boxes=document.querySelectorAll('.pinBox');
     boxes.forEach((b,i)=>{ b.classList.toggle('on', i<pinKode.length); });
   }catch(e){}
-}
-async function cekPin(){
+};
+window.cekPin = async function(){
   try{
     let codeVal = ($('pinCodeInput') ? $('pinCodeInput').value.trim() : '').toLowerCase();
     if(!codeVal){ $('pinMsg').textContent='Isi Code dulu ya (contoh: ammo / masphus)'; $('pinMsg').style.color='#ff6b81'; pinKode=''; renderPin(); return; }
@@ -751,9 +751,9 @@ async function cekPin(){
     let pv=$('pinView'); if(pv){ pv.classList.remove('goyang'); void pv.offsetWidth; pv.classList.add('goyang'); }
   }catch(e){}
   return;
-}
-function backToChat(){try{pendingRole=null;pinKode='';renderPin();$('pinView').style.display='none';$('chatView').style.display='block';}catch(e){}}
-async function simpanChat(sender,pesan){
+};
+window.backToChat = function(){try{pendingRole=null;pinKode='';renderPin();$('pinView').style.display='none';$('chatView').style.display='block';}catch(e){}};
+window.simpanChat = async function(sender,pesan){
   try{
     if(!window.supabaseClient) return;
     let pid=localStorage.getItem('ammo_supabase_penumpang_id')||null;
@@ -761,9 +761,9 @@ async function simpanChat(sender,pesan){
     let payload={sender:sender,message:pesan,session_id:getChatSessionId()};
     if(pid) payload.penumpang_id=pid;
     await supabaseClient.from('chats').insert([payload]);
-  }catch(e){console.log('Gagal simpan chat',e);}
-}
-async function masukDenganCodePin(codeVal, pinVal){
+  }catch(e){}
+};
+window.masukDenganCodePin = async function(codeVal, pinVal){
   let kunci = 'ammo_kode_gagal';
   let dataGagal = JSON.parse(localStorage.getItem(kunci) || '{"jumlah":0,"sampai":0}');
   if(Date.now() < dataGagal.sampai) return null;
@@ -798,8 +798,8 @@ async function masukDenganCodePin(codeVal, pinVal){
     }
     return null;
   }catch(e){ return null; }
-}
-async function handleKodeKhusus(pesan){
+};
+window.handleKodeKhusus = async function(pesan){
   try{
     let q = pesan.trim();
     if(pendingKodeChat){
@@ -835,8 +835,8 @@ async function handleKodeKhusus(pesan){
     if(/^[#@]\d{4,6}$/.test(q)) return null;
     return null;
   }catch(e){ return null; }
-}
-async function botReply(pesan){
+};
+window.botReply = async function(pesan){
   try{
     let khusus = await handleKodeKhusus(pesan);
     if(khusus) return khusus;
@@ -859,8 +859,8 @@ async function botReply(pesan){
     if(q.includes('wa')||q.includes('admin')||q.includes('telpon')||q.includes('hubungi')) return 'Bisa langsung klik tombol WA Admin di bawah, nomor Admin 0858-9961-1111. Admin online, dibalas secepatnya ya.';
     return 'Siap, kami bantu. Coba ceritain mau ke mana? Atau isi Dari & Tujuan di atas, pilih dari saran, harga langsung muncul. Kalau mau cepat, klik WA Admin di bawah ya.';
   }catch(e){ return 'Siap, kami bantu. Coba ceritain mau ke mana?'; }
-}
-async function kirimChat(){
+};
+window.kirimChat = async function(){
   try{
     let inp=$('chatInput');
     let v=inp.value.trim(); if(!v) return;
@@ -877,18 +877,16 @@ async function kirimChat(){
     log.innerHTML+='<div class="chatBubble"><b>Bot Ammo:</b> '+escHtml(jawab)+'</div>';
     log.scrollTop=log.scrollHeight;
     simpanChat('bot',jawab);
-  }catch(e){ console.log('Chat error, tapi GPS tetep jalan', e); }
-}
+  }catch(e){ console.log(e); }
+};
 try{
   if($('chatSend'))$('chatSend').addEventListener('click',kirimChat);
   if($('chatInput'))$('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')kirimChat();});
   if($('chatModal'))$('chatModal').addEventListener('click',e=>{if(e.target.id==='chatModal')closeChat();});
 }catch(e){}
-}catch(e){ console.log('Blok Chat gagal load, GPS tetep jalan', e); }
 </script>
 <script>
-// ===== BLOK 3: SYNC PENUMPANG - JUGA TERPISAH =====
-try{
+// BLOK 3: SYNC PENUMPANG
 async function syncPenumpangKeSupabase(nama, hp, via, google_email, google_id){
   try{
     if(!window.supabaseClient) return null;
@@ -920,7 +918,7 @@ async function syncPenumpangKeSupabase(nama, hp, via, google_email, google_id){
     if(google_id) payload.google_id=google_id;
     let ins=await supabaseClient.from('penumpang').insert([payload]).select('*').single();
     if(ins.data){ localStorage.setItem('ammo_supabase_penumpang_id',ins.data.id); return ins.data.id; }
-  }catch(e){ console.log('sync gagal',e); }
+  }catch(e){}
   return null;
 }
 async function prosesBalikanGoogle(){
@@ -955,7 +953,7 @@ async function prosesBalikanGoogle(){
     } else {
       pulihkanPendingOrder();
     }
-  }catch(e){console.log(e);}
+  }catch(e){}
 }
 prosesBalikanGoogle();
 try{
@@ -965,17 +963,18 @@ try{
     });
   }
 }catch(e){}
-}catch(e){ console.log('Blok sync gagal, GPS tetep jalan', e); }
 </script>
-<div class="chat-float" id="chatFloat" onclick="openChat();return false;"><div class="chat" id="chatBtn" onclick="openChat();return false;">💬<i></i></div></div>
+<div class="chat-float" id="chatFloat"><div class="chat" id="chatBtn">💬<i></i></div></div>
 <script>
 (function(){
   try{
     var f=document.getElementById('chatFloat');
     var b=document.getElementById('chatBtn');
-    if(f) f.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); openChat(); });
-    if(b) b.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); openChat(); });
-    if(f) f.addEventListener('touchstart', function(e){ e.preventDefault(); openChat(); }, {passive:false});
+    function go(e){ if(e){ e.preventDefault(); e.stopPropagation(); } window.openChat(); }
+    if(f) f.addEventListener('click', go);
+    if(b) b.addEventListener('click', go);
+    if(f) f.addEventListener('touchstart', go, {passive:false});
+    if(b) b.addEventListener('touchstart', go, {passive:false});
   }catch(e){}
 })();
 </script>
