@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3.0, user-scalable=yes">
-<title>Ammo Travel - Landscape Locked</title>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Ammo Travel - DIAM!</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
-html,body{background:#000;width:100%;height:100%;overflow:hidden;position:fixed;touch-action:pinch-zoom;overscroll-behavior:none}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+html,body{background:#000;width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;touch-action:none;overscroll-behavior:none;user-select:none;-webkit-user-select:none}
 #stage{width:1280px;height:720px;background:#f0f0f0;position:absolute;left:50%;top:50%;transform-origin:center center;padding:14px;display:grid;grid-template-columns:210px 270px 1fr;gap:16px;align-items:start;flex-shrink:0}
 .sidebar{background:#0a0a0a;border-radius:22px;padding:26px 0 18px;color:#e8c15a;height:692px}
 .logo{display:flex;align-items:center;gap:10px;padding:0 20px 22px;font-size:18px;font-weight:800}
@@ -65,8 +65,11 @@ function fit(){
   }
 }
 window.addEventListener('resize', fit); fit();
-// KUNCI SCROLL, TAPI TETEP BISA ZOOM
-document.addEventListener('touchmove', function(e){ if(e.touches.length===1){ e.preventDefault(); } }, {passive:false});
+// BORGOL TOTAL: NO ZOOM, NO SCROLL, NO JALAN-JALAN
+document.addEventListener('touchmove', function(e){ e.preventDefault(); }, {passive:false});
+document.addEventListener('gesturestart', function(e){ e.preventDefault(); });
+document.addEventListener('dblclick', function(e){ e.preventDefault(); });
+document.addEventListener('wheel', function(e){ e.preventDefault(); }, {passive:false});
 document.getElementById('lockBtn').addEventListener('click', async ()=>{
   try{ await document.documentElement.requestFullscreen(); await screen.orientation.lock('landscape'); }catch(e){}
   document.getElementById('lockBtn').style.display='none';
