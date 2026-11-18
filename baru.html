@@ -1,10 +1,44 @@
 <!DOCTYPE html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<style>body{background:#000;color:#e8c15a;font-family:Arial;padding:20px} .box{background:#111;border:2px solid #e8c15a;border-radius:16px;padding:20px;margin-bottom:12px} button{background:#e8c15a;border:none;padding:10px 20px;border-radius:10px;font-weight:bold}</style>
-</head><body>
-<h1>Ammo Travel - TES</h1>
-<p>Kalo ini muncul, berarti HP lu bisa baca HTML.</p>
-<div class="box"><b>Debet Siti</b><br><h2>Rp 50.000</h2><button>ACC</button> <button>Tolak</button></div>
-<div class="box"><b>Debet Budi</b><br><h2>Rp 100.000</h2><button>ACC</button> <button>Tolak</button></div>
-<div class="box"><b>Debet Rina</b><br><h2>Rp 150.000</h2><button>ACC</button> <button>Tolak</button></div>
+<title>Ammo Travel</title>
+<style>
+body{background:#f2f2f2;margin:0;font-family:Arial;padding:12px}
+.sidebar{background:#000;color:#e8c15a;border-radius:16px;padding:18px;margin-bottom:12px}
+.sidebar b{color:#fff}.menu{padding:10px;background:#e8c15a;color:#000;border-radius:10px;font-weight:bold;margin-top:10px}
+.menu2{padding:10px;color:#e8c15a}
+.top{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.black{background:#000;color:#e8c15a;border:2px solid #e8c15a;border-radius:16px;padding:16px}
+.black .num{font-size:28px;font-weight:900}
+.white{background:#fff;border:1.5px solid #e8c15a;border-radius:16px;padding:16px;margin-bottom:12px}
+.btn{padding:10px 18px;border-radius:10px;font-weight:bold;border:none;cursor:pointer}
+.btn-acc{background:#e8c15a}.btn-tolak{background:#111;color:#e8c15a;border:1px solid #e8c15a}
+table{width:100%;border-collapse:collapse} td,th{padding:10px 6px;border-bottom:1px solid #eee;text-align:left}
+@media(min-width:900px){
+.wrap{display:grid;grid-template-columns:230px 280px 1fr;gap:16px;align-items:start}
+.sidebar{margin:0}.top{grid-template-columns:1fr 1fr 1fr 1fr}
+.debet-col{display:flex;flex-direction:column;gap:16px}
+}
+</style></head>
+<body>
+<div class="wrap">
+<div class="sidebar"><h2>📍 Ammo Travel</h2><div class="menu">🏠 Dashboard</div><div class="menu2">👥 Penumpang</div><div class="menu2">🚗 Driver</div><div class="menu2">🧾 Order</div><div class="menu2">💰 Penghasilan</div><div class="menu2">💬 Chat</div><div class="menu2">⚙️ Pengaturan</div><br><b>Admin</b><br><small style="color:#999">Super Admin</small></div>
+
+<div class="debet-col">
+<div class="black"><b>🧾 Debet Penumpang Siti</b><div class="num">Rp 50.000</div><small>Menunggu ACC</small><br><br><button class="btn btn-acc">ACC</button> <button class="btn btn-tolak">Tolak</button></div>
+<div class="black"><b>🧾 Debet Driver Budi</b><div class="num">Rp 100.000</div><small>Menunggu ACC</small><br><br><button class="btn btn-acc">ACC</button> <button class="btn btn-tolak">Tolak</button></div>
+<div class="black"><b>🧾 Debet Driver Rina</b><div class="num">Rp 150.000</div><small>Menunggu ACC</small><br><br><button class="btn btn-acc">ACC</button> <button class="btn btn-tolak">Tolak</button></div>
+</div>
+
+<div>
+<div class="top">
+<div class="black"><small>Total Penumpang</small><div class="num">1.250</div></div>
+<div class="black"><small>Total Driver Aktif</small><div class="num">85</div></div>
+<div class="black"><small>Order Hari Ini</small><div class="num">124</div></div>
+<div class="black"><small>Pendapatan</small><div class="num" style="font-size:20px">Rp 7.400.000</div></div>
+</div>
+<div class="white"><h2 style="color:#b8952e">Order Live</h2><small>• 3 Pesanan Aktif</small><hr><b>ORD-1024</b> - Jakarta Selatan → Bandara Soekarno-Hatta <button class="btn btn-acc">Berjalan</button><br><br><b>ORD-1023</b> - Bekasi → Depok <button class="btn btn-acc">Menunggu Driver</button><br><br><b>ORD-1022</b> - Tangerang → Bogor <button class="btn btn-tolak">Selesai</button></div>
+<div class="white"><h2 style="color:#b8952e">Driver Online</h2><small>• 42 Driver Online</small><div style="background:#111;color:#e8c15a;border-radius:12px;padding:40px;text-align:center;font-size:30px;margin-top:10px">🗺️ 📍📍📍</div></div>
+<div class="white"><h2 style="color:#b8952e">Driver Baru - Menunggu ACC</h2><table><tr><th>Nama</th><th>Mobil</th><th>Aksi</th></tr><tr><td>Budi Pratama</td><td>Toyota Avanza</td><td><button class="btn btn-tolak">Terima</button></td></tr><tr><td>Rina Wijaya</td><td>Daihatsu Xenia</td><td><button class="btn btn-tolak">Terima</button></td></tr><tr><td>Andi Saputra</td><td>Suzuki Ertiga</td><td><button class="btn btn-tolak">Tolak</button></td></tr></table></div>
+</div>
+</div>
 </body></html>
