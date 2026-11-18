@@ -1,54 +1,57 @@
 <!DOCTYPE html>
 <html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Ammo Travel - FULL!</title>
+<title>Ammo Travel - FULL RAPI!</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif;-webkit-tap-highlight-color:transparent}
 html,body{background:#f0f0f0;width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;touch-action:none;overscroll-behavior:none;user-select:none;-webkit-user-select:none}
-#stage{width:1280px;height:800px;background:#f0f0f0;position:absolute;left:50%;top:50%;transform-origin:center center;padding:14px;display:grid;grid-template-columns:210px 270px 1fr;gap:14px;align-items:start;flex-shrink:0}
-.sidebar{background:#0a0a0a;border-radius:22px;padding:26px 0 18px;color:#e8c15a;height:772px}
-.logo{display:flex;align-items:center;gap:10px;padding:0 20px 22px;font-size:18px;font-weight:800}
-.logo-icon{background:#e8c15a;color:#000;width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+#stage{width:1280px;height:800px;background:#f0f0f0;position:absolute;left:50%;top:50%;transform-origin:center center;padding:14px;display:grid;grid-template-columns:210px 270px 1fr;gap:14px;align-items:stretch}
+.sidebar{background:#0a0a0a;border-radius:22px;padding:22px 0 16px;color:#e8c15a;height:772px;display:flex;flex-direction:column}
+.logo{display:flex;align-items:center;gap:10px;padding:0 20px 18px;font-size:18px;font-weight:800}
+.logo-icon{background:#e8c15a;color:#000;width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.menu-list{display:flex;flex-direction:column;gap:2px}
 .menu-item{display:flex;align-items:center;gap:12px;padding:12px 20px;font-size:16px;color:#e8c15a}
 .menu-item.active{background:#e8c15a;color:#000;font-weight:800;clip-path:polygon(0 0,92% 0,100% 50%,92% 100%,0 100%)}
-.menu-item span{font-size:20px}
-.admin{padding:20px 20px 0;display:flex;gap:10px;align-items:center}.admin .ava{width:38px;height:38px;background:#333;border-radius:50%;display:flex;align-items:center;justify-content:center}.admin b{color:#fff;font-size:14px}.admin small{color:#888}
-.debet-col{display:flex;flex-direction:column;gap:14px}
-.debet{background:#0a0a0a;border:1.5px solid #e8c15a;border-radius:14px;padding:18px;color:#e8c15a;text-align:center}
-.debet .bank{font-size:34px;border:1.5px solid #e8c15a;display:inline-block;padding:4px 12px;border-radius:6px;margin-bottom:8px}
-.debet p{font-size:15px}.debet h2{font-size:30px;margin:6px 0 10px}
-.btn-row{display:flex;gap:10px}.btn-row button{flex:1;padding:8px;border-radius:8px;font-weight:800;border:1.5px solid #e8c15a}.acc{background:#e8c15a;color:#000}.tolak{background:transparent;color:#e8c15a}
+.menu-item span{font-size:20px;width:24px;text-align:center}
+.admin{margin-top:auto;padding:16px 20px 0;display:flex;gap:10px;align-items:center;border-top:1px solid #222;padding-top:16px;margin-left:20px;margin-right:20px;padding-left:0;padding-right:0}.admin .ava{width:38px;height:38px;background:#333;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}.admin b{color:#fff;font-size:14px}.admin small{color:#888}
+.debet-col{display:flex;flex-direction:column;gap:14px;height:772px}
+.debet{background:#0a0a0a;border:1.5px solid #e8c15a;border-radius:14px;padding:16px;color:#e8c15a;text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.debet .bank{font-size:32px;border:1.5px solid #e8c15a;display:flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:8px}
+.debet p{font-size:15px;line-height:1.2}.debet h2{font-size:30px;margin:4px 0 8px}
+.btn-row{display:flex;gap:10px;width:100%}.btn-row button{flex:1;padding:9px 0;border-radius:8px;font-weight:800;border:1.5px solid #e8c15a;font-size:14px}.acc{background:#e8c15a;color:#000}.tolak{background:transparent;color:#e8c15a}
+.right-col{display:flex;flex-direction:column;height:772px}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
-.stat{background:#0a0a0a;border:1.5px solid #e8c15a;border-radius:12px;padding:14px;color:#e8c15a;text-align:center}
-.stat .ic{font-size:30px;border:1.5px solid #e8c15a;display:inline-block;padding:3px 9px;border-radius:6px;margin-bottom:6px}
-.stat p{font-size:13px}.stat h2{font-size:30px;margin-top:4px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.card{background:#fff;border:1.5px solid #e8c15a;border-radius:14px;padding:13px}
+.stat{background:#0a0a0a;border:1.5px solid #e8c15a;border-radius:12px;padding:14px 8px;color:#e8c15a;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:112px}
+.stat .ic{font-size:28px;border:1.5px solid #e8c15a;display:flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:8px;margin-bottom:6px}
+.stat p{font-size:13px;line-height:1.2}.stat h2{font-size:30px;margin-top:4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;flex:1}
+.card{background:#fff;border:1.5px solid #e8c15a;border-radius:14px;padding:13px;display:flex;flex-direction:column}
 .card h2{color:#c9a227;font-size:21px}.card small{color:#666}
-.order-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #eee}
+.order-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #eee;gap:8px}
 .order-row b{font-size:15px}.order-row p{font-size:12px;color:#444}
-.pill{font-size:11px;font-weight:800;padding:6px 10px;border-radius:6px;white-space:nowrap}.yellow{background:#e8c15a;color:#000}.black-pill{background:#000;color:#fff}
-.map{background:#222;height:125px;border-radius:10px;position:relative;margin-top:10px;background-image:radial-gradient(#444 1px,transparent 1px);background-size:18px 18px}
+.pill{font-size:11px;font-weight:800;padding:6px 10px;border-radius:6px;white-space:nowrap;flex-shrink:0}.yellow{background:#e8c15a;color:#000}.black-pill{background:#000;color:#fff}
+.map{background:#222;height:100%;min-height:125px;border-radius:10px;position:relative;margin-top:10px;background-image:radial-gradient(#444 1px,transparent 1px);background-size:18px 18px;flex:1}
 .pin{position:absolute;font-size:18px}.zoom{position:absolute;right:8px;top:8px;display:flex;gap:6px}.zoom span{background:#e8c15a;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:6px;font-weight:900}
-table{width:100%;border-collapse:collapse;margin-top:6px}th{text-align:left;padding:7px 6px}td{padding:7px 6px;border-top:1px solid #eee;font-size:13px}
-.st{padding:6px 11px;background:#e8c15a;border-radius:6px;font-weight:800;font-size:11px;display:inline-block}
-.td-btn{padding:6px 12px;border-radius:6px;font-weight:800;border:none}.t-terima{background:#e8c15a}.t-tolak{background:#000;color:#fff}
+.bottom-card{flex:1}
+table{width:100%;border-collapse:collapse;margin-top:6px}th{text-align:left;padding:8px 6px}td{padding:9px 6px;border-top:1px solid #eee;font-size:13px;vertical-align:middle}
+.st{padding:6px 11px;background:#e8c15a;border-radius:6px;font-weight:800;font-size:11px;display:inline-block;white-space:nowrap}
+.td-btn{padding:7px 12px;border-radius:6px;font-weight:800;border:none;font-size:12px;white-space:nowrap}.t-terima{background:#e8c15a}.t-tolak{background:#000;color:#fff}
 #lockBtn{position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:99;background:#e8c15a;color:#000;border:none;padding:8px 14px;border-radius:20px;font-weight:900;white-space:nowrap;font-size:12px}
 </style></head>
 <body>
 <div id="stage">
-<div class="sidebar"><div class="logo"><div class="logo-icon">📍</div> Ammo Travel</div><div class="menu-item active"><span>🏠</span> Dashboard</div><div class="menu-item"><span>👤</span> Penumpang</div><div class="menu-item"><span>🎡</span> Driver</div><div class="menu-item"><span>📋</span> Order</div><div class="menu-item"><span>💵</span> Penghasilan</div><div class="menu-item"><span>💬</span> Chat</div><div class="menu-item"><span>⚙️</span> Pengaturan</div><div class="admin"><div class="ava">👤</div><div><b>Admin</b><br><small>Super Admin</small></div></div></div>
+<div class="sidebar"><div class="logo"><div class="logo-icon">📍</div> Ammo Travel</div><div class="menu-list"><div class="menu-item active"><span>🏠</span> Dashboard</div><div class="menu-item"><span>👤</span> Penumpang</div><div class="menu-item"><span>🎡</span> Driver</div><div class="menu-item"><span>📋</span> Order</div><div class="menu-item"><span>💵</span> Penghasilan</div><div class="menu-item"><span>💬</span> Chat</div><div class="menu-item"><span>⚙️</span> Pengaturan</div></div><div class="admin"><div class="ava">👤</div><div><b>Admin</b><br><small>Super Admin</small></div></div></div>
 <div class="debet-col">
 <div class="debet"><div class="bank">🏦</div><p>Debet Penumpang Siti</p><h2>Rp 50.000</h2><div class="btn-row"><button class="acc">ACC</button><button class="tolak">Tolak</button></div></div>
 <div class="debet"><div class="bank">🏦</div><p>Debet Driver Budi</p><h2>Rp 100.000</h2><div class="btn-row"><button class="acc">ACC</button><button class="tolak">Tolak</button></div></div>
 <div class="debet"><div class="bank">🏦</div><p>Debet Driver Rina</p><h2>Rp 150.000</h2><div class="btn-row"><button class="acc">ACC</button><button class="tolak">Tolak</button></div></div>
 </div>
-<div>
-<div class="stats"><div class="stat"><div class="ic">👥</div><p>Total Penumpang:</p><h2>1.250</h2></div><div class="stat"><div class="ic">🧑‍✈️</div><p>Total Driver Aktif:</p><h2>85</h2></div><div class="stat"><div class="ic">📋</div><p>Order Hari Ini:</p><h2>124</h2></div><div class="stat"><div class="ic">🏦</div><p>Pendapatan Hari Ini:</p><h2 style="font-size:22px;margin-top:12px">Rp 7.400.000</h2></div></div>
+<div class="right-col">
+<div class="stats"><div class="stat"><div class="ic">👥</div><p>Total Penumpang:</p><h2>1.250</h2></div><div class="stat"><div class="ic">🧑‍✈️</div><p>Total Driver Aktif:</p><h2>85</h2></div><div class="stat"><div class="ic">📋</div><p>Order Hari Ini:</p><h2>124</h2></div><div class="stat"><div class="ic">🏦</div><p>Pendapatan Hari Ini:</p><h2 style="font-size:22px;margin-top:8px">Rp 7.400.000</h2></div></div>
 <div class="grid2">
 <div class="card"><h2>Order Live</h2><small>• 3 Pesanan Aktif</small><div class="order-row"><div><b>ORD-1024</b><p>Jakarta Selatan → Bandara Soekarno-Hatta</p></div><span class="pill yellow">Berjalan</span></div><div class="order-row"><div><b>ORD-1023</b><p>Bekasi → Depok</p></div><span class="pill yellow">Menunggu Driver</span></div><div class="order-row" style="border:none"><div><b>ORD-1022</b><p>Tangerang → Bogor</p></div><span class="pill black-pill">Selesai</span></div></div>
-<div class="card"><div style="display:flex;justify-content:space-between"><div><h2>Driver Online</h2><small>• 42 Driver Online</small></div><span>📍</span></div><div class="map"><div class="zoom"><span>–</span><span>+</span></div><span class="pin" style="left:20%;top:30%">📍</span><span class="pin" style="left:45%;top:15%">📍</span><span class="pin" style="left:60%;top:40%">📍</span><span class="pin" style="left:75%;top:20%">📍</span><span class="pin" style="left:35%;top:60%">📍</span><span class="pin" style="left:55%;top:70%">📍</span><span class="pin" style="left:80%;top:60%">📍</span></div></div>
+<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><div><h2>Driver Online</h2><small>• 42 Driver Online</small></div><span>📍</span></div><div class="map"><div class="zoom"><span>–</span><span>+</span></div><span class="pin" style="left:20%;top:30%">📍</span><span class="pin" style="left:45%;top:15%">📍</span><span class="pin" style="left:60%;top:40%">📍</span><span class="pin" style="left:75%;top:20%">📍</span><span class="pin" style="left:35%;top:60%">📍</span><span class="pin" style="left:55%;top:70%">📍</span><span class="pin" style="left:80%;top:60%">📍</span></div></div>
 </div>
-<div class="card"><h2>Driver Baru - Menunggu ACC</h2><table><tr><th>Nama</th><th>Mobil</th><th>Status</th><th style="text-align:right">Aksi</th></tr><tr><td>Budi Pratama</td><td>Toyota Avanza</td><td><span class="st">Menunggu</span></td><td style="text-align:right"><button class="td-btn t-terima">Terima</button> <button class="td-btn t-tolak">Tolak</button></td></tr><tr><td>Rina Wijaya</td><td>Daihatsu Xenia</td><td><span class="st">Menunggu</span></td><td style="text-align:right"><button class="td-btn t-terima">Terima</button> <button class="td-btn t-tolak">Tolak</button></td></tr><tr><td>Andi Saputra</td><td>Suzuki Ertiga</td><td><span class="st">Menunggu</span></td><td style="text-align:right"><button class="td-btn t-terima">Terima</button> <button class="td-btn t-tolak">Tolak</button></td></tr></table></div>
+<div class="card bottom-card"><h2>Driver Baru - Menunggu ACC</h2><table><tr><th>Nama</th><th>Mobil</th><th>Status</th><th style="text-align:right">Aksi</th></tr><tr><td>Budi Pratama</td><td>Toyota Avanza</td><td><span class="st">Menunggu</span></td><td style="text-align:right"><button class="td-btn t-terima">Terima</button> <button class="td-btn t-tolak">Tolak</button></td></tr><tr><td>Rina Wijaya</td><td>Daihatsu Xenia</td><td><span class="st">Menunggu</span></td><td style="text-align:right"><button class="td-btn t-terima">Terima</button> <button class="td-btn t-tolak">Tolak</button></td></tr><tr><td>Andi Saputra</td><td>Suzuki Ertiga</td><td><span class="st">Menunggu</span></td><td style="text-align:right"><button class="td-btn t-terima">Terima</button> <button class="td-btn t-tolak">Tolak</button></td></tr></table></div>
 </div>
 </div>
 <button id="lockBtn">🔒 Tap Sekali - Kunci Landscape</button>
