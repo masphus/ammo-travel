@@ -103,6 +103,25 @@ h3{padding:20px 20px 12px;color:#E8C86A;font-size:19px;position:relative;z-index
 .info-kendaraan{background:#111;border:1px dashed #D4AF37;border-radius:10px;padding:12px;margin:14px 0;font-size:13px;color:#ccc;line-height:1.6}
 .info-kendaraan b{color:#E8C86A}
 .warn-db{background:#2a1a00;border:1px solid #ffaa00;border-radius:10px;padding:10px;font-size:12px;color:#ffcc66;line-height:1.5;display:none;margin-bottom:12px}
+
+/* === TARIK SALDO - BARU, TEMPELAN SAJA === */
+.tarik-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(3px);z-index:300;display:none;align-items:flex-end;justify-content:center}
+.tarik-overlay.show{display:flex}
+.tarik-card{background:#111;border:1px solid #D4AF37;border-bottom:none;border-radius:22px 22px 0 0;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;padding:20px;animation:naik .25s ease}
+.tarik-card h2{font-size:20px;color:#E8C86A}
+.tarik-saldo-box{margin:12px 0;background:#000;border:1px solid #D4AF37;border-radius:12px;padding:12px;display:flex;gap:10px;align-items:center}
+.tarik-saldo-box small{color:#D4AF37;display:block}
+.tarik-saldo-box b{font-size:22px;color:#E8C86A}
+.tarik-field{margin-bottom:12px}
+.tarik-field label{display:block;color:#D4AF37;font-size:13px;font-weight:700;margin-bottom:6px}
+.tarik-field input,.tarik-field select{width:100%;background:#000;border:1px solid #D4AF37;border-radius:10px;padding:13px;color:#fff;font-size:15px;outline:none}
+.tarik-metode{display:flex;gap:8px;flex-wrap:wrap}
+.tarik-metode button{flex:1;min-width:80px;padding:10px;border-radius:10px;border:1px solid #D4AF37;background:#000;color:#fff;cursor:pointer;font-weight:700;font-size:13px}
+.tarik-metode button.pilih{background:linear-gradient(180deg,#F5D67B,#D4AF37);color:#000}
+.tarik-jumlah-row{display:flex;gap:8px}
+.tarik-jumlah-row input{flex:1}
+.tarik-jumlah-row button{background:#D4AF37;border:none;border-radius:10px;padding:0 14px;font-weight:800;color:#000;cursor:pointer}
+.tarik-note{text-align:center;font-size:12px;color:#888;margin-top:10px}
 </style>
 </head>
 <body>
@@ -121,6 +140,7 @@ h3{padding:20px 20px 12px;color:#E8C86A;font-size:19px;position:relative;z-index
   <div class="saldo-row">
     <div><small>Saldo Emas</small><h2 id="saldo">Rp 0</h2></div>
     <button class="btn-topup" onclick="topup()">Top Up +</button>
+    <button class="btn-topup" onclick="bukaTarik()" style="background:linear-gradient(180deg,#222,#111);color:#E8C86A;border:1px solid #D4AF37">Tarik Saldo ↓</button>
   </div>
   <div class="online-wrap">
     <button class="btn-online" id="btnOnline" onclick="toggleOnline()"><span class="dot" id="dotOnline"></span><span id="txtOnline">ONLINE</span></button>
@@ -163,6 +183,27 @@ h3{padding:20px 20px 12px;color:#E8C86A;font-size:19px;position:relative;z-index
   <div class="info-kendaraan" id="infoKendaraan">🚗 <b>Kendaraan:</b> -<br>🔖 <b>Plat:</b> -<br>📱 <b>WA:</b> -</div>
   <div class="popup-btns"><button class="btn-gelap" onclick="tutupProfil()">Batal</button><button class="btn-emas" onclick="simpanProfil()">💾 Simpan Profil</button></div>
 </div></div>
+
+<!-- === POPUP TARIK SALDO - BARU === -->
+<div id="tarikOverlay" class="tarik-overlay"><div class="tarik-card">
+  <div style="display:flex;justify-content:space-between;align-items:center"><h2>Tarik Saldo</h2><span onclick="tutupTarik()" style="cursor:pointer;font-size:24px">×</span></div>
+  <div class="tarik-saldo-box"><div style="font-size:26px">💰</div><div><small>Saldo Tersedia</small><b id="saldoTarikTampil">Rp 0</b></div></div>
+  <div class="tarik-field"><label>Jumlah Penarikan</label><div class="tarik-jumlah-row"><input id="jumlahTarik" type="number" placeholder="Contoh: 100000"><button type="button" onclick="isiMaksTarik()">Maks</button></div></div>
+  <div class="tarik-field"><label>Metode Penarikan</label><div class="tarik-metode" id="listMetode">
+    <button type="button" onclick="pilihMetode(this,'DANA')">DANA</button>
+    <button type="button" onclick="pilihMetode(this,'OVO')">OVO</button>
+    <button type="button" onclick="pilihMetode(this,'GoPay')">GoPay</button>
+    <button type="button" onclick="pilihMetode(this,'ShopeePay')">ShopeePay</button>
+    <button type="button" onclick="pilihMetode(this,'Bank')">Rekening Bank</button>
+  </div></div>
+  <div class="tarik-field" id="boxBank" style="display:none"><label>Nama Bank</label><select id="namaBank"><option>BCA</option><option>BRI</option><option>Mandiri</option><option>BNI</option><option>BSI</option><option>SeaBank</option><option>Lainnya</option></select></div>
+  <div class="tarik-field"><label>Nomor Tujuan</label><input id="nomorTarik" placeholder="Nomor Dana / OVO / GoPay / Rekening"></div>
+  <div class="tarik-field"><label>Atas Nama</label><input id="namaTarik" placeholder="Nama penerima"></div>
+  <div class="popup-btns"><button class="btn-gelap" onclick="tutupTarik()">Batal</button><button class="btn-emas" onclick="kirimTarik()">Konfirmasi Tarik Saldo</button></div>
+  <div class="tarik-note">Penarikan diproses 1x24 jam • Biaya admin Rp 0 • Saldo baru kepotong setelah admin ACC</div>
+  <div id="riwayatTarik" style="margin-top:14px"></div>
+</div></div>
+<!-- === AKHIR POPUP TARIK SALDO === -->
 
 <script>
 const SUPABASE_URL = 'https://xxtgmohxdztesiubfxap.supabase.co';
@@ -235,7 +276,6 @@ async function cekAkses(){
   document.getElementById('loading').style.display='none';
   tampilDriver(); loadOrderBaru(); loadRiwayat();
   try{ sb.channel('bookings-realtime').on('postgres_changes',{event:'*',schema:'public',table:'bookings'},function(){ loadOrderBaru(); loadRiwayat(); }).subscribe(); }catch(e){}
-  // STATUS + SALDO REALTIME - kalo admin isi saldo / ubah status, HP driver langsung berubah
   try{
     sb.channel('status-driver-realtime').on('postgres_changes',{event:'UPDATE',schema:'public',table:'drivers'},function(payload){
       if(payload && payload.new && String(payload.new.id)===String(driver.id)){
@@ -252,14 +292,12 @@ async function cekAkses(){
       }
     }).subscribe();
   }catch(e){}
-  // STATUS: update last_seen tiap 30 detik biar admin tau lu masih hidup / online
   setInterval(async function(){
     if(!driver) return;
     try{ await sb.from('drivers').update({last_seen: new Date().toISOString(), is_online: driver.is_online === true}).eq('id', driver.id); }catch(e){}
   }, 30000);
 }
 async function tampilDriver(){
-  // SALDO + STATUS: ambil ulang dari database tiap tampil, jangan pake angka lama pas login
   try{
     if(driver && driver.id){
       var r = await sb.from('drivers').select('status,is_online,saldo,saldo_emas,last_seen').eq('id', driver.id).maybeSingle();
@@ -293,7 +331,6 @@ async function toggleOnline(){
   var mauOnline = !lagiOnline;
   driver.is_online = mauOnline;
   updateTombolOnline();
-  // STATUS: simpan BENERAN ke database, bukan cuma di layar
   try{
     var r = await sb.from('drivers').update({ is_online: mauOnline, last_seen: new Date().toISOString() }).eq('id', driver.id);
     if(r && r.error){
@@ -419,7 +456,6 @@ async function logout(){
   tutupProfil(); tutupPopup();
   var ok=await popupConfirm('Yakin mau keluar?\nNanti login lagi pake Code + PIN ya.', 'Keluar');
   if(!ok) return;
-  // STATUS: set offline dulu sebelum keluar, biar di admin gak keliatan online terus
   try{ await sb.from('drivers').update({is_online:false, last_seen: new Date().toISOString()}).eq('id', driver ? driver.id : 0); }catch(e){}
   try{
     localStorage.removeItem('ammo_driver_token');
@@ -435,6 +471,66 @@ async function logout(){
 document.getElementById('profilModal').addEventListener('click', function(e){ if(e.target.id==='profilModal') tutupProfil(); });
 document.getElementById('popupOverlay').addEventListener('click', function(e){ if(e.target.id==='popupOverlay') tutupPopup(); });
 setTimeout(function(){ if(!sudahMasuk && document.getElementById('loading').style.display!=='none'){ gagal('Lama banget ngeceknya, coba balik & login lagi ya.'); } },8000);
+
+/* === TARIK SALDO - LOGIC BARU, TIDAK MENGUBAH LOGIC LAMA === */
+let metodeTarik = '';
+function saldoDriverAngka(){ return Number(driver ? (driver.saldo ?? driver.saldo_emas ?? 0) : 0) || 0; }
+function bukaTarik(){
+  if(!driver){ popupAlert('Tunggu, lagi ngecek karcis...'); return; }
+  document.getElementById('saldoTarikTampil').textContent = rupiah(saldoDriverAngka());
+  document.getElementById('tarikOverlay').classList.add('show');
+  loadRiwayatTarik();
+}
+function tutupTarik(){ document.getElementById('tarikOverlay').classList.remove('show'); }
+function isiMaksTarik(){ document.getElementById('jumlahTarik').value = saldoDriverAngka(); }
+function pilihMetode(btn, nama){
+  metodeTarik = nama;
+  document.querySelectorAll('#listMetode button').forEach(function(b){ b.classList.remove('pilih'); });
+  btn.classList.add('pilih');
+  document.getElementById('boxBank').style.display = (nama==='Bank' ? 'block' : 'none');
+}
+async function kirimTarik(){
+  var jumlah = Number(document.getElementById('jumlahTarik').value);
+  var nomor = document.getElementById('nomorTarik').value.trim();
+  var atasNama = document.getElementById('namaTarik').value.trim();
+  var bank = document.getElementById('namaBank').value;
+  var saldo = saldoDriverAngka();
+  if(!jumlah || jumlah<=0){ await popupAlert('Isi jumlahnya dulu bro'); return; }
+  if(jumlah > saldo){ await popupAlert('Saldo gak cukup. Saldo lu: '+rupiah(saldo)); return; }
+  if(!metodeTarik){ await popupAlert('Pilih dulu mau ke DANA / OVO / GoPay / ShopeePay / Bank'); return; }
+  if(!nomor || !atasNama){ await popupAlert('Nomor + atas nama jangan kosong'); return; }
+  var ok = await popupConfirm('Tarik '+rupiah(jumlah)+' ke '+metodeTarik+' '+nomor+' atas nama '+atasNama+' ?', 'Konfirmasi Tarik');
+  if(!ok) return;
+  var payload = { driver_id: driver.id, driver_nama: driver.nama||'', jumlah: jumlah, metode: metodeTarik, bank: metodeTarik==='Bank'?bank:'', nomor: nomor, atas_nama: atasNama, status: 'menunggu', created_at: new Date().toISOString() };
+  try{
+    var r = await sb.from('withdraw_requests').insert([payload]);
+    if(r && r.error) throw r.error;
+  }catch(e){
+    try{ var list = JSON.parse(localStorage.getItem('ammo_tarik_pending')||'[]'); list.unshift(payload); localStorage.setItem('ammo_tarik_pending', JSON.stringify(list)); }catch(e2){}
+    await popupAlert('Tabel withdraw_requests belum ada di Supabase. Request lu udah kesimpan sementara di HP. Jalanin SQL withdraw_requests dulu, terus kirim ulang ya bro.\n\nError: '+(e.message||e)); return;
+  }
+  document.getElementById('jumlahTarik').value=''; document.getElementById('nomorTarik').value=''; document.getElementById('namaTarik').value='';
+  tutupTarik();
+  await popupAlert('Request tarik saldo '+rupiah(jumlah)+' ke '+metodeTarik+' '+nomor+' terkirim!\nNunggu ACC admin. Saldo baru kepotong setelah admin ACC.', 'Terkirim');
+  loadRiwayatTarik();
+}
+async function loadRiwayatTarik(){
+  var box = document.getElementById('riwayatTarik'); if(!box || !driver) return;
+  var html = '<div style="color:#E8C86A;font-weight:700;font-size:14px;margin-bottom:8px">Riwayat Tarik Saldo</div>';
+  try{
+    var r = await sb.from('withdraw_requests').select('*').eq('driver_id', driver.id).order('created_at',{ascending:false}).limit(5);
+    if(r && r.data && r.data.length){
+      html += r.data.map(function(w){
+        var st = String(w.status||'menunggu').toLowerCase();
+        var warna = st==='disetujui' ? '#4CAF50' : st==='ditolak' ? '#ff4444' : '#E8C86A';
+        var label = st==='disetujui' ? 'Disetujui' : st==='ditolak' ? 'Ditolak' : 'Menunggu';
+        return '<div style="background:#000;border:1px solid #333;border-radius:10px;padding:10px;margin-bottom:8px;font-size:13px"><div style="display:flex;justify-content:space-between"><b>'+rupiah(w.jumlah)+'</b><span style="color:'+warna+'">'+label+'</span></div><div style="color:#aaa">'+esc(w.metode)+' '+(w.bank?('('+esc(w.bank)+') '):'')+esc(w.nomor)+' • '+esc(w.atas_nama)+'</div><div style="color:#666;font-size:12px">'+fmtTanggal(w.created_at)+'</div></div>';
+      }).join('');
+    } else html += '<div style="color:#777;font-size:13px">Belum ada riwayat tarik saldo.</div>';
+  }catch(e){ html += '<div style="color:#777;font-size:13px">Belum ada riwayat tarik saldo.</div>'; }
+  box.innerHTML = html;
+}
+document.getElementById('tarikOverlay').addEventListener('click', function(e){ if(e.target.id==='tarikOverlay') tutupTarik(); });
 cekAkses();
 </script>
 </body>
