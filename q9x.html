@@ -79,6 +79,7 @@ textarea{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#11
 <a data-page="driver"><span class="mi">🧑‍✈️</span> Driver</a>
 <a data-page="order"><span class="mi">📋</span> Order</a>
 <a data-page="penghasilan"><span class="mi">💰</span> Penghasilan</a>
+<a data-page="debet"><span class="mi">💸</span> Debet Saldo <span class="badge" id="debetNotif" style="display:none">0</span></a>
 <a data-page="antrian"><span class="mi">🔥</span> Antrian <span class="badge" id="antrianNotif" style="display:none">0</span></a>
 <a data-page="chat"><span class="mi">💬</span> Chat <span class="badge" id="chatNotif" style="display:none">0</span></a>
 <a data-page="bot"><span class="mi">🤖</span> Data Bot</a>
@@ -115,6 +116,7 @@ textarea{padding:11px;border-radius:10px;border:1px solid #d4af37;background:#11
 <div id="page-order" class="page"><div class="box"><h3>📋 Riwayat Order - REAL dari tabel bookings</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Order masuk otomatis dari penumpang, bukan dibikin dari sini.</p><div id="allOrderList">Memuat...</div><br><button class="btn btn-tolak" onclick="loadAll()">🔄 Refresh Order</button></div></div>
 
 <div id="page-penghasilan" class="page"><div class="box"><h3>💰 Penghasilan - REAL dari tabel payments</h3><p style="margin:12px 0;font-size:20px">Hari ini: <b id="penghasilanHariIni">Rp 0</b></p><p style="color:#ccc;font-size:13px">Dihitung dari <b>payments.nominal</b> yang statusnya lunas / paid / sukses hari ini. Fee admin <b>7%</b>.</p><div id="penghasilanList" style="margin-top:12px">Memuat...</div><div style="margin-top:16px"><h3>💰 Tarif Aktif - REAL dari tabel tarif</h3><div id="tarifList">Memuat...</div></div></div></div>
+<div id="page-debet" class="page"><div class="box"><h3>💸 Debet Saldo - Request Tarik dari Driver</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Driver minta Tarik Saldo, admin yang Debet (potong) + transfer manual. ACC = saldo driver kepotong otomatis. Tolak = saldo balik utuh, tidak kepotong.</p><div id="debetList">Memuat...</div><br><button class="btn btn-tolak" onclick="loadDebet()">🔄 Refresh Debet</button></div><div class="box" style="margin-top:12px"><h3>📜 Riwayat Debet</h3><div id="debetRiwayat">Memuat...</div></div></div>
 
 <div id="page-antrian" class="page"><div class="box"><h3>🔥 Antrian - REAL dari tabel antrian</h3><p style="color:#ccc;font-size:13px;margin:8px 0">Jawab di sini, otomatis masuk ke Bot juga.</p><div style="margin:10px 0"><button class="btn btn-tolak" onclick="bersihinAntrianDobel()">🧹 Bersihin Antrian Dobel</button> <button class="btn btn-tolak" onclick="loadAll()">🔄 Refresh</button></div><div id="antrianList">Memuat...</div></div></div>
 
@@ -139,7 +141,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const INDEX_URL = "index.html";
 const FEE_PERSEN = 7;
 let currentAdmin=null, adminPinCache='', currentUser=null, currentUserLabel='', lastUserMsg='', googleSudahDicek=false, sedangNgetik=false, draftAntrian={}, draftChat='';
-let cachePenumpang=[], cacheDrivers=[], cacheBookings=[], cachePayments=[], cacheTarif=[], cacheAntrian=[], cacheBlacklist=[];
+let cachePenumpang=[], cacheDrivers=[], cacheBookings=[], cachePayments=[], cacheTarif=[], cacheAntrian=[], cacheBlacklist=[], cacheDebet=[];
 let mapObj=null, mapCircle=null, mapAdminMarker=null, mapDriverLayer=null, adminLat=-6.9175, adminLng=107.6191;
 let _notifyTimer=null;
 /* SALDO: 2 variabel baru, lainnya sama */
@@ -160,7 +162,7 @@ function tglAntrian(a){ return a.waktu || a.created_at || ''; }
 function namaBooking(o){ return o.nama_penumpang || o.nama || ('Penumpang #'+(o.penumpang_id||o.id)); }
 function ruteBooking(o){ const dari=o.dari_lokasi||o.dari||o.pickup||o.asal||'-'; const ke=o.ke_lokasi||o.ke||o.dropoff||o.tujuan||'-'; return dari+' → '+ke; }
 function hargaBooking(o){ return o.total_harga ?? o.total ?? o.harga ?? o.nominal ?? 0; }
-function tampilkanHalaman(page){ const p=page||'dashboard'; document.querySelectorAll('.menu a').forEach(x=>x.classList.remove('active')); const t=document.querySelector('.menu a[data-page="'+p+'"]'); if(t) t.classList.add('active'); document.querySelectorAll('.page').forEach(x=>x.classList.remove('active')); const el=document.getElementById('page-'+p); if(el) el.classList.add('active'); else document.getElementById('page-dashboard').classList.add('active'); simpanHalaman(p); window.scrollTo({top:0,behavior:'smooth'}); }
+function tampilkanHalaman(page){ const p=page||'dashboard'; document.querySelectorAll('.menu a').forEach(x=>x.classList.remove('active')); const t=document.querySelector('.menu a[data-page="'+p+'"]'); if(t) t.classList.add('active'); document.querySelectorAll('.page').forEach(x=>x.classList.remove('active')); const el=document.getElementById('page-'+p); if(el) el.classList.add('active'); else document.getElementById('page-dashboard').classList.add('active'); if(p==='debet'){ try{ loadDebet(); }catch(e){} } simpanHalaman(p); window.scrollTo({top:0,behavior:'smooth'}); }
 function simpanHalaman(p){ try{ localStorage.setItem('ammo_admin_page',p); sessionStorage.setItem('ammo_admin_page',p); }catch(e){} }
 function ambilHalaman(){ try{ return localStorage.getItem('ammo_admin_page')||sessionStorage.getItem('ammo_admin_page')||'dashboard'; }catch(e){ return 'dashboard'; } }
 document.querySelectorAll('.menu a').forEach(a=>{ a.onclick=()=>{ tampilkanHalaman(a.dataset.page); if(window.innerWidth<=900) document.querySelector('.sidebar').style.display='none'; }; });
@@ -270,6 +272,54 @@ async function safeFetch(table,orderCol){
     return r.data||[];
   }catch(e){ console.warn('Gagal load '+table+':',e.message); return []; }
 }
+async function loadDebet(){
+  var listEl=document.getElementById('debetList'); var riwEl=document.getElementById('debetRiwayat'); var badge=document.getElementById('debetNotif');
+  if(listEl) listEl.innerHTML='Memuat...';
+  var data=[];
+  try{ var r1=await sb.from('debet_requests').select('*').order('created_at',{ascending:false}).limit(50); if(r1 && !r1.error && r1.data) data=r1.data; }catch(e){}
+  if(!data.length){ try{ var r2=await sb.from('withdraw_requests').select('*').order('created_at',{ascending:false}).limit(50); if(r2 && !r2.error && r2.data) data=r2.data; }catch(e){} }
+  cacheDebet=data||[];
+  var menunggu=cacheDebet.filter(function(x){ return ['menunggu','pending','baru','waiting','requested'].includes(String(x.status||'menunggu').toLowerCase()); });
+  if(badge){ badge.innerText=menunggu.length; badge.style.display=menunggu.length?'inline':'none'; }
+  if(!listEl) return;
+  if(!menunggu.length) listEl.innerHTML='<p style="color:#888">Tidak ada request debet yang menunggu ✅</p>';
+  else listEl.innerHTML=menunggu.map(function(x){ var drv=cacheDrivers.find(function(d){ return String(d.id)===String(x.driver_id||x.driverId||x.user_id); }); var nama=x.nama_driver||x.nama||x.driver_nama||(drv&&drv.nama)||('Driver #'+(x.driver_id||x.user_id||'-')); var metode=x.metode||x.metode_pembayaran||x.payment_method||'-'; var nomor=x.nomor||x.nomor_rekening||x.no_dana||x.akun||'-'; var atasNama=x.atas_nama||x.an||x.nama_rekening||'-'; var nominal=Number(x.nominal||x.jumlah||x.amount||0); return '<div class="order"><div><b>'+esc(nama)+'</b><br><small>'+esc(metode)+' • '+esc(nomor)+' • A.n '+esc(atasNama)+' • '+esc(fmtTgl(x.created_at))+'</small></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><b style="color:#f5d67b">'+rp(nominal)+'</b><span class="badge">Menunggu</span><button class="btn btn-terima" onclick="accDebet(\''+escAttr(x.id)+'\')">✅ ACC / Debet</button><button class="btn btn-tolak" onclick="tolakDebet(\''+escAttr(x.id)+'\')">❌ Tolak</button></div></div>'; }).join('');
+  var selesai=cacheDebet.filter(function(x){ return !['menunggu','pending','baru','waiting','requested'].includes(String(x.status||'').toLowerCase()); });
+  if(riwEl){ if(!selesai.length) riwEl.innerHTML='<p style="color:#888">Belum ada riwayat.</p>'; else riwEl.innerHTML=selesai.slice(0,20).map(function(x){ var nama=x.nama_driver||x.nama||x.driver_nama||('Driver #'+(x.driver_id||x.user_id||'-')); var nominal=Number(x.nominal||x.jumlah||x.amount||0); return '<div class="order"><div><b>'+esc(nama)+'</b><br><small>'+esc(fmtTgl(x.created_at))+'</small></div><div><b>'+rp(nominal)+'</b> <span class="badge">'+esc(x.status||'-')+'</span></div></div>'; }).join(''); }
+}
+async function updateDebetStatus(id,status){
+  var r1=await sb.from('debet_requests').update({status:status}).eq('id',id);
+  if(r1 && !r1.error) return true;
+  var r2=await sb.from('withdraw_requests').update({status:status}).eq('id',id);
+  if(r2 && !r2.error) return true;
+  return false;
+}
+async function accDebet(id){
+  var x=cacheDebet.find(function(v){ return String(v.id)===String(id); }); if(!x){ notify('Data tidak ketemu, refresh dulu'); return; }
+  var nominal=Number(x.nominal||x.jumlah||x.amount||0);
+  var driverId=x.driver_id||x.driverId||x.user_id;
+  var d=cacheDrivers.find(function(v){ return String(v.id)===String(driverId); });
+  if(!d){ try{ var rr=await sb.from('drivers').select('*').eq('id',driverId).single(); if(rr && rr.data) d=rr.data; }catch(e){} }
+  if(!d){ notify('Driver tidak ketemu'); return; }
+  var sebelum=getSaldoObj(d);
+  if(sebelum < nominal){ if(!confirm('Saldo driver ('+rp(sebelum)+') kurang dari request ('+rp(nominal)+'). Tetap ACC / Debet sampai 0?')) return; }
+  if(!confirm('ACC Debet '+rp(nominal)+' untuk '+(d.nama||'')+' ? Saldo '+rp(sebelum)+' -> '+rp(Math.max(0,sebelum-nominal)))) return;
+  var sesudah=Math.max(0, sebelum-nominal);
+  var ok=await simpanSaldoKeDB('driver', d.id, sesudah);
+  if(!ok){ notify('Gagal potong saldo! Jalanin SQL saldo dulu'); return; }
+  await updateDebetStatus(id,'disetujui');
+  try{ await catatRiwayatTopUp('driver', d.id, d.nama, -nominal, sebelum, sesudah); }catch(e){}
+  d.saldo=sesudah; d.saldo_emas=sesudah; d.saldo_voucher=sesudah;
+  notify('Berhasil Debet! Saldo '+(d.nama||'')+' jadi '+rp(sesudah)+' - Jangan lupa transfer manual '+rp(nominal));
+  try{ loadDebet(); }catch(e){} try{ loadAll(); }catch(e){}
+}
+async function tolakDebet(id){
+  var x=cacheDebet.find(function(v){ return String(v.id)===String(id); }); if(!x) return;
+  if(!confirm('Tolak request debet '+rp(Number(x.nominal||x.jumlah||x.amount||0))+' ? Saldo TIDAK kepotong.')) return;
+  await updateDebetStatus(id,'ditolak');
+  notify('Request ditolak, saldo tidak kepotong');
+  try{ loadDebet(); }catch(e){}
+}
 async function loadAll(){
   if(!currentAdmin) return;
   simpanDraftSebelumRefresh();
@@ -280,7 +330,7 @@ async function loadAll(){
   const tarif=await safeFetch('tarif','id');
   const antRaw=await safeFetch('antrian','id');
   const black=await safeFetch('blacklist','created_at');
-  cachePenumpang=pen; cacheDrivers=drv; cacheBookings=book; cachePayments=pay; cacheTarif=tarif; cacheAntrian=gabungAntrianDobel(antRaw); cacheBlacklist=black;
+  cachePenumpang=pen; cacheDrivers=drv; cacheBookings=book; cachePayments=pay; cacheTarif=tarif; cacheAntrian=gabungAntrianDobel(antRaw); cacheBlacklist=black; try{ loadDebet(); }catch(e){}
   document.getElementById('statusSupabase').innerText='Terhubung ✅ - REAL'; document.getElementById('statusSupabase').style.color='#25D366';
   document.getElementById('statPenumpang').innerText=cachePenumpang.length.toLocaleString('id-ID');
   const aktif=cacheDrivers.filter(d=>['aktif','active','online','tersedia'].includes(String(d.status||'').toLowerCase()));
