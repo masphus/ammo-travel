@@ -1,124 +1,58 @@
 <!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<title>Ammo Travel - Super Admin v18</title>
+<html lang="id"><head><meta charset="UTF-8">
+<title>Ammo Travel - Super Admin v19</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-  /* v18 - BUKA KUNCI: LAPTOP TERUS, GAK DIUBAH KE HP */
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0;background:#0f172a;font-family:Arial, sans-serif}
-  body{
-    /* INI KUNCINYA: paksa selebar laptop, jangan dipaksa muat HP */
-    min-width:1280px;
-    overflow-x:auto;
-    overflow-y:auto;
-  }
-  /* Matikan semua scale / fit */
-  .stage{
-    width:1280px !important;
-    min-width:1280px !important;
-    height:auto !important;
-    transform:none !important;
-    scale:1 !important;
-    margin:0 auto;
-    background:#f1f5f9;
-    display:flex;
-  }
-
-  /* SIDEBAR - LAPTOP */
-  .sidebar{width:230px;min-width:230px;background:#0f172a;color:#fff;padding:20px 14px;min-height:100vh}
-  .sidebar h2{font-size:19px;margin:0 0 4px}
-  .sidebar p{font-size:12px;color:#94a3b8;margin:0 0 20px}
-  .menu{list-style:none;padding:0;margin:0}
-  .menu li{padding:11px 12px;border-radius:8px;font-size:14px;color:#cbd5e1;margin-bottom:4px;cursor:pointer}
-  .menu li.active{background:#2563eb;color:#fff}
-
-  /* KANAN */
-  .main{flex:1;padding:20px 20px 40px;min-width:0}
-  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
-  .topbar h1{font-size:22px;margin:0}
-  .topbar span{font-size:12px;background:#fff;padding:6px 10px;border-radius:20px}
-
-  /* STATS - 4 SEJAJAR KAYA LAPTOP */
-  .stats{display:flex;gap:16px;margin-bottom:18px}
-  .card{flex:1;background:#fff;border-radius:12px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-  .card small{color:#64748b;font-size:12px}
-  .card b{font-size:26px;display:block;margin-top:6px}
-  .card:nth-child(1) b{color:#2563eb}
-  .card:nth-child(2) b{color:#16a34a}
-  .card:nth-child(3) b{color:#ea580c}
-  .card:nth-child(4) b{color:#7c3aed}
-
-  /* BAWAH: TABEL + DEBET SAMPINGAN KAYA LAPTOP */
-  .content{display:flex;gap:16px;align-items:flex-start}
-  .table-box{flex:1;background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-  .table-box h3{margin:0 0 12px;font-size:15px}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th{ text-align:left;background:#f8fafc;padding:10px;border-bottom:1px solid #e2e8f0}
-  td{padding:10px;border-bottom:1px solid #f1f5f9}
-  .debet{width:300px;min-width:300px;background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-  .debet h3{margin:0 0 12px;font-size:15px}
-  .debet-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px dashed #e2e8f0;font-size:13px}
-
-  /* MATIKAN SEMUA MEDIA QUERY HP - JANGAN DIUBAH OTOMATIS */
-  /* Sengaja gak ada @media max-width di sini */
-</style>
-</head>
-<body>
+*{box-sizing:border-box} html,body{margin:0;background:#f1f5f9;font-family:Arial}
+body{min-width:1280px;overflow-x:auto}
+.stage{width:1280px;margin:0 auto;display:flex;transform:none!important}
+.sidebar{width:230px;min-width:230px;background:#111827;color:#fff;padding:18px 12px;min-height:100vh}
+.sidebar h2{color:#fbbf24;margin:0;font-size:20px}.sidebar p{color:#9ca3af;font-size:12px}
+.menu{list-style:none;padding:0}.menu li{padding:11px 10px;border-radius:8px;margin-bottom:4px;font-size:14px}
+.menu li.active{background:#fbbf24;color:#000;font-weight:bold}
+.main{flex:1;padding:18px}
+.topbar{display:flex;justify-content:space-between;align-items:center}
+.topbar b{font-size:20px}.topbar span{background:#fbbf24;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:bold}
+.debet{display:flex;gap:14px;margin:14px 0}
+.dcard{flex:1;background:#111827;color:#fff;border-radius:12px;padding:16px;display:flex;justify-content:space-between;align-items:center}
+.dcard b{color:#fbbf24;font-size:22px;display:block}.dcard small{color:#d1d5db}
+.btn{border:0;border-radius:8px;padding:8px 14px;font-weight:bold;cursor:pointer}
+.btn-acc{background:#fbbf24}.btn-tolak{background:#fff;color:#000;margin-left:6px}
+.grid{display:flex;gap:14px}
+.left{flex:1.2}.right{flex:1}
+.box{background:#fff;border-radius:12px;padding:14px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.box h3{margin:0 0 10px;font-size:15px}
+table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;background:#fef3c7;padding:9px}td{padding:9px;border-bottom:1px solid #f1f5f9}
+.pill{background:#fbbf24;padding:4px 8px;border-radius:20px;font-size:11px;font-weight:bold}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat{background:#111827;color:#fff;border-radius:12px;padding:14px}.stat b{font-size:22px;color:#fbbf24;display:block}
+.map{background:#111827;border-radius:12px;height:190px;position:relative;color:#fff;padding:12px}
+.dot{position:absolute;width:10px;height:10px;background:red;border-radius:50%}
+</style></head><body>
 <div class="stage">
-  <div class="sidebar">
-    <h2>AMMO TRAVEL</h2>
-    <p>Super Admin v18 - LAPTOP MODE</p>
-    <ul class="menu">
-      <li class="active">🏠 Dashboard</li>
-      <li>🚖 Driver</li>
-      <li>🧑‍🤝‍🧑 Penumpang</li>
-      <li>📦 Order</li>
-      <li>💰 Keuangan</li>
-      <li>⚙️ Pengaturan</li>
-    </ul>
-  </div>
-
-  <div class="main">
-    <div class="topbar">
-      <h1>Dashboard - Super Admin v18</h1>
-      <span>LAPTOP VIEW - TIDAK DIUBAH KE HP</span>
-    </div>
-
-    <div class="stats">
-      <div class="card"><small>Total Penumpang</small><b>1.248</b></div>
-      <div class="card"><small>Driver Online</small><b>42</b></div>
-      <div class="card"><small>Order Hari Ini</small><b>186</b></div>
-      <div class="card"><small>Pendapatan</small><b>Rp 4,2 Jt</b></div>
-    </div>
-
-    <div class="content">
-      <div class="table-box">
-        <h3>Order Terbaru</h3>
-        <table>
-          <tr><th>Penumpang</th><th>Rute</th><th>Driver</th><th>Status</th></tr>
-          <tr><td>Budi</td><td>Bandung - Jakarta</td><td>Andi</td><td>Selesai</td></tr>
-          <tr><td>Sari</td><td>Bandung - Cimahi</td><td>Dedi</td><td>Jalan</td></tr>
-          <tr><td>Riko</td><td>Bandung - Lembang</td><td>Eko</td><td>Menunggu</td></tr>
-        </table>
-      </div>
-
-      <div class="debet">
-        <h3>Debet / Keuangan</h3>
-        <div class="debet-row"><span>Total Debet</span><b>Rp 1.850.000</b></div>
-        <div class="debet-row"><span>Sudah Dibayar</span><b>Rp 1.200.000</b></div>
-        <div class="debet-row"><span>Sisa</span><b style="color:red">Rp 650.000</b></div>
-        <p style="font-size:12px;color:#64748b;margin-top:12px">Ini kotak debet yang dulu di kanan. Di v18 dia tetep di kanan kaya laptop, gak pindah ke bawah, gak dikecilin.</p>
-      </div>
-    </div>
-  </div>
+<div class="sidebar"><h2>Ammo Travel</h2><p>Super Admin v19 - LAPTOP</p><ul class="menu"><li class="active">Dashboard</li><li>Penumpang</li><li>Driver</li><li>Order</li><li>Penghasilan</li><li>Chat</li><li>Pengaturan</li><li>Admin</li></ul></div>
+<div class="main">
+<div class="topbar"><b>Dashboard - Super Admin v19</b><span>LAPTOP VIEW - TIDAK DIPUTER</span></div>
+<div class="debet">
+<div class="dcard"><div><small>Debet Penumpang Siti</small><b>Rp 50.000</b></div><div><button class="btn btn-acc">ACC</button><button class="btn btn-tolak">Tolak</button></div></div>
+<div class="dcard"><div><small>Debet Driver Budi</small><b>Rp 100.000</b></div><div><button class="btn btn-acc">ACC</button><button class="btn btn-tolak">Tolak</button></div></div>
+<div class="dcard"><div><small>Debet Driver Rina</small><b>Rp 150.000</b></div><div><button class="btn btn-acc">ACC</button><button class="btn btn-tolak">Tolak</button></div></div>
 </div>
-
-<script>
-  // v18: GAK ADA fit() LAGI. GAK ADA SCALE OTOMATIS.
-  // Biar di HP tetep keliatan kayak laptop, tinggal geser kanan-kiri.
-  console.log('v18 laptop mode - no auto mobile');
-</script>
-</body>
-</html>
+<div class="grid">
+<div class="left">
+<div class="box"><h3>Driver Baru - Menunggu ACC</h3><table><tr><th>Nama</th><th>Mobil</th><th>Status</th><th>Aksi</th></tr><tr><td>Budi Pratama</td><td>Toyota Avanza</td><td><span class="pill">Menunggu</span></td><td>Terima | Tolak</td></tr><tr><td>Rina Wijaya</td><td>Daihatsu Xenia</td><td><span class="pill">Menunggu</span></td><td>Terima | Tolak</td></tr><tr><td>Andi Saputra</td><td>Suzuki Ertiga</td><td><span class="pill">Menunggu</span></td><td>Terima | Tolak</td></tr></table></div>
+<div class="box"><h3>Driver Online - 42 Driver Online</h3><div class="map"><span class="dot" style="top:30%;left:20%"></span><span class="dot" style="top:50%;left:45%"></span><span class="dot" style="top:40%;left:65%"></span><span class="dot" style="top:65%;left:30%"></span>Peta Bandung - titik merah = driver</div></div>
+</div>
+<div class="right">
+<div class="box"><h3>Order Live</h3><p><b>ORD-1024</b> - Jakarta Selatan → Bandara Soekarno Hatta<br><small>3 Pesanan Aktif</small></p><p><b>ORD-1023</b> - Bekasi → Depok<br><span class="pill">Menunggu Driver</span></p><p><b>ORD-1022</b> - Tangerang → Bogor<br><span class="pill">Selesai</span></p></div>
+<div class="stats">
+<div class="stat"><small>Total Penumpang:</small><b>1.250</b></div>
+<div class="stat"><small>Total Driver Aktif:</small><b>85</b></div>
+<div class="stat"><small>Order Hari Ini:</small><b>124</b></div>
+<div class="stat"><small>Pendapatan Hari Ini:</small><b>Rp 7.400.000</b></div>
+</div>
+</div>
+</div>
+</div></div>
+<script>console.log('v19 asli tapi laptop, no rotate')</script>
+</body></html>
