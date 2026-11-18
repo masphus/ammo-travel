@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Ammo Travel - Super Admin v13</title>
+<title>Ammo Travel - Super Admin v14</title>
 <script>
 (function(){ try{ var tok=sessionStorage.getItem('ammo_admin_token')||localStorage.getItem('ammo_admin_token')||''; if(!tok){ location.replace('index.html'); return; } var p=String(tok).split('|'); if(p.length<3||!p[0]||!p[1]||!Number(p[2])||Date.now()>Number(p[2])){ try{ localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); }catch(e){} location.replace('index.html'); return; } var logout=Number(localStorage.getItem('ammo_admin_logout_time')||sessionStorage.getItem('ammo_admin_logout_time')||0)||0; var dibuat=Number(p[2])-2*60*60*1000; if(logout&&dibuat&&dibuat<logout){ try{ localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); }catch(e){} location.replace('index.html'); return; } document.documentElement.style.visibility='hidden'; }catch(e){ location.replace('index.html'); } })();
 </script>
@@ -10,36 +10,35 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif;-webkit-tap-highlight-color:transparent}
 html,body{background:#f0f0f0;width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;touch-action:none;overscroll-behavior:none;user-select:none;-webkit-user-select:none}
-/* v13 - LAYOUT PERSIS FOTO: Sidebar | Debet Vertikal | Main */
-#stage{width:1280px;height:800px;background:#f0f0f0;position:absolute;left:50%;top:50%;transform-origin:center center;padding:14px;display:grid;grid-template-columns:210px 230px 1fr;gap:14px;align-items:stretch}
-.sidebar{background:#0a0a0a;border-radius:22px;padding:22px 0 16px;color:#e8c15a;height:772px;display:flex;flex-direction:column;flex-shrink:0}
-.logo{display:flex;align-items:center;gap:10px;padding:0 20px 18px;font-size:18px;font-weight:800}
+/* v14 - KANAN KIRI RAPAT, STATS LEBAR */
+#stage{width:1280px;height:800px;background:#f0f0f0;position:absolute;left:50%;top:50%;transform-origin:center center;padding:6px;display:grid;grid-template-columns:195px 228px 1fr;gap:8px;align-items:stretch}
+.sidebar{background:#0a0a0a;border-radius:16px;padding:20px 0 14px;color:#e8c15a;height:788px;display:flex;flex-direction:column;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:10px;padding:0 16px 18px;font-size:18px;font-weight:800}
 .logo-icon{background:#e8c15a;color:#000;width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .menu-list{display:flex;flex-direction:column;gap:2px}
-.menu-item{display:flex;align-items:center;gap:12px;padding:12px 20px;font-size:15px;color:#e8c15a;cursor:pointer}
+.menu-item{display:flex;align-items:center;gap:10px;padding:12px 16px;font-size:15px;color:#e8c15a;cursor:pointer}
 .menu-item.active{background:#e8c15a;color:#000;font-weight:800;clip-path:polygon(0 0,92% 0,100% 50%,92% 100%,0 100%)}
 .menu-item span{font-size:19px;width:24px;text-align:center}
 .menu-item .badge{margin-left:auto;background:red;color:#fff;padding:2px 7px;border-radius:10px;font-size:11px;font-weight:800}
-.admin-box{margin-top:auto;padding:16px 20px 0;border-top:1px solid #222;margin-left:20px;margin-right:20px;padding-left:0;padding-right:0}
+.admin-box{margin-top:auto;padding:16px 16px 0;border-top:1px solid #222;margin-left:16px;margin-right:16px;padding-left:0;padding-right:0}
 .admin-box b{color:#fff;font-size:14px}.admin-box small{color:#888}
-/* KOLOM DEBET VERTIKAL - DIKUNCI */
-.debet-col{display:flex!important;flex-direction:column!important;gap:14px!important;height:772px!important;flex-shrink:0!important;width:230px!important}
-.debet{background:#0a0a0a!important;border:1.5px solid #e8c15a!important;border-radius:14px!important;padding:14px!important;color:#e8c15a!important;text-align:center!important;height:248px!important;min-height:248px!important;max-height:248px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:6px!important;overflow:hidden!important;flex-shrink:0!important}
+.debet-col{display:flex!important;flex-direction:column!important;gap:8px!important;height:788px!important;flex-shrink:0!important;width:228px!important}
+.debet{background:#0a0a0a!important;border:1.5px solid #e8c15a!important;border-radius:12px!important;padding:14px!important;color:#e8c15a!important;text-align:center!important;height:257px!important;min-height:257px!important;max-height:257px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:6px!important;overflow:hidden!important;flex-shrink:0!important}
 .debet .bank{font-size:28px;border:1.5px solid #e8c15a;display:flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:8px;flex-shrink:0}
 .debet p{font-size:14px;line-height:1.2;min-height:19px}.debet h2{font-size:26px;margin:2px 0;min-height:30px;line-height:1.1}.debet small{font-size:11px;color:#aaa;line-height:1.3;min-height:30px;display:block}
 .btn-row{display:flex;gap:8px;width:100%;margin-top:4px;min-height:36px}.btn-row button{flex:1;padding:9px 0;border-radius:8px;font-weight:800;border:1.5px solid #e8c15a;font-size:14px;cursor:pointer}.acc{background:#e8c15a;color:#000}.tolak{background:transparent;color:#e8c15a}
-.main{background:transparent;height:772px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
-.topbar{background:#fff;border:1.5px solid #e8c15a;border-radius:14px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-shrink:0}
+.main{background:transparent;height:788px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.topbar{background:#fff;border:1.5px solid #e8c15a;border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-shrink:0}
 .topbar h1{font-size:17px;color:#333}.topbar b{color:#c9a227}
 .page{display:none;flex:1;overflow-y:auto;padding-bottom:6px;scrollbar-width:thin;min-height:0}
 .page.active{display:block}
-/* MAIN DASHBOARD PERSIS FOTO */
-.stats-row{display:grid!important;grid-template-columns:1fr 1fr 1fr 1fr!important;gap:12px!important;margin-bottom:12px!important}
-.stat{background:#0a0a0a;border:1.5px solid #e8c15a;border-radius:12px;padding:14px 8px;color:#e8c15a;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:104px}
+/* STATS DILEBARIN FULL - DARI TOTAL PENUMPANG SAMPE PENDAPATAN */
+.stats-row{display:grid!important;grid-template-columns:1fr 1fr 1fr 1fr!important;gap:8px!important;margin-bottom:8px!important;width:100%!important}
+.stat{background:#0a0a0a;border:1.5px solid #e8c15a;border-radius:12px;padding:14px 6px;color:#e8c15a;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:104px;width:100%}
 .stat .ic{font-size:26px;border:1.5px solid #e8c15a;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:8px;margin-bottom:6px}
 .stat p{font-size:12px}.stat h2{font-size:28px;margin-top:4px}
-.dash-mid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.card{background:#fff;border:1.5px solid #e8c15a;border-radius:14px;padding:13px;display:flex;flex-direction:column}
+.dash-mid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.card{background:#fff;border:1.5px solid #e8c15a;border-radius:12px;padding:12px;display:flex;flex-direction:column}
 .card h2{color:#c9a227;font-size:19px}.card small{color:#666}
 .order-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #eee;gap:8px}
 .order-row b{font-size:14px}.order-row p{font-size:12px;color:#444}
@@ -60,9 +59,8 @@ input,select,textarea{padding:11px;border-radius:10px;border:1px solid #e8c15a;b
 .chat-input{display:flex;gap:8px;padding:10px;background:#f9f9f9}.chat-input input{flex:1}.chat-input button{padding:12px 16px;background:#e8c15a;border:none;border-radius:10px;font-weight:800;cursor:pointer}
 #notify{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#e8c15a;color:#000;padding:10px 16px;border-radius:10px;font-weight:700;font-size:13px;z-index:9999;display:none;max-width:90%;text-align:center}
 .order-klik{cursor:pointer}
-/* Di halaman lain (bukan dashboard), kolom debet disembunyikan biar halaman lain full */
 body:not(.show-dashboard) .debet-col{display:none!important}
-body:not(.show-dashboard) #stage{grid-template-columns:210px 1fr!important}
+body:not(.show-dashboard) #stage{grid-template-columns:195px 1fr!important}
 </style></head>
 <body class="show-dashboard">
 <div id="notify"></div>
@@ -83,7 +81,6 @@ body:not(.show-dashboard) #stage{grid-template-columns:210px 1fr!important}
 <div class="admin-box"><div style="display:flex;gap:10px;align-items:center"><div style="width:38px;height:38px;background:#333;border-radius:50%;display:flex;align-items:center;justify-content:center">👤</div><div><b id="adminNameLabel">Memeriksa...</b><br><small id="adminGoogleLabel"></small></div></div><br><button class="btn btn-tolak" onclick="doLogout()">Keluar</button></div>
 </div>
 
-<!-- KOLOM DEBET VERTIKAL PERSIS FOTO - SELALU 3 KOTAK, DIKUNCI 248px -->
 <div class="debet-col" id="debetCol">
   <div class="debet" id="debetBox1"><div class="bank">🏦</div><p id="debetJudul1">Memuat...</p><h2 id="debetHarga1">-</h2><small id="debetDetail1">Menunggu data...</small><div class="btn-row"><button class="acc" id="debetAcc1">ACC</button><button class="tolak" id="debetTolak1">Tolak</button></div></div>
   <div class="debet" id="debetBox2"><div class="bank">🏦</div><p id="debetJudul2">Memuat...</p><h2 id="debetHarga2">-</h2><small id="debetDetail2">Menunggu data...</small><div class="btn-row"><button class="acc" id="debetAcc2">ACC</button><button class="tolak" id="debetTolak2">Tolak</button></div></div>
@@ -91,7 +88,7 @@ body:not(.show-dashboard) #stage{grid-template-columns:210px 1fr!important}
 </div>
 
 <div class="main">
-<div class="topbar"><h1>Ammo Travel - <b>Super Admin v13 - SESUAI FOTO</b></h1><div><span id="adminTopLabel">Admin ▽</span> &nbsp;•&nbsp; <span id="statusSupabase" style="color:#25D366;font-size:12px">Menghubungkan...</span></div></div>
+<div class="topbar"><h1>Ammo Travel - <b>Super Admin v14 - RAPAT + LEBAR</b></h1><div><span id="adminTopLabel">Admin ▽</span> &nbsp;•&nbsp; <span id="statusSupabase" style="color:#25D366;font-size:12px">Menghubungkan...</span></div></div>
 
 <div id="page-dashboard" class="page active">
 <div class="stats-row">
@@ -102,7 +99,7 @@ body:not(.show-dashboard) #stage{grid-template-columns:210px 1fr!important}
 </div>
 <div class="dash-mid">
 <div class="card"><div style="display:flex;justify-content:space-between"><h2>Order Live</h2><small id="orderAktif">• 0 Pesanan Aktif</small></div><div id="orderList" style="margin-top:8px">Memuat...</div><div style="margin-top:10px"><h2 style="font-size:16px">Antrian Belum Terjawab</h2><div id="dashAntrian" style="margin-top:6px">Memuat...</div></div></div>
-<div class="card"><div style="display:flex;justify-content:space-between"><h2>Driver Online</h2><small id="driverOnline">📍 • 0 Driver Online</small></div><div class="map"><div id="mapReal" style="height:100%;width:100%"></div><div class="zoom"><button onclick="mapZoom(-1)">–</button><button onclick="mapZoom(1)">+</button></div></div><p style="color:#888;font-size:11px;margin-top:6px">Peta real • Radius 150 KM dari GPS admin • Pin = lokasi driver asli</p></div>
+<div class="card"><div style="display:flex;justify-content:space-between"><h2>Driver Online</h2><small id="driverOnline">📍 • 0 Driver Online</small></div><div class="map"><div id="mapReal" style="height:100%;width:100%"></div><div class="zoom"><button onclick="mapZoom(-1)">–</button><button onclick="mapZoom(1)">+</button></div></div><p style="color:#888;font-size:11px;margin-top:6px">Peta real • Radius 100 KM dari GPS admin • Pin = lokasi driver asli</p></div>
 </div>
 <div class="card"><h2>Driver Baru - Menunggu ACC</h2><table><thead><tr><th>Nama</th><th>Mobil</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="driverTable"><tr><td colspan="4">Memuat...</td></tr></tbody></table></div>
 </div>
@@ -162,13 +159,12 @@ async function loginGoogleAdmin(){ try{ await sb.auth.signInWithOAuth({provider:
 async function verifikasiGoogle(adm){ const emailBenar=String(adm.email||'').toLowerCase().trim(); if(!emailBenar){ bukaAdmin(adm); return; } let sess=null; try{ const r=await sb.auth.getSession(); sess=r.data?r.data.session:null; }catch(e){} const emailGoogle=sess&&sess.user?String(sess.user.email||'').toLowerCase().trim():''; if(!emailGoogle){ document.documentElement.style.visibility='visible'; document.getElementById('googleGate').style.display='flex'; return; } if(localStorage.getItem('ammo_google_blocked_'+emailGoogle)==='1'){ const ip=await ambilIP(); catetMaling('Google diblokir nyoba masuk lagi',ip,'MALING GOOGLE DIBLOKIR'); lemparKeIndex(); return; } if(emailGoogle!==emailBenar){ await tendangGoogleSalah(emailGoogle,emailBenar,adm.code||'admin'); return; } try{ localStorage.setItem('ammo_admin_google_ok',emailGoogle); }catch(e){} try{ localStorage.removeItem('ammo_admin_logout_time'); sessionStorage.removeItem('ammo_admin_logout_time'); }catch(e){} bukaAdmin(adm,emailGoogle); }
 function bukaAdmin(adm,emailGoogle){ try{ document.getElementById('googleGate').style.display='none'; }catch(e){} document.getElementById('adminNameLabel').textContent=(adm.nama||adm.email)+' - Super Admin'; document.getElementById('adminTopLabel').textContent=(adm.nama||'Admin')+' ▽'; try{ if(emailGoogle) document.getElementById('adminGoogleLabel').textContent='Google: '+emailGoogle+' ✅'; }catch(e){} try{ document.getElementById('namaAdmin').value=adm.nama||''; }catch(e){} try{ document.getElementById('settingCode').value=adm.code||''; }catch(e){} try{ document.getElementById('settingPin').value=String(adm.pin||''); }catch(e){} try{ document.getElementById('settingEmail').value=adm.email||''; }catch(e){} googleSudahDicek=true; document.documentElement.style.visibility='visible'; tampilkanHalaman(ambilHalaman()); initMap(); loadAll(); }
 async function cekSesi(){ let tok=''; try{ tok=sessionStorage.getItem('ammo_admin_token')||localStorage.getItem('ammo_admin_token')||''; }catch(e){} if(!tok){ lemparKeIndex(); return; } const parts=String(tok).split('|'); if(parts.length<3){ lemparKeIndex(); return; } const codeVal=String(parts[0]||'').replace(/^[#@]+/,'').toLowerCase().trim(); const pinVal=String(parts[1]||'').trim(); const expiry=Number(parts[2]||0); const dibuat=expiry?expiry-2*60*60*1000:0; let jamLogout=0; try{ jamLogout=Number(localStorage.getItem('ammo_admin_logout_time')||sessionStorage.getItem('ammo_admin_logout_time')||0)||0; }catch(e){} if(jamLogout&&dibuat&&dibuat<jamLogout){ const ip=await ambilIP(); catetMaling('Karcis lama bekas logout dipakai lagi',ip,'MALING KARCIS BEKAS LOGOUT'); lemparKeIndex(); return; } if(!codeVal||!pinVal||!expiry||Date.now()>expiry){ lemparKeIndex(); return; } let adm=null; try{ const r=await sb.rpc('cek_pin_login',{p_code:codeVal,p_pin:pinVal}); if(r&&!r.error&&r.data&&r.data.length) adm=r.data[0]; }catch(e){} if(!adm){ try{ const a=await sb.from('admin').select('*').ilike('code',codeVal).eq('pin',pinVal).maybeSingle(); if(a&&a.data) adm=a.data; }catch(e){} } if(!adm){ try{ const a3=await sb.from('admin').select('*').ilike('code',codeVal).maybeSingle(); if(a3&&a3.data&&String(a3.data.pin)===String(pinVal)) adm=a3.data; }catch(e){} } if(!adm){ try{ const a4=await sb.from('admin').select('*').eq('pin',pinVal).maybeSingle(); if(a4&&a4.data) adm=a4.data; }catch(e){} } if(!adm||String(adm.role||'admin').toLowerCase()!=='admin'){ ambilIP().then(ip=>{ catetMaling('Code+PIN salah / bukan admin',ip,'MALING KARCIS PALSU'); }); lemparKeIndex(); return; } currentAdmin=adm; adminPinCache=String(adm.pin||''); await verifikasiGoogle(adm); }
-function initMap(){ if(mapObj) return; try{ mapObj=L.map('mapReal',{zoomControl:false,attributionControl:false}).setView([adminLat,adminLng],8); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(mapObj); mapCircle=L.circle([adminLat,adminLng],{radius:150000,color:'#f5d67b',fillColor:'#f5d67b',fillOpacity:0.12,weight:2}).addTo(mapObj); mapAdminMarker=L.marker([adminLat,adminLng]).addTo(mapObj).bindPopup('Posisi Admin (GPS)'); mapDriverLayer=L.layerGroup().addTo(mapObj); if(navigator.geolocation){ navigator.geolocation.getCurrentPosition(pos=>{ adminLat=pos.coords.latitude; adminLng=pos.coords.longitude; mapObj.setView([adminLat,adminLng],8); mapCircle.setLatLng([adminLat,adminLng]); mapAdminMarker.setLatLng([adminLat,adminLng]); updateDriverPins(); },()=>{},{enableHighAccuracy:true,timeout:8000}); } setTimeout(()=>{ try{ mapObj.invalidateSize(); }catch(e){} },500); }catch(e){} }
+function initMap(){ if(mapObj) return; try{ mapObj=L.map('mapReal',{zoomControl:false,attributionControl:false}).setView([adminLat,adminLng],8); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(mapObj); mapCircle=L.circle([adminLat,adminLng],{radius:100000,color:'#f5d67b',fillColor:'#f5d67b',fillOpacity:0.12,weight:2}).addTo(mapObj); mapAdminMarker=L.marker([adminLat,adminLng]).addTo(mapObj).bindPopup('Posisi Admin (GPS)'); mapDriverLayer=L.layerGroup().addTo(mapObj); if(navigator.geolocation){ navigator.geolocation.getCurrentPosition(pos=>{ adminLat=pos.coords.latitude; adminLng=pos.coords.longitude; mapObj.setView([adminLat,adminLng],8); mapCircle.setLatLng([adminLat,adminLng]); mapAdminMarker.setLatLng([adminLat,adminLng]); updateDriverPins(); },()=>{},{enableHighAccuracy:true,timeout:8000}); } setTimeout(()=>{ try{ mapObj.invalidateSize(); }catch(e){} },500); }catch(e){} }
 function mapZoom(d){ if(!mapObj) return; mapObj.setZoom(mapObj.getZoom()+d); }
 function updateDriverPins(){ if(!mapObj||!mapDriverLayer) return; mapDriverLayer.clearLayers(); const withGps=cacheDrivers.filter(d=>d.lat&&d.lng); withGps.forEach(d=>{ const m=L.marker([Number(d.lat),Number(d.lng)]).bindPopup(`<b>${esc(d.nama||'Driver')}</b><br>${esc(d.jenis_mobil||'')} • ${esc(d.plat_mobil||'')}<br>Status: ${esc(d.status||'')}`); mapDriverLayer.addLayer(m); }); }
 function gabungAntrianDobel(list){ const map=new Map(); (list||[]).forEach(a=>{ const k=String(a.pertanyaan||'').toLowerCase().trim(); if(!k) return; if(!map.has(k)) map.set(k,a); else{ const lama=map.get(k); if(Number(a.id||0)>Number(lama.id||0)) map.set(k,a); } }); return [...map.values()].sort((a,b)=>Number(b.id||0)-Number(a.id||0)); }
 async function bersihinAntrianDobel(){ try{ const unik=gabungAntrianDobel(cacheAntrian); const idUnik=new Set(unik.map(a=>String(a.id))); const dobel=cacheAntrian.filter(a=>!idUnik.has(String(a.id))); if(!dobel.length) return showSukses('Udah bersih, nggak ada antrian dobel.'); for(const d of dobel){ try{ await sb.from('antrian').delete().eq('id',d.id); }catch(e){} } loadAll(); showSukses(dobel.length+' antrian dobel udah dibersihin.'); }catch(e){ showError(e.message); } }
 async function safeFetch(table,orderCol){ try{ let q=sb.from(table).select('*').limit(50); if(orderCol) q=q.order(orderCol,{ascending:false}); const r=await q; if(r.error){ console.warn('Gagal load '+table+':',r.error.message); return []; } return r.data||[]; }catch(e){ console.warn('Gagal load '+table+':',e.message); return []; } }
-// v13 - CUMA GANTI TEKS, RANGKA KOTAK VERTIKAL GAK PERNAH DIHAPUS
 function renderDebetBoxes(){
   const menunggu=cacheDrivers.filter(d=>['menunggu','pending','baru','waiting'].includes(String(d.status||'').toLowerCase()));
   for(let i=1;i<=3;i++){
