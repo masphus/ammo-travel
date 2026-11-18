@@ -1,58 +1,63 @@
 <!DOCTYPE html>
 <html lang="id"><head><meta charset="UTF-8">
-<title>Ammo Travel - Super Admin v19</title>
+<title>Ammo Travel - Super Admin v20</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-*{box-sizing:border-box} html,body{margin:0;background:#f1f5f9;font-family:Arial}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#111;font-family:Arial}
 body{min-width:1280px;overflow-x:auto}
-.stage{width:1280px;margin:0 auto;display:flex;transform:none!important}
-.sidebar{width:230px;min-width:230px;background:#111827;color:#fff;padding:18px 12px;min-height:100vh}
-.sidebar h2{color:#fbbf24;margin:0;font-size:20px}.sidebar p{color:#9ca3af;font-size:12px}
-.menu{list-style:none;padding:0}.menu li{padding:11px 10px;border-radius:8px;margin-bottom:4px;font-size:14px}
-.menu li.active{background:#fbbf24;color:#000;font-weight:bold}
-.main{flex:1;padding:18px}
-.topbar{display:flex;justify-content:space-between;align-items:center}
-.topbar b{font-size:20px}.topbar span{background:#fbbf24;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:bold}
-.debet{display:flex;gap:14px;margin:14px 0}
-.dcard{flex:1;background:#111827;color:#fff;border-radius:12px;padding:16px;display:flex;justify-content:space-between;align-items:center}
-.dcard b{color:#fbbf24;font-size:22px;display:block}.dcard small{color:#d1d5db}
-.btn{border:0;border-radius:8px;padding:8px 14px;font-weight:bold;cursor:pointer}
-.btn-acc{background:#fbbf24}.btn-tolak{background:#fff;color:#000;margin-left:6px}
-.grid{display:flex;gap:14px}
-.left{flex:1.2}.right{flex:1}
-.box{background:#fff;border-radius:12px;padding:14px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-.box h3{margin:0 0 10px;font-size:15px}
-table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;background:#fef3c7;padding:9px}td{padding:9px;border-bottom:1px solid #f1f5f9}
-.pill{background:#fbbf24;padding:4px 8px;border-radius:20px;font-size:11px;font-weight:bold}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.stat{background:#111827;color:#fff;border-radius:12px;padding:14px}.stat b{font-size:22px;color:#fbbf24;display:block}
-.map{background:#111827;border-radius:12px;height:190px;position:relative;color:#fff;padding:12px}
-.dot{position:absolute;width:10px;height:10px;background:red;border-radius:50%}
+.stage{width:1280px;margin:0 auto;background:#f5f5f5;min-height:100vh}
+/* ATAS - SESUAI DESAIN ASLI LU: HITAM, MENU MEMANJANG */
+.topnav{background:#111;color:#fff;display:flex;align-items:center;padding:12px 16px;gap:8px}
+.logo{font-weight:900;color:#fbbf24;font-size:19px;white-space:nowrap}
+.topnav a{color:#fff;text-decoration:none;font-size:13px;padding:9px 10px;border-radius:8px;white-space:nowrap}
+.topnav a.active{background:#fbbf24;color:#000;font-weight:bold}
+.lockbar{background:#fbbf24;color:#000;text-align:center;font-weight:bold;padding:9px;font-size:14px;border-radius:999px;margin:12px 16px}
+.lockbar small{font-weight:normal}
+/* DEBET - 3 KARTU HITAM */
+.debet{display:flex;gap:14px;padding:0 16px}
+.dcard{flex:1;background:#111;color:#fff;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center}
+.dcard small{color:#d1d5db;font-size:12px}
+.dcard b{color:#fbbf24;font-size:24px;display:block;margin:4px 0}
+.btn-acc{background:#fbbf24;border:0;padding:10px 14px;border-radius:8px;font-weight:900;cursor:pointer}
+.btn-tolak{background:#fff;border:0;padding:10px 14px;border-radius:8px;font-weight:900;margin-top:6px;cursor:pointer;display:block;width:100%}
+/* ISI */
+.grid{display:flex;gap:14px;padding:14px 16px}
+.left{flex:1.35}.right{flex:1}
+.box{background:#fff;border-radius:14px;padding:14px;margin-bottom:14px}
+.box h3{margin:0 0 10px}
+table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;padding:9px;background:#fff8e1}td{padding:9px;border-bottom:1px solid #eee}
+.pill{background:#fbbf24;padding:5px 9px;border-radius:20px;font-size:11px;font-weight:bold}
+.stats{display:flex;flex-direction:column;gap:12px}
+.stat{background:#111;color:#fff;border-radius:14px;padding:14px;display:flex;justify-content:space-between;align-items:center}
+.stat b{color:#fbbf24;font-size:22px}
+.map{background:#111;border-radius:14px;height:200px;position:relative;color:#fff;padding:12px}
+.dot{position:absolute;width:11px;height:11px;background:#ef4444;border-radius:50%}
 </style></head><body>
 <div class="stage">
-<div class="sidebar"><h2>Ammo Travel</h2><p>Super Admin v19 - LAPTOP</p><ul class="menu"><li class="active">Dashboard</li><li>Penumpang</li><li>Driver</li><li>Order</li><li>Penghasilan</li><li>Chat</li><li>Pengaturan</li><li>Admin</li></ul></div>
-<div class="main">
-<div class="topbar"><b>Dashboard - Super Admin v19</b><span>LAPTOP VIEW - TIDAK DIPUTER</span></div>
+<div class="topnav">
+<div class="logo">Ammo Travel</div>
+<a class="active" href="#">Dashboard</a><a href="#">Penumpang</a><a href="#">Driver</a><a href="#">Order</a><a href="#">Penghasilan</a><a href="#">Chat</a><a href="#">Pengaturan</a><a href="#">Admin</a>
+<span style="margin-left:auto;font-size:12px;color:#9ca3af">Super Admin v20 - LAPTOP</span>
+</div>
+<div class="lockbar">🔒 Tap Sekali - Kunci Landscape <small>- v20 udah laptop, gak perlu diputer lagi</small></div>
 <div class="debet">
-<div class="dcard"><div><small>Debet Penumpang Siti</small><b>Rp 50.000</b></div><div><button class="btn btn-acc">ACC</button><button class="btn btn-tolak">Tolak</button></div></div>
-<div class="dcard"><div><small>Debet Driver Budi</small><b>Rp 100.000</b></div><div><button class="btn btn-acc">ACC</button><button class="btn btn-tolak">Tolak</button></div></div>
-<div class="dcard"><div><small>Debet Driver Rina</small><b>Rp 150.000</b></div><div><button class="btn btn-acc">ACC</button><button class="btn btn-tolak">Tolak</button></div></div>
+<div class="dcard"><div><small>Debet Penumpang Siti</small><b>Rp 50.000</b><div style="font-size:11px;color:#9ca3af">🏛️ Debet</div></div><div><button class="btn-acc">ACC</button><button class="btn-tolak">Tolak</button></div></div>
+<div class="dcard"><div><small>Debet Driver Budi</small><b>Rp 100.000</b></div><div><button class="btn-acc">ACC</button><button class="btn-tolak">Tolak</button></div></div>
+<div class="dcard"><div><small>Debet Driver Rina</small><b>Rp 150.000</b></div><div><button class="btn-acc">ACC</button><button class="btn-tolak">Tolak</button></div></div>
 </div>
 <div class="grid">
 <div class="left">
 <div class="box"><h3>Driver Baru - Menunggu ACC</h3><table><tr><th>Nama</th><th>Mobil</th><th>Status</th><th>Aksi</th></tr><tr><td>Budi Pratama</td><td>Toyota Avanza</td><td><span class="pill">Menunggu</span></td><td>Terima | Tolak</td></tr><tr><td>Rina Wijaya</td><td>Daihatsu Xenia</td><td><span class="pill">Menunggu</span></td><td>Terima | Tolak</td></tr><tr><td>Andi Saputra</td><td>Suzuki Ertiga</td><td><span class="pill">Menunggu</span></td><td>Terima | Tolak</td></tr></table></div>
-<div class="box"><h3>Driver Online - 42 Driver Online</h3><div class="map"><span class="dot" style="top:30%;left:20%"></span><span class="dot" style="top:50%;left:45%"></span><span class="dot" style="top:40%;left:65%"></span><span class="dot" style="top:65%;left:30%"></span>Peta Bandung - titik merah = driver</div></div>
+<div class="box"><h3>Order Live</h3><p><b>ORD-1024</b> - Jakarta Selatan → Bandara Soekarno Hatta</p><p><b>ORD-1023</b> - Bekasi → Depok - <span class="pill">Menunggu Driver</span></p><p><b>ORD-1022</b> - Tangerang → Bogor - <span class="pill">Selesai</span></p></div>
+<div class="map"><b>Driver Online</b><br><small>42 Driver Online</small><span class="dot" style="top:40%;left:25%"></span><span class="dot" style="top:55%;left:45%"></span><span class="dot" style="top:35%;left:65%"></span><span class="dot" style="top:65%;left:35%"></span></div>
 </div>
-<div class="right">
-<div class="box"><h3>Order Live</h3><p><b>ORD-1024</b> - Jakarta Selatan → Bandara Soekarno Hatta<br><small>3 Pesanan Aktif</small></p><p><b>ORD-1023</b> - Bekasi → Depok<br><span class="pill">Menunggu Driver</span></p><p><b>ORD-1022</b> - Tangerang → Bogor<br><span class="pill">Selesai</span></p></div>
-<div class="stats">
-<div class="stat"><small>Total Penumpang:</small><b>1.250</b></div>
-<div class="stat"><small>Total Driver Aktif:</small><b>85</b></div>
-<div class="stat"><small>Order Hari Ini:</small><b>124</b></div>
-<div class="stat"><small>Pendapatan Hari Ini:</small><b>Rp 7.400.000</b></div>
-</div>
-</div>
-</div>
+<div class="right"><div class="stats">
+<div class="stat"><span>Total Penumpang:</span><b>1.250</b></div>
+<div class="stat"><span>Total Driver Aktif:</span><b>85</b></div>
+<div class="stat"><span>Order Hari Ini:</span><b>124</b></div>
+<div class="stat"><span>Pendapatan Hari Ini:</span><b>Rp 7.400.000</b></div>
 </div></div>
-<script>console.log('v19 asli tapi laptop, no rotate')</script>
+</div>
+</div>
 </body></html>
