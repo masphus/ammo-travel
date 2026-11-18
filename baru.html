@@ -1,44 +1,90 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ammo Travel</title>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=0.32">
+<title>Ammo Travel - Dashboard</title>
 <style>
-body{background:#f2f2f2;margin:0;font-family:Arial;padding:12px}
-.sidebar{background:#000;color:#e8c15a;border-radius:16px;padding:18px;margin-bottom:12px}
-.sidebar b{color:#fff}.menu{padding:10px;background:#e8c15a;color:#000;border-radius:10px;font-weight:bold;margin-top:10px}
-.menu2{padding:10px;color:#e8c15a}
-.top{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.black{background:#000;color:#e8c15a;border:2px solid #e8c15a;border-radius:16px;padding:16px}
-.black .num{font-size:28px;font-weight:900}
-.white{background:#fff;border:1.5px solid #e8c15a;border-radius:16px;padding:16px;margin-bottom:12px}
-.btn{padding:10px 18px;border-radius:10px;font-weight:bold;border:none;cursor:pointer}
-.btn-acc{background:#e8c15a}.btn-tolak{background:#111;color:#e8c15a;border:1px solid #e8c15a}
-table{width:100%;border-collapse:collapse} td,th{padding:10px 6px;border-bottom:1px solid #eee;text-align:left}
-@media(min-width:900px){
-.wrap{display:grid;grid-template-columns:230px 280px 1fr;gap:16px;align-items:start}
-.sidebar{margin:0}.top{grid-template-columns:1fr 1fr 1fr 1fr}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial, sans-serif}
+body{background:#f0f0f0;padding:14px;overflow-x:auto}
+.wrap{display:grid;grid-template-columns:210px 270px 1fr;gap:16px;min-width:1250px;width:1250px;margin:0 auto;align-items:start}
+.sidebar{background:#0a0a0a;border-radius:22px;padding:28px 0 20px;color:#e8c15a;min-height:680px}
+.logo{display:flex;align-items:center;gap:10px;padding:0 20px 24px;font-size:18px;font-weight:800}
+.logo-icon{background:#e8c15a;color:#000;width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.menu-item{display:flex;align-items:center;gap:12px;padding:13px 20px;font-size:16px;color:#e8c15a}
+.menu-item.active{background:#e8c15a;color:#000;font-weight:800;clip-path:polygon(0 0,92% 0,100% 50%,92% 100%,0 100%);padding-right:28px}
+.menu-item span{font-size:20px}
+.admin{padding:22px 20px 0;display:flex;gap:10px;align-items:center}
+.admin .ava{width:38px;height:38px;background:#333;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px}
+.admin b{color:#fff;font-size:14px}.admin small{color:#888}
 .debet-col{display:flex;flex-direction:column;gap:16px}
-}
+.debet{background:#0a0a0a;border:1.5px solid #e8c15a;border-radius:14px;padding:22px;color:#e8c15a;text-align:center}
+.debet .bank{font-size:42px;border:1.5px solid #e8c15a;display:inline-block;padding:6px 14px;border-radius:6px;margin-bottom:12px}
+.debet p{font-size:15px;margin-bottom:4px}.debet h2{font-size:34px;color:#e8c15a;margin:6px 0 14px}
+.btn-row{display:flex;gap:10px}.btn-row button{flex:1;padding:9px;border-radius:8px;font-weight:800;cursor:pointer;border:1.5px solid #e8c15a}.acc{background:#e8c15a;color:#000}.tolak{background:transparent;color:#e8c15a}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.stat{background:#0a0a0a;border:1.5px solid #e8c15a;border-radius:12px;padding:18px;color:#e8c15a;text-align:center}
+.stat .ic{font-size:38px;border:1.5px solid #e8c15a;display:inline-block;padding:4px 10px;border-radius:6px;margin-bottom:8px}
+.stat p{font-size:14px}.stat h2{font-size:36px;margin-top:4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.card{background:#fff;border:1.5px solid #e8c15a;border-radius:14px;padding:16px}
+.card h2{color:#c9a227;font-size:24px}.card small{color:#666}
+.order-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #eee}
+.order-row b{font-size:17px}.order-row p{font-size:13px;color:#444}
+.pill{font-size:12px;font-weight:800;padding:7px 12px;border-radius:6px;white-space:nowrap}.yellow{background:#e8c15a;color:#000}.black-pill{background:#000;color:#fff}
+.map{background:#222;height:150px;border-radius:10px;position:relative;margin-top:12px;overflow:hidden;background-image:radial-gradient(#444 1px, transparent 1px);background-size:18px 18px}
+.pin{position:absolute;font-size:22px}.zoom{position:absolute;right:8px;top:8px;display:flex;gap:6px}.zoom span{background:#e8c15a;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;font-weight:900}
+table{width:100%;border-collapse:collapse;margin-top:10px}th{text-align:left;padding:10px 6px;font-size:15px}td{padding:10px 6px;border-top:1px solid #eee;font-size:14px}
+.st{padding:7px 12px;background:#e8c15a;border-radius:6px;font-weight:800;font-size:12px;text-align:center;display:inline-block}
+.td-btn{padding:8px 14px;border-radius:6px;font-weight:800;border:none;cursor:pointer}.t-terima{background:#e8c15a}.t-tolak{background:#000;color:#fff}
 </style></head>
 <body>
 <div class="wrap">
-<div class="sidebar"><h2>📍 Ammo Travel</h2><div class="menu">🏠 Dashboard</div><div class="menu2">👥 Penumpang</div><div class="menu2">🚗 Driver</div><div class="menu2">🧾 Order</div><div class="menu2">💰 Penghasilan</div><div class="menu2">💬 Chat</div><div class="menu2">⚙️ Pengaturan</div><br><b>Admin</b><br><small style="color:#999">Super Admin</small></div>
 
+<!-- SIDEBAR -->
+<div class="sidebar">
+<div class="logo"><div class="logo-icon">📍</div> Ammo Travel</div>
+<div class="menu-item active"><span>🏠</span> Dashboard</div>
+<div class="menu-item"><span>👤</span> Penumpang</div>
+<div class="menu-item"><span>🎡</span> Driver</div>
+<div class="menu-item"><span>📋</span> Order</div>
+<div class="menu-item"><span>💵</span> Penghasilan</div>
+<div class="menu-item"><span>💬</span> Chat</div>
+<div class="menu-item"><span>⚙️</span> Pengaturan</div>
+<div class="admin"><div class="ava">👤</div><div><b>Admin</b><br><small>Super Admin</small></div></div>
+</div>
+
+<!-- DEBET -->
 <div class="debet-col">
-<div class="black"><b>🧾 Debet Penumpang Siti</b><div class="num">Rp 50.000</div><small>Menunggu ACC</small><br><br><button class="btn btn-acc">ACC</button> <button class="btn btn-tolak">Tolak</button></div>
-<div class="black"><b>🧾 Debet Driver Budi</b><div class="num">Rp 100.000</div><small>Menunggu ACC</small><br><br><button class="btn btn-acc">ACC</button> <button class="btn btn-tolak">Tolak</button></div>
-<div class="black"><b>🧾 Debet Driver Rina</b><div class="num">Rp 150.000</div><small>Menunggu ACC</small><br><br><button class="btn btn-acc">ACC</button> <button class="btn btn-tolak">Tolak</button></div>
+<div class="debet"><div class="bank">🏦</div><p>Debet Penumpang Siti</p><h2>Rp 50.000</h2><div class="btn-row"><button class="acc">ACC</button><button class="tolak">Tolak</button></div></div>
+<div class="debet"><div class="bank">🏦</div><p>Debet Driver Budi</p><h2>Rp 100.000</h2><div class="btn-row"><button class="acc">ACC</button><button class="tolak">Tolak</button></div></div>
+<div class="debet"><div class="bank">🏦</div><p>Debet Driver Rina</p><h2>Rp 150.000</h2><div class="btn-row"><button class="acc">ACC</button><button class="tolak">Tolak</button></div></div>
 </div>
 
+<!-- KANAN -->
 <div>
-<div class="top">
-<div class="black"><small>Total Penumpang</small><div class="num">1.250</div></div>
-<div class="black"><small>Total Driver Aktif</small><div class="num">85</div></div>
-<div class="black"><small>Order Hari Ini</small><div class="num">124</div></div>
-<div class="black"><small>Pendapatan</small><div class="num" style="font-size:20px">Rp 7.400.000</div></div>
+<div class="stats">
+<div class="stat"><div class="ic">👥</div><p>Total Penumpang:</p><h2>1.250</h2></div>
+<div class="stat"><div class="ic">🧑‍✈️</div><p>Total Driver Aktif:</p><h2>85</h2></div>
+<div class="stat"><div class="ic">📋</div><p>Order Hari Ini:</p><h2>124</h2></div>
+<div class="stat"><div class="ic">🏦</div><p>Pendapatan Hari Ini:</p><h2 style="font-size:24px;margin-top:14px">Rp 7.400.000</h2></div>
 </div>
-<div class="white"><h2 style="color:#b8952e">Order Live</h2><small>• 3 Pesanan Aktif</small><hr><b>ORD-1024</b> - Jakarta Selatan → Bandara Soekarno-Hatta <button class="btn btn-acc">Berjalan</button><br><br><b>ORD-1023</b> - Bekasi → Depok <button class="btn btn-acc">Menunggu Driver</button><br><br><b>ORD-1022</b> - Tangerang → Bogor <button class="btn btn-tolak">Selesai</button></div>
-<div class="white"><h2 style="color:#b8952e">Driver Online</h2><small>• 42 Driver Online</small><div style="background:#111;color:#e8c15a;border-radius:12px;padding:40px;text-align:center;font-size:30px;margin-top:10px">🗺️ 📍📍📍</div></div>
-<div class="white"><h2 style="color:#b8952e">Driver Baru - Menunggu ACC</h2><table><tr><th>Nama</th><th>Mobil</th><th>Aksi</th></tr><tr><td>Budi Pratama</td><td>Toyota Avanza</td><td><button class="btn btn-tolak">Terima</button></td></tr><tr><td>Rina Wijaya</td><td>Daihatsu Xenia</td><td><button class="btn btn-tolak">Terima</button></td></tr><tr><td>Andi Saputra</td><td>Suzuki Ertiga</td><td><button class="btn btn-tolak">Tolak</button></td></tr></table></div>
+
+<div class="grid2">
+<div class="card"><h2>Order Live</h2><small>• 3 Pesanan Aktif</small>
+<div class="order-row"><div><b>ORD-1024</b><p>Jakarta Selatan → Bandara Soekarno-Hatta</p></div><span class="pill yellow">Berjalan</span></div>
+<div class="order-row"><div><b>ORD-1023</b><p>Bekasi → Depok</p></div><span class="pill yellow">Menunggu Driver</span></div>
+<div class="order-row" style="border:none"><div><b>ORD-1022</b><p>Tangerang → Bogor</p></div><span class="pill black-pill">Selesai</span></div>
 </div>
+<div class="card"><div style="display:flex;justify-content:space-between"><div><h2>Driver Online</h2><small>• 42 Driver Online</small></div><span>📍</span></div>
+<div class="map"><div class="zoom"><span>–</span><span>+</span></div><span class="pin" style="left:20%;top:30%">📍</span><span class="pin" style="left:45%;top:15%">📍</span><span class="pin" style="left:60%;top:40%">📍</span><span class="pin" style="left:75%;top:20%">📍</span><span class="pin" style="left:35%;top:60%">📍</span><span class="pin" style="left:55%;top:70%">📍</span><span class="pin" style="left:80%;top:60%">📍</span></div>
+</div>
+</div>
+
+<div class="card"><h2>Driver Baru - Menunggu ACC</h2>
+<table><tr><th>Nama</th><th>Mobil</th><th>Status</th><th style="text-align:right">Aksi</th></tr>
+<tr><td>Budi Pratama</td><td>Toyota Avanza</td><td><span class="st">Menunggu</span></td><td style="text-align:right"><button class="td-btn t-terima">Terima</button> <button class="td-btn t-tolak">Tolak</button></td></tr>
+<tr><td>Rina Wijaya</td><td>Daihatsu Xenia</td><td><span class="st">Menunggu</span></td><td style="text-align:right"><button class="td-btn t-terima">Terima</button> <button class="td-btn t-tolak">Tolak</button></td></tr>
+<tr><td>Andi Saputra</td><td>Suzuki Ertiga</td><td><span class="st">Menunggu</span></td><td style="text-align:right"><button class="td-btn t-terima">Terima</button> <button class="td-btn t-tolak">Tolak</button></td></tr>
+</table></div>
+</div>
+
 </div>
 </body></html>
