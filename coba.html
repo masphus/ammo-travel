@@ -28,6 +28,8 @@ body{background:#0f0f0f;color:#fff;overflow-x:hidden}
 .debet{display:flex;flex-direction:column;gap:10px;grid-row:1/span 3}
 .debet .card{display:flex;flex-direction:column;justify-content:flex-start;padding:10px;min-height:118px}
 .debet small{font-size:13px;color:#ccc}.debet h2{font-size:17px;margin:5px 0;color:#fff}
+.debet .debet-judul{font-size:13px;color:#ffc107;font-weight:bold}
+.debet .debet-kosong{font-size:12px;color:#888;margin-top:4px}
 .btn-row{display:flex;gap:5px;margin-top:6px}
 .btn{flex:1;padding:7px 4px;border:none;border-radius:7px;font-size:12px;font-weight:bold;cursor:pointer;white-space:nowrap}
 .btn-acc,.btn-terima{background:#28a745;color:#fff}.btn-tolak{background:#444;color:#fff}
@@ -124,9 +126,10 @@ let _notifyTimer=null,topupTarget=null;
 // penarikan: id bigint, tipe text, user_id text, nama text, nominal bigint, status text
 // ATURAN: String() untuk semua yang text/uuid. Number() HANYA untuk saldo & nominal yang emang bigint.
 // TIDAK ADA ALTER TABLE, TIDAK ADA ubah tipe data.
+// DEBET: 3 kotak terpisah - 1 Penumpang (atas), 2 Driver (tengah), 3 Voucher (bawah, belum ada tabelnya, biarin dulu, kerja 1-1)
 // ===============================================
-function asText(v){ return String(v ?? ''); } // untuk semua kolom text / uuid - biar 0 di depan tidak hilang
-function asSaldo(v){ return Number(v ?? 0)||0; } // HANYA untuk saldo & nominal yang emang bigint
+function asText(v){ return String(v ?? ''); }
+function asSaldo(v){ return Number(v ?? 0)||0; }
 function getSaldoObj(o){ return asSaldo(o.saldo); }
 function notify(msg){ try{ const el=document.getElementById('notify'); if(!el) return; el.textContent=msg||''; el.style.display='block'; clearTimeout(_notifyTimer); _notifyTimer=setTimeout(()=>{ el.style.display='none'; },2500); }catch(e){} }
 function showError(msg){ console.warn(msg); notify(msg); }
@@ -149,29 +152,48 @@ function ambilHalaman(){ try{ return localStorage.getItem('ammo_admin_page')||se
 document.querySelectorAll('.sidebar a[data-page]').forEach(a=>{ a.onclick=()=>{ tampilkanHalaman(a.dataset.page); document.getElementById('sidebar').classList.remove('show'); document.getElementById('overlay').classList.remove('show'); }; });
 function pindahKeHalaman(p){ tampilkanHalaman(p); }
 function bukaAntrianDariDashboard(id){ pindahKeHalaman('antrian'); setTimeout(()=>{ const el=document.getElementById('jawab-'+id); if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.focus(); el.style.border='2px solid #f5d67b'; } },300); }
+// ===== DEBET 3 KOTAK - INI YANG DIPERBAIKI =====
+function debetSatuKotak(judul, list, kosongMsg){
+  let isi = '';
+  if(!list.length){ isi = '<div class="debet-kosong">'+kosongMsg+'</div>'; }
+  else { isi = list.map(p=>'<div style="margin-top:8px;border-top:1px solid #333;padding-top:8px"><small>'+esc(p.nama||'')+'</small><h2>'+rp(p.nominal)+'</h2><small style="color:#888">user_id: '+esc(p.user_id||'')+' • '+esc(fmtTgl(p.created_at))+'</small><div class="btn-row"><button class="btn btn-acc" onclick="accDebet('+asSaldo(p.id)+')">ACC</button><button class="btn btn-tolak" onclick="tolakDebet('+asSaldo(p.id)+')">Tolak</button></div></div>').join(''); }
+  return '<div class="card"><div class="debet-judul">'+judul+'</div>'+isi+'</div>';
+}
 function renderDebet(){
   const box=document.getElementById('debetList'); const all=document.getElementById('debetAllList');
   const menunggu=cachePenarikan.filter(p=>asText(p.status||'menunggu').toLowerCase()==='menunggu');
-  if(!menunggu.length){
-    box.innerHTML='<div class="card"><small>Debet / Tarik Saldo</small><h2>Belum ada yang mau tarik saldo ✅</h2><small style="color:#888">Kalau ada penumpang / driver yang minta tarik, namanya + nominalnya muncul di sini</small></div>';
-    if(all) all.innerHTML='<p style="color:#888">Belum ada permintaan tarik saldo.</p>';
-    return;
+  // Pisah berdasarkan tipe di kolom penarikan.tipe (text) - bukan berdasarkan id
+  const listPenumpang = menunggu.filter(p=>asText(p.tipe).toLowerCase()==='penumpang');
+  const listDriver = menunggu.filter(p=>asText(p.tipe).toLowerCase()==='driver');
+  const listVoucher = menunggu.filter(p=>asText(p.tipe).toLowerCase()==='voucher');
+  // 3 kotak selalu tampil, biarpun kosong - biar lu tau posisinya
+  box.innerHTML =
+    debetSatuKotak('1. Debet / Tarik Saldo - Penumpang', listPenumpang, 'Belum ada penumpang yang mau tarik saldo ✅') +
+    debetSatuKotak('2. Debet / Tarik Saldo - Driver', listDriver, 'Belum ada driver yang mau tarik saldo ✅') +
+    debetSatuKotak('3. Debet / Tarik Saldo - Voucher', listVoucher, 'Belum ada voucher yang mau tarik ✅<br><small style="color:#666">Voucher belum ada tabelnya, biarin dulu, kerjain 1-1</small>');
+  if(all){
+    if(!cachePenarikan.length) all.innerHTML='<p style="color:#888">Belum ada permintaan tarik saldo.</p>';
+    else all.innerHTML =
+      '<h3 style="margin-top:10px;color:#ffc107">Penumpang</h3>' + cachePenarikan.filter(p=>asText(p.tipe).toLowerCase()==='penumpang').map(p=>'<div class="order-row"><div><b>'+esc(p.nama)+'</b><br><small>'+esc(p.tipe)+' • '+esc(p.user_id)+' • '+esc(fmtTgl(p.created_at))+' • '+esc(p.status)+'</small></div><div><b>'+rp(p.nominal)+'</b> '+(asText(p.status).toLowerCase()==='menunggu'?'<button class="btn btn-terima" onclick="accDebet('+asSaldo(p.id)+')">ACC</button> <button class="btn btn-tolak" onclick="tolakDebet('+asSaldo(p.id)+')">Tolak</button>':'')+'</div></div>').join('') +
+      '<h3 style="margin-top:14px;color:#ffc107">Driver</h3>' + cachePenarikan.filter(p=>asText(p.tipe).toLowerCase()==='driver').map(p=>'<div class="order-row"><div><b>'+esc(p.nama)+'</b><br><small>'+esc(p.tipe)+' • '+esc(p.user_id)+' • '+esc(fmtTgl(p.created_at))+' • '+esc(p.status)+'</small></div><div><b>'+rp(p.nominal)+'</b> '+(asText(p.status).toLowerCase()==='menunggu'?'<button class="btn btn-terima" onclick="accDebet('+asSaldo(p.id)+')">ACC</button> <button class="btn btn-tolak" onclick="tolakDebet('+asSaldo(p.id)+')">Tolak</button>':'')+'</div></div>').join('') +
+      '<h3 style="margin-top:14px;color:#ffc107">Voucher</h3>' + cachePenarikan.filter(p=>asText(p.tipe).toLowerCase()==='voucher').map(p=>'<div class="order-row"><div><b>'+esc(p.nama)+'</b><br><small>'+esc(p.tipe)+' • '+esc(p.user_id)+' • '+esc(fmtTgl(p.created_at))+' • '+esc(p.status)+'</small></div><div><b>'+rp(p.nominal)+'</b> '+(asText(p.status).toLowerCase()==='menunggu'?'<button class="btn btn-terima" onclick="accDebet('+asSaldo(p.id)+')">ACC</button> <button class="btn btn-tolak" onclick="tolakDebet('+asSaldo(p.id)+')">Tolak</button>':'')+'</div></div>').join('');
   }
-  const html=menunggu.slice(0,3).map(p=>`<div class="card"><small>Debet ${esc(p.tipe||'')} • ${esc(p.nama||'')}</small><h2>${rp(p.nominal)}</h2><small style="color:#888">user_id: ${esc(p.user_id||'')} • ${esc(fmtTgl(p.created_at))}</small><div class="btn-row"><button class="btn btn-acc" onclick="accDebet(${asSaldo(p.id)})">ACC</button><button class="btn btn-tolak" onclick="tolakDebet(${asSaldo(p.id)})">Tolak</button></div></div>`).join('');
-  box.innerHTML=html;
-  if(all) all.innerHTML=cachePenarikan.map(p=>`<div class="order-row"><div><b>${esc(p.nama)}</b><br><small>${esc(p.tipe)} • user_id ${esc(p.user_id)} • ${esc(fmtTgl(p.created_at))} • Status: ${esc(p.status)}</small></div><div><b>${rp(p.nominal)}</b> ${asText(p.status).toLowerCase()==='menunggu'?`<button class="btn btn-terima" onclick="accDebet(${asSaldo(p.id)})">ACC</button> <button class="btn btn-tolak" onclick="tolakDebet(${asSaldo(p.id)})">Tolak</button>`:''}</div></div>`).join('');
 }
 async function accDebet(id){
   const p=cachePenarikan.find(x=>asSaldo(x.id)===asSaldo(id)); if(!p) return notify('Data penarikan tidak ketemu');
   if(!confirm('ACC tarik saldo '+p.nama+' sebesar '+rp(p.nominal)+' ? Saldo akan dipotong.')) return;
   const tipe=asText(p.tipe||'').toLowerCase();
-  // KOMPAS: penarikan.user_id itu text. Jadi bandingkan pake String, bukan Number.
   if(tipe==='driver'){
     const target=cacheDrivers.find(d=>asText(d.id)===asText(p.user_id));
     if(target){ const sebelum=getSaldoObj(target); const sesudah=Math.max(0,sebelum-asSaldo(p.nominal)); await simpanSaldoKeDB('driver', target.id, sesudah); }
     else { return notify('Driver dengan id '+asText(p.user_id)+' tidak ketemu di tabel drivers'); }
+  } else if(tipe==='voucher'){
+    // VOUCHER: belum ada tabelnya, biarin dulu. Untuk sekarang potong penumpang.saldo biar gak ngarang tabel baru.
+    // Nanti kalo lu udah siap, baru kita bikin kolomnya 1-1.
+    const target=cachePenumpang.find(x=>asText(x.id)===asText(p.user_id));
+    if(target){ const sebelum=getSaldoObj(target); const sesudah=Math.max(0,sebelum-asSaldo(p.nominal)); await simpanSaldoKeDB('penumpang', target.id, sesudah); }
+    else { return notify('Penumpang untuk voucher ini tidak ketemu. user_id harus UUID penumpang'); }
   } else {
-    // penumpang & voucher: potong penumpang.saldo, karena tidak ada kolom saldo_voucher di kompas
     const target=cachePenumpang.find(x=>asText(x.id)===asText(p.user_id));
     if(target){ const sebelum=getSaldoObj(target); const sesudah=Math.max(0,sebelum-asSaldo(p.nominal)); await simpanSaldoKeDB('penumpang', target.id, sesudah); }
     else { return notify('Penumpang dengan id '+asText(p.user_id)+' tidak ketemu. Cek user_id di penarikan harus UUID penumpang'); }
@@ -224,8 +246,6 @@ function isiNominalTopUp(n){ try{ document.getElementById('topupNominal').value=
 function tutupTopUp(){ try{ document.getElementById('topupModal').style.display='none'; }catch(e){} topupTarget=null; }
 function bukaTopUp(tipe,id){ var d=tipe==='driver'?cacheDrivers.find(function(x){ return asText(x.id)===asText(id); }):cachePenumpang.find(function(x){ return asText(x.id)===asText(id); }); if(!d){ notify('Data tidak ketemu, refresh dulu'); return; } topupTarget={tipe:tipe,id:d.id,nama:d.nama||'User',sebelum:getSaldoObj(d)}; document.getElementById('topupJudul').textContent='💰 Top Up '+(tipe==='driver'?'Driver':'Penumpang'); document.getElementById('topupInfo').innerHTML='Buat <b style="color:#f5d67b">'+esc(topupTarget.nama)+'</b><br>Saldo sekarang: <b style="color:#f5d67b">'+rp(topupTarget.sebelum)+'</b><br>Diisi admin: <b>'+esc(currentAdmin&&(currentAdmin.nama||currentAdmin.email)||'Admin')+'</b>'; document.getElementById('topupNominal').value=''; document.getElementById('topupModal').style.display='flex'; setTimeout(function(){ try{ document.getElementById('topupNominal').focus(); }catch(e){} },100); }
 async function simpanSaldoKeDB(tipe,id,saldoBaru){
-  // KOMPAS: cuma update kolom saldo. Gak sentuh kolom text lain. Gak ubah tipe.
-  // penumpang: saldo bigint. drivers: saldo + saldo_emas bigint.
   if(tipe==='driver'){ const r=await sb.from('drivers').update({saldo:asSaldo(saldoBaru),saldo_emas:asSaldo(saldoBaru)}).eq('id',id); if(r&&!r.error) return true; const r2=await sb.from('drivers').update({saldo:asSaldo(saldoBaru)}).eq('id',id); return !!(r2&&!r2.error); }
   else { const r=await sb.from('penumpang').update({saldo:asSaldo(saldoBaru)}).eq('id',id); return !!(r&&!r.error); }
 }
