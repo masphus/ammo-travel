@@ -336,9 +336,9 @@
       let nomor=bersihNomor(nomorRaw);
       let password=document.getElementById('loginPassword').value;
       if(!nomor||!password){ tampilInfo('Nomor & Password wajib diisi.'); return; }
-      if(!validNomor(nomor)){ tampilInfo('Nomor harus 10-13 angka, diawali 08. Yang kamu ketik: ' + nomor); return; }
-      if(password.length<6){ tampilInfo('Password minimal 6 karakter. Yang kamu ketik cuma ' + password.length + ' karakter.'); return; }
-      tampilInfo('Lagi nyari nomor ' + nomor + ' ... tunggu...');
+      if(!validNomor(nomor)){ tampilInfo('Nomor harus 10-13 angka, diawali 08.'); return; }
+      if(password.length<6){ tampilInfo('Password minimal 6 karakter.'); return; }
+      tampilInfo('Mengecek... tunggu...');
       let r=await supabaseClient.from('penumpang').select('*').eq('nomor',String(nomor)).maybeSingle();
       if(r.error){ tampilInfo('Gagal konek: ' + r.error.message); return; }
       let ada=r.data;
@@ -347,9 +347,9 @@
         let c2=await supabaseClient.from('penumpang').select('*').eq('nomor',String(nomor62)).maybeSingle();
         if(c2.data) ada=c2.data;
       }
-      if(!ada){ tampilInfo('Nomor ' + nomor + ' belum terdaftar! Silakan Daftar dulu ya.'); return; }
-      if(String(ada.password||'')!==String(password)){ tampilInfo('Nomor ' + ada.nomor + ' KETEMU, nama ' + ada.nama + ', tapi PASSWORD SALAH. Nomornya bener, passwordnya yang salah.'); return; }
-      tampilInfo('Berhasil! Lagi masuk ke Akun ' + ada.nama + '...');
+      if(!ada){ tampilInfo('Nomor / Password salah, coba lagi.'); return; }
+      if(String(ada.password||'')!==String(password)){ tampilInfo('Nomor / Password salah, coba lagi.'); return; }
+      tampilInfo('Berhasil! Lagi masuk...');
       localStorage.setItem('ammo_user',JSON.stringify(ada));
       tampilkan(ada);
     }catch(e){
@@ -367,7 +367,7 @@
     if(password.length<6){ toast('Password minimal 6 karakter bro!',true); return; }
     if(password!==password2){ toast('Password sama Konfirmasi Password beda bro! Ketik ulang yang sama ya',true); return; }
     let cekRes=await supabaseClient.from('penumpang').select('id').eq('nomor',String(nomor)).maybeSingle();
-    if(cekRes.data){ toast('Nomor ini sudah terdaftar! Silakan Masuk aja',true); switchTab('masuk'); return; }
+    if(cekRes.data){ toast('Gagal daftar, silakan Masuk atau pakai nomor lain',true); switchTab('masuk'); return; }
     let res=await supabaseClient.from('penumpang').insert([{nama: nama, nomor: nomor, password: password, saldo: 0}]).select().single();
     if(res.error){ toast(res.error.message,true); return; }
     let baru=res.data;
@@ -394,7 +394,7 @@
     if(modeEdit==='nomor'){
       val=bersihNomor(val); if(!validNomor(val)) return;
       let cek=await supabaseClient.from('penumpang').select('id').eq('nomor',String(val)).maybeSingle();
-      if(cek.data && String(cek.data.id)!==String(user.id)){ toast('Nomor ini sudah dipakai akun lain!',true); return; }
+      if(cek.data && String(cek.data.id)!==String(user.id)){ toast('Nomor ini tidak bisa dipakai, coba nomor lain',true); return; }
       let r=await supabaseClient.from('penumpang').update({nomor:val}).eq('id',String(user.id));
       if(r.error){ toast(r.error.message,true); return; }
       user.nomor=val;
