@@ -144,7 +144,7 @@
   <div id="navBawah" class="bottom">
     <a href="index.html"><b>🏠</b>Beranda</a>
     <a href="akun.html"><b>👤</b>Akun</a>
-    <a class="logout" onclick="logout()"><b><span class="power-icon"></span></b>Log Out</a>
+    <a id="btnLogoutBawah" class="logout" onclick="logout()" style="display:none"><b><span class="power-icon"></span></b>Log Out</a>
   </div>
   <div id="modalTopup" class="modal"><div class="modal-box">
     <h3>Top Up Saldo</h3>
@@ -291,6 +291,7 @@
   async function tampilkan(user){
     document.getElementById('boxLogin').style.display='none';
     document.getElementById('boxAkun').style.display='block';
+    document.getElementById('btnLogoutBawah').style.display='block';
     document.getElementById('tampilNama').innerText=user.nama;
     document.getElementById('tampilNomor').innerText=user.nomor;
     document.getElementById('tampilSaldo').innerText=formatRupiah(user.saldo);
