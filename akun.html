@@ -98,7 +98,6 @@
       <button type="button" class="btn-google" onclick="masukGoogle()"><span>G</span> Daftar dengan Google</button>
     </div>
   </div>
-
   <div id="boxAkun" style="display:none">
     <div class="badge"><span>👑 Member Gold</span></div>
     <div class="avatar" onclick="gantiAvatar()">
@@ -203,12 +202,6 @@
   </div></div>
 </div>
 <script>
-  // ============ KOMPAS - JANGAN DIUBAH ============
-  // penumpang: id (uuid TEKS), nama text, nomor text, password text, email text, saldo bigint
-  // penarikan: id bigint, tipe text, user_id text, nama text, nominal bigint, status text
-  // USER: HP, umur 47, mata plus 0.5 -> WAJIB kasih 1 halaman FULL, jangan potongan
-  // FIX LOGIN: Semua tombol type="button" biar gak ke-refresh sendiri. Info login nempel, gak ilang.
-  // ===============================================
   const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
   const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -231,45 +224,112 @@
   function formatTanggal(t){ if(!t) return "Bergabung sejak -"; let d=new Date(t); return "Bergabung sejak "+d.toLocaleDateString('id-ID',{month:'short',year:'numeric'}); }
   function gantiAvatar(){ let box=document.getElementById('boxAvatar'); if(box.style.display==='block'){ box.style.display='none'; return; } box.style.display='block'; tampilAvatar('cewek'); }
   function tampilAvatar(tipe){ document.getElementById('btnCewek').className='tab-avatar '+(tipe==='cewek'?'on':'off'); document.getElementById('btnCowok').className='tab-avatar '+(tipe==='cowok'?'on':'off'); document.getElementById('btnSemua').className='tab-avatar '+(tipe==='semua'?'on':'off'); let list=document.getElementById('listAvatar'); list.innerHTML=''; let data=tipe==='cewek'?fotoCewek:tipe==='cowok'?fotoCowok:[...fotoCewek,...fotoCowok]; data.forEach(url=>{ let img=document.createElement('img'); img.src=url; img.style.cssText='width:65px;height:65px;object-fit:cover;border-radius:50%;border:2px solid #d4af5a;cursor:pointer'; img.onclick=()=>pilihAvatar(url); list.appendChild(img); }); }
-  function pilihAvatar(url){ document.getElementById('fotoProfil').src=url; document.getElementById('boxAvatar').style.display='none'; localStorage.setItem('ammo_avatar',url); toast('Foto profil berhasil diganti! 📸'); }
+  function pilihAvatar(url){ document.getElementById('fotoProfil').src=url; document.getElementById('boxAvatar').style.display='none'; localStorage.setItem('ammo_avatar',url); toast('Foto profil berhasil diganti!'); }
   function bukaTopup(){ document.getElementById('modalTopup').style.display='flex'; pilihNominal(20000,document.querySelector('.btn-nominal')); tabBayar('qris'); }
   function tutupTopup(){ document.getElementById('modalTopup').style.display='none'; }
   function pilihNominal(nominal,btn){ nominalTopup=nominal; document.querySelectorAll('.btn-nominal').forEach(b=>{ b.style.borderColor='#333'; b.style.color='#fff'; }); if(btn){ btn.style.borderColor='#d4af5a'; btn.style.color='#e8c87a'; } document.getElementById('nominalQris').innerText='Nominal: '+formatRupiah(nominal); document.getElementById('nominalTf').innerText='Nominal yang mau di-transfer: '+formatRupiah(nominal); let user=getUser(); let nama=user?user.nama:'Customer'; document.getElementById('btnWA').href='https://wa.me/'+WA_ADMIN+'?text='+encodeURIComponent('Halo, saya '+nama+' sudah Top Up '+formatRupiah(nominal)+' via BCA 1092365519 / QRIS AMMO TRAVEL, ini bukti transfernya'); }
   function tabBayar(tipe){ document.getElementById('bayarQris').style.display=tipe==='qris'?'block':'none'; document.getElementById('bayarTf').style.display=tipe==='tf'?'block':'none'; document.getElementById('tabQris').style.background=tipe==='qris'?'linear-gradient(#f2d98c,#c9a94f)':'#333'; document.getElementById('tabQris').style.color=tipe==='qris'?'#000':'#fff'; document.getElementById('tabTf').style.background=tipe==='tf'?'linear-gradient(#f2d98c,#c9a94f)':'#333'; document.getElementById('tabTf').style.color=tipe==='tf'?'#000':'#fff'; }
-  function salin(teks){ navigator.clipboard.writeText(teks).then(()=>toast('Nomor '+teks+' berhasil disalin! ✓')); }
+  function salin(teks){ navigator.clipboard.writeText(teks).then(()=>toast('Nomor '+teks+' berhasil disalin!')); }
   function bukaTarikSaldo(){ let user=getUser(); if(!user){ toast('Login dulu ya bro',true); return; } metodeTarik=''; document.querySelectorAll('.metode-item').forEach(el=>el.classList.remove('pilih')); document.getElementById('tarikSaldoInfo').innerText=formatRupiah(user.saldo); document.getElementById('tarikNomor').value=user.nomor||''; document.getElementById('tarikNama').value=user.nama||''; document.getElementById('tarikNominal').value=''; document.getElementById('modalTarik').style.display='flex'; }
   function tutupTarikSaldo(){ document.getElementById('modalTarik').style.display='none'; }
   function pilihMetode(metode,el){ metodeTarik=metode; document.querySelectorAll('.metode-item').forEach(x=>x.classList.remove('pilih')); if(el) el.classList.add('pilih'); }
   function tutupGanti(){ document.getElementById('modalGanti').style.display='none'; dataGanti=null; }
-  async function yaGantiNominal(){ if(!dataGanti) return; let nominalBaru=dataGanti.nominal; let {error}=await supabaseClient.from('penarikan').update({nama:dataGanti.namaGabung,nominal:nominalBaru}).eq('id',dataGanti.idLama); if(error){ toast(error.message,true); return; } document.getElementById('modalGanti').style.display='none'; tutupTarikSaldo(); dataGanti=null; toast('Nominal Penarikan berhasil diganti jadi '+formatRupiah(nominalBaru)+' - Penarikan sedang dalam Proses 🙏'); }
-  async function batalkanPenarikan(){ if(!idAntrianAktif) return; let {error}=await supabaseClient.from('penarikan').update({status:'dibatalkan'}).eq('id',idAntrianAktif); if(error){ toast(error.message,true); return; } document.getElementById('modalAntrian').style.display='none'; tutupTarikSaldo(); idAntrianAktif=null; toast('Penarikan dibatalkan. Saldo kamu aman, silakan buat penarikan baru kalo mau 🙏'); }
-  function lanjutkanPenarikan(){ document.getElementById('modalAntrian').style.display='none'; tutupTarikSaldo(); idAntrianAktif=null; toast('Penarikan sedang dalam Proses, mohon tunggu ya 🙏'); }
-  async function kirimTarikSaldo(){ if(sedangKirimTarik) return; let user=getUser(); if(!user){ toast('Login dulu ya bro',true); return; } if(!metodeTarik){ toast('Pilih dulu mau ke GOPAY / OVO / DANA / ShopeePay / BCA / BRI / Mandiri',true); return; } let nomorRek=String(document.getElementById('tarikNomor').value||'').trim(); let namaPenerima=String(document.getElementById('tarikNama').value||'').trim(); let nominal=Number(String(document.getElementById('tarikNominal').value||'').replace(/[^0-9]/g,''))||0; if(!nomorRek){ toast('Isi Nomor / Rekening dulu bro',true); return; } if(!namaPenerima){ toast('Isi Nama Lengkap Penerima dulu bro',true); return; } if(!nominal||nominal<=0){ toast('Isi Nominal Tarik dulu bro',true); return; } if(nominal>Number(user.saldo||0)){ toast('Saldo kamu cuma '+formatRupiah(user.saldo)+', jangan tarik lebih dari itu ya',true); return; } sedangKirimTarik=true; let {data:antrian}=await supabaseClient.from('penarikan').select('*').eq('user_id',String(user.id)).eq('tipe','penumpang').eq('status','menunggu').order('id',{ascending:false}).limit(1).maybeSingle(); if(antrian){ sedangKirimTarik=false; idAntrianAktif=antrian.id; if(Number(antrian.nominal||0)!==nominal){ document.getElementById('teksAntrian').innerHTML='Penarikan kamu <b style="color:#e8c87a">'+formatRupiah(antrian.nominal)+'</b> sedang dalam Proses.<br><br>Kamu mau tarik lagi <b style="color:#e8c87a">'+formatRupiah(nominal)+'</b> ke '+metodeTarik+' ?<br><br>Kalo mau ganti nominalnya, pencet <b>Batalkan</b> dulu, terus buat penarikan baru. Kalo mau tetep yang lama, pencet <b>Lanjutkan</b>.'; document.getElementById('modalAntrian').style.display='flex'; return; } document.getElementById('teksAntrian').innerHTML='<b style="color:#e8c87a">'+formatRupiah(antrian.nominal)+' ke '+(antrian.nama||'').split(' | ')[1]+'</b><br>Penarikan sedang dalam Proses.<br><br>Mohon tunggu ya, jangan tarik 2x.'; document.getElementById('modalAntrian').style.display='flex'; return; } let namaGabung=namaPenerima+' | '+metodeTarik+' | '+nomorRek; let {error}=await supabaseClient.from('penarikan').insert([{tipe:'penumpang',user_id:String(user.id),nama:namaGabung,nominal:nominal,status:'menunggu'}]); sedangKirimTarik=false; if(error){ toast(error.message,true); return; } tutupTarikSaldo(); toast('Tarik Saldo '+formatRupiah(nominal)+' ke '+metodeTarik+' udah dikirim, sedang dalam Proses 🙏'); }
-  async function tampilkan(user){ document.getElementById('boxLogin').style.display='none'; document.getElementById('boxAkun').style.display='block'; document.getElementById('navBawah').style.display='flex'; document.getElementById('tampilNama').innerText=user.nama; document.getElementById('tampilNomor').innerText=user.nomor; document.getElementById('tampilSaldo').innerText=formatRupiah(user.saldo); document.getElementById('tampilGabung').innerText=formatTanggal(user.created_at); document.getElementById('tampilGoogle').innerHTML=user.email?user.email+" <span style='color:#22c55e'>✿ Terverifikasi</span>":"Belum ditautkan"; let avatarSimpan=localStorage.getItem('ammo_avatar'); if(avatarSimpan) document.getElementById('fotoProfil').src=avatarSimpan; try{ let {data:fresh}=await supabaseClient.from('penumpang').select('*').eq('id',String(user.id)).maybeSingle(); if(fresh && fresh.nomor){ let gabung={...user,...fresh}; if(!fresh.password) gabung.password=user.password; if(!fresh.nomor) gabung.nomor=user.nomor; localStorage.setItem('ammo_user',JSON.stringify(gabung)); document.getElementById('tampilNama').innerText=gabung.nama; document.getElementById('tampilNomor').innerText=gabung.nomor; document.getElementById('tampilSaldo').innerText=formatRupiah(gabung.saldo); } }catch(e){} let {data:book}=await supabaseClient.from('bookings').select('id').eq('penumpang_id',String(user.id)); if(book) document.getElementById('tampilBooking').innerText=book.length+" Booking Aktif"; }
-  async function autoRefreshSaldo(){ let user=getUser(); if(!user) return; if(document.getElementById('boxAkun').style.display!=='block') return; try{ let {data:fresh}=await supabaseClient.from('penumpang').select('saldo').eq('id',String(user.id)).maybeSingle(); if(fresh && Number(fresh.saldo||0)!==Number(user.saldo||0)){ let el=document.getElementById('tampilSaldo'); if(el) el.innerText=formatRupiah(fresh.saldo); let el2=document.getElementById('tarikSaldoInfo'); if(el2) el2.innerText=formatRupiah(fresh.saldo); user.saldo=fresh.saldo; } }catch(e){} }
+  async function yaGantiNominal(){ if(!dataGanti) return; let nominalBaru=dataGanti.nominal; let res=await supabaseClient.from('penarikan').update({nama:dataGanti.namaGabung,nominal:nominalBaru}).eq('id',dataGanti.idLama); if(res.error){ toast(res.error.message,true); return; } document.getElementById('modalGanti').style.display='none'; tutupTarikSaldo(); dataGanti=null; toast('Nominal Penarikan berhasil diganti jadi '+formatRupiah(nominalBaru)+' - Penarikan sedang dalam Proses'); }
+  async function batalkanPenarikan(){ if(!idAntrianAktif) return; let res=await supabaseClient.from('penarikan').update({status:'dibatalkan'}).eq('id',idAntrianAktif); if(res.error){ toast(res.error.message,true); return; } document.getElementById('modalAntrian').style.display='none'; tutupTarikSaldo(); idAntrianAktif=null; toast('Penarikan dibatalkan. Saldo kamu aman, silakan buat penarikan baru kalo mau'); }
+  function lanjutkanPenarikan(){ document.getElementById('modalAntrian').style.display='none'; tutupTarikSaldo(); idAntrianAktif=null; toast('Penarikan sedang dalam Proses, mohon tunggu ya'); }
+  async function kirimTarikSaldo(){
+    if(sedangKirimTarik) return;
+    let user=getUser(); if(!user){ toast('Login dulu ya bro',true); return; }
+    if(!metodeTarik){ toast('Pilih dulu mau ke GOPAY / OVO / DANA / ShopeePay / BCA / BRI / Mandiri',true); return; }
+    let nomorRek=String(document.getElementById('tarikNomor').value||'').trim();
+    let namaPenerima=String(document.getElementById('tarikNama').value||'').trim();
+    let nominal=Number(String(document.getElementById('tarikNominal').value||'').replace(/[^0-9]/g,''))||0;
+    if(!nomorRek){ toast('Isi Nomor / Rekening dulu bro',true); return; }
+    if(!namaPenerima){ toast('Isi Nama Lengkap Penerima dulu bro',true); return; }
+    if(!nominal||nominal<=0){ toast('Isi Nominal Tarik dulu bro',true); return; }
+    if(nominal>Number(user.saldo||0)){ toast('Saldo kamu cuma '+formatRupiah(user.saldo)+', jangan tarik lebih dari itu ya',true); return; }
+    sedangKirimTarik=true;
+    let hasil=await supabaseClient.from('penarikan').select('*').eq('user_id',String(user.id)).eq('tipe','penumpang').eq('status','menunggu').order('id',{ascending:false}).limit(1).maybeSingle();
+    let antrian=hasil.data;
+    if(antrian){
+      sedangKirimTarik=false; idAntrianAktif=antrian.id;
+      if(Number(antrian.nominal||0)!==nominal){
+        document.getElementById('teksAntrian').innerHTML='Penarikan kamu <b style="color:#e8c87a">'+formatRupiah(antrian.nominal)+'</b> sedang dalam Proses.<br><br>Kamu mau tarik lagi <b style="color:#e8c87a">'+formatRupiah(nominal)+'</b> ke '+metodeTarik+' ?<br><br>Kalo mau ganti nominalnya, pencet <b>Batalkan</b> dulu, terus buat penarikan baru. Kalo mau tetep yang lama, pencet <b>Lanjutkan</b>.';
+        document.getElementById('modalAntrian').style.display='flex'; return;
+      }
+      document.getElementById('teksAntrian').innerHTML='<b style="color:#e8c87a">'+formatRupiah(antrian.nominal)+' ke '+(antrian.nama||'').split(' | ')[1]+'</b><br>Penarikan sedang dalam Proses.<br><br>Mohon tunggu ya, jangan tarik 2x.';
+      document.getElementById('modalAntrian').style.display='flex'; return;
+    }
+    let namaGabung=namaPenerima+' | '+metodeTarik+' | '+nomorRek;
+    let ins=await supabaseClient.from('penarikan').insert([{tipe:'penumpang',user_id:String(user.id),nama:namaGabung,nominal:nominal,status:'menunggu'}]);
+    sedangKirimTarik=false;
+    if(ins.error){ toast(ins.error.message,true); return; }
+    tutupTarikSaldo();
+    toast('Tarik Saldo '+formatRupiah(nominal)+' ke '+metodeTarik+' udah dikirim, sedang dalam Proses');
+  }
+  async function tampilkan(user){
+    document.getElementById('boxLogin').style.display='none';
+    document.getElementById('boxAkun').style.display='block';
+    document.getElementById('navBawah').style.display='flex';
+    document.getElementById('tampilNama').innerText=user.nama;
+    document.getElementById('tampilNomor').innerText=user.nomor;
+    document.getElementById('tampilSaldo').innerText=formatRupiah(user.saldo);
+    document.getElementById('tampilGabung').innerText=formatTanggal(user.created_at);
+    document.getElementById('tampilGoogle').innerHTML=user.email?user.email+" <span style='color:#22c55e'>Terverifikasi</span>":"Belum ditautkan";
+    let avatarSimpan=localStorage.getItem('ammo_avatar');
+    if(avatarSimpan) document.getElementById('fotoProfil').src=avatarSimpan;
+    try{
+      let r=await supabaseClient.from('penumpang').select('*').eq('id',String(user.id)).maybeSingle();
+      let fresh=r.data;
+      if(fresh && fresh.nomor){
+        let gabung={...user,...fresh};
+        if(!fresh.password) gabung.password=user.password;
+        if(!fresh.nomor) gabung.nomor=user.nomor;
+        localStorage.setItem('ammo_user',JSON.stringify(gabung));
+        document.getElementById('tampilNama').innerText=gabung.nama;
+        document.getElementById('tampilNomor').innerText=gabung.nomor;
+        document.getElementById('tampilSaldo').innerText=formatRupiah(gabung.saldo);
+      }
+    }catch(e){}
+    let b=await supabaseClient.from('bookings').select('id').eq('penumpang_id',String(user.id));
+    if(b.data) document.getElementById('tampilBooking').innerText=b.data.length+" Booking Aktif";
+  }
+  async function autoRefreshSaldo(){
+    let user=getUser(); if(!user) return;
+    if(document.getElementById('boxAkun').style.display!=='block') return;
+    try{
+      let r=await supabaseClient.from('penumpang').select('saldo').eq('id',String(user.id)).maybeSingle();
+      let fresh=r.data;
+      if(fresh && Number(fresh.saldo||0)!==Number(user.saldo||0)){
+        let el=document.getElementById('tampilSaldo'); if(el) el.innerText=formatRupiah(fresh.saldo);
+        let el2=document.getElementById('tarikSaldoInfo'); if(el2) el2.innerText=formatRupiah(fresh.saldo);
+        user.saldo=fresh.saldo;
+      }
+    }catch(e){}
+  }
   setInterval(autoRefreshSaldo,2000);
   function getUser(){ try{ return JSON.parse(localStorage.getItem('ammo_user')); }catch(e){ return null; } }
-  // ===== PENYELAMAT LOGIN - TULISAN NEMPEL, GAK KE-REFRESH =====
   async function cekNomorSaya(){
     let nomor=bersihNomor(document.getElementById('loginNomor').value.trim());
     if(!nomor){ tampilInfo('Isi dulu Nomor HP nya di atas, baru pencet Cek Nomor Saya.'); return; }
     tampilInfo('Lagi ngecek nomor ' + nomor + ' ke database... tunggu 2 detik...');
     try{
-      let {data, error}=await supabaseClient.from('penumpang').select('id,nama,nomor,saldo,created_at').eq('nomor',String(nomor)).maybeSingle();
-      if(error){ tampilInfo('Gagal konek ke database: ' + error.message + '\nCoba matiin WiFi / nyalain lagi, atau cek kuota.'); return; }
+      let r=await supabaseClient.from('penumpang').select('id,nama,nomor,saldo,created_at').eq('nomor',String(nomor)).maybeSingle();
+      if(r.error){ tampilInfo('Gagal konek ke database: ' + r.error.message); return; }
+      let data=r.data;
       if(!data){
         let nomor62='62'+nomor.slice(1);
         let c2=await supabaseClient.from('penumpang').select('id,nama,nomor,saldo,created_at').eq('nomor',String(nomor62)).maybeSingle();
         if(c2.data) data=c2.data;
       }
-      if(!data){ tampilInfo('❌ Nomor ' + nomor + ' GAK KETEMU di database.\n\nArtinya nomor lu keubah pas edit tadi, atau lu daftar pake nomor lain.\nCoba inget-inget nomor lain yang pernah lu pake, ketik di atas, pencet Cek Nomor Saya lagi.'); return; }
-      tampilInfo('✅ Nomor KETEMU!\nNama: ' + data.nama + '\nNomor di database: ' + data.nomor + '\nSaldo: ' + formatRupiah(data.saldo) + '\n\nBerarti nomor lu BENER. Yang salah berarti passwordnya. Coba inget-inget passwordnya lagi, atau ketik pelan-pelan, jangan kecepetan.');
+      if(!data){ tampilInfo('Nomor ' + nomor + ' GAK KETEMU di database.\nArtinya nomor lu keubah pas edit tadi, atau lu daftar pake nomor lain.'); return; }
+      tampilInfo('Nomor KETEMU!\nNama: ' + data.nama + '\nNomor di database: ' + data.nomor + '\nSaldo: ' + formatRupiah(data.saldo) + '\n\nBerarti nomor lu BENER. Yang salah berarti passwordnya.');
     }catch(e){ tampilInfo('Error: ' + e.message); }
   }
   function bersihkanHP(){
     localStorage.removeItem('ammo_user');
     localStorage.removeItem('ammo_avatar');
-    tampilInfo('🧹 HP udah dibersihin. Data login rusak udah dibuang.\nSekarang ketik Nomor + Password lagi dari awal, pencet Masuk.');
+    tampilInfo('HP udah dibersihin. Data login rusak udah dibuang.\nSekarang ketik Nomor + Password lagi dari awal, pencet Masuk.');
     document.getElementById('loginNomor').value='';
     document.getElementById('loginPassword').value='';
     document.getElementById('boxAkun').style.display='none';
@@ -280,38 +340,89 @@
       let nomorRaw=document.getElementById('loginNomor').value.trim();
       let nomor=bersihNomor(nomorRaw);
       let password=document.getElementById('loginPassword').value;
-      if(!nomor||!password){ tampilInfo('❌ Nomor & Password wajib diisi.'); return; }
-      if(!validNomor(nomor)){ tampilInfo('❌ Nomor harus 10-13 angka, diawali 08. Yang kamu ketik: ' + nomor); return; }
-      if(password.length<6){ tampilInfo('❌ Password minimal 6 karakter. Yang kamu ketik cuma ' + password.length + ' karakter.'); return; }
+      if(!nomor||!password){ tampilInfo('Nomor & Password wajib diisi.'); return; }
+      if(!validNomor(nomor)){ tampilInfo('Nomor harus 10-13 angka, diawali 08. Yang kamu ketik: ' + nomor); return; }
+      if(password.length<6){ tampilInfo('Password minimal 6 karakter. Yang kamu ketik cuma ' + password.length + ' karakter.'); return; }
       tampilInfo('Lagi nyari nomor ' + nomor + ' ... tunggu...');
-      let {data:ada, error}=await supabaseClient.from('penumpang').select('*').eq('nomor',String(nomor)).maybeSingle();
-      if(error){ tampilInfo('❌ Gagal konek: ' + error.message); return; }
+      let r=await supabaseClient.from('penumpang').select('*').eq('nomor',String(nomor)).maybeSingle();
+      if(r.error){ tampilInfo('Gagal konek: ' + r.error.message); return; }
+      let ada=r.data;
       if(!ada){
         let nomor62='62'+nomor.slice(1);
         let c2=await supabaseClient.from('penumpang').select('*').eq('nomor',String(nomor62)).maybeSingle();
         if(c2.data) ada=c2.data;
       }
-      if(!ada){ tampilInfo('❌ Nomor ' + nomor + ' belum terdaftar!\n\nPencet tombol Cek Nomor Saya di bawah, biar ketauan nomor lu yang bener yang mana.'); return; }
-      if(String(ada.password||'')!==String(password)){ tampilInfo('❌ Nomor ' + ada.nomor + ' KETEMU, nama ' + ada.nama + ', tapi PASSWORD SALAH.\n\nNomornya bener, passwordnya yang salah. Coba ketik password pelan-pelan. Kalo lupa beneran, bilang ke gw, gw resetin dari sini.'); return; }
-      tampilInfo('✅ Berhasil! Lagi masuk ke Akun ' + ada.nama + '...');
+      if(!ada){ tampilInfo('Nomor ' + nomor + ' belum terdaftar! Pencet tombol Cek Nomor Saya di bawah.'); return; }
+      if(String(ada.password||'')!==String(password)){ tampilInfo('Nomor ' + ada.nomor + ' KETEMU, nama ' + ada.nama + ', tapi PASSWORD SALAH. Nomornya bener, passwordnya yang salah.'); return; }
+      tampilInfo('Berhasil! Lagi masuk ke Akun ' + ada.nama + '...');
       localStorage.setItem('ammo_user',JSON.stringify(ada));
       tampilkan(ada);
     }catch(e){
-      tampilInfo('❌ Error aneh: ' + e.message + '\nFotoin tulisan ini ke gw.');
+      tampilInfo('Error aneh: ' + e.message);
     }
   }
-  async function daftar(){ let nama=document.getElementById('nama').value.trim(); let nomor=bersihNomor(document.getElementById('nomor').value.trim()); let password=document.getElementById('password').value.trim(); let email=document.getElementById('email').value.trim(); if(!nama||!nomor||!password){ toast('Nama, Nomor & Password wajib diisi!',true); return; } if(nama.length<3){ toast('Nama minimal 3 huruf bro!',true); return; } if(!validNomor(nomor)) return; if(password.length<6){ toast('Password minimal 6 karakter bro!',true); return; } if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ toast('Email salah format bro!',true); return; } let {data:cek}=await supabaseClient.from('penumpang').select('id').eq('nomor',String(nomor)).maybeSingle(); if(cek){ toast('Nomor ini sudah terdaftar! Silakan Masuk aja',true); switchTab('masuk'); return; } let {data:baru,[STRIPPED] supabaseClient.from('penumpang').insert([{nama,nomor,password,email:email||null,saldo:0}]).select().single(); if(error){ toast(error.message,true); return; } localStorage.setItem('ammo_user',JSON.stringify(baru)); tampilkan(baru); toast('Akun berhasil dibuat! Selamat datang '+nama+' 🎉'); }
-  async function masukGoogle(){ toast('Login Google lagi kita sambungin ya bro, pakai Nomor HP dulu aja 🙏'); }
+  async function daftar(){
+    let nama=document.getElementById('nama').value.trim();
+    let nomor=bersihNomor(document.getElementById('nomor').value.trim());
+    let password=document.getElementById('password').value.trim();
+    let email=document.getElementById('email').value.trim();
+    if(!nama||!nomor||!password){ toast('Nama, Nomor & Password wajib diisi!',true); return; }
+    if(nama.length<3){ toast('Nama minimal 3 huruf bro!',true); return; }
+    if(!validNomor(nomor)) return;
+    if(password.length<6){ toast('Password minimal 6 karakter bro!',true); return; }
+    if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ toast('Email salah format bro!',true); return; }
+    let cekRes=await supabaseClient.from('penumpang').select('id').eq('nomor',String(nomor)).maybeSingle();
+    if(cekRes.data){ toast('Nomor ini sudah terdaftar! Silakan Masuk aja',true); switchTab('masuk'); return; }
+    let res=await supabaseClient.from('penumpang').insert([{nama: nama, nomor: nomor, password: password, email: email||null, saldo: 0}]).select().single();
+    if(res.error){ toast(res.error.message,true); return; }
+    let baru=res.data;
+    localStorage.setItem('ammo_user',JSON.stringify(baru));
+    tampilkan(baru);
+    toast('Akun berhasil dibuat! Selamat datang '+nama);
+  }
+  async function masukGoogle(){ toast('Login Google lagi kita sambungin ya bro, pakai Nomor HP dulu aja'); }
   function bukaModal(judul,value,placeholder,tipe){ modeEdit=tipe; document.getElementById('modalJudul').innerText=judul; let inp=document.getElementById('modalInput'); inp.value=value||''; inp.placeholder=placeholder; inp.type=tipe==='password'?'password':'text'; document.getElementById('modalEdit').style.display='flex'; inp.focus(); }
   function tutupModal(){ document.getElementById('modalEdit').style.display='none'; }
   function editNama(){ bukaModal('Edit Nama',getUser().nama,'Nama baru','nama'); }
   function editNomor(){ bukaModal('Edit Nomor HP',getUser().nomor,'08123456789','nomor'); }
   function editPassword(){ bukaModal('Ubah Password','','Password baru minimal 6 karakter','password'); }
   function editEmail(){ bukaModal('Edit Email Google',getUser().email||'','nama@gmail.com','email'); }
-  async function simpanEdit(){ let val=document.getElementById('modalInput').value.trim(); let user=getUser(); if(!user) return; if(modeEdit==='nama'){ if(val.length<3){ toast('Nama minimal 3 huruf bro!',true); return; } let {error}=await supabaseClient.from('penumpang').update({nama:val}).eq('id',String(user.id)); if(error){ toast(error.message,true); return; } user.nama=val; } if(modeEdit==='nomor'){ val=bersihNomor(val); if(!validNomor(val)) return; let {data:cek}=await supabaseClient.from('penumpang').select('id').eq('nomor',String(val)).maybeSingle(); if(cek&&String(cek.id)!==String(user.id)){ toast('Nomor ini sudah dipakai akun lain!',true); return; } let {error}=await supabaseClient.from('penumpang').update({nomor:val}).eq('id',String(user.id)); if(error){ toast(error.message,true); return; } user.nomor=val; } if(modeEdit==='password'){ if(val.length<6){ toast('Password minimal 6 karakter bro!',true); return; } let {error}=await supabaseClient.from('penumpang').update({password:val}).eq('id',String(user.id)); if(error){ toast(error.message,true); return; } user.password=val; } if(modeEdit==='email'){ if(val&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)){ toast('Email salah format bro!',true); return; } let {error}=await supabaseClient.from('penumpang').update({email:val||null}).eq('id',String(user.id)); if(error){ toast(error.message,true); return; } user.email=val; } localStorage.setItem('ammo_user',JSON.stringify(user)); tutupModal(); tampilkan(user); toast('Berhasil diubah! ✓'); }
+  async function simpanEdit(){
+    let val=document.getElementById('modalInput').value.trim();
+    let user=getUser(); if(!user) return;
+    if(modeEdit==='nama'){
+      if(val.length<3){ toast('Nama minimal 3 huruf bro!',true); return; }
+      let r=await supabaseClient.from('penumpang').update({nama:val}).eq('id',String(user.id));
+      if(r.error){ toast(r.error.message,true); return; }
+      user.nama=val;
+    }
+    if(modeEdit==='nomor'){
+      val=bersihNomor(val); if(!validNomor(val)) return;
+      let cek=await supabaseClient.from('penumpang').select('id').eq('nomor',String(val)).maybeSingle();
+      if(cek.data && String(cek.data.id)!==String(user.id)){ toast('Nomor ini sudah dipakai akun lain!',true); return; }
+      let r=await supabaseClient.from('penumpang').update({nomor:val}).eq('id',String(user.id));
+      if(r.error){ toast(r.error.message,true); return; }
+      user.nomor=val;
+    }
+    if(modeEdit==='password'){
+      if(val.length<6){ toast('Password minimal 6 karakter bro!',true); return; }
+      let r=await supabaseClient.from('penumpang').update({password:val}).eq('id',String(user.id));
+      if(r.error){ toast(r.error.message,true); return; }
+      user.password=val;
+    }
+    if(modeEdit==='email'){
+      if(val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)){ toast('Email salah format bro!',true); return; }
+      let r=await supabaseClient.from('penumpang').update({email:val||null}).eq('id',String(user.id));
+      if(r.error){ toast(r.error.message,true); return; }
+      user.email=val;
+    }
+    localStorage.setItem('ammo_user',JSON.stringify(user));
+    tutupModal(); tampilkan(user); toast('Berhasil diubah!');
+  }
   function topup(){ bukaTopup(); }
   function logout(){ localStorage.removeItem('ammo_user'); location.reload(); }
-  const saved=localStorage.getItem('ammo_user'); if(saved){ try{ let u=JSON.parse(saved); if(u && u.nomor) tampilkan(u); }catch(e){} }
+  const saved=localStorage.getItem('ammo_user');
+  if(saved){ try{ let u=JSON.parse(saved); if(u && u.nomor) tampilkan(u); }catch(e){} }
 </script>
 </body>
 </html>
