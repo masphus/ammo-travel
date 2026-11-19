@@ -15,7 +15,7 @@
   .topbar h1{font-size:22px}
   .topbar h1 span{color:#ffc107}
   .admin{font-size:12px;color:#ccc;margin-left:auto}
-  /* LAYOUT - GAK ADA SIDEBAR LAGI, LANGSUNG DEBET + KANAN */
+  /* LAYOUT - 3 BARIS DIKUNCI */
   .layout{
     display:grid;
     grid-template-columns:140px 1fr;
@@ -24,18 +24,18 @@
     width:100%;
   }
   .card{background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:12px;overflow:hidden}
-  /* MENU NGUMPET - KELUAR NUTUPIN DEBET */
+  /* MENU NGUMPET - BISA DI-SCROLL, GAK KEPOTONG LAGI */
   .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;z-index:999}
   .overlay.show{display:block}
-  .sidebar{position:fixed;top:0;left:0;bottom:0;width:220px;background:#1a1a1a;border-right:1px solid #333;padding:14px;display:flex;flex-direction:column;gap:6px;z-index:1000;transform:translateX(-110%);transition:.25s}
+  .sidebar{position:fixed;top:0;left:0;bottom:0;width:230px;background:#1a1a1a;border-right:1px solid #333;padding:14px;display:flex;flex-direction:column;gap:7px;z-index:1000;transform:translateX(-110%);transition:.25s;overflow-y:auto}
   .sidebar.show{transform:translateX(0)}
-  .sidebar .close{align-self:flex-end;background:#222;border:1px solid #333;color:#fff;border-radius:8px;width:32px;height:32px;font-size:16px;cursor:pointer}
-  .sidebar a{color:#ddd;text-decoration:none;font-size:14px;padding:10px;border-radius:8px;background:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sidebar .close{align-self:flex-end;background:#222;border:1px solid #333;color:#fff;border-radius:8px;width:34px;height:34px;min-height:34px;font-size:16px;cursor:pointer;flex-shrink:0}
+  .sidebar a{color:#ddd;text-decoration:none;font-size:15px;line-height:1.2;padding:11px 10px;border-radius:8px;background:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;min-height:42px;display:flex;align-items:center}
   .sidebar a.active{background:#ffc107;color:#000;font-weight:bold}
-  .sidebar .logout{margin-top:auto;background:#ff4444;color:#fff;text-align:center}
-  /* DEBET */
-  .debet{display:flex;flex-direction:column;gap:10px;grid-row:1 / span 3}
-  .debet .card{flex:1;display:flex;flex-direction:column;justify-content:center;padding:9px}
+  .sidebar .logout{margin-top:12px;background:#ff4444;color:#fff;text-align:center;justify-content:center}
+  /* DEBET - SEJAJAR SAMA KANAN: 118 / 300 / 175 */
+  .debet{display:grid;grid-template-rows:118px 300px 175px;gap:10px;grid-row:1 / span 3}
+  .debet .card{display:flex;flex-direction:column;justify-content:center;padding:9px}
   .debet small{font-size:13px;color:#ccc;white-space:nowrap}
   .debet h2{font-size:16px;font-weight:900;margin:5px 0;white-space:nowrap}
   .debet .btn-row{display:flex;gap:5px;margin-top:6px}
@@ -55,7 +55,7 @@
   .order-box{background:#222;border-radius:8px;padding:10px;flex:1;overflow:auto}
   .order-box p{font-size:13px;line-height:1.4}
   .order-box p b{font-size:14px;font-weight:900}
-  /* PETA - CUKUP TITIK, GAK ADA TULISAN */
+  /* PETA - CUKUP TITIK */
   #map{width:100%;height:236px;min-height:236px;border-radius:8px;background:#333;z-index:1;flex-shrink:0}
   /* DRIVER BARU */
   .driver-baru{grid-row:3;grid-column:2}
@@ -124,7 +124,6 @@
   </div>
 </div>
 
-<!-- MENU NGUMPET -->
 <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 <div class="sidebar" id="sidebar">
   <button class="close" onclick="toggleMenu()">✕</button>
@@ -150,14 +149,13 @@
   if (screen.orientation && screen.orientation.lock) {
     screen.orientation.lock('landscape').catch(()=>{});
   }
-  // PETA - CUKUP TITIK, TANPA TULISAN / POPUP
   let adminLat = -6.9175, adminLng = 107.6191;
   const map = L.map('map', {scrollWheelZoom:true, dragging:true, zoomControl:false, attributionControl:false}).setView([adminLat, adminLng], 8);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 18}).addTo(map);
   L.circle([adminLat, adminLng], {color:'#ffc107', fillColor:'#ffc107', fillOpacity:0.10, radius:100000}).addTo(map);
   let adminDot = L.circleMarker([adminLat, adminLng], {radius:8, color:'#fff', weight:2, fillColor:'#007bff', fillOpacity:1}).addTo(map);
-  let dot1 = L.circleMarker([adminLat+0.15, adminLng+0.12], {radius:6, color:'#fff', weight:2, fillColor:'#28a745', fillOpacity:1}).addTo(map);
-  let dot2 = L.circleMarker([adminLat-0.20, adminLng-0.10], {radius:6, color:'#fff', weight:2, fillColor:'#28a745', fillOpacity:1}).addTo(map);
+  L.circleMarker([adminLat+0.15, adminLng+0.12], {radius:6, color:'#fff', weight:2, fillColor:'#28a745', fillOpacity:1}).addTo(map);
+  L.circleMarker([adminLat-0.20, adminLng-0.10], {radius:6, color:'#fff', weight:2, fillColor:'#28a745', fillOpacity:1}).addTo(map);
   setTimeout(()=>{ map.invalidateSize(); }, 500);
   setTimeout(()=>{ map.invalidateSize(); }, 1500);
   if (navigator.geolocation) {
