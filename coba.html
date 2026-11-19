@@ -14,10 +14,10 @@
   .topbar h1{font-size:22px}
   .topbar h1 span{color:#ffc107}
   .admin{font-size:12px;color:#ccc}
-  /* LAYOUT - DEBET 70% = 175px, SISA BUAT KANAN */
+  /* LAYOUT - DEBET DIPOTONG LAGI 20% = 140px */
   .layout{
     display:grid;
-    grid-template-columns:190px 175px 1fr;
+    grid-template-columns:190px 140px 1fr;
     grid-template-rows:118px 300px 175px;
     gap:10px;
     width:100%;
@@ -30,28 +30,29 @@
   .sidebar a{color:#ddd;text-decoration:none;font-size:14px;padding:9px 10px;border-radius:8px;background:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .sidebar a.active{background:#ffc107;color:#000;font-weight:bold}
   .sidebar .logout{margin-top:auto;background:#ff4444;color:#fff;text-align:center}
-  /* 3 KOTAK DEBET - 70%, TULISAN PENDEK */
+  /* 3 KOTAK DEBET - RAMPING, TULISAN CUKUP BOLD */
   .debet{display:flex;flex-direction:column;gap:10px;grid-row:1 / span 3}
-  .debet .card{flex:1;display:flex;flex-direction:column;justify-content:center;padding:10px}
+  .debet .card{flex:1;display:flex;flex-direction:column;justify-content:center;padding:9px}
   .debet small{font-size:13px;color:#ccc;white-space:nowrap}
-  .debet h2{font-size:22px;margin:5px 0;white-space:nowrap}
-  .debet .btn-row{display:flex;gap:6px;margin-top:6px}
-  .btn{flex:1;padding:8px;border:none;border-radius:8px;font-size:13px;font-weight:bold;cursor:pointer;white-space:nowrap}
+  .debet h2{font-size:16px;font-weight:900;margin:5px 0;white-space:nowrap;letter-spacing:.2px}
+  .debet .btn-row{display:flex;gap:5px;margin-top:6px}
+  .btn{flex:1;padding:7px 4px;border:none;border-radius:7px;font-size:12px;font-weight:bold;cursor:pointer;white-space:nowrap}
   .btn-acc{background:#28a745;color:#fff}
   .btn-tolak{background:#444;color:#fff}
-  /* 4 KOTAK ATAS - SEKARANG LEBIH LEGA */
+  /* 4 KOTAK ATAS - CUKUP BOLD, GAK GEDE-GEDE */
   .stats{grid-row:1;grid-column:3;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
   .stats .card{display:flex;flex-direction:column;justify-content:center}
   .stats small{font-size:12px;color:#ccc;white-space:nowrap}
-  .stats b{font-size:23px;margin-top:4px;white-space:nowrap}
+  .stats b{font-size:17px;font-weight:900;margin-top:4px;white-space:nowrap}
   .stats span{font-size:11px;color:#aaa;margin-top:3px;white-space:nowrap}
   /* BARIS TENGAH */
   .row2{grid-row:2;grid-column:3;display:grid;grid-template-columns:1fr 1fr;gap:10px;min-width:0}
   .row2 .card{display:flex;flex-direction:column;min-width:0}
   .row2 h3{font-size:15px;margin-bottom:8px;white-space:nowrap}
   .order-box{background:#222;border-radius:8px;padding:10px;flex:1;overflow:auto}
-  .order-box p{font-size:14px;line-height:1.4}
-  .order-box .empty{font-size:14px;color:#aaa;text-align:center;padding-top:40px}
+  .order-box p{font-size:13px;line-height:1.4}
+  .order-box p b{font-size:14px;font-weight:900}
+  .order-box .empty{font-size:13px;color:#aaa;text-align:center;padding-top:40px}
   /* PETA */
   #map{width:100%;height:210px;min-height:210px;border-radius:8px;background:#333;z-index:1;flex-shrink:0}
   .map-note{font-size:11px;color:#ccc;margin-top:6px;white-space:nowrap}
@@ -60,7 +61,7 @@
   .driver-baru h3{font-size:15px;margin-bottom:8px;white-space:nowrap}
   .driver-list{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .driver-item{background:#222;border-radius:8px;padding:10px;display:flex;justify-content:space-between;align-items:center;min-height:62px}
-  .driver-item b{font-size:15px}
+  .driver-item b{font-size:14px;font-weight:900}
   .driver-item small{font-size:12px;color:#aaa;display:block;margin-top:2px}
 </style>
 </head>
@@ -87,7 +88,7 @@
       <a href="#" class="logout">Keluar</a>
     </div>
 
-    <!-- DEBET - SUDAH 70%, TULISAN PENDEK -->
+    <!-- DEBET - 20% LEBIH RAMPING, TULISAN BOLD AJA -->
     <div class="debet">
       <div class="card">
         <small>Debet Siti</small>
@@ -131,8 +132,8 @@
     <div class="card driver-baru">
       <h3>👤 Driver Baru Menunggu ACC (2)</h3>
       <div class="driver-list">
-        <div class="driver-item"><div><b>Agus</b><small>Avanza - Bandung</small></div><button class="btn btn-acc" style="flex:none;width:70px;padding:8px">ACC</button></div>
-        <div class="driver-item"><div><b>Dewi</b><small>Xenia - Cimahi</small></div><button class="btn btn-acc" style="flex:none;width:70px;padding:8px">ACC</button></div>
+        <div class="driver-item"><div><b>Agus</b><small>Avanza - Bandung</small></div><button class="btn btn-acc" style="flex:none;width:60px;padding:7px">ACC</button></div>
+        <div class="driver-item"><div><b>Dewi</b><small>Xenia - Cimahi</small></div><button class="btn btn-acc" style="flex:none;width:60px;padding:7px">ACC</button></div>
       </div>
     </div>
   </div>
