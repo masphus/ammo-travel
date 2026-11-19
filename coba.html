@@ -8,78 +8,70 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
-  body{background:#0f0f0f;color:#fff;overflow-x:auto}
-  /* KUNCI LANDSCAPE */
-  .wrap{min-width:1180px;padding:14px}
-  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-  .topbar h1{font-size:28px}
+  body{background:#0f0f0f;color:#fff;overflow-x:hidden}
+  .wrap{width:100vw;padding:10px}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .topbar h1{font-size:22px}
   .topbar h1 span{color:#ffc107}
-  .admin{font-size:15px;color:#ccc}
-  /* LAYOUT UTAMA - 3 KOLOM, 3 BARIS SEJAJAR */
+  .admin{font-size:12px;color:#ccc}
+  /* LAYOUT - MUAT 1 LAYAR, GAK PERLU GESER */
   .layout{
     display:grid;
-    grid-template-columns:235px 335px 1fr;
-    grid-template-rows:150px 360px 230px;
-    gap:14px;
+    grid-template-columns:190px 250px 1fr;
+    grid-template-rows:118px 300px 175px;
+    gap:10px;
+    width:100%;
   }
-  .card{background:#1a1a1a;border:1px solid #333;border-radius:14px;padding:16px;overflow:hidden}
-  /* SIDEBAR - PANJANG KE BAWAH */
-  .sidebar{grid-row:1 / span 3;display:flex;flex-direction:column;gap:8px}
-  .sidebar .logo{font-size:24px;font-weight:bold;margin-bottom:6px}
+  .card{background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:12px;overflow:hidden}
+  /* SIDEBAR */
+  .sidebar{grid-row:1 / span 3;display:flex;flex-direction:column;gap:6px}
+  .sidebar .logo{font-size:19px;font-weight:bold;margin-bottom:4px}
   .sidebar .logo span{color:#ffc107}
-  .sidebar a{color:#ddd;text-decoration:none;font-size:18px;padding:12px 12px;border-radius:10px;background:#222}
+  .sidebar a{color:#ddd;text-decoration:none;font-size:14px;padding:9px 10px;border-radius:8px;background:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .sidebar a.active{background:#ffc107;color:#000;font-weight:bold}
   .sidebar .logout{margin-top:auto;background:#ff4444;color:#fff;text-align:center}
-  /* KOLOM DEBET - 3 KOTAK */
-  .debet{display:flex;flex-direction:column;gap:14px;grid-row:1 / span 3}
-  /* Biar tingginya persis sama dengan baris kanan */
+  /* 3 KOTAK DEBET - TULISAN PAS, GAK KEPOTONG */
+  .debet{display:flex;flex-direction:column;gap:10px;grid-row:1 / span 3}
   .debet .card{flex:1;display:flex;flex-direction:column;justify-content:center}
-  .debet small{font-size:17px;color:#ccc}
-  .debet h2{font-size:38px;margin:8px 0;color:#fff}
-  .debet .btn-row{display:flex;gap:10px;margin-top:10px}
-  .btn{flex:1;padding:14px;border:none;border-radius:10px;font-size:19px;font-weight:bold;cursor:pointer}
+  .debet small{font-size:13px;color:#ccc;white-space:nowrap}
+  .debet h2{font-size:26px;margin:5px 0;white-space:nowrap}
+  .debet .btn-row{display:flex;gap:8px;margin-top:6px}
+  .btn{flex:1;padding:9px;border:none;border-radius:8px;font-size:15px;font-weight:bold;cursor:pointer}
   .btn-acc{background:#28a745;color:#fff}
   .btn-tolak{background:#444;color:#fff}
-  /* KONTEN KANAN */
-  .stats{grid-row:1;grid-column:3;display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  /* 4 KOTAK ATAS */
+  .stats{grid-row:1;grid-column:3;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
   .stats .card{display:flex;flex-direction:column;justify-content:center}
-  .stats small{font-size:17px;color:#ccc}
-  .stats b{font-size:32px;margin-top:6px}
-  .stats span{font-size:15px;color:#aaa;margin-top:4px}
-  .order{grid-row:2;grid-column:3}
-  .order h3{font-size:22px;margin-bottom:10px}
-  .order-box{background:#222;border-radius:10px;padding:14px;min-height:200px;display:flex;flex-direction:column;justify-content:center}
-  .order-box p{font-size:19px;line-height:1.5}
-  .order-box .empty{font-size:19px;color:#aaa;text-align:center}
-  .map-wrap{grid-row:2;grid-column:3;display:none} /* map digabung di bawah via layout baru */
-  /* BARIS 2 KANAN - ORDER + PETA BERSANDING */
-  .row2{grid-row:2;grid-column:3;display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .row2 .card{display:flex;flex-direction:column}
-  .row2 h3{font-size:22px;margin-bottom:10px}
-  #map{flex:1;min-height:260px;border-radius:10px;background:#222;z-index:1}
-  .map-note{font-size:15px;color:#ccc;margin-top:8px}
-  /* DRIVER BARU - BARIS 3 */
+  .stats small{font-size:12px;color:#ccc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stats b{font-size:23px;margin-top:4px;white-space:nowrap}
+  .stats span{font-size:11px;color:#aaa;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* BARIS TENGAH */
+  .row2{grid-row:2;grid-column:3;display:grid;grid-template-columns:1fr 1fr;gap:10px;min-width:0}
+  .row2 .card{display:flex;flex-direction:column;min-width:0}
+  .row2 h3{font-size:16px;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .order-box{background:#222;border-radius:8px;padding:10px;flex:1;overflow:auto}
+  .order-box p{font-size:14px;line-height:1.4}
+  .order-box .empty{font-size:14px;color:#aaa;text-align:center;padding-top:40px}
+  /* PETA - TEMPAT DIKUNCI, GAK ITEM LAGI */
+  #map{width:100%;height:210px;min-height:210px;border-radius:8px;background:#333;z-index:1;flex-shrink:0}
+  .map-note{font-size:11px;color:#ccc;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* DRIVER BARU */
   .driver-baru{grid-row:3;grid-column:3}
-  .driver-baru h3{font-size:22px;margin-bottom:10px}
-  .driver-list{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .driver-item{background:#222;border-radius:10px;padding:14px;display:flex;justify-content:space-between;align-items:center;min-height:78px}
-  .driver-item b{font-size:20px}
-  .driver-item small{font-size:16px;color:#aaa;display:block;margin-top:4px}
-  .driver-item .mini{width:60px;text-align:center}
-  @media (orientation:portrait){
-    .wrap{min-width:1180px}
-  }
+  .driver-baru h3{font-size:16px;margin-bottom:8px;white-space:nowrap}
+  .driver-list{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .driver-item{background:#222;border-radius:8px;padding:10px;display:flex;justify-content:space-between;align-items:center;min-height:62px}
+  .driver-item b{font-size:15px}
+  .driver-item small{font-size:12px;color:#aaa;display:block;margin-top:2px}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="topbar">
     <h1>Ammo <span>Travel</span></h1>
-    <div class="admin">Admin Panel &nbsp;|&nbsp; Senin, 20 April 2026 &nbsp;|&nbsp; Admin</div>
+    <div class="admin">Admin Panel | Admin</div>
   </div>
 
   <div class="layout">
-    <!-- SIDEBAR -->
     <div class="card sidebar">
       <div class="logo">Ammo <span>Travel</span></div>
       <a href="#" class="active">📊 Dashboard</a>
@@ -95,7 +87,6 @@
       <a href="#" class="logout">Keluar</a>
     </div>
 
-    <!-- 3 KOTAK DEBET - BALIK LAGI -->
     <div class="debet">
       <div class="card">
         <small>Debet Penumpang Siti</small>
@@ -114,7 +105,6 @@
       </div>
     </div>
 
-    <!-- 4 KOTAK ATAS - SEJAJAR DENGAN KOTAK DEBET ATAS -->
     <div class="stats">
       <div class="card"><small>Total Penumpang</small><b>1.150</b><span>+12% minggu ini</span></div>
       <div class="card"><small>Driver Aktif</small><b>25</b><span>dari 30 driver</span></div>
@@ -122,53 +112,51 @@
       <div class="card"><small>Pendapatan</small><b>Rp 12.5 jt</b><span>Bulan ini</span></div>
     </div>
 
-    <!-- BARIS TENGAH - SEJAJAR DENGAN KOTAK DEBET TENGAH -->
     <div class="row2">
-      <div class="card order">
+      <div class="card">
         <h3>🟢 Order Live (4)</h3>
-        <div class="order-box" id="orderBox">
-          <p><b>Bandung - Jakarta</b><br>Penumpang: Andi - 2 orang - Rp 600.000<br>Driver: Budi - Toyota Calya - Lagi jalan</p>
-          <p style="margin-top:12px"><b>Bandung - Lembang</b><br>Penumpang: Siti - 4 orang - Rp 250.000<br>Driver: Rina - Daihatsu Sigra - Menunggu</p>
-          <!-- Kalau database kosong, kotak ini TETAP kotak, isinya ganti jadi tulisan di bawah -->
-          <!-- <p class="empty">Belum ada order live</p> -->
+        <div class="order-box">
+          <p><b>Bandung - Jakarta</b><br>Andi - 2 org - Rp 600.000<br>Driver: Budi - Calya - Lagi jalan</p>
+          <p style="margin-top:10px"><b>Bandung - Lembang</b><br>Siti - 4 org - Rp 250.000<br>Driver: Rina - Sigra - Menunggu</p>
         </div>
       </div>
       <div class="card">
-        <h3>🗺️ Driver Online - Radius 100km</h3>
+        <h3>🗺️ Driver Online - 100km</h3>
         <div id="map"></div>
-        <div class="map-note">Peta boleh digeser untuk pantau driver. Tengah = GPS Admin. Lingkaran = 100km.</div>
+        <div class="map-note">Tengah = GPS Admin. Lingkaran = 100km. Boleh digeser.</div>
       </div>
     </div>
 
-    <!-- BARIS BAWAH - SEJAJAR DENGAN KOTAK DEBET BAWAH -->
     <div class="card driver-baru">
       <h3>👤 Driver Baru Menunggu ACC (2)</h3>
-      <div class="driver-list" id="driverBaru">
-        <div class="driver-item"><div><b>Agus</b><small>Toyota Avanza - Bandung</small></div><div class="mini"><button class="btn btn-acc" style="padding:10px;font-size:16px">ACC</button></div></div>
-        <div class="driver-item"><div><b>Dewi</b><small>Daihatsu Xenia - Cimahi</small></div><div class="mini"><button class="btn btn-acc" style="padding:10px;font-size:16px">ACC</button></div></div>
-        <!-- Kalau kosong, kotak ini TETAP kotak, isinya: Belum ada driver baru -->
+      <div class="driver-list">
+        <div class="driver-item"><div><b>Agus</b><small>Avanza - Bandung</small></div><button class="btn btn-acc" style="flex:none;width:70px;padding:8px">ACC</button></div>
+        <div class="driver-item"><div><b>Dewi</b><small>Xenia - Cimahi</small></div><button class="btn btn-acc" style="flex:none;width:70px;padding:8px">ACC</button></div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  // KUNCI LANDSCAPE - kalau HP masih berdiri, minta putar
-  window.addEventListener('load', () => {
-    if (screen.orientation && screen.orientation.lock) {
-      screen.orientation.lock('landscape').catch(()=>{});
-    }
-  });
+  // KUNCI LANDSCAPE
+  if (screen.orientation && screen.orientation.lock) {
+    screen.orientation.lock('landscape').catch(()=>{});
+  }
 
-  // PETA ASLI - GPS ADMIN SEBAGAI TENGAH, RADIUS 100KM, BOLEH DIGESER
-  // Posisi awal Bandung kalau GPS belum aktif
+  // PETA ASLI - BANDUNG SEBAGAI AWAL, BIAR GAK KOSONG
   let adminLat = -6.9175, adminLng = 107.6191;
-  const map = L.map('map').setView([adminLat, adminLng], 8);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 18}).addTo(map);
+  const map = L.map('map', {scrollWheelZoom:true, dragging:true}).setView([adminLat, adminLng], 8);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 18, attribution:'© OpenStreetMap'}).addTo(map);
   let circle = L.circle([adminLat, adminLng], {color:'#ffc107', fillColor:'#ffc107', fillOpacity:0.12, radius:100000}).addTo(map);
   let adminMarker = L.marker([adminLat, adminLng]).addTo(map).bindPopup('Posisi Admin (GPS)').openPopup();
+  L.marker([adminLat+0.15, adminLng+0.12]).addTo(map).bindPopup('Budi - Calya - Online');
+  L.marker([adminLat-0.20, adminLng-0.10]).addTo(map).bindPopup('Rina - Sigra - Online');
 
-  // Ambil GPS asli admin
+  // Biar peta gak item - paksa refresh setelah halaman kebuka
+  setTimeout(()=>{ map.invalidateSize(); }, 500);
+  setTimeout(()=>{ map.invalidateSize(); }, 1500);
+
+  // GPS ASLI ADMIN
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition((pos) => {
       adminLat = pos.coords.latitude;
@@ -176,9 +164,7 @@
       map.setView([adminLat, adminLng], 8);
       circle.setLatLng([adminLat, adminLng]);
       adminMarker.setLatLng([adminLat, adminLng]);
-      // Contoh driver online di dalam radius 100km
-      L.marker([adminLat+0.15, adminLng+0.12]).addTo(map).bindPopup('Budi - Calya - Online');
-      L.marker([adminLat-0.20, adminLng-0.10]).addTo(map).bindPopup('Rina - Sigra - Online');
+      map.invalidateSize();
     }, ()=>{}, {enableHighAccuracy:true});
   }
 </script>
