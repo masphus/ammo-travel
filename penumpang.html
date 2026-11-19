@@ -3,59 +3,80 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Penumpang - Menunggu Driver</title>
+<title>Penumpang - Ammo Travel</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
 body{background:#000;display:flex;justify-content:center}
- .phone{width:100%;max-width:430px;background:#0f0f0f;min-height:100vh;padding-bottom:20px;position:relative;color:#fff;overflow:hidden}
- .bintang{position:absolute;inset:0;pointer-events:none;z-index:0;background-image:radial-gradient(2px 2px at 20px 30px,#fff8dc 50%,transparent 51%),radial-gradient(1.5px 1.5px at 80px 120px,#FFD700 50%,transparent 51%),radial-gradient(2px 2px at 150px 60px,#fff 50%,transparent 51%),radial-gradient(1px 1px at 250px 180px,#FFD700 50%,transparent 51%),radial-gradient(2px 2px at 320px 90px,#fff8dc 50%,transparent 51%),radial-gradient(1.5px 1.5px at 360px 220px,#fff 50%,transparent 51%),radial-gradient(2px 2px at 40px 280px,#FFD700 50%,transparent 51%),radial-gradient(1px 1px at 200px 320px,#fff 50%,transparent 51%),radial-gradient(2px 2px at 300px 400px,#FFD700 50%,transparent 51%),radial-gradient(1.5px 1.5px at 100px 450px,#fff8dc 50%,transparent 51%),radial-gradient(2px 2px at 380px 500px,#FFD700 50%,transparent 51%),radial-gradient(1px 1px at 60px 600px,#fff 50%,transparent 51%);background-size:400px 500px;opacity:.9;animation:kedipBintang 3s infinite}
- .bintang2{background-position:60px 80px;opacity:.6;animation-duration:4.5s}
- .bintang3{background-position:-40px 150px;opacity:.4;animation-duration:5.5s}
- @keyframes kedipBintang{0%,100%{opacity:.5}50%{opacity:1}}
- .phone:before{content:"";position:absolute;left:-80px;top:200px;width:200px;height:600px;background:radial-gradient(ellipse at center,rgba(255,215,0,.18) 0%,transparent 70%);filter:blur(8px);z-index:0;pointer-events:none;transform:rotate(15deg)}
- .phone:after{content:"";position:absolute;right:-80px;top:100px;width:200px;height:600px;background:radial-gradient(ellipse at center,rgba(255,215,0,.18) 0%,transparent 70%);filter:blur(8px);z-index:0;pointer-events:none;transform:rotate(-15deg)}
-/* HEADER DISEMBUNYIKAN - SESUAI GAMBAR, TAPI HTML & FUNGSI TETAP ADA */
-header{background:#000;color:#e8c96a;padding:14px 16px;display:none;align-items:center;gap:14px}
-header a{color:#e8c96a;font-size:24px;text-decoration:none}
-header b{font-size:22px;color:#e8c96a}
-.radar-wrap{text-align:center;padding:0;background:#000;overflow:hidden;position:relative}
-.radar{width:100%;height:220px;margin:auto;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000 70%)}
+.phone{width:100%;max-width:430px;background:#0a0a0a;min-height:100vh;padding:14px 16px 20px;position:relative;color:#fff;overflow:hidden}
+.phone:before{content:"";position:absolute;inset:0;background-image:linear-gradient(115deg,transparent 48%,rgba(212,175,55,.08) 50%,transparent 52%),linear-gradient(-115deg,transparent 48%,rgba(212,175,55,.08) 50%,transparent 52%);pointer-events:none}
+/* TOP BANNER */
+.top-banner{position:relative;text-align:center;border:1.5px solid #d4af37;background:#111;padding:10px 8px;margin-bottom:16px}
+.top-banner:before{content:"✦";position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#d4af37;font-size:10px}
+.top-banner:after{content:"✦";position:absolute;right:10px;top:50%;transform:translateY(-50%);color:#d4af37;font-size:10px}
+.top-banner h1{font-size:28px;letter-spacing:6px;color:#e8c96a;font-weight:900}
+.top-banner small{font-size:11px;letter-spacing:5px;color:#e8c96a}
+/* AKUN */
+.akun{text-align:center;padding:2px 0 14px;position:relative}
+.akun .foto-wrap{width:150px;height:150px;margin:0 auto;border-radius:50%;padding:5px;background:conic-gradient(from 0deg,#d4af37,#fff2b0,#d4af37,#8a6d1a,#d4af37);box-shadow:0 0 24px rgba(212,175,55,.4)}
+.akun .foto-wrap img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:3px solid #000;background:#222}
+.akun .label{margin-top:12px;color:#e8c96a;font-size:14px;letter-spacing:2px;font-weight:900}
+/* CARD */
+.card{position:relative;margin:0 0 14px;border:1.5px solid #d4af37;border-radius:18px;padding:16px;background:#131313;box-shadow:0 0 16px rgba(212,175,55,.12)}
+.card h2{color:#e8c96a;font-size:18px;margin-bottom:12px}
+.akun-card .row{margin-bottom:10px}
+.akun-card .row:last-child{margin-bottom:0}
+.akun-card small{display:inline-block;background:#e8c96a;color:#000;font-size:12px;font-weight:900;padding:3px 8px;border-radius:4px;margin-bottom:4px}
+.akun-card b{display:block;font-size:19px;color:#fff;font-weight:900}
+.route{display:flex;gap:12px;align-items:flex-start}
+.route .pin{font-size:36px;color:#e8c96a;line-height:1}
+.route .txt b{display:block;font-size:19px;line-height:1.3}
+.route .txt span{color:#e8c96a;font-size:16px;font-weight:900}
+.route .txt .arrow{color:#e8c96a;margin:4px 0}
+.meta{display:flex;gap:10px;margin-top:12px}
+.meta div{flex:1;border:1px solid #333;border-radius:12px;padding:10px;background:#0f0f0f;font-size:13px;color:#f5d76e}
+.meta b{display:block;font-size:16px;color:#e8c96a;margin-top:2px}
+/* DRIVER */
+.driver-top{display:flex;gap:12px;align-items:center}
+.driver-top img{width:64px;height:64px;border-radius:50%;border:3px solid #d4af37;object-fit:cover;background:#222}
+.driver-top .nama{font-size:20px;font-weight:900;color:#fff}
+.driver-top .plat-line{font-size:14px;color:#e8c96a;margin-top:3px}
+.driver-sukses{display:none}
+.driver-kosong{color:#aaa;font-size:14px;line-height:1.5;text-align:center;padding:4px 0}
+.badge-unggulan{display:none;border:1.5px solid #d4af37;color:#e8c96a;border-radius:999px;padding:5px 12px;font-size:12px;font-weight:900;letter-spacing:1px;background:#111;margin-bottom:10px;width:fit-content}
+.driver-grid{margin-top:12px;display:grid;gap:8px}
+.driver-grid div{display:flex;justify-content:space-between;gap:10px;background:#0f0f0f;border:1px solid #2a220a;border-radius:12px;padding:10px 12px;font-size:15px}
+.driver-grid div span{color:#f5d76e}
+.driver-grid div b{color:#fff;text-align:right}
+.eta{font-size:14px;font-weight:900;color:#f5d76e;margin-top:12px;background:#111;display:inline-block;padding:8px 14px;border-radius:999px;border:1.5px solid #d4af37}
+.title{text-align:center;font-size:20px;color:#e8c96a}
+.sub{text-align:center;font-size:14px;padding:6px 20px 12px;color:#f5d76e}
+/* TARIF */
+.ongkos{text-align:center;background:#0f0f0f;border:1.5px solid #d4af37;border-radius:14px;padding:14px}
+.ongkos small{display:block;font-size:13px;color:#f5d76e;margin-bottom:6px;letter-spacing:2px}
+.ongkos span{font-weight:900;font-size:32px;color:#e8c96a}
+.note{font-size:13px;color:#fff;margin-top:12px;line-height:1.5;text-align:center;border:1px dashed #d4af37;border-radius:12px;padding:10px 12px;background:#0f0f0f}
+.btn-batal{margin:2px 0 0;background:linear-gradient(180deg,#2a0707,#4a1212);color:#e8c96a;border:1.5px solid #d4af37;width:100%;padding:16px;border-radius:999px;font-weight:900;font-size:20px;letter-spacing:1px;cursor:pointer;box-shadow:0 0 14px rgba(212,175,55,.25)}
+.btn-prioritas{display:none;margin:12px 0 4px;background:linear-gradient(#ffe98a,#d4af37 55%,#b8962e);color:#000;border:none;width:100%;padding:15px;border-radius:14px;font-weight:900;font-size:18px;cursor:pointer}
+.btn-prioritas-found{display:none;margin:12px 0 4px;background:linear-gradient(#ffe98a,#d4af37 55%,#b8962e);color:#000;border:none;width:100%;padding:15px;border-radius:14px;font-weight:900;font-size:18px;cursor:pointer}
+.prioritas-note{display:none;text-align:center;font-size:13px;color:#f5d76e;line-height:1.4;padding:0 10px 10px}
+.footer{margin-top:18px;text-align:center;font-size:12px;color:#e8c96a;letter-spacing:.5px}
+.footer span{color:#666;margin:0 6px}
+/* RADAR */
+header{display:none}
+.radar-wrap{text-align:center;background:#000;overflow:hidden;position:relative;border:1.5px solid #d4af37;border-radius:18px;margin:0 0 12px}
+.radar{width:100%;height:140px;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000 70%)}
 .radar:before,.radar:after{content:"";position:absolute;border:1px solid rgba(255,215,0,.35);border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}
 .radar:before{width:300px;height:300px}
 .radar:after{width:180px;height:180px}
 .radar .lingkar3{position:absolute;width:90px;height:90px;border:1px solid rgba(255,215,0,.35);border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}
 .radar .garis-v{position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,215,0,.15)}
 .radar .garis-h{position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(255,215,0,.15)}
-.radar .sapu{position:absolute;left:50%;top:50%;width:50%;height:2px;background:linear-gradient(90deg, rgba(255,215,0,0) 0%, #FFD700 100%);transform-origin:left center;animation:spin 2.5s linear infinite;box-shadow:0 0 12px #FFD700}
+.radar .sapu{position:absolute;left:50%;top:50%;width:50%;height:2px;background:linear-gradient(90deg, rgba(255,215,0,0) 0%, #FFD700 100%);transform-origin:left center;animation:spin 2.5s linear infinite}
 .radar .sapu-bayang{position:absolute;left:50%;top:50%;width:50%;height:110px;background:conic-gradient(from 0deg, rgba(255,215,0,.25) 0deg, rgba(255,215,0,0) 60deg);transform-origin:left top;animation:spin 2.5s linear infinite;clip-path:polygon(0 0, 100% 0, 0 100%)}
 @keyframes spin{to{transform:rotate(360deg)}}
-.titik{position:absolute;width:7px;height:7px;background:#FFD700;border-radius:50%;box-shadow:0 0 10px #FFD700;animation:kedip 2.5s infinite;opacity:0}
-@keyframes kedip{0%,100%{opacity:0;transform:scale(0.5)}20%{opacity:1;transform:scale(1.2)}40%{opacity:0.2}60%{opacity:1}}
+.titik{position:absolute;width:7px;height:7px;background:#FFD700;border-radius:50%;animation:kedip 2.5s infinite;opacity:0}
+@keyframes kedip{0%,100%{opacity:0}20%{opacity:1}40%{opacity:.2}60%{opacity:1}}
 .radar-label{position:absolute;bottom:10px;left:0;right:0;text-align:center;color:#FFD700;font-size:12px;letter-spacing:3px;font-weight:bold}
-.driver-sukses{display:none;text-align:center;padding:18px 0 4px}
-.badge-unggulan{display:none;border:1.5px solid #d4af37;color:#e8c96a;border-radius:999px;padding:6px 16px;font-size:14px;font-weight:900;letter-spacing:1px;background:#111;margin:0 auto 14px;width:fit-content}
-.driver-sukses .foto-driver{width:150px;height:150px;margin:auto;border-radius:50%;border:4px solid #d4af37;object-fit:cover;background:#222;box-shadow:0 0 24px rgba(212,175,55,.45)}
-.driver-sukses .nama{font-size:32px;font-weight:900;color:#e8c96a;margin-top:14px;line-height:1.1}
-.driver-sukses .plat{font-size:20px;color:#e8c96a;margin-top:4px}
-.driver-sukses .eta{font-size:20px;font-weight:900;color:#f5d76e;margin-top:16px;background:#111;display:inline-block;padding:8px 18px;border-radius:999px;border:1.5px solid #d4af37}
-.title{text-align:center;font-size:30px;color:#e8c96a;margin-top:8px}
-.sub{text-align:center;font-size:14px;padding:6px 20px 14px;color:#f5d76e}
-.card{margin:22px 16px 14px;border:2px solid #d4af37;border-radius:18px;padding:18px 16px;background:#131313;display:flex;flex-wrap:wrap;gap:12px;box-shadow:0 0 18px rgba(212,175,55,.18)}
-.card h2{color:#e8c96a;font-size:26px;width:100%}
-.route{margin:6px 0 0 4px;border-left:2px dashed #d4af37;padding-left:22px;width:100%}
-.route b{font-size:19px;display:block;line-height:1.4;color:#ffffff}
-.route small{color:#e8c96a;font-size:16px;font-weight:900}
-.meta{flex:1;display:flex;flex-direction:column;gap:8px;border:1.5px solid #d4af37;border-radius:16px;padding:14px;background:#0f0f0f;order:3;min-width:0}
-.meta div{font-size:15px;color:#f5d76e}
-.meta b{display:block;font-size:18px;color:#e8c96a;margin-top:2px}
-.ongkos{flex:1;background:#0f0f0f;border:1.5px solid #d4af37;border-radius:16px;padding:14px;font-weight:900;font-size:24px;color:#e8c96a;order:4;min-width:0}
-.ongkos small{display:block;font-size:14px;color:#f5d76e;margin-bottom:8px}
-.note{font-size:15px;color:#fff;margin-top:0;line-height:1.4;text-align:center;width:100%;order:2;border:1.5px solid #d4af37;border-radius:16px;padding:12px 14px;background:#0f0f0f}
-.note:before{content:"PENTING!";display:block;color:#ff2b2b;font-size:26px;font-weight:900;letter-spacing:.5px;margin-bottom:4px}
-.btn-batal{margin:22px 16px 0;background:linear-gradient(180deg,#4a1212,#2a0707);color:#fff;border:2px solid #ff2b2b;width:calc(100% - 32px);padding:16px;border-radius:14px;font-weight:900;font-size:22px;cursor:pointer}
-.btn-prioritas{display:none;margin:26px 16px 4px;background:linear-gradient(#ffe98a,#d4af37 55%,#b8962e);color:#000;border:none;width:calc(100% - 32px);padding:16px;border-radius:14px;font-weight:900;font-size:21px;cursor:pointer;box-shadow:0 4px 0 #8a6d1a}
-.btn-prioritas-found{display:none;margin:8px 16px 4px;background:linear-gradient(#ffe98a,#d4af37 55%,#b8962e);color:#000;border:none;width:calc(100% - 32px);padding:16px;border-radius:14px;font-weight:900;font-size:21px;cursor:pointer;box-shadow:0 4px 14px rgba(212,175,55,.4)}
-.prioritas-note{display:none;text-align:center;font-size:14px;color:#f5d76e;line-height:1.4;padding:0 24px 14px}
 .chat-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;align-items:flex-end;justify-content:center}
 .chat-modal.show{display:flex}
 .chat-box{width:100%;max-width:430px;background:#1a1a1a;border-radius:16px 16px 0 0;padding:14px;max-height:85vh;overflow-y:auto;color:#fff}
@@ -72,7 +93,7 @@ header b{font-size:22px;color:#e8c96a}
 .notif-modal.show{display:flex}
 .notif-box{width:100%;max-width:430px;background:#1a1a1a;border:1px solid #d4af37;border-radius:16px 16px 0 0;padding:20px 16px 16px;text-align:center}
 .notif-box .ikon{font-size:48px;margin-bottom:8px}
-.notif-box h3{font-size:20px;color:#e8c96a;margin-bottom:8px;line-height:1.3}
+.notif-box h3{font-size:20px;color:#e8c96a;margin-bottom:8px}
 .notif-box p{font-size:15px;color:#ccc;line-height:1.5;margin-bottom:16px}
 .notif-btns{display:flex;gap:10px}
 .notif-btns button{flex:1;padding:14px;border-radius:10px;border:none;font-weight:bold;font-size:16px;cursor:pointer}
@@ -80,96 +101,93 @@ header b{font-size:22px;color:#e8c96a}
 .btn-lanjutkan{background:#d4af37;color:#000}
 .btn-ok-notif{background:#d4af37;color:#000;width:100%;padding:14px;border-radius:10px;border:none;font-weight:bold;font-size:16px;cursor:pointer}
 .spinner{width:36px;height:36px;border:3px solid #333;border-top:3px solid #ff2b2b;border-radius:50%;margin:0 auto 10px;animation:spin 0.8s linear infinite}
-
- /* === PETIR BARU: BERAKAR + MERAMBAT PELAN 1.8 DETIK === */
- .kilat{position:absolute;inset:0;pointer-events:none;z-index:2;background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,215,0,.30) 30%,transparent 60%);opacity:0}
- .kilat.aktif{animation:kilatKalem2 1.8s ease-out}
- @keyframes kilatKalem2{0%{opacity:0}6%{opacity:.22}12%{opacity:0}18%{opacity:.14}28%{opacity:0}100%{opacity:0}}
- .petir-svg{position:absolute;top:0;width:90px;height:340px;pointer-events:none;z-index:2;opacity:0;filter:drop-shadow(0 0 8px #FFD700) drop-shadow(0 0 3px #fff)}
- .petir-svg.kiri{left:8px}
- .petir-svg.kanan{right:8px;transform:scaleX(-1)}
- .petir-svg .akar{fill:none;stroke:#FFE98A;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:600;stroke-dashoffset:600}
- .petir-svg .akar-utama{stroke:#fff;stroke-width:3}
- .petir-svg .akar-cabang{stroke:#FFD700;stroke-width:1.4;opacity:.85}
- .petir-svg.aktif{opacity:1}
- .petir-svg.aktif .akar{animation:rambatPetir 1.8s ease-out forwards}
- .petir-svg.aktif .akar-cabang{animation-delay:.45s}
- .petir-svg.aktif .akar-cabang2{animation-delay:.75s}
- @keyframes rambatPetir{0%{stroke-dashoffset:600;opacity:0}10%{opacity:1}55%{stroke-dashoffset:0;opacity:1}80%{opacity:.7}100%{stroke-dashoffset:0;opacity:0}}
- .petir-garis{display:none!important}
-
+.kilat{position:absolute;inset:0;pointer-events:none;z-index:2;background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,215,0,.30) 30%,transparent 60%);opacity:0}
+.kilat.aktif{animation:kilatKalem2 1.8s ease-out}
+@keyframes kilatKalem2{0%{opacity:0}6%{opacity:.22}12%{opacity:0}18%{opacity:.14}28%{opacity:0}100%{opacity:0}}
+.petir-svg{position:absolute;top:0;width:90px;height:340px;pointer-events:none;z-index:2;opacity:0;filter:drop-shadow(0 0 8px #FFD700)}
+.petir-svg.kiri{left:8px}
+.petir-svg.kanan{right:8px;transform:scaleX(-1)}
+.petir-svg .akar{fill:none;stroke:#FFE98A;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:600;stroke-dashoffset:600}
+.petir-svg .akar-utama{stroke:#fff;stroke-width:3}
+.petir-svg .akar-cabang{stroke:#FFD700;stroke-width:1.4;opacity:.85}
+.petir-svg.aktif{opacity:1}
+.petir-svg.aktif .akar{animation:rambatPetir 1.8s ease-out forwards}
+.petir-svg.aktif .akar-cabang{animation-delay:.45s}
+.petir-svg.aktif .akar-cabang2{animation-delay:.75s}
+@keyframes rambatPetir{0%{stroke-dashoffset:600;opacity:0}10%{opacity:1}55%{stroke-dashoffset:0;opacity:1}80%{opacity:.7}100%{stroke-dashoffset:0;opacity:0}}
 </style>
 </head>
 <body>
 <div class="phone">
-<div class="bintang"></div>
-<div class="bintang bintang2"></div>
-<div class="bintang bintang3"></div>
 <div class="kilat" id="kilat"></div>
 <svg class="petir-svg kiri" id="petirKiri" viewBox="0 0 90 340" fill="none"><path class="akar akar-utama" d="M48 0 L30 70 L52 72 L22 150 L44 152 L18 260 L38 170 L58 168 L40 90 L62 88 Z"/><path class="akar akar-cabang" d="M30 70 L8 100 L18 108"/><path class="akar akar-cabang akar-cabang2" d="M22 150 L5 180"/><path class="akar akar-cabang" d="M52 72 L75 100"/></svg>
 <svg class="petir-svg kanan" id="petirKanan" viewBox="0 0 90 340" fill="none"><path class="akar akar-utama" d="M48 0 L30 70 L52 72 L22 150 L44 152 L18 260 L38 170 L58 168 L40 90 L62 88 Z"/><path class="akar akar-cabang" d="M30 70 L8 100 L18 108"/><path class="akar akar-cabang akar-cabang2" d="M22 150 L5 180"/><path class="akar akar-cabang" d="M52 72 L75 100"/></svg>
-
 <header><a href="javascript:void(0)" onclick="kembaliKeIndex()">←</a><b>Menunggu Driver</b></header>
-<div class="radar-wrap" id="radarWrap">
-<div class="radar" id="radarEl">
-<div class="garis-v"></div>
-<div class="garis-h"></div>
-<div class="lingkar3"></div>
-<div class="sapu-bayang"></div>
-<div class="sapu"></div>
-<div id="titikWrap"></div>
-<div class="radar-label">● MENCARI DRIVER TERDEKAT...</div>
+
+<div class="top-banner"><h1>AMMO TRAVEL</h1></div>
+
+<div class="akun">
+  <div class="foto-wrap"><img id="fotoPenumpang" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Akun Pemesan"></div>
+  <div class="label">AKUN PEMESAN</div>
 </div>
+
+<div class="card akun-card">
+  <div class="row"><small>NAMA</small><b id="namaPenumpang">Dian Ayu Permata</b></div>
+  <div class="row"><small>NO. TELEPON</small><b id="hpPenumpang">+62 812-3456-7890</b></div>
 </div>
-<div class="driver-sukses" id="driverSukses">
-<div class="badge-unggulan" id="badgeUnggulan">DRIVER UNGGULAN</div>
-<img class="foto-driver" id="fotoDriver" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Driver">
-<div class="nama" id="namaDriverSukses">Budi Santoso</div>
-<div class="plat" id="platDriverSukses">D 1234 ABC • ⭐ 4.9</div>
-<div class="eta" id="etaDriver">⏱️ Tiba dalam 8 menit</div>
-</div>
+
+<div class="radar-wrap" id="radarWrap"><div class="radar" id="radarEl"><div class="garis-v"></div><div class="garis-h"></div><div class="lingkar3"></div><div class="sapu-bayang"></div><div class="sapu"></div><div id="titikWrap"></div><div class="radar-label">● MENCARI DRIVER TERDEKAT...</div></div></div>
 <div class="title" id="waitTitle">Mencari Driver...</div>
 <p class="sub" id="waitSub">Kami sedang mencari driver terdekat untukmu</p>
+
+<div class="card">
+  <div class="route"><div class="pin">📍</div><div class="txt"><span>Dari Bandung</span><div class="arrow">↓</div><span>Tujuan Jakarta</span><b id="wDari" style="display:none">Memuat...</b><b id="wTujuan" style="display:none">Memuat...</b></div></div>
+  <div class="meta"><div>🅰️ Jarak<b id="wJarak">Menghitung...</b></div><div>🕒 Estimasi<b id="wEstimasi">Menghitung...</b></div></div>
+  <!-- teks asli Dari/Tujuan tetap disimpan untuk JS, ditampilkan lewat wDari/wTujuan di atas jika mau -->
+  <div style="display:none"><span id="wDariFull"></span><span id="wTujuanFull"></span></div>
+</div>
+
+<div class="card">
+  <h2>🚗 DRIVER PENJEMPUT</h2>
+  <div id="driverKosong" class="driver-kosong">Sedang mencari driver...<br>Driver, mobil &amp; plat akan muncul di sini.</div>
+  <div class="driver-sukses" id="driverSukses">
+    <div class="badge-unggulan" id="badgeUnggulan">DRIVER UNGGULAN</div>
+    <div class="driver-top">
+      <img class="foto-driver" id="fotoDriver" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Driver">
+      <div><div class="nama" id="namaDriverSukses">Budi Santoso</div><div class="plat-line" id="platDriverSukses">D 1234 ABC • ⭐ 4.9</div></div>
+    </div>
+    <div class="driver-grid">
+      <div><span>Driver</span><b id="driverNamaGrid">Budi Santoso</b></div>
+      <div><span>Mobil</span><b id="mobilDriverSukses">Toyota Innova</b></div>
+      <div><span>Plat Kendaraan</span><b id="platOnly">D 1234 ABC</b></div>
+    </div>
+    <div class="eta" id="etaDriver">⏱️ Tiba dalam 8 menit</div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>🧾 KETERANGAN TARIF</h2>
+  <div class="ongkos"><small>KETERANGAN TARIF</small><span id="wOngkos">Menghitung...</span></div>
+  <p class="note">Bilamana terdapat Biaya Tol, Parkir, dan Penyeberangan Dibebankan kepada Penumpang.</p>
+</div>
+
 <button class="btn-prioritas" id="btnPrioritas" onclick="upgradePrioritas()">⚡ UPGRADE KE PRIORITAS</button>
 <button class="btn-prioritas-found" id="btnPrioritasFound" onclick="upgradePrioritas()">⚡ UPGRADE KE PRIORITAS</button>
 <p class="prioritas-note" id="prioritasNote">Dengan Upgrade ke Prioritas Anda akan mendapatkan Pelayanan yang diutamakan</p>
-<div class="card">
-<h2>📍 Rute Perjalanan</h2>
-<div class="route"><small>Dari</small><b id="wDari">Memuat...</b><br><br><small>Tujuan</small><b id="wTujuan">Memuat...</b></div>
-<div class="meta"><div>🅰️ Jarak<b id="wJarak">Menghitung...</b></div><div>🕒 Estimasi<b id="wEstimasi">Menghitung...</b></div></div>
-<div class="ongkos"><small>ONGKOS</small><span id="wOngkos">Menghitung...</span></div>
-<p class="note">ⓘ Biaya Parkir, Tol, dan Penyeberangan akan dibebankan kepada Penumpang bilamana ada</p>
+<button class="btn-batal" onclick="batalkanPesanan()">BATALKAN PESANAN</button>
+
+<div class="footer">AMMO TRAVEL <span>•</span> Layanan Travel Terpercaya <span>•</span> © 2024</div>
 </div>
-<button class="btn-batal" onclick="batalkanPesanan()">Batalkan Pesanan</button>
-</div>
+
 <div id="chatModal" class="chat-modal"><div class="chat-box">
 <div class="chat-head"><img id="chatFoto" src="https://randomuser.me/api/portraits/men/32.jpg" style="width:44px;height:44px;border-radius:50%;object-fit:cover"><div><b id="chatNama">Budi Santoso</b><br><small id="chatStatus" style="color:#00a651">● Online</small></div></div>
-<div id="chatIsi">
-<div class="chat-bubble driver">Halo! Saya <b>Budi</b>, driver kamu. Saya sudah OTW ke titik jemput ya 🙏<br><small id="chatRute">Jalan Peta, Pelindung Hewan → Soreang - Ciwidey</small></div>
-</div>
+<div id="chatIsi"><div class="chat-bubble driver">Halo! Saya <b>Budi</b>, driver kamu. Saya sudah OTW ke titik jemput ya 🙏<br><small id="chatRute">Jalan Peta, Pelindung Hewan → Soreang - Ciwidey</small></div></div>
 <div class="chat-input"><input id="chatInput" placeholder="Ketik pesan ke driver..."><button onclick="kirimChat()">➤</button></div>
 <button class="chat-close" onclick="tutupChat()">Tutup Chat</button>
 </div></div>
-<div id="modalKembali" class="notif-modal"><div class="notif-box">
-<div class="ikon">⚠️</div>
-<h3>Anda Masih Mempunyai Perjalanan</h3>
-<p id="teksKembali">Driver sudah OTW ke titik jemputmu.<br>Yakin ingin membatalkan perjalanan ini?</p>
-<div class="notif-btns">
-<button class="btn-ya-batal" onclick="konfirmasiKembaliYa()">Ya, Batalkan</button>
-<button class="btn-lanjutkan" onclick="konfirmasiKembaliLanjut()">Lanjutkan Perjalanan</button>
-</div>
-</div></div>
-<div id="modalBatal" class="notif-modal"><div class="notif-box">
-<div class="spinner"></div>
-<h3>Membatalkan Perjalanan...</h3>
-<p id="teksBatal">Mengirim pemberitahuan pembatalan ke driver...<br>Driver akan diberitahu bahwa penumpang membatalkan perjalanan.</p>
-</div></div>
-<div id="modalBatalSukses" class="notif-modal"><div class="notif-box">
-<div class="ikon">✅</div>
-<h3>Perjalanan Dibatalkan</h3>
-<p>Driver sudah diberitahu bahwa kamu membatalkan perjalanan.<br>Terima kasih sudah menggunakan Ammo Travel.</p>
-<button class="btn-ok-notif" onclick="selesaiBatalKeIndex()">OK, Kembali ke Beranda</button>
-</div></div>
+<div id="modalKembali" class="notif-modal"><div class="notif-box"><div class="ikon">⚠️</div><h3>Anda Masih Mempunyai Perjalanan</h3><p id="teksKembali">Driver sudah OTW ke titik jemputmu.<br>Yakin ingin membatalkan perjalanan ini?</p><div class="notif-btns"><button class="btn-ya-batal" onclick="konfirmasiKembaliYa()">Ya, Batalkan</button><button class="btn-lanjutkan" onclick="konfirmasiKembaliLanjut()">Lanjutkan Perjalanan</button></div></div></div>
+<div id="modalBatal" class="notif-modal"><div class="notif-box"><div class="spinner"></div><h3>Membatalkan Perjalanan...</h3><p id="teksBatal">Mengirim pemberitahuan pembatalan ke driver...<br>Driver akan diberitahu bahwa penumpang membatalkan perjalanan.</p></div></div>
+<div id="modalBatalSukses" class="notif-modal"><div class="notif-box"><div class="ikon">✅</div><h3>Perjalanan Dibatalkan</h3><p>Driver sudah diberitahu bahwa kamu membatalkan perjalanan.<br>Terima kasih sudah menggunakan Ammo Travel.</p><button class="btn-ok-notif" onclick="selesaiBatalKeIndex()">OK, Kembali ke Beranda</button></div></div>
 <script>
 const TEST_MODE = true;
 const saved = JSON.parse(localStorage.getItem('masphus_order') || 'null');
@@ -177,273 +195,98 @@ const ASAL_NAMA = saved ? saved.asal.nama : 'Jalan Peta, Pelindung Hewan, Kota B
 const TUJUAN_NAMA = saved ? saved.tujuan.nama : 'Jalan Raya Soreang - Ciwidey, Sukajadi, West Java';
 let ASAL_COORD = (saved && saved.asal.lat) ? [saved.asal.lat, saved.asal.lon] : null;
 let TUJUAN_COORD = (saved && saved.tujuan.lat) ? [saved.tujuan.lat, saved.tujuan.lon] : null;
-let driverDitemukan = false;
-let etaInterval = null;
-let etaDetik = 0;
-let namaDriverAktif = 'Budi Santoso';
-let bolehKeluar = false;
-let lagiTampilNotif = false;
+let driverDitemukan = false, etaInterval = null, etaDetik = 0, namaDriverAktif = 'Budi Santoso', bolehKeluar = false, lagiTampilNotif = false;
+try{
+  var sesi = JSON.parse(localStorage.getItem('ammo_sesi')||'null');
+  if(sesi && sesi.nama){ document.getElementById('namaPenumpang').textContent = sesi.nama; }
+  if(sesi && (sesi.hp||sesi.no_wa)){ document.getElementById('hpPenumpang').textContent = sesi.hp||sesi.no_wa; }
+  if(sesi && sesi.foto){ document.getElementById('fotoPenumpang').src = sesi.foto; }
+}catch(e){}
 document.getElementById('wDari').textContent = ASAL_NAMA;
 document.getElementById('wTujuan').textContent = TUJUAN_NAMA;
 document.getElementById('chatRute').textContent = ASAL_NAMA + ' → ' + TUJUAN_NAMA;
-function buatTitikRadar(){
-  let wrap = document.getElementById('titikWrap');
-  if(!wrap) return;
-  wrap.innerHTML = '';
-  for(let i=0;i<8;i++){
-    let d = document.createElement('div');
-    d.className = 'titik';
-    let x = 12 + Math.random()*76;
-    let y = 12 + Math.random()*68;
-    d.style.left = x + '%';
-    d.style.top = y + '%';
-    d.style.animationDelay = (Math.random()*3).toFixed(2) + 's';
-    d.style.animationDuration = (1.8 + Math.random()*2.5).toFixed(2) + 's';
-    let warna = ['#FFD700','#FFD700','#FFD700','#FFD700','#00FF88','#FFFFFF'][Math.floor(Math.random()*6)];
-    d.style.background = warna;
-    d.style.boxShadow = '0 0 10px ' + warna;
-    wrap.appendChild(d);
-  }
-}
+function pecahPlat(platFull){ var p=String(platFull||'D 1234 ABC'); return {platOnly:p.split('•')[0].trim()}; }
+function mobilDariPlat(platOnly){ return 'Toyota Innova'; }
+function buatTitikRadar(){ let wrap=document.getElementById('titikWrap'); if(!wrap) return; wrap.innerHTML=''; for(let i=0;i<8;i++){ let d=document.createElement('div'); d.className='titik'; d.style.left=(12+Math.random()*76)+'%'; d.style.top=(12+Math.random()*68)+'%'; d.style.animationDelay=(Math.random()*3).toFixed(2)+'s'; d.style.animationDuration=(1.8+Math.random()*2.5).toFixed(2)+'s'; let warna=['#FFD700','#FFD700','#FFD700','#FFD700','#00FF88','#FFFFFF'][Math.floor(Math.random()*6)]; d.style.background=warna; d.style.boxShadow='0 0 10px '+warna; wrap.appendChild(d); } }
 buatTitikRadar();
- // === PETIR BERAKAR + MERAMBAT PELAN 10-15 DETIK ===
- function sambarKilat(){
-   let k=document.getElementById('kilat');
-   let pk=document.getElementById('petirKiri');
-   let pn=document.getElementById('petirKanan');
-   if(!k) return;
-   [k,pk,pn].forEach(e=>{ if(e) e.classList.remove('aktif'); });
-   void k.offsetWidth;
-   k.classList.add('aktif');
-   let pilih=Math.random();
-   if(pilih<0.4 && pk) pk.classList.add('aktif');
-   else if(pilih<0.8 && pn) pn.classList.add('aktif');
-   else { if(pk) pk.classList.add('aktif'); if(pn) pn.classList.add('aktif'); }
-   setTimeout(()=>{ [k,pk,pn].forEach(e=>{ if(e) e.classList.remove('aktif'); }); },1900);
-   let jeda = 10000 + Math.random()*5000;
-   setTimeout(sambarKilat, jeda);
- }
- setTimeout(sambarKilat, 10000);
-setInterval(buatTitikRadar, 6000);
-function fmtRp(n){ return 'Rp. ' + Math.round(n).toLocaleString('id-ID'); }
-function fmtJarak(m){ let km=m/1000; return km>=100 ? Math.round(km).toLocaleString('id-ID')+' km' : km.toFixed(1).replace('.',',')+' km'; }
-function fmtEstimasi(detik){ let m=Math.round(detik/60); let h=Math.floor(m/60), hari=Math.floor(h/24); h=h%24; let sisa=m%60; if(hari>0) return hari+' hari '+(h>0?h+' jam':''); if(h>0) return h+' jam '+(sisa>0?sisa+' menit':''); return m+' menit'; }
-async function geocodeAlamat(q){
-  try{ let r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=id&q=${encodeURIComponent(q)}`); let d = await r.json(); if(d.length) return [parseFloat(d[0].lat), parseFloat(d[0].lon)]; }catch(e){}
-  return null;
-}
-async function hitungRute(){
-  if(!ASAL_COORD) ASAL_COORD = await geocodeAlamat(ASAL_NAMA);
-  if(!TUJUAN_COORD) TUJUAN_COORD = await geocodeAlamat(TUJUAN_NAMA);
-  if(!ASAL_COORD || !TUJUAN_COORD){ document.getElementById('wJarak').textContent='-'; return; }
-  try{
-    let url = `https://router.project-osrm.org/route/v1/driving/${ASAL_COORD[1]},${ASAL_COORD[0]};${TUJUAN_COORD[1]},${TUJUAN_COORD[0]}?overview=false`;
-    let r = await fetch(url); let d = await r.json();
-    if(d.routes && d.routes.length){
-      let route = d.routes[0]; let km = route.distance/1000; let ongkos = Math.max(Math.round(km),10) * 5000;
-      document.getElementById('wJarak').textContent = '~ ' + fmtJarak(route.distance);
-      document.getElementById('wEstimasi').textContent = '± ' + fmtEstimasi(route.duration);
-      document.getElementById('wOngkos').textContent = fmtRp(ongkos);
-    }
-  }catch(e){ document.getElementById('wJarak').textContent='Gagal hitung rute'; }
-}
+function sambarKilat(){ let k=document.getElementById('kilat'), pk=document.getElementById('petirKiri'), pn=document.getElementById('petirKanan'); if(!k) return; [k,pk,pn].forEach(e=>{if(e)e.classList.remove('aktif')}); void k.offsetWidth; k.classList.add('aktif'); let pilih=Math.random(); if(pilih<0.4&&pk) pk.classList.add('aktif'); else if(pilih<0.8&&pn) pn.classList.add('aktif'); else { if(pk)pk.classList.add('aktif'); if(pn)pn.classList.add('aktif'); } setTimeout(()=>{[k,pk,pn].forEach(e=>{if(e)e.classList.remove('aktif')})},1900); setTimeout(sambarKilat,10000+Math.random()*5000); }
+setTimeout(sambarKilat,10000); setInterval(buatTitikRadar,6000);
+function fmtRp(n){ return 'Rp. '+Math.round(n).toLocaleString('id-ID'); }
+function fmtJarak(m){ let km=m/1000; return km>=100?Math.round(km).toLocaleString('id-ID')+' km':km.toFixed(1).replace('.',',')+' km'; }
+function fmtEstimasi(detik){ let m=Math.round(detik/60), h=Math.floor(m/60), hari=Math.floor(h/24); h=h%24; let sisa=m%60; if(hari>0) return hari+' hari '+(h>0?h+' jam':''); if(h>0) return h+' jam '+(sisa>0?sisa+' menit':''); return m+' menit'; }
+async function geocodeAlamat(q){ try{ let r=await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=id&q=${encodeURIComponent(q)}`); let d=await r.json(); if(d.length) return [parseFloat(d[0].lat),parseFloat(d[0].lon)]; }catch(e){} return null; }
+async function hitungRute(){ if(!ASAL_COORD) ASAL_COORD=await geocodeAlamat(ASAL_NAMA); if(!TUJUAN_COORD) TUJUAN_COORD=await geocodeAlamat(TUJUAN_NAMA); if(!ASAL_COORD||!TUJUAN_COORD){ document.getElementById('wJarak').textContent='-'; return; } try{ let url=`https://router.project-osrm.org/route/v1/driving/${ASAL_COORD[1]},${ASAL_COORD[0]};${TUJUAN_COORD[1]},${TUJUAN_COORD[0]}?overview=false`; let r=await fetch(url); let d=await r.json(); if(d.routes&&d.routes.length){ let route=d.routes[0], km=route.distance/1000, ongkos=Math.max(Math.round(km),10)*5000; document.getElementById('wJarak').textContent='~ '+fmtJarak(route.distance); document.getElementById('wEstimasi').textContent='± '+fmtEstimasi(route.duration); document.getElementById('wOngkos').textContent=fmtRp(ongkos); } }catch(e){ document.getElementById('wJarak').textContent='Gagal hitung rute'; } }
 hitungRute();
-function simpanDriver(nama, plat, foto, etaMenit, isPrioritas){
-  let etaEnd = Date.now() + (etaMenit * 60 * 1000);
-  let orderKey = ASAL_NAMA + '|' + TUJUAN_NAMA;
-  localStorage.setItem('masphus_driver', JSON.stringify({nama:nama, plat:plat, foto:foto, etaEnd:etaEnd, isPrioritas:isPrioritas||false, orderKey:orderKey}));
+function simpanDriver(nama,plat,foto,etaMenit,isPrioritas){ let etaEnd=Date.now()+(etaMenit*60*1000), orderKey=ASAL_NAMA+'|'+TUJUAN_NAMA; localStorage.setItem('masphus_driver',JSON.stringify({nama:nama,plat:plat,foto:foto,etaEnd:etaEnd,isPrioritas:isPrioritas||false,orderKey:orderKey})); }
+function mulaiEtaDariDetik(detikAwal){ if(etaInterval) clearInterval(etaInterval); etaDetik=detikAwal; updateEtaText(); etaInterval=setInterval(()=>{ etaDetik--; if(etaDetik<=0){ clearInterval(etaInterval); document.getElementById('etaDriver').textContent='✅ Driver sudah sampai di titik jemput!'; document.getElementById('waitSub').textContent='Driver sudah sampai, silakan naik!'; return; } updateEtaText(); },1000); }
+function mulaiEta(menitAwal){ mulaiEtaDariDetik(menitAwal*60); }
+function updateEtaText(){ let m=Math.floor(etaDetik/60), d=etaDetik%60; document.getElementById('etaDriver').textContent = m>0 ? '⏱️ Tiba dalam '+m+' menit '+d+' detik' : '⏱️ Tiba dalam '+d+' detik'; }
+function tampilkanDriverKetemu(nama,plat,foto,etaMenit,isPrioritas,janganSimpanLagi,sisaDetik,mobil){
+  driverDitemukan=true; namaDriverAktif=nama;
+  document.getElementById('radarWrap').style.display='none';
+  document.getElementById('driverSukses').style.display='block';
+  document.getElementById('driverKosong').style.display='none';
+  document.getElementById('namaDriverSukses').textContent=nama;
+  document.getElementById('platDriverSukses').textContent=plat;
+  document.getElementById('fotoDriver').src=foto;
+  document.getElementById('chatFoto').src=foto;
+  document.getElementById('chatNama').textContent=nama+(isPrioritas?'':' (TEST)');
+  document.getElementById('badgeUnggulan').style.display=isPrioritas?'block':'none';
+  document.getElementById('waitTitle').style.display='none';
+  document.getElementById('waitSub').textContent=isPrioritas?'Driver prioritas sedang OTW ke titik jemputmu':'Driver sedang OTW ke titik jemputmu';
+  document.getElementById('btnPrioritas').style.display='none';
+  var pecah=pecahPlat(plat);
+  document.getElementById('driverNamaGrid').textContent=nama;
+  document.getElementById('mobilDriverSukses').textContent=mobil||mobilDariPlat(pecah.platOnly);
+  document.getElementById('platOnly').textContent=pecah.platOnly;
+  if(isPrioritas){ let b2=document.getElementById('btnPrioritasFound'); b2.style.display='block'; b2.textContent='✅ SUDAH PRIORITAS'; b2.style.background='linear-gradient(#ffe98a,#d4af37 55%,#b8962e)'; b2.style.color='#000'; document.getElementById('prioritasNote').style.display='block'; document.getElementById('prioritasNote').textContent='Anda sekarang mendapatkan Pelayanan yang diutamakan'; } else { document.getElementById('btnPrioritasFound').style.display='none'; document.getElementById('prioritasNote').style.display='none'; }
+  if(!janganSimpanLagi){ simpanDriver(nama,plat,foto,etaMenit,isPrioritas); }
+  if(sisaDetik!==undefined&&sisaDetik!==null){ mulaiEtaDariDetik(sisaDetik); } else { mulaiEta(etaMenit); }
+  if(!janganSimpanLagi){ setTimeout(()=>{ document.getElementById('chatModal').classList.add('show'); setTimeout(()=>{ if(driverDitemukan&&!isPrioritas){ document.getElementById('btnPrioritasFound').style.display='block'; document.getElementById('prioritasNote').style.display='block'; } },10000); },500); } else { if(!isPrioritas){ document.getElementById('btnPrioritasFound').style.display='block'; document.getElementById('prioritasNote').style.display='block'; } }
 }
-function mulaiEtaDariDetik(detikAwal){
-  if(etaInterval) clearInterval(etaInterval);
-  etaDetik = detikAwal;
-  updateEtaText();
-  etaInterval = setInterval(()=>{
-    etaDetik--;
-    if(etaDetik <= 0){
-      clearInterval(etaInterval);
-      document.getElementById('etaDriver').textContent = '✅ Driver sudah sampai di titik jemput!';
-      document.getElementById('waitSub').textContent = 'Driver sudah sampai, silakan naik!';
-      return;
-    }
-    updateEtaText();
-  }, 1000);
-}
-function mulaiEta(menitAwal){ mulaiEtaDariDetik(menitAwal * 60); }
-function updateEtaText(){
-  let m = Math.floor(etaDetik / 60);
-  let d = etaDetik % 60;
-  let teks = '';
-  if(m > 0) teks = '⏱️ Tiba dalam ' + m + ' menit ' + d + ' detik';
-  else teks = '⏱️ Tiba dalam ' + d + ' detik';
-  document.getElementById('etaDriver').textContent = teks;
-}
-function tampilkanDriverKetemu(nama, plat, foto, etaMenit, isPrioritas, janganSimpanLagi, sisaDetik){
-  driverDitemukan = true;
-  namaDriverAktif = nama;
-  document.getElementById('radarWrap').style.display = 'none';
-  document.getElementById('driverSukses').style.display = 'block';
-  document.getElementById('namaDriverSukses').textContent = nama;
-  document.getElementById('platDriverSukses').textContent = plat;
-  document.getElementById('fotoDriver').src = foto;
-  document.getElementById('chatFoto').src = foto;
-  document.getElementById('chatNama').textContent = nama + (isPrioritas ? '' : ' (TEST)');
-  document.getElementById('badgeUnggulan').style.display = isPrioritas ? 'block' : 'none';
-  document.getElementById('waitTitle').style.display = 'none';
-  document.getElementById('waitSub').textContent = isPrioritas ? 'Driver prioritas sedang OTW ke titik jemputmu' : 'Driver sedang OTW ke titik jemputmu';
-  document.getElementById('btnPrioritas').style.display = 'none';
-  if(isPrioritas){
-    let b2 = document.getElementById('btnPrioritasFound');
-    b2.style.display = 'block';
-    b2.textContent = '✅ SUDAH PRIORITAS';
-    b2.style.background = 'linear-gradient(#ffe98a,#d4af37 55%,#b8962e)';
-    b2.style.color = '#000';
-    document.getElementById('prioritasNote').style.display = 'block';
-    document.getElementById('prioritasNote').textContent = 'Anda sekarang mendapatkan Pelayanan yang diutamakan';
-  } else {
-    document.getElementById('btnPrioritasFound').style.display = 'none';
-    document.getElementById('prioritasNote').style.display = 'none';
-  }
-  if(!janganSimpanLagi){ simpanDriver(nama, plat, foto, etaMenit, isPrioritas); }
-  if(sisaDetik !== undefined && sisaDetik !== null){ mulaiEtaDariDetik(sisaDetik); } else { mulaiEta(etaMenit); }
-  if(!janganSimpanLagi){
-    setTimeout(()=>{
-      document.getElementById('chatModal').classList.add('show');
-      setTimeout(()=>{
-        if(driverDitemukan && !isPrioritas){
-          document.getElementById('btnPrioritasFound').style.display = 'block';
-          document.getElementById('prioritasNote').style.display = 'block';
-        }
-      }, 10000);
-    }, 500);
-  } else {
-    if(!isPrioritas){
-      document.getElementById('btnPrioritasFound').style.display = 'block';
-      document.getElementById('prioritasNote').style.display = 'block';
-    }
-  }
-}
-(function cekDriverTersimpan(){
-  try{
-    let d = JSON.parse(localStorage.getItem('masphus_driver') || 'null');
-    if(!d) return;
-    let kunciOrderSekarang = ASAL_NAMA + '|' + TUJUAN_NAMA;
-    if(d.orderKey && d.orderKey !== kunciOrderSekarang){
-      localStorage.removeItem('masphus_driver');
-      return;
-    }
-    let sisa = Math.floor((d.etaEnd - Date.now()) / 1000);
-    if(sisa <= 0){ localStorage.removeItem('masphus_driver'); return; }
-    let etaMenit = Math.ceil(sisa / 60);
-    tampilkanDriverKetemu(d.nama, d.plat, d.foto, etaMenit, d.isPrioritas, true, sisa);
-  }catch(e){}
-})();
-let detikJalan = 0;
-let timerDriver = null;
-if(!driverDitemukan){
-  timerDriver = setInterval(()=>{
-    detikJalan += 5;
-    if(TEST_MODE && detikJalan < 15) return;
-    if(!TEST_MODE) return;
-    clearInterval(timerDriver);
-    tampilkanDriverKetemu('Budi Santoso', 'D 1234 ABC • ⭐ 4.9', 'https://randomuser.me/api/portraits/men/32.jpg', 8, false, false);
-  }, 5000);
-}
+(function cekDriverTersimpan(){ try{ let d=JSON.parse(localStorage.getItem('masphus_driver')||'null'); if(!d) return; let kunci=ASAL_NAMA+'|'+TUJUAN_NAMA; if(d.orderKey&&d.orderKey!==kunci){ localStorage.removeItem('masphus_driver'); return; } let sisa=Math.floor((d.etaEnd-Date.now())/1000); if(sisa<=0){ localStorage.removeItem('masphus_driver'); return; } tampilkanDriverKetemu(d.nama,d.plat,d.foto,Math.ceil(sisa/60),d.isPrioritas,true,sisa,d.mobil); }catch(e){} })();
+let detikJalan=0, timerDriver=null;
+if(!driverDitemukan){ timerDriver=setInterval(()=>{ detikJalan+=5; if(TEST_MODE&&detikJalan<15) return; if(!TEST_MODE) return; clearInterval(timerDriver); tampilkanDriverKetemu('Budi Santoso','D 1234 ABC • ⭐ 4.9','https://randomuser.me/api/portraits/men/32.jpg',8,false,false); },5000); }
 function upgradePrioritas(){
-  let btn1 = document.getElementById('btnPrioritas');
-  let btn2 = document.getElementById('btnPrioritasFound');
-  [btn1, btn2].forEach(b=>{ b.textContent = '✅ SUDAH PRIORITAS'; b.style.background = 'linear-gradient(#ffe98a,#d4af37 55%,#b8962e)'; b.style.color = '#000'; });
-  document.getElementById('prioritasNote').textContent = 'Anda sekarang mendapatkan Pelayanan yang diutamakan';
-  document.getElementById('badgeUnggulan').style.display = 'block';
+  let btn1=document.getElementById('btnPrioritas'), btn2=document.getElementById('btnPrioritasFound');
+  [btn1,btn2].forEach(b=>{ b.textContent='✅ SUDAH PRIORITAS'; b.style.background='linear-gradient(#ffe98a,#d4af37 55%,#b8962e)'; b.style.color='#000'; });
+  document.getElementById('prioritasNote').textContent='Anda sekarang mendapatkan Pelayanan yang diutamakan';
+  document.getElementById('badgeUnggulan').style.display='block';
   if(driverDitemukan){
-    document.getElementById('waitSub').textContent = 'Mengganti ke driver prioritas yang lebih cepat...';
+    document.getElementById('waitSub').textContent='Mengganti ke driver prioritas yang lebih cepat...';
     setTimeout(()=>{
-      namaDriverAktif = 'Andi';
-      document.getElementById('namaDriverSukses').textContent = 'Andi';
-      document.getElementById('platDriverSukses').textContent = 'D 9999 PR • ⭐ 5.0';
-      document.getElementById('fotoDriver').src = 'https://randomuser.me/api/portraits/men/75.jpg';
-      document.getElementById('chatFoto').src = 'https://randomuser.me/api/portraits/men/75.jpg';
-      document.getElementById('chatNama').textContent = 'Andi';
-      document.getElementById('waitSub').textContent = 'Driver prioritas sedang OTW ke titik jemputmu';
-      let isi = document.getElementById('chatIsi');
-      isi.innerHTML += '<div class="chat-bubble driver">Halo! Saya <b>Andi</b>, driver unggulan kamu ⚡ Saya langsung OTW, kamu diprioritaskan ya!</div>';
+      namaDriverAktif='Andi';
+      document.getElementById('namaDriverSukses').textContent='Andi';
+      document.getElementById('platDriverSukses').textContent='D 9999 PR • ⭐ 5.0';
+      document.getElementById('driverNamaGrid').textContent='Andi';
+      document.getElementById('platOnly').textContent='D 9999 PR';
+      document.getElementById('mobilDriverSukses').textContent='Toyota Innova';
+      document.getElementById('fotoDriver').src='https://randomuser.me/api/portraits/men/75.jpg';
+      document.getElementById('chatFoto').src='https://randomuser.me/api/portraits/men/75.jpg';
+      document.getElementById('chatNama').textContent='Andi';
+      document.getElementById('waitSub').textContent='Driver prioritas sedang OTW ke titik jemputmu';
+      let isi=document.getElementById('chatIsi'); isi.innerHTML+='<div class="chat-bubble driver">Halo! Saya <b>Andi</b>, driver unggulan kamu ⚡ Saya langsung OTW, kamu diprioritaskan ya!</div>';
       document.getElementById('chatModal').classList.add('show');
-      simpanDriver('Andi', 'D 9999 PR • ⭐ 5.0', 'https://randomuser.me/api/portraits/men/75.jpg', 3, true);
+      simpanDriver('Andi','D 9999 PR • ⭐ 5.0','https://randomuser.me/api/portraits/men/75.jpg',3,true);
       mulaiEta(3);
-    }, 2000);
-    return;
+    },2000); return;
   }
 }
 function tutupChat(){ document.getElementById('chatModal').classList.remove('show'); }
-function kirimChat(){
-  let inp = document.getElementById('chatInput');
-  let teks = inp.value.trim();
-  if(!teks) return;
-  let isi = document.getElementById('chatIsi');
-  isi.innerHTML += '<div class="chat-bubble me">' + teks + '</div>';
-  inp.value = '';
-  setTimeout(()=>{ isi.innerHTML += '<div class="chat-bubble driver">Siap, saya sudah OTW ya, ditunggu di titik jemput 🙏</div>'; }, 1500);
-}
+function kirimChat(){ let inp=document.getElementById('chatInput'), teks=inp.value.trim(); if(!teks) return; let isi=document.getElementById('chatIsi'); isi.innerHTML+='<div class="chat-bubble me">'+teks+'</div>'; inp.value=''; setTimeout(()=>{ isi.innerHTML+='<div class="chat-bubble driver">Siap, saya sudah OTW ya, ditunggu di titik jemput 🙏</div>'; },1500); }
 document.getElementById('chatInput').addEventListener('keypress', function(e){ if(e.key==='Enter') kirimChat(); });
-function kirimNotifKeDriver(pesan){
-  let isi = document.getElementById('chatIsi');
-  if(isi){ isi.innerHTML += '<div class="chat-bubble system">📢 ' + pesan + '</div>'; }
-  console.log('[NOTIF KE DRIVER - ' + namaDriverAktif + ']: ' + pesan);
-}
-function tampilkanNotifKembali(){
-  if(driverDitemukan){ document.getElementById('teksKembali').innerHTML = 'Driver <b>' + namaDriverAktif + '</b> sudah OTW ke titik jemputmu.<br>Yakin ingin membatalkan perjalanan ini?'; }
-  else { document.getElementById('teksKembali').innerHTML = 'Kami masih mencari driver untukmu.<br>Yakin ingin membatalkan perjalanan ini?'; }
-  document.getElementById('modalKembali').classList.add('show');
-}
-function kunciBack(){
-  history.pushState({page:'penumpang-lock'}, '', location.href);
-  history.pushState({page:'penumpang-lock'}, '', location.href);
-  history.pushState({page:'penumpang-lock'}, '', location.href);
-}
+function kirimNotifKeDriver(pesan){ let isi=document.getElementById('chatIsi'); if(isi){ isi.innerHTML+='<div class="chat-bubble system">📢 '+pesan+'</div>'; } console.log('[NOTIF KE DRIVER - '+namaDriverAktif+']: '+pesan); }
+function tampilkanNotifKembali(){ if(driverDitemukan){ document.getElementById('teksKembali').innerHTML='Driver <b>'+namaDriverAktif+'</b> sudah OTW ke titik jemputmu.<br>Yakin ingin membatalkan perjalanan ini?'; } else { document.getElementById('teksKembali').innerHTML='Kami masih mencari driver untukmu.<br>Yakin ingin membatalkan perjalanan ini?'; } document.getElementById('modalKembali').classList.add('show'); }
+function kunciBack(){ history.pushState({page:'penumpang-lock'},'',location.href); history.pushState({page:'penumpang-lock'},'',location.href); history.pushState({page:'penumpang-lock'},'',location.href); }
 kunciBack();
-window.addEventListener('popstate', function(e){
-  if(bolehKeluar) return;
-  kunciBack();
-  if(lagiTampilNotif) return;
-  lagiTampilNotif = true;
-  tampilkanNotifKembali();
-});
-function kembaliKeIndex(){
-  if(!saved && !driverDitemukan){ bersihkanDanKembali(); return; }
-  tampilkanNotifKembali();
-}
-function konfirmasiKembaliLanjut(){
-  document.getElementById('modalKembali').classList.remove('show');
-  lagiTampilNotif = false;
-  setTimeout(kunciBack, 50);
-}
-function konfirmasiKembaliYa(){
-  document.getElementById('modalKembali').classList.remove('show');
-  lagiTampilNotif = false;
-  jalankanPembatalan();
-}
+window.addEventListener('popstate', function(e){ if(bolehKeluar) return; kunciBack(); if(lagiTampilNotif) return; lagiTampilNotif=true; tampilkanNotifKembali(); });
+function kembaliKeIndex(){ if(!saved&&!driverDitemukan){ bersihkanDanKembali(); return; } tampilkanNotifKembali(); }
+function konfirmasiKembaliLanjut(){ document.getElementById('modalKembali').classList.remove('show'); lagiTampilNotif=false; setTimeout(kunciBack,50); }
+function konfirmasiKembaliYa(){ document.getElementById('modalKembali').classList.remove('show'); lagiTampilNotif=false; jalankanPembatalan(); }
 function batalkanPesanan(){ jalankanPembatalan(); }
-function jalankanPembatalan(){
-  document.getElementById('modalBatal').classList.add('show');
-  if(driverDitemukan){ kirimNotifKeDriver('Penumpang membatalkan perjalanan ke ' + TUJUAN_NAMA + '. Maaf ya, perjalanan dibatalkan oleh penumpang.'); }
-  else { kirimNotifKeDriver('Penumpang membatalkan pencarian driver ke ' + TUJUAN_NAMA + '.'); }
-  setTimeout(()=>{
-    document.getElementById('modalBatal').classList.remove('show');
-    document.getElementById('modalBatalSukses').classList.add('show');
-  }, 2000);
-}
-function selesaiBatalKeIndex(){
-  document.getElementById('modalBatalSukses').classList.remove('show');
-  bersihkanDanKembali();
-}
-function bersihkanDanKembali(){
-  bolehKeluar = true;
-  localStorage.removeItem('masphus_order');
-  localStorage.removeItem('masphus_driver');
-  sessionStorage.setItem('ammo_clear', '1');
-  sessionStorage.setItem('ammo_must_clear_dest', '1');
-  sessionStorage.removeItem('ammo_from_index');
-  window.location.href = 'index.html';
-}
+function jalankanPembatalan(){ document.getElementById('modalBatal').classList.add('show'); if(driverDitemukan){ kirimNotifKeDriver('Penumpang membatalkan perjalanan ke '+TUJUAN_NAMA+'. Maaf ya, perjalanan dibatalkan oleh penumpang.'); } else { kirimNotifKeDriver('Penumpang membatalkan pencarian driver ke '+TUJUAN_NAMA+'.'); } setTimeout(()=>{ document.getElementById('modalBatal').classList.remove('show'); document.getElementById('modalBatalSukses').classList.add('show'); },2000); }
+function selesaiBatalKeIndex(){ document.getElementById('modalBatalSukses').classList.remove('show'); bersihkanDanKembali(); }
+function bersihkanDanKembali(){ bolehKeluar=true; localStorage.removeItem('masphus_order'); localStorage.removeItem('masphus_driver'); sessionStorage.setItem('ammo_clear','1'); sessionStorage.setItem('ammo_must_clear_dest','1'); sessionStorage.removeItem('ammo_from_index'); window.location.href='index.html'; }
 </script>
 </body>
 </html>
