@@ -7,8 +7,8 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-serif;color:#fff}
-.phone{max-width:430px;width:100%;margin:0 auto;background:#0f0f0f;position:relative;padding-bottom:140px;overflow:hidden;min-height:100vh}
+html,body{width:100%;overflow-x:hidden;background:#000;overscroll-behavior:none;overscroll-behavior-y:none;font-family:Arial,sans-serif;color:#fff}
+.phone{max-width:430px;width:100%;margin:0 auto;background:#0f0f0f;position:relative;padding-bottom:140px;overflow:hidden;min-height:100vh;min-height:100dvh}
 .header{background:#000;color:#d4af37;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #d4af37}
 .logo-left{display:flex;align-items:center;gap:10px;min-width:0}
 .logo-left img{width:44px;height:44px;border-radius:50%;background:#fff;object-fit:cover;flex-shrink:0;border:2px solid #d4af37}
@@ -45,7 +45,7 @@ html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-se
 .order-spacer{height:90px}
 .chat{width:56px;height:56px;border-radius:50%;background:#d4af37;display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;position:relative}
 .chat i{position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:#ff4444;border-radius:50%;display:none}
-.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#000;border-top:1px solid #d4af37;display:flex;justify-content:space-around;padding:10px 0;z-index:20}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#000;border-top:1px solid #d4af37;display:flex;justify-content:space-around;padding:10px 0 calc(10px + env(safe-area-inset-bottom));z-index:20}
 .nav div{text-align:center;font-size:12px;color:#aaa;cursor:pointer}
 .nav div.on{color:#d4af37}
 .nav div span{display:block;font-size:20px}
@@ -326,7 +326,7 @@ window.addEventListener('pageshow', function(){ setTimeout(window.bersihkanTujua
 <div class="on"><span>🏠</span>Beranda</div>
 <div><span>🚗</span>Perjalanan</div>
 <div onclick="bukaVoucher()" style="cursor:pointer"><span>🎟️</span>Voucher</div>
-<div onclick="bukaAkun()" style="cursor:pointer"><span>👤</span>Profil</div>
+<div onclick="location.href='akun.html'" style="cursor:pointer"><span>👤</span>Profil</div>
 </div>
 <div id="chatModal" class="chat-modal"><div class="chat-box">
 <div id="chatView">
@@ -425,7 +425,7 @@ function updateSwap(){ try{ $('swapBtn').disabled=!($('pickup').value.trim() && 
 let toastTimer=null;
 function showToast(judul,isi,error){try{$('toastJudul').textContent=judul;$('toastIsi').textContent=isi;$('toastIco').textContent=error?'!':'✓';$('toastWrap').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(tutupToast,3000);}catch(e){}}
 function tutupToast(){try{$('toastWrap').classList.remove('show');}catch(e){}}
-function bukaVoucher(){showToast('Voucher','Voucher kamu: Rp '+(localStorage.getItem('ammo_voucher')||0)+' - Berlaku selamanya');}
+function bukaVoucher(){ if(!sudahLogin()){ showToast('Login Dulu','Login dulu ya bro biar bisa liat Voucher kamu',true); setTimeout(()=>{ window.location.href='akun.html'; }, 800); return; } showToast('Voucher','Voucher kamu: Rp '+(localStorage.getItem('ammo_voucher')||0)+' - Berlaku selamanya');}
 function sembunyikanHarga(){try{$('ongkosPreview').style.display='none';$('prevJarak').textContent='-';$('prevEstimasi').textContent='-';$('prevOngkos').textContent='-';$('prevVoucher').textContent='Voucher didapat: -';}catch(e){}}
 document.addEventListener('click',function(e){let b=e.target.closest('.orang-btn');if(!b)return;jumlahOrang=parseInt(b.dataset.orang);document.querySelectorAll('.orang-btn').forEach(x=>x.classList.remove('aktif'));b.classList.add('aktif');jadwalPreview(true);});
 function swapLokasi(){let a=$('pickup').value,b=$('dest').value;$('pickup').value=b;$('dest').value=a;let tc=pickupCoord;pickupCoord=destCoord;destCoord=tc;updateSwap();jadwalPreview(true);showToast('Ditukar','Dari & Tujuan berhasil ditukar');}
@@ -451,7 +451,7 @@ async function cekDriver(){ let a=$('pickup').value.trim(), b=$('dest').value.tr
 function tutupDaftar(){try{$('daftarModal').classList.remove('show');}catch(e){}}
 async function daftarPenumpang(via){ try{ if(via==='Google'){ simpanPendingOrder(); setMauOrder(true); if(window.supabaseClient) await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href}}); return; } let nama=$('namaDaftar').value.trim(); let hp=$('hpDaftar').value.trim(); if(!nama){showToast('Nama Kosong','Tolong Masukkan nama terlebih dahulu 🙏🙏🙏',true);return;} if(!hp){showToast('No. WA Kosong','Isi No. WA dulu ya.',true);return;} let db=getDB(); let user=db.find(u=>u.hp===hp); if(!user){user={nama:nama,hp:hp,via:via,created:Date.now()};db.push(user);saveDB(db);} else{user.nama=nama;user.via=via;saveDB(db);} localStorage.setItem('ammo_sesi',JSON.stringify(user)); localStorage.setItem('ammo_last_hp',hp); tutupDaftar(); tutupAkun(); try{await syncPenumpangKeSupabase(nama,hp,via,'','');}catch(e){} if(!lanjutJikaMauOrder()){ showToast('Terdaftar','Akun berhasil dibuat, '+nama); bukaAkun(); } }catch(e){} }
 async function refreshProfilDariDB(){ let s=getSesi(); if(!s) return null; try{ if(!window.supabaseClient) return s; let cek=null; if(s.email){ cek=await supabaseClient.from('penumpang').select('*').eq('google_email',s.email).maybeSingle(); } if(!cek || !cek.data){ if(s.hp){ let c2=await supabaseClient.from('penumpang').select('*').eq('no_wa',s.hp).maybeSingle(); if(c2.data) cek=c2; } } if(cek && cek.data){ if(s.email && !cek.data.google_email){ try{ await supabaseClient.from('penumpang').update({google_email:s.email, google_id:s.google_id||null}).eq('id',cek.data.id); }catch(e){} } if(s.hp && !cek.data.no_wa){ try{ await supabaseClient.from('penumpang').update({no_wa:s.hp}).eq('id',cek.data.id); }catch(e){} } s.nama=cek.data.nama||s.nama; if(cek.data.no_wa) s.hp=cek.data.no_wa; if(cek.data.google_email) s.email=cek.data.google_email; if(cek.data.google_id) s.google_id=cek.data.google_id; localStorage.setItem('ammo_sesi',JSON.stringify(s)); localStorage.setItem('ammo_supabase_penumpang_id',cek.data.id); if(s.hp) localStorage.setItem('ammo_last_hp',s.hp); let b=await supabaseClient.from('bookings').select('id',{count:'exact',head:true}).eq('penumpang_id',cek.data.id); s.total_perjalanan=(b.count||0); } }catch(e){} return s; }
-async function bukaAkun(){ try{ let s=getSesi(); if(s){ s=await refreshProfilDariDB()||s; } if(sudahLogin(s)){ $('akunSudahLogin').style.display='block';$('akunBelumLogin').style.display='none'; $('akunNama').textContent=s.nama||'Penumpang'; $('akunSub').innerHTML=(s.hp||'-')+' - Penumpang<br>akun '+(s.via||'WA')+': '+(s.email||'-'); if($('akunVoucher')) $('akunVoucher').textContent='Rp. '+(parseInt(localStorage.getItem('ammo_voucher')||'0')).toLocaleString('id-ID'); if($('akunPerjalanan')) $('akunPerjalanan').textContent=(s.total_perjalanan||0)+' Perjalanan'; }else{$('akunSudahLogin').style.display='none';$('akunBelumLogin').style.display='block';} $('akunModal').classList.add('show'); }catch(e){} }
+async function bukaAkun(){ window.location.href='akun.html'; return; try{ let s=getSesi(); if(s){ s=await refreshProfilDariDB()||s; } if(sudahLogin(s)){ $('akunSudahLogin').style.display='block';$('akunBelumLogin').style.display='none'; $('akunNama').textContent=s.nama||'Penumpang'; $('akunSub').innerHTML=(s.hp||'-')+' - Penumpang<br>akun '+(s.via||'WA')+': '+(s.email||'-'); if($('akunVoucher')) $('akunVoucher').textContent='Rp. '+(parseInt(localStorage.getItem('ammo_voucher')||'0')).toLocaleString('id-ID'); if($('akunPerjalanan')) $('akunPerjalanan').textContent=(s.total_perjalanan||0)+' Perjalanan'; }else{$('akunSudahLogin').style.display='none';$('akunBelumLogin').style.display='block';} $('akunModal').classList.add('show'); }catch(e){} }
 function tutupAkun(){try{$('akunModal').classList.remove('show');}catch(e){}}
 function togglePass(){let p=$('loginPass');p.type=p.type==='password'?'text':'password';}
 async function loginWA(){ let hp=$('loginWA').value.trim(); if(!hp){showToast('WA Kosong','Isi No. WA dulu',true);return;} try{ if(window.supabaseClient){ let cek=await supabaseClient.from('penumpang').select('*').eq('no_wa',hp).maybeSingle(); if(cek.data){ let user={nama:cek.data.nama,hp:cek.data.no_wa,via:'WA',email:cek.data.google_email||'',google_id:cek.data.google_id||''}; localStorage.setItem('ammo_sesi',JSON.stringify(user)); localStorage.setItem('ammo_supabase_penumpang_id',cek.data.id); localStorage.setItem('ammo_last_hp',hp); tutupAkun(); if(!lanjutJikaMauOrder()){ showToast('Berhasil','Selamat datang, '+user.nama); } return; } } }catch(e){} let db=getDB();let user=db.find(u=>u.hp===hp); if(user){ localStorage.setItem('ammo_sesi',JSON.stringify(user)); localStorage.setItem('ammo_last_hp',hp); tutupAkun(); if(!lanjutJikaMauOrder()){ showToast('Berhasil','Selamat datang, '+user.nama); } } else{$('daftarModal').classList.add('show');$('namaDaftar').value='';$('hpDaftar').value=hp;} }
