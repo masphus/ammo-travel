@@ -23,7 +23,6 @@
   .row .left{flex:1;font-size:16px}
   .row .right{color:#e8c87a;font-weight:bold;font-size:15px;text-align:right}
   .row .arrow{color:#e8c87a;font-size:22px;font-weight:bold}
-  .btn-ubah{background:#8a6d2b;color:#ffe9a8;border:1px solid #d4af5a;padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer;margin-left:8px}
   .btn-gold{width:100%;padding:14px;background:linear-gradient(#f2d98c,#c9a94f);border:none;border-radius:12px;font-weight:bold;font-size:18px;cursor:pointer;margin-top:4px;color:#000}
   .btn-google{width:100%;padding:13px;background:#fff;color:#000;border:none;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
   .btn-google span{width:24px;height:24px;background:#4285F4;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px}
@@ -50,6 +49,13 @@
   .qris-box img{width:100%;max-width:260px;object-fit:contain;border-radius:10px}
   .rek-box{background:#111;border:1px dashed #d4af5a;border-radius:12px;padding:12px;margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
   .btn-copy{background:#d4af5a;border:none;padding:8px 14px;border-radius:8px;font-weight:bold;cursor:pointer}
+  /* TARIK SALDO - POP UP MEWAH */
+  .metode-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+  .metode-item{background:#111;border:1px solid #333;border-radius:12px;padding:10px 4px;text-align:center;cursor:pointer;font-size:12px;font-weight:bold;color:#fff}
+  .metode-item small{display:block;font-size:11px;color:#aaa;margin-top:2px}
+  .metode-item.pilih{border:2px solid #d4af5a;background:#2a2113;color:#e8c87a}
+  .metode-bank{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+  .label-kecil{font-size:13px;color:#e8c87a;font-weight:bold;margin:10px 0 6px}
 </style>
 </head>
 <body>
@@ -111,13 +117,11 @@
       <div class="row"><div class="icon">💰</div><div class="left">Saldo</div><div class="right" id="tampilSaldo">Rp 0</div></div>
       <div class="row"><div class="icon">🚗</div><div class="left">Booking</div><div class="right" id="tampilBooking">0 Booking</div></div>
       <button class="btn-gold" onclick="topup()">Top Up Saldo</button>
+      <button class="btn-gold" onclick="bukaTarikSaldo()" style="background:linear-gradient(#fff,#e8c87a);margin-top:8px">💸 Tarik Saldo</button>
       <button class="btn-gold" onclick="refreshSaldo()" style="background:#333;color:#fff;border:1px solid #d4af5a;margin-top:8px">🔄 Refresh Saldo</button>
     </div>
 
-    <div class="section">
-      <span class="label">Lainnya</span>
-      <div class="row" onclick="logout()"><div class="icon">🚪</div><div class="left">Keluar</div><div class="arrow">›</div></div>
-    </div>
+    <button onclick="logout()" style="width:100%;padding:13px;background:transparent;color:#999;border:1px solid #333;border-radius:12px;font-size:15px;margin-top:2px;cursor:pointer">🚪 Keluar</button>
   </div>
 
   <div id="navBawah" class="bottom" style="display:none">
@@ -143,6 +147,33 @@
     <button onclick="tutupTopup()" style="width:100%;margin-top:10px;padding:12px;background:#333;color:#fff;border:none;border-radius:12px">Tutup</button>
   </div></div>
 
+  <div id="modalTarik" class="modal"><div class="modal-box">
+    <h3>💸 Tarik Saldo</h3>
+    <p style="font-size:13px;color:#aaa;margin-bottom:10px">Saldo kamu: <b id="tarikSaldoInfo" style="color:#e8c87a">Rp 0</b><br>Pilih mau ditarik kemana:</p>
+    <div class="label-kecil">E-Wallet</div>
+    <div class="metode-grid">
+      <div class="metode-item" data-metode="GOPAY" onclick="pilihMetode('GOPAY',this)"><span style="font-size:22px">🟢</span>GOPAY<small>GoPay</small></div>
+      <div class="metode-item" data-metode="OVO" onclick="pilihMetode('OVO',this)"><span style="font-size:22px">🟣</span>OVO<small>OVO</small></div>
+      <div class="metode-item" data-metode="DANA" onclick="pilihMetode('DANA',this)"><span style="font-size:22px">🔵</span>DANA<small>DANA</small></div>
+      <div class="metode-item" data-metode="SHOPEEPAY" onclick="pilihMetode('SHOPEEPAY',this)"><span style="font-size:22px">🟠</span>ShopeePay<small>ShopeePay</small></div>
+    </div>
+    <div class="label-kecil">Bank</div>
+    <div class="metode-bank">
+      <div class="metode-item" data-metode="BCA" onclick="pilihMetode('BCA',this)"><span style="font-size:22px">🏦</span>BCA<small>Bank BCA</small></div>
+      <div class="metode-item" data-metode="BRI" onclick="pilihMetode('BRI',this)"><span style="font-size:22px">🏦</span>BRI<small>Bank BRI</small></div>
+      <div class="metode-item" data-metode="MANDIRI" onclick="pilihMetode('MANDIRI',this)"><span style="font-size:22px">🏦</span>Mandiri<small>Bank Mandiri</small></div>
+    </div>
+    <div class="label-kecil">Nomor / Rekening</div>
+    <input id="tarikNomor" placeholder="Nomor HP / No Rekening - contoh 0821xxxx" type="tel">
+    <div class="label-kecil">Nama Lengkap Penerima</div>
+    <input id="tarikNama" placeholder="Nama Lengkap Penerima">
+    <div class="label-kecil">Nominal Tarik</div>
+    <input id="tarikNominal" placeholder="Mau tarik berapa? - contoh 50000" inputmode="numeric">
+    <button class="btn-gold" onclick="kirimTarikSaldo()">Kirim Permintaan Tarik Saldo</button>
+    <button onclick="tutupTarikSaldo()" style="width:100%;margin-top:10px;padding:12px;background:#333;color:#fff;border:none;border-radius:12px">Batal</button>
+    <p style="font-size:12px;color:#888;margin-top:10px;text-align:center">Permintaan masuk ke Admin. Saldo dipotong setelah Admin ACC.</p>
+  </div></div>
+
   <div id="modalEdit" class="modal"><div class="modal-box">
     <h3 id="modalJudul">Edit</h3>
     <input id="modalInput" placeholder="">
@@ -153,11 +184,11 @@
 
 <script>
   // ============ KOMPAS - JANGAN DIUBAH ============
-  // penumpang di file ini: id (uuid TEKS), nama text, nomor text, password text, email text, saldo bigint
-  // ATURAN: String() untuk text/uuid. Number() HANYA untuk saldo yang emang bigint.
+  // penumpang: id (uuid TEKS), nama text, nomor text, password text, email text, saldo bigint
+  // penarikan: id bigint, tipe text, user_id text, nama text, nominal bigint, status text
+  // ATURAN: String() untuk text/uuid. Number() HANYA untuk saldo & nominal yang emang bigint.
   // USER: HP, umur 47, mata plus 0.5 -> WAJIB kasih 1 halaman FULL, jangan potongan
-  // PENYEBAB SALDO 0 TADI: tampilkan() baca saldo dari localStorage lama, bukan dari database.
-  // PERBAIKAN: tampilkan() sekarang selalu ambil saldo FRESH dari database pake id.
+  // nomor = no_wa = nomor WA yang sama, cuma beda nama kolom. BUKAN HANTU.
   // ===============================================
   const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
   const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
@@ -165,6 +196,7 @@
   const WA_ADMIN = "6281234567890";
   let nominalTopup = 20000;
   let modeEdit = '';
+  let metodeTarik = '';
 
   const fotoCewek = [
     'https://randomuser.me/api/portraits/women/44.jpg','https://randomuser.me/api/portraits/women/68.jpg','https://randomuser.me/api/portraits/women/21.jpg','https://randomuser.me/api/portraits/women/26.jpg','https://randomuser.me/api/portraits/women/79.jpg','https://randomuser.me/api/portraits/women/28.jpg','https://randomuser.me/api/portraits/women/90.jpg','https://randomuser.me/api/portraits/women/15.jpg','https://randomuser.me/api/portraits/women/47.jpg','https://randomuser.me/api/portraits/women/3.jpg','https://randomuser.me/api/portraits/women/25.jpg','https://randomuser.me/api/portraits/women/56.jpg','https://randomuser.me/api/portraits/women/71.jpg','https://randomuser.me/api/portraits/women/82.jpg','https://randomuser.me/api/portraits/women/9.jpg'
@@ -247,12 +279,46 @@
   function salin(teks){
     navigator.clipboard.writeText(teks).then(()=> toast('Nomor ' + teks + ' berhasil disalin! ✓'));
   }
-  // INI YANG DIPERBAIKI - tampilkan() sekarang ambil saldo FRESH dari database
+  // ===== TARIK SALDO - FUNGSI YANG HILANG =====
+  function bukaTarikSaldo(){
+    let user = getUser(); if(!user){ toast('Login dulu ya bro', true); return; }
+    metodeTarik = '';
+    document.querySelectorAll('.metode-item').forEach(el=> el.classList.remove('pilih'));
+    document.getElementById('tarikSaldoInfo').innerText = formatRupiah(user.saldo);
+    document.getElementById('tarikNomor').value = user.nomor || '';
+    document.getElementById('tarikNama').value = user.nama || '';
+    document.getElementById('tarikNominal').value = '';
+    document.getElementById('modalTarik').style.display='flex';
+  }
+  function tutupTarikSaldo(){ document.getElementById('modalTarik').style.display='none'; }
+  function pilihMetode(metode, el){
+    metodeTarik = metode;
+    document.querySelectorAll('.metode-item').forEach(x=> x.classList.remove('pilih'));
+    if(el) el.classList.add('pilih');
+  }
+  async function kirimTarikSaldo(){
+    let user = getUser(); if(!user){ toast('Login dulu ya bro', true); return; }
+    if(!metodeTarik){ toast('Pilih dulu mau ke GOPAY / OVO / DANA / ShopeePay / BCA / BRI / Mandiri', true); return; }
+    let nomorRek = String(document.getElementById('tarikNomor').value||'').trim();
+    let namaPenerima = String(document.getElementById('tarikNama').value||'').trim();
+    let nominal = Number(String(document.getElementById('tarikNominal').value||'').replace(/[^0-9]/g,'')) || 0;
+    if(!nomorRek){ toast('Isi Nomor / Rekening dulu bro', true); return; }
+    if(!namaPenerima){ toast('Isi Nama Lengkap Penerima dulu bro', true); return; }
+    if(!nominal || nominal <= 0){ toast('Isi Nominal Tarik dulu bro', true); return; }
+    if(nominal > Number(user.saldo||0)){ toast('Saldo kamu cuma ' + formatRupiah(user.saldo) + ', jangan tarik lebih dari itu ya', true); return; }
+    if(!confirm('Tarik ' + formatRupiah(nominal) + ' ke ' + metodeTarik + ' - ' + nomorRek + ' a/n ' + namaPenerima + ' ?')) return;
+    // Simpan ke tabel penarikan - tipe penumpang, user_id = id penumpang (uuid TEKS)
+    // nama digabung biar admin tau metode + rekeningnya, karena tabel penarikan cuma ada kolom nama
+    let namaGabung = namaPenerima + ' | ' + metodeTarik + ' | ' + nomorRek;
+    let { error } = await supabaseClient.from('penarikan').insert([{ tipe: 'penumpang', user_id: String(user.id), nama: namaGabung, nominal: nominal, status: 'menunggu' }]);
+    if(error){ toast(error.message, true); return; }
+    tutupTarikSaldo();
+    toast('Permintaan Tarik Saldo udah dikirim ke Admin! Tunggu Admin ACC ya 🙏');
+  }
   async function tampilkan(user){
     document.getElementById('boxLogin').style.display='none';
     document.getElementById('boxAkun').style.display='block';
     document.getElementById('navBawah').style.display='flex';
-    // 1. Tampilin dulu yang lama biar gak blank
     document.getElementById('tampilNama').innerText = user.nama;
     document.getElementById('tampilNomor').innerText = user.nomor;
     document.getElementById('tampilSaldo').innerText = formatRupiah(user.saldo);
@@ -260,11 +326,9 @@
     document.getElementById('tampilGoogle').innerHTML = user.email ? user.email + " <span style='color:#22c55e'>✿ Terverifikasi</span>" : "Belum ditautkan";
     let avatarSimpan = localStorage.getItem('ammo_avatar');
     if(avatarSimpan) document.getElementById('fotoProfil').src = avatarSimpan;
-    // 2. Terus nanya ke database pake id (uuid TEKS, jangan di-Number)
     try{
       let { data: fresh } = await supabaseClient.from('penumpang').select('*').eq('id', String(user.id)).maybeSingle();
       if(fresh){
-        // Simpan yang fresh ke HP, biar besok gak 0 lagi
         localStorage.setItem('ammo_user', JSON.stringify(fresh));
         user = fresh;
         document.getElementById('tampilNama').innerText = fresh.nama;
