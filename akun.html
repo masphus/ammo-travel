@@ -49,7 +49,6 @@
   .qris-box img{width:100%;max-width:260px;object-fit:contain;border-radius:10px}
   .rek-box{background:#111;border:1px dashed #d4af5a;border-radius:12px;padding:12px;margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
   .btn-copy{background:#d4af5a;border:none;padding:8px 14px;border-radius:8px;font-weight:bold;cursor:pointer}
-  /* LOGO ANTI RUSAK - PAKE WARNA RESMI, BUKAN GAMBAR DARI INTERNET */
   .metode-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
   .metode-bank{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
   .metode-item{border:2px solid #333;border-radius:12px;padding:10px 4px;text-align:center;cursor:pointer;min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
@@ -119,7 +118,7 @@
     </div>
     <div class="section">
       <span class="label">Saldo & Booking</span>
-      <div class="row"><div class="icon">💰</div><div class="left">Saldo</div><div class="right" id="tampilSaldo">Rp 0</div></div>
+      <div class="row"><div class="icon">💰</div><div class="left">Saldo</div><div class="right" id="tampilSaldo">Rp. 0,-</div></div>
       <div class="row"><div class="icon">🚗</div><div class="left">Booking</div><div class="right" id="tampilBooking">0 Booking</div></div>
       <button class="btn-gold" onclick="topup()">Top Up Saldo</button>
       <button class="btn-gold" onclick="bukaTarikSaldo()" style="background:linear-gradient(#fff,#e8c87a);margin-top:8px">💸 Tarik Saldo</button>
@@ -132,24 +131,24 @@
   </div>
   <div id="modalTopup" class="modal"><div class="modal-box">
     <h3>Top Up Saldo</h3>
-    <p style="font-size:13px;color:#aaa;margin-bottom:12px">Pilih nominal, lalu bayar via QRIS atau Transfer BCA. Setelah bayar, kirim bukti ke Admin ya biar saldonya langsung masuk.</p>
+    <p style="font-size:13px;color:#aaa;margin-bottom:12px">Pilih nominal, lalu bayar via QRIS atau Transfer BCA. Setelah bayar, kirim bukti pembayaran ya, saldo akan segera masuk.</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-      <button onclick="pilihNominal(20000,this)" class="btn-nominal" style="flex:1;padding:11px;border-radius:10px;border:1px solid #d4af5a;background:#1a1a1a;color:#fff">Rp 20.000</button>
-      <button onclick="pilihNominal(50000,this)" class="btn-nominal" style="flex:1;padding:11px;border-radius:10px;border:1px solid #333;background:#1a1a1a;color:#fff">Rp 50.000</button>
-      <button onclick="pilihNominal(100000,this)" class="btn-nominal" style="flex:1;padding:11px;border-radius:10px;border:1px solid #333;background:#1a1a1a;color:#fff">Rp 100.000</button>
+      <button onclick="pilihNominal(20000,this)" class="btn-nominal" style="flex:1;padding:11px;border-radius:10px;border:1px solid #d4af5a;background:#1a1a1a;color:#fff">Rp. 20.000,-</button>
+      <button onclick="pilihNominal(50000,this)" class="btn-nominal" style="flex:1;padding:11px;border-radius:10px;border:1px solid #333;background:#1a1a1a;color:#fff">Rp. 50.000,-</button>
+      <button onclick="pilihNominal(100000,this)" class="btn-nominal" style="flex:1;padding:11px;border-radius:10px;border:1px solid #333;background:#1a1a1a;color:#fff">Rp. 100.000,-</button>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:12px">
       <button id="tabQris" onclick="tabBayar('qris')" style="flex:1;padding:11px;border-radius:10px;border:none;background:linear-gradient(#f2d98c,#c9a94f);color:#000;font-weight:bold">QRIS</button>
       <button id="tabTf" onclick="tabBayar('tf')" style="flex:1;padding:11px;border-radius:10px;border:none;background:#333;color:#fff;font-weight:bold">Transfer BCA</button>
     </div>
-    <div id="bayarQris"><div class="qris-box"><p id="nominalQris">Nominal: Rp 20.000</p><p style="font-size:12px;color:#666;margin-top:6px">Scan QRIS Ammo Travel</p></div></div>
-    <div id="bayarTf" style="display:none"><div class="rek-box"><div><b>BCA 1092365519</b><br><small id="nominalTf">Nominal yang mau di-transfer: Rp 20.000</small></div><button class="btn-copy" onclick="salin('1092365519')">Salin</button></div></div>
-    <a id="btnWA" href="#" target="_blank" style="display:block;text-align:center;margin-top:14px;padding:13px;background:#25D366;color:#fff;border-radius:12px;text-decoration:none;font-weight:bold">Kirim Bukti ke Admin via WA</a>
+    <div id="bayarQris"><div class="qris-box"><p id="nominalQris">Nominal: Rp. 20.000,-</p><p style="font-size:12px;color:#666;margin-top:6px">Scan QRIS Ammo Travel</p></div></div>
+    <div id="bayarTf" style="display:none"><div class="rek-box"><div><b>BCA 1092365519</b><br><small id="nominalTf">Nominal yang mau di-transfer: Rp. 20.000,-</small></div><button class="btn-copy" onclick="salin('1092365519')">Salin</button></div></div>
+    <a id="btnWA" href="#" target="_blank" style="display:block;text-align:center;margin-top:14px;padding:13px;background:#25D366;color:#fff;border-radius:12px;text-decoration:none;font-weight:bold">Kirim Bukti Pembayaran via WA</a>
     <button onclick="tutupTopup()" style="width:100%;margin-top:10px;padding:12px;background:#333;color:#fff;border:none;border-radius:12px">Tutup</button>
   </div></div>
   <div id="modalTarik" class="modal"><div class="modal-box">
     <h3>💸 Tarik Saldo</h3>
-    <p style="font-size:13px;color:#aaa;margin-bottom:10px">Saldo kamu: <b id="tarikSaldoInfo" style="color:#e8c87a">Rp 0</b><br>Pilih mau ditarik kemana:</p>
+    <p style="font-size:13px;color:#aaa;margin-bottom:10px">Saldo kamu: <b id="tarikSaldoInfo" style="color:#e8c87a">Rp. 0,-</b><br>Pilih mau ditarik kemana:</p>
     <div class="label-kecil">E-Wallet</div>
     <div class="metode-grid">
       <div class="metode-item logo-gopay" onclick="pilihMetode('GOPAY',this)"><b>GOPAY</b><small>GoPay</small></div>
@@ -168,11 +167,30 @@
     <div class="label-kecil">Nama Lengkap Penerima</div>
     <input id="tarikNama" placeholder="Nama Lengkap Penerima">
     <div class="label-kecil">Nominal Tarik</div>
-    <input id="tarikNominal" placeholder="Mau tarik berapa? - contoh 50000" inputmode="numeric">
+    <input id="tarikNominal" placeholder="Rp. 50.000,-" inputmode="numeric" oninput="formatNominalTarik(this)">
+    <p style="font-size:12px;color:#888;margin-top:2px">Contoh: ketik 50000 jadi Rp. 50.000,- | ketik 5000 jadi Rp. 5.000,- | ketik 5000000 jadi Rp. 5.000.000,-</p>
     <button class="btn-gold" onclick="kirimTarikSaldo()">Tarik Saldo</button>
     <button onclick="tutupTarikSaldo()" style="width:100%;margin-top:10px;padding:12px;background:#333;color:#fff;border:none;border-radius:12px">Batal</button>
-    <p style="font-size:12px;color:#888;margin-top:10px;text-align:center">Permintaan masuk ke Admin. Saldo dipotong setelah Admin ACC.</p>
+    <p style="font-size:12px;color:#888;margin-top:10px;text-align:center">Permintaan akan diproses. Saldo dipotong setelah proses selesai.</p>
   </div></div>
+
+  <div id="modalAntrian" class="modal"><div class="modal-box" style="border-top:2px solid #e8c87a">
+    <h3>⏳ Penarikan sedang dalam Proses</h3>
+    <p id="teksAntrian" style="font-size:15px;color:#fff;line-height:1.6">Penarikan kamu sedang dalam proses.</p>
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <button onclick="batalkanPenarikan()" style="flex:1;padding:13px;background:#333;color:#fff;border:1px solid #ff4444;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer">Batalkan</button>
+      <button onclick="lanjutkanPenarikan()" style="flex:1;padding:13px;background:linear-gradient(#f2d98c,#c9a94f);color:#000;border:none;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer">Lanjutkan</button>
+    </div>
+    <p style="font-size:12px;color:#888;margin-top:12px;text-align:center;line-height:1.5">Batal untuk Membatalkan Penarikan<br>Lanjut untuk Melanjutkan Proses Penarikan</p>
+  </div></div>
+
+  <div id="modalGanti" class="modal"><div class="modal-box" style="border-top:2px solid #ff4444">
+    <h3>⚠️ Ganti Nominal?</h3>
+    <p id="teksGanti" style="font-size:15px;color:#fff;line-height:1.5">Apakah anda yakin akan mengganti Nominal Penarikan sebelumnya?</p>
+    <button class="btn-gold" onclick="yaGantiNominal()" style="background:linear-gradient(#ff6b6b,#e30613);color:#fff">Ya, Ganti Nominal</button>
+    <button onclick="tutupGanti()" style="width:100%;margin-top:10px;padding:12px;background:#333;color:#fff;border:none;border-radius:12px">Batal - Tetap Yang Lama</button>
+  </div></div>
+
   <div id="modalEdit" class="modal"><div class="modal-box">
     <h3 id="modalJudul">Edit</h3>
     <input id="modalInput" placeholder="">
@@ -187,7 +205,9 @@
   // ATURAN: String() untuk text/uuid. Number() HANYA untuk saldo & nominal yang emang bigint.
   // USER: HP, umur 47, mata plus 0.5 -> WAJIB kasih 1 halaman FULL, jangan potongan
   // nomor = no_wa = nomor WA yang sama, cuma beda nama kolom. BUKAN HANTU.
-  // LOGO: Jangan pake gambar dari Wikimedia lagi, gampang rusak. Pake warna resmi + tulisan, anti rusak.
+  // LOGO: Jangan pake gambar Wikimedia, gampang rusak. Pake warna resmi + tulisan, anti rusak.
+  // BAHASA PELANGGAN: Jangan bilang "Admin", "menunggu antrian", "ACC". Bilang "Penarikan sedang dalam Proses".
+  // UANG: Wajib format Rp. 50.000,- jangan 50000. Biar gak salah baca 5 ribu / 50 ribu / 5 juta.
   // ===============================================
   const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
   const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
@@ -197,32 +217,98 @@
   let modeEdit = '';
   let metodeTarik = '';
   let sedangKirimTarik = false;
+  let dataGanti = null;
+  let idAntrianAktif = null;
   const fotoCewek = ['https://randomuser.me/api/portraits/women/44.jpg','https://randomuser.me/api/portraits/women/68.jpg','https://randomuser.me/api/portraits/women/21.jpg','https://randomuser.me/api/portraits/women/26.jpg','https://randomuser.me/api/portraits/women/79.jpg','https://randomuser.me/api/portraits/women/28.jpg','https://randomuser.me/api/portraits/women/90.jpg','https://randomuser.me/api/portraits/women/15.jpg','https://randomuser.me/api/portraits/women/47.jpg','https://randomuser.me/api/portraits/women/3.jpg','https://randomuser.me/api/portraits/women/25.jpg','https://randomuser.me/api/portraits/women/56.jpg','https://randomuser.me/api/portraits/women/71.jpg','https://randomuser.me/api/portraits/women/82.jpg','https://randomuser.me/api/portraits/women/9.jpg'];
   const fotoCowok = ['https://randomuser.me/api/portraits/men/32.jpg','https://randomuser.me/api/portraits/men/75.jpg','https://randomuser.me/api/portraits/men/11.jpg','https://randomuser.me/api/portraits/men/22.jpg','https://randomuser.me/api/portraits/men/36.jpg','https://randomuser.me/api/portraits/men/52.jpg','https://randomuser.me/api/portraits/men/85.jpg','https://randomuser.me/api/portraits/men/15.jpg','https://randomuser.me/api/portraits/men/45.jpg','https://randomuser.me/api/portraits/men/67.jpg','https://randomuser.me/api/portraits/men/29.jpg','https://randomuser.me/api/portraits/men/41.jpg','https://randomuser.me/api/portraits/men/18.jpg','https://randomuser.me/api/portraits/men/60.jpg','https://randomuser.me/api/portraits/men/3.jpg','https://randomuser.me/api/portraits/men/76.jpg','https://randomuser.me/api/portraits/men/9.jpg','https://randomuser.me/api/portraits/men/97.jpg','https://randomuser.me/api/portraits/men/50.jpg','https://randomuser.me/api/portraits/men/64.jpg'];
-  function toast(msg, err){ let t=document.getElementById('toast'); t.innerText=msg; t.className=err?'err':''; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); }
+  function toast(msg, err){ let t=document.getElementById('toast'); t.innerText=msg; t.className=err?'err':''; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3500); }
   function bersihNomor(n){ n=String(n||'').replace(/[^0-9]/g,''); if(n.startsWith('62')) n='0'+n.slice(2); return n; }
   function validNomor(n){ if(n.length<10||n.length>13){ toast('Nomor HP harus 10-13 angka bro!',true); return false; } if(!n.startsWith('08')){ toast('Nomor HP harus diawali 08 bro!',true); return false; } return true; }
   function switchTab(mode){ document.getElementById('tabMasuk').className=mode==='masuk'?'on':''; document.getElementById('tabDaftar').className=mode==='daftar'?'on':''; document.getElementById('formMasuk').style.display=mode==='masuk'?'block':'none'; document.getElementById('formDaftar').style.display=mode==='daftar'?'block':'none'; }
-  function formatRupiah(n){ return "Rp "+Number(n||0).toLocaleString('id-ID'); }
+  // FORMAT UANG RESMI: Rp. 50.000,- jangan 50000
+  function formatRupiah(n){ return "Rp. " + Number(n||0).toLocaleString('id-ID') + ",-"; }
+  function formatNominalTarik(el){
+    let angka = String(el.value||'').replace(/[^0-9]/g,'');
+    if(!angka){ el.value=''; return; }
+    let num = Number(angka);
+    el.value = "Rp. " + num.toLocaleString('id-ID') + ",-";
+  }
   function formatTanggal(t){ if(!t) return "Bergabung sejak -"; let d=new Date(t); return "Bergabung sejak "+d.toLocaleDateString('id-ID',{month:'short',year:'numeric'}); }
   function gantiAvatar(){ let box=document.getElementById('boxAvatar'); if(box.style.display==='block'){ box.style.display='none'; return; } box.style.display='block'; tampilAvatar('cewek'); }
   function tampilAvatar(tipe){ document.getElementById('btnCewek').className='tab-avatar '+(tipe==='cewek'?'on':'off'); document.getElementById('btnCowok').className='tab-avatar '+(tipe==='cowok'?'on':'off'); document.getElementById('btnSemua').className='tab-avatar '+(tipe==='semua'?'on':'off'); let list=document.getElementById('listAvatar'); list.innerHTML=''; let data=tipe==='cewek'?fotoCewek:tipe==='cowok'?fotoCowok:[...fotoCewek,...fotoCowok]; data.forEach(url=>{ let img=document.createElement('img'); img.src=url; img.style.cssText='width:65px;height:65px;object-fit:cover;border-radius:50%;border:2px solid #d4af5a;cursor:pointer'; img.onclick=()=>pilihAvatar(url); list.appendChild(img); }); }
   function pilihAvatar(url){ document.getElementById('fotoProfil').src=url; document.getElementById('boxAvatar').style.display='none'; localStorage.setItem('ammo_avatar',url); toast('Foto profil berhasil diganti! 📸'); }
   function bukaTopup(){ document.getElementById('modalTopup').style.display='flex'; pilihNominal(20000,document.querySelector('.btn-nominal')); tabBayar('qris'); }
   function tutupTopup(){ document.getElementById('modalTopup').style.display='none'; }
-  function pilihNominal(nominal,btn){ nominalTopup=nominal; document.querySelectorAll('.btn-nominal').forEach(b=>{ b.style.borderColor='#333'; b.style.color='#fff'; }); if(btn){ btn.style.borderColor='#d4af5a'; btn.style.color='#e8c87a'; } document.getElementById('nominalQris').innerText='Nominal: '+formatRupiah(nominal); document.getElementById('nominalTf').innerText='Nominal yang mau di-transfer: '+formatRupiah(nominal); let user=getUser(); let nama=user?user.nama:'Customer'; document.getElementById('btnWA').href='https://wa.me/'+WA_ADMIN+'?text='+encodeURIComponent('Halo Admin, saya '+nama+' sudah Top Up '+formatRupiah(nominal)+' via BCA 1092365519 / QRIS AMMO TRAVEL, ini bukti transfernya'); }
+  function pilihNominal(nominal,btn){ nominalTopup=nominal; document.querySelectorAll('.btn-nominal').forEach(b=>{ b.style.borderColor='#333'; b.style.color='#fff'; }); if(btn){ btn.style.borderColor='#d4af5a'; btn.style.color='#e8c87a'; } document.getElementById('nominalQris').innerText='Nominal: '+formatRupiah(nominal); document.getElementById('nominalTf').innerText='Nominal yang mau di-transfer: '+formatRupiah(nominal); let user=getUser(); let nama=user?user.nama:'Customer'; document.getElementById('btnWA').href='https://wa.me/'+WA_ADMIN+'?text='+encodeURIComponent('Halo, saya '+nama+' sudah Top Up '+formatRupiah(nominal)+' via BCA 1092365519 / QRIS AMMO TRAVEL, ini bukti transfernya'); }
   function tabBayar(tipe){ document.getElementById('bayarQris').style.display=tipe==='qris'?'block':'none'; document.getElementById('bayarTf').style.display=tipe==='tf'?'block':'none'; document.getElementById('tabQris').style.background=tipe==='qris'?'linear-gradient(#f2d98c,#c9a94f)':'#333'; document.getElementById('tabQris').style.color=tipe==='qris'?'#000':'#fff'; document.getElementById('tabTf').style.background=tipe==='tf'?'linear-gradient(#f2d98c,#c9a94f)':'#333'; document.getElementById('tabTf').style.color=tipe==='tf'?'#000':'#fff'; }
   function salin(teks){ navigator.clipboard.writeText(teks).then(()=>toast('Nomor '+teks+' berhasil disalin! ✓')); }
   function bukaTarikSaldo(){ let user=getUser(); if(!user){ toast('Login dulu ya bro',true); return; } metodeTarik=''; document.querySelectorAll('.metode-item').forEach(el=>el.classList.remove('pilih')); document.getElementById('tarikSaldoInfo').innerText=formatRupiah(user.saldo); document.getElementById('tarikNomor').value=user.nomor||''; document.getElementById('tarikNama').value=user.nama||''; document.getElementById('tarikNominal').value=''; document.getElementById('modalTarik').style.display='flex'; }
   function tutupTarikSaldo(){ document.getElementById('modalTarik').style.display='none'; }
   function pilihMetode(metode,el){ metodeTarik=metode; document.querySelectorAll('.metode-item').forEach(x=>x.classList.remove('pilih')); if(el) el.classList.add('pilih'); }
-  async function kirimTarikSaldo(){ if(sedangKirimTarik) return; let user=getUser(); if(!user){ toast('Login dulu ya bro',true); return; } if(!metodeTarik){ toast('Pilih dulu mau ke GOPAY / OVO / DANA / ShopeePay / BCA / BRI / Mandiri',true); return; } let nomorRek=String(document.getElementById('tarikNomor').value||'').trim(); let namaPenerima=String(document.getElementById('tarikNama').value||'').trim(); let nominal=Number(String(document.getElementById('tarikNominal').value||'').replace(/[^0-9]/g,''))||0; if(!nomorRek){ toast('Isi Nomor / Rekening dulu bro',true); return; } if(!namaPenerima){ toast('Isi Nama Lengkap Penerima dulu bro',true); return; } if(!nominal||nominal<=0){ toast('Isi Nominal Tarik dulu bro',true); return; } if(nominal>Number(user.saldo||0)){ toast('Saldo kamu cuma '+formatRupiah(user.saldo)+', jangan tarik lebih dari itu ya',true); return; } sedangKirimTarik=true; let namaGabung=namaPenerima+' | '+metodeTarik+' | '+nomorRek; let {error}=await supabaseClient.from('penarikan').insert([{tipe:'penumpang',user_id:String(user.id),nama:namaGabung,nominal:nominal,status:'menunggu'}]); sedangKirimTarik=false; if(error){ toast(error.message,true); return; } tutupTarikSaldo(); toast('Tarik Saldo '+formatRupiah(nominal)+' ke '+metodeTarik+' udah dikirim ke Admin 🙏'); }
+  function tutupGanti(){ document.getElementById('modalGanti').style.display='none'; dataGanti=null; }
+  async function yaGantiNominal(){
+    if(!dataGanti) return;
+    let nominalBaru = dataGanti.nominal;
+    let { error } = await supabaseClient.from('penarikan').update({ nama: dataGanti.namaGabung, nominal: nominalBaru }).eq('id', dataGanti.idLama);
+    if(error){ toast(error.message,true); return; }
+    document.getElementById('modalGanti').style.display='none';
+    tutupTarikSaldo();
+    dataGanti=null;
+    toast('Nominal Penarikan berhasil diganti jadi ' + formatRupiah(nominalBaru) + ' - Penarikan sedang dalam Proses 🙏');
+  }
+  async function batalkanPenarikan(){
+    if(!idAntrianAktif) return;
+    let { error } = await supabaseClient.from('penarikan').update({ status: 'dibatalkan' }).eq('id', idAntrianAktif);
+    if(error){ toast(error.message,true); return; }
+    document.getElementById('modalAntrian').style.display='none';
+    tutupTarikSaldo();
+    idAntrianAktif=null;
+    toast('Penarikan dibatalkan. Saldo kamu aman, silakan buat penarikan baru kalo mau 🙏');
+  }
+  function lanjutkanPenarikan(){
+    document.getElementById('modalAntrian').style.display='none';
+    tutupTarikSaldo();
+    idAntrianAktif=null;
+    toast('Penarikan sedang dalam Proses, mohon tunggu ya 🙏');
+  }
+  async function kirimTarikSaldo(){
+    if(sedangKirimTarik) return;
+    let user=getUser(); if(!user){ toast('Login dulu ya bro',true); return; }
+    if(!metodeTarik){ toast('Pilih dulu mau ke GOPAY / OVO / DANA / ShopeePay / BCA / BRI / Mandiri',true); return; }
+    let nomorRek=String(document.getElementById('tarikNomor').value||'').trim();
+    let namaPenerima=String(document.getElementById('tarikNama').value||'').trim();
+    let nominal=Number(String(document.getElementById('tarikNominal').value||'').replace(/[^0-9]/g,''))||0;
+    if(!nomorRek){ toast('Isi Nomor / Rekening dulu bro',true); return; }
+    if(!namaPenerima){ toast('Isi Nama Lengkap Penerima dulu bro',true); return; }
+    if(!nominal||nominal<=0){ toast('Isi Nominal Tarik dulu bro',true); return; }
+    if(nominal>Number(user.saldo||0)){ toast('Saldo kamu cuma '+formatRupiah(user.saldo)+', jangan tarik lebih dari itu ya',true); return; }
+    sedangKirimTarik=true;
+    let { data: antrian } = await supabaseClient.from('penarikan').select('*').eq('user_id', String(user.id)).eq('tipe','penumpang').eq('status','menunggu').order('id',{ascending:false}).limit(1).maybeSingle();
+    if(antrian){
+      sedangKirimTarik=false;
+      idAntrianAktif = antrian.id;
+      if(Number(antrian.nominal||0) !== nominal){
+        document.getElementById('teksAntrian').innerHTML = 'Penarikan kamu <b style="color:#e8c87a">' + formatRupiah(antrian.nominal) + '</b> sedang dalam Proses.<br><br>Kamu mau tarik lagi <b style="color:#e8c87a">' + formatRupiah(nominal) + '</b> ke ' + metodeTarik + ' ?<br><br>Kalo mau ganti nominalnya, pencet <b>Batalkan</b> dulu, terus buat penarikan baru. Kalo mau tetep yang lama, pencet <b>Lanjutkan</b>.';
+        document.getElementById('modalAntrian').style.display='flex';
+        return;
+      }
+      document.getElementById('teksAntrian').innerHTML = '<b style="color:#e8c87a">' + formatRupiah(antrian.nominal) + ' ke ' + (antrian.nama||'').split(' | ')[1] + '</b><br>Penarikan sedang dalam Proses.<br><br>Mohon tunggu ya, jangan tarik 2x.';
+      document.getElementById('modalAntrian').style.display='flex';
+      return;
+    }
+    let namaGabung=namaPenerima+' | '+metodeTarik+' | '+nomorRek;
+    let {error}=await supabaseClient.from('penarikan').insert([{tipe:'penumpang',user_id:String(user.id),nama:namaGabung,nominal:nominal,status:'menunggu'}]);
+    sedangKirimTarik=false;
+    if(error){ toast(error.message,true); return; }
+    tutupTarikSaldo();
+    toast('Tarik Saldo '+formatRupiah(nominal)+' ke '+metodeTarik+' udah dikirim, sedang dalam Proses 🙏');
+  }
   async function tampilkan(user){ document.getElementById('boxLogin').style.display='none'; document.getElementById('boxAkun').style.display='block'; document.getElementById('navBawah').style.display='flex'; document.getElementById('tampilNama').innerText=user.nama; document.getElementById('tampilNomor').innerText=user.nomor; document.getElementById('tampilSaldo').innerText=formatRupiah(user.saldo); document.getElementById('tampilGabung').innerText=formatTanggal(user.created_at); document.getElementById('tampilGoogle').innerHTML=user.email?user.email+" <span style='color:#22c55e'>✿ Terverifikasi</span>":"Belum ditautkan"; let avatarSimpan=localStorage.getItem('ammo_avatar'); if(avatarSimpan) document.getElementById('fotoProfil').src=avatarSimpan; try{ let {data:fresh}=await supabaseClient.from('penumpang').select('*').eq('id',String(user.id)).maybeSingle(); if(fresh){ localStorage.setItem('ammo_user',JSON.stringify(fresh)); user=fresh; document.getElementById('tampilNama').innerText=fresh.nama; document.getElementById('tampilNomor').innerText=fresh.nomor; document.getElementById('tampilSaldo').innerText=formatRupiah(fresh.saldo); document.getElementById('tampilGabung').innerText=formatTanggal(fresh.created_at); document.getElementById('tampilGoogle').innerHTML=fresh.email?fresh.email+" <span style='color:#22c55e'>✿ Terverifikasi</span>":"Belum ditautkan"; } }catch(e){} let {data:book}=await supabaseClient.from('bookings').select('id').eq('penumpang_id',String(user.id)); if(book) document.getElementById('tampilBooking').innerText=book.length+" Booking Aktif"; }
   async function autoRefreshSaldo(){ let user=getUser(); if(!user) return; if(document.getElementById('boxAkun').style.display!=='block') return; try{ let {data:fresh}=await supabaseClient.from('penumpang').select('saldo,nama,nomor').eq('id',String(user.id)).maybeSingle(); if(fresh&&Number(fresh.saldo||0)!==Number(user.saldo||0)){ user.saldo=fresh.saldo; localStorage.setItem('ammo_user',JSON.stringify({...user,saldo:fresh.saldo})); let el=document.getElementById('tampilSaldo'); if(el) el.innerText=formatRupiah(fresh.saldo); let el2=document.getElementById('tarikSaldoInfo'); if(el2) el2.innerText=formatRupiah(fresh.saldo); } }catch(e){} }
   setInterval(autoRefreshSaldo,2000);
   function getUser(){ try{ return JSON.parse(localStorage.getItem('ammo_user')); }catch(e){ return null; } }
   async function masuk(){ let nomor=bersihNomor(document.getElementById('loginNomor').value.trim()); let password=document.getElementById('loginPassword').value.trim(); if(!nomor||!password){ toast('Nomor & Password wajib diisi bro!',true); return; } if(!validNomor(nomor)) return; if(password.length<6){ toast('Password minimal 6 karakter bro!',true); return; } let {data:ada}=await supabaseClient.from('penumpang').select('*').eq('nomor',String(nomor)).maybeSingle(); if(!ada){ toast('Nomor belum terdaftar! Silakan Daftar dulu ya bro',true); switchTab('daftar'); document.getElementById('nomor').value=nomor; return; } if(ada.password!==password){ toast('Password salah bro!',true); return; } localStorage.setItem('ammo_user',JSON.stringify(ada)); tampilkan(ada); toast('Selamat datang kembali, '+ada.nama+'! 👋'); }
-  async function daftar(){ let nama=document.getElementById('nama').value.trim(); let nomor=bersihNomor(document.getElementById('nomor').value.trim()); let password=document.getElementById('password').value.trim(); let email=document.getElementById('email').value.trim(); if(!nama||!nomor||!password){ toast('Nama, Nomor & Password wajib diisi!',true); return; } if(nama.length<3){ toast('Nama minimal 3 huruf bro!',true); return; } if(!validNomor(nomor)) return; if(password.length<6){ toast('Password minimal 6 karakter bro!',true); return; } if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ toast('Email salah format bro!',true); return; } let {data:cek}=await supabaseClient.from('penumpang').select('id').eq('nomor',String(nomor)).maybeSingle(); if(cek){ toast('Nomor ini sudah terdaftar! Silakan Masuk aja',true); switchTab('masuk'); return; } let {data:baru,error}=await supabaseClient.from('penumpang').insert([{nama,nomor,password,email:email||null,saldo:0}]).select().single(); if(error){ toast(error.message,true); return; } localStorage.setItem('ammo_user',JSON.stringify(baru)); tampilkan(baru); toast('Akun berhasil dibuat! Selamat datang '+nama+' 🎉'); }
+  async function daftar(){ let nama=document.getElementById('nama').value.trim(); let nomor=bersihNomor(document.getElementById('nomor').value.trim()); let password=document.getElementById('password').value.trim(); let email=document.getElementById('email').value.trim(); if(!nama||!nomor||!password){ toast('Nama, Nomor & Password wajib diisi!',true); return; } if(nama.length<3){ toast('Nama minimal 3 huruf bro!',true); return; } if(!validNomor(nomor)) return; if(password.length<6){ toast('Password minimal 6 karakter bro!',true); return; } if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ toast('Email salah format bro!',true); return; } let {data:cek}=await supabaseClient.from('penumpang').select('id').eq('nomor',String(nomor)).maybeSingle(); if(cek){ toast('Nomor ini sudah terdaftar! Silakan Masuk aja',true); switchTab('masuk'); return; } let {data:baru,[STRIPPED] supabaseClient.from('penumpang').insert([{nama,nomor,password,email:email||null,saldo:0}]).select().single(); if(error){ toast(error.message,true); return; } localStorage.setItem('ammo_user',JSON.stringify(baru)); tampilkan(baru); toast('Akun berhasil dibuat! Selamat datang '+nama+' 🎉'); }
   async function masukGoogle(){ toast('Login Google lagi kita sambungin ya bro, pakai Nomor HP dulu aja 🙏'); }
   function bukaModal(judul,value,placeholder,tipe){ modeEdit=tipe; document.getElementById('modalJudul').innerText=judul; let inp=document.getElementById('modalInput'); inp.value=value||''; inp.placeholder=placeholder; inp.type=tipe==='password'?'password':'text'; document.getElementById('modalEdit').style.display='flex'; inp.focus(); }
   function tutupModal(){ document.getElementById('modalEdit').style.display='none'; }
