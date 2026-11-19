@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Admin - Ammo Travel</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+  body{background:#0f0f0f;color:#fff;overflow-x:auto}
+  /* KUNCI LANDSCAPE */
+  .wrap{min-width:1180px;padding:14px}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .topbar h1{font-size:28px}
+  .topbar h1 span{color:#ffc107}
+  .admin{font-size:15px;color:#ccc}
+  /* LAYOUT UTAMA - 3 KOLOM, 3 BARIS SEJAJAR */
+  .layout{
+    display:grid;
+    grid-template-columns:235px 335px 1fr;
+    grid-template-rows:150px 360px 230px;
+    gap:14px;
+  }
+  .card{background:#1a1a1a;border:1px solid #333;border-radius:14px;padding:16px;overflow:hidden}
+  /* SIDEBAR - PANJANG KE BAWAH */
+  .sidebar{grid-row:1 / span 3;display:flex;flex-direction:column;gap:8px}
+  .sidebar .logo{font-size:24px;font-weight:bold;margin-bottom:6px}
+  .sidebar .logo span{color:#ffc107}
+  .sidebar a{color:#ddd;text-decoration:none;font-size:18px;padding:12px 12px;border-radius:10px;background:#222}
+  .sidebar a.active{background:#ffc107;color:#000;font-weight:bold}
+  .sidebar .logout{margin-top:auto;background:#ff4444;color:#fff;text-align:center}
+  /* KOLOM DEBET - 3 KOTAK */
+  .debet{display:flex;flex-direction:column;gap:14px;grid-row:1 / span 3}
+  /* Biar tingginya persis sama dengan baris kanan */
+  .debet .card{flex:1;display:flex;flex-direction:column;justify-content:center}
+  .debet small{font-size:17px;color:#ccc}
+  .debet h2{font-size:38px;margin:8px 0;color:#fff}
+  .debet .btn-row{display:flex;gap:10px;margin-top:10px}
+  .btn{flex:1;padding:14px;border:none;border-radius:10px;font-size:19px;font-weight:bold;cursor:pointer}
+  .btn-acc{background:#28a745;color:#fff}
+  .btn-tolak{background:#444;color:#fff}
+  /* KONTEN KANAN */
+  .stats{grid-row:1;grid-column:3;display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .stats .card{display:flex;flex-direction:column;justify-content:center}
+  .stats small{font-size:17px;color:#ccc}
+  .stats b{font-size:32px;margin-top:6px}
+  .stats span{font-size:15px;color:#aaa;margin-top:4px}
+  .order{grid-row:2;grid-column:3}
+  .order h3{font-size:22px;margin-bottom:10px}
+  .order-box{background:#222;border-radius:10px;padding:14px;min-height:200px;display:flex;flex-direction:column;justify-content:center}
+  .order-box p{font-size:19px;line-height:1.5}
+  .order-box .empty{font-size:19px;color:#aaa;text-align:center}
+  .map-wrap{grid-row:2;grid-column:3;display:none} /* map digabung di bawah via layout baru */
+  /* BARIS 2 KANAN - ORDER + PETA BERSANDING */
+  .row2{grid-row:2;grid-column:3;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .row2 .card{display:flex;flex-direction:column}
+  .row2 h3{font-size:22px;margin-bottom:10px}
+  #map{flex:1;min-height:260px;border-radius:10px;background:#222;z-index:1}
+  .map-note{font-size:15px;color:#ccc;margin-top:8px}
+  /* DRIVER BARU - BARIS 3 */
+  .driver-baru{grid-row:3;grid-column:3}
+  .driver-baru h3{font-size:22px;margin-bottom:10px}
+  .driver-list{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .driver-item{background:#222;border-radius:10px;padding:14px;display:flex;justify-content:space-between;align-items:center;min-height:78px}
+  .driver-item b{font-size:20px}
+  .driver-item small{font-size:16px;color:#aaa;display:block;margin-top:4px}
+  .driver-item .mini{width:60px;text-align:center}
+  @media (orientation:portrait){
+    .wrap{min-width:1180px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <h1>Ammo <span>Travel</span></h1>
+    <div class="admin">Admin Panel &nbsp;|&nbsp; Senin, 20 April 2026 &nbsp;|&nbsp; Admin</div>
+  </div>
+
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <div class="card sidebar">
+      <div class="logo">Ammo <span>Travel</span></div>
+      <a href="#" class="active">📊 Dashboard</a>
+      <a href="#">👥 Penumpang</a>
+      <a href="#">🚗 Driver</a>
+      <a href="#">📦 Order</a>
+      <a href="#">💰 Penghasilan</a>
+      <a href="#">⏳ Antrian</a>
+      <a href="#">💬 Chat</a>
+      <a href="#">🤖 Data Bot</a>
+      <a href="#">🚫 Blacklist</a>
+      <a href="#">⚙️ Pengaturan</a>
+      <a href="#" class="logout">Keluar</a>
+    </div>
+
+    <!-- 3 KOTAK DEBET - BALIK LAGI -->
+    <div class="debet">
+      <div class="card">
+        <small>Debet Penumpang Siti</small>
+        <h2>Rp 50.000</h2>
+        <div class="btn-row"><button class="btn btn-acc">ACC</button><button class="btn btn-tolak">Tolak</button></div>
+      </div>
+      <div class="card">
+        <small>Debet Driver Budi</small>
+        <h2>Rp 100.000</h2>
+        <div class="btn-row"><button class="btn btn-acc">ACC</button><button class="btn btn-tolak">Tolak</button></div>
+      </div>
+      <div class="card">
+        <small>Debet Driver Rina</small>
+        <h2>Rp 150.000</h2>
+        <div class="btn-row"><button class="btn btn-acc">ACC</button><button class="btn btn-tolak">Tolak</button></div>
+      </div>
+    </div>
+
+    <!-- 4 KOTAK ATAS - SEJAJAR DENGAN KOTAK DEBET ATAS -->
+    <div class="stats">
+      <div class="card"><small>Total Penumpang</small><b>1.150</b><span>+12% minggu ini</span></div>
+      <div class="card"><small>Driver Aktif</small><b>25</b><span>dari 30 driver</span></div>
+      <div class="card"><small>Order</small><b>0</b><span>Belum ada order</span></div>
+      <div class="card"><small>Pendapatan</small><b>Rp 12.5 jt</b><span>Bulan ini</span></div>
+    </div>
+
+    <!-- BARIS TENGAH - SEJAJAR DENGAN KOTAK DEBET TENGAH -->
+    <div class="row2">
+      <div class="card order">
+        <h3>🟢 Order Live (4)</h3>
+        <div class="order-box" id="orderBox">
+          <p><b>Bandung - Jakarta</b><br>Penumpang: Andi - 2 orang - Rp 600.000<br>Driver: Budi - Toyota Calya - Lagi jalan</p>
+          <p style="margin-top:12px"><b>Bandung - Lembang</b><br>Penumpang: Siti - 4 orang - Rp 250.000<br>Driver: Rina - Daihatsu Sigra - Menunggu</p>
+          <!-- Kalau database kosong, kotak ini TETAP kotak, isinya ganti jadi tulisan di bawah -->
+          <!-- <p class="empty">Belum ada order live</p> -->
+        </div>
+      </div>
+      <div class="card">
+        <h3>🗺️ Driver Online - Radius 100km</h3>
+        <div id="map"></div>
+        <div class="map-note">Peta boleh digeser untuk pantau driver. Tengah = GPS Admin. Lingkaran = 100km.</div>
+      </div>
+    </div>
+
+    <!-- BARIS BAWAH - SEJAJAR DENGAN KOTAK DEBET BAWAH -->
+    <div class="card driver-baru">
+      <h3>👤 Driver Baru Menunggu ACC (2)</h3>
+      <div class="driver-list" id="driverBaru">
+        <div class="driver-item"><div><b>Agus</b><small>Toyota Avanza - Bandung</small></div><div class="mini"><button class="btn btn-acc" style="padding:10px;font-size:16px">ACC</button></div></div>
+        <div class="driver-item"><div><b>Dewi</b><small>Daihatsu Xenia - Cimahi</small></div><div class="mini"><button class="btn btn-acc" style="padding:10px;font-size:16px">ACC</button></div></div>
+        <!-- Kalau kosong, kotak ini TETAP kotak, isinya: Belum ada driver baru -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // KUNCI LANDSCAPE - kalau HP masih berdiri, minta putar
+  window.addEventListener('load', () => {
+    if (screen.orientation && screen.orientation.lock) {
+      screen.orientation.lock('landscape').catch(()=>{});
+    }
+  });
+
+  // PETA ASLI - GPS ADMIN SEBAGAI TENGAH, RADIUS 100KM, BOLEH DIGESER
+  // Posisi awal Bandung kalau GPS belum aktif
+  let adminLat = -6.9175, adminLng = 107.6191;
+  const map = L.map('map').setView([adminLat, adminLng], 8);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 18}).addTo(map);
+  let circle = L.circle([adminLat, adminLng], {color:'#ffc107', fillColor:'#ffc107', fillOpacity:0.12, radius:100000}).addTo(map);
+  let adminMarker = L.marker([adminLat, adminLng]).addTo(map).bindPopup('Posisi Admin (GPS)').openPopup();
+
+  // Ambil GPS asli admin
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition((pos) => {
+      adminLat = pos.coords.latitude;
+      adminLng = pos.coords.longitude;
+      map.setView([adminLat, adminLng], 8);
+      circle.setLatLng([adminLat, adminLng]);
+      adminMarker.setLatLng([adminLat, adminLng]);
+      // Contoh driver online di dalam radius 100km
+      L.marker([adminLat+0.15, adminLng+0.12]).addTo(map).bindPopup('Budi - Calya - Online');
+      L.marker([adminLat-0.20, adminLng-0.10]).addTo(map).bindPopup('Rina - Sigra - Online');
+    }, ()=>{}, {enableHighAccuracy:true});
+  }
+</script>
+</body>
+</html>
