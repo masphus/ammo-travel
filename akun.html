@@ -75,9 +75,10 @@
       <button id="tabDaftar" onclick="switchTab('daftar')">Daftar</button>
     </div>
     <div id="formMasuk">
-      <input id="loginNomor" placeholder="Nomor HP - 08123456789" type="tel">
-      <input id="loginPassword" placeholder="Password" type="password">
+      <input id="loginNomor" placeholder="Nomor HP - 08123456789" type="tel" autocomplete="tel">
+      <input id="loginPassword" placeholder="Password" type="password" autocomplete="current-password">
       <button class="btn-gold" onclick="masuk()">Masuk</button>
+      <p id="infoLogin" style="font-size:12px;color:#888;margin-top:8px;text-align:center"></p>
       <div class="divider">atau masuk dengan</div>
       <button class="btn-google" onclick="masukGoogle()"><span>G</span> Lanjutkan dengan Google</button>
     </div>
@@ -173,7 +174,6 @@
     <button onclick="tutupTarikSaldo()" style="width:100%;margin-top:10px;padding:12px;background:#333;color:#fff;border:none;border-radius:12px">Batal</button>
     <p style="font-size:12px;color:#888;margin-top:10px;text-align:center">Permintaan akan diproses. Saldo dipotong setelah proses selesai.</p>
   </div></div>
-
   <div id="modalAntrian" class="modal"><div class="modal-box" style="border-top:2px solid #e8c87a">
     <h3>⏳ Penarikan sedang dalam Proses</h3>
     <p id="teksAntrian" style="font-size:15px;color:#fff;line-height:1.6">Penarikan kamu sedang dalam proses.</p>
@@ -183,14 +183,12 @@
     </div>
     <p style="font-size:12px;color:#888;margin-top:12px;text-align:center;line-height:1.5">Batal untuk Membatalkan Penarikan<br>Lanjut untuk Melanjutkan Proses Penarikan</p>
   </div></div>
-
   <div id="modalGanti" class="modal"><div class="modal-box" style="border-top:2px solid #ff4444">
     <h3>⚠️ Ganti Nominal?</h3>
     <p id="teksGanti" style="font-size:15px;color:#fff;line-height:1.5">Apakah anda yakin akan mengganti Nominal Penarikan sebelumnya?</p>
     <button class="btn-gold" onclick="yaGantiNominal()" style="background:linear-gradient(#ff6b6b,#e30613);color:#fff">Ya, Ganti Nominal</button>
     <button onclick="tutupGanti()" style="width:100%;margin-top:10px;padding:12px;background:#333;color:#fff;border:none;border-radius:12px">Batal - Tetap Yang Lama</button>
   </div></div>
-
   <div id="modalEdit" class="modal"><div class="modal-box">
     <h3 id="modalJudul">Edit</h3>
     <input id="modalInput" placeholder="">
@@ -205,9 +203,8 @@
   // ATURAN: String() untuk text/uuid. Number() HANYA untuk saldo & nominal yang emang bigint.
   // USER: HP, umur 47, mata plus 0.5 -> WAJIB kasih 1 halaman FULL, jangan potongan
   // nomor = no_wa = nomor WA yang sama, cuma beda nama kolom. BUKAN HANTU.
-  // LOGO: Jangan pake gambar Wikimedia, gampang rusak. Pake warna resmi + tulisan, anti rusak.
-  // BAHASA PELANGGAN: Jangan bilang "Admin", "menunggu antrian", "ACC". Bilang "Penarikan sedang dalam Proses".
-  // UANG: Wajib format Rp. 50.000,- jangan 50000. Biar gak salah baca 5 ribu / 50 ribu / 5 juta.
+  // FIX KELUAR SENDIRI: autoRefresh SALDO doang, JANGAN PERNAH nimpa data login di HP.
+  // Data login (password) cuma boleh diganti pas login / daftar / edit password, bukan pas refresh saldo.
   // ===============================================
   const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
   const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
@@ -220,19 +217,13 @@
   let dataGanti = null;
   let idAntrianAktif = null;
   const fotoCewek = ['https://randomuser.me/api/portraits/women/44.jpg','https://randomuser.me/api/portraits/women/68.jpg','https://randomuser.me/api/portraits/women/21.jpg','https://randomuser.me/api/portraits/women/26.jpg','https://randomuser.me/api/portraits/women/79.jpg','https://randomuser.me/api/portraits/women/28.jpg','https://randomuser.me/api/portraits/women/90.jpg','https://randomuser.me/api/portraits/women/15.jpg','https://randomuser.me/api/portraits/women/47.jpg','https://randomuser.me/api/portraits/women/3.jpg','https://randomuser.me/api/portraits/women/25.jpg','https://randomuser.me/api/portraits/women/56.jpg','https://randomuser.me/api/portraits/women/71.jpg','https://randomuser.me/api/portraits/women/82.jpg','https://randomuser.me/api/portraits/women/9.jpg'];
-  const fotoCowok = ['https://randomuser.me/api/portraits/men/32.jpg','https://randomuser.me/api/portraits/men/75.jpg','https://randomuser.me/api/portraits/men/11.jpg','https://randomuser.me/api/portraits/men/22.jpg','https://randomuser.me/api/portraits/men/36.jpg','https://randomuser.me/api/portraits/men/52.jpg','https://randomuser.me/api/portraits/men/85.jpg','https://randomuser.me/api/portraits/men/15.jpg','https://randomuser.me/api/portraits/men/45.jpg','https://randomuser.me/api/portraits/men/67.jpg','https://randomuser.me/api/portraits/men/29.jpg','https://randomuser.me/api/portraits/men/41.jpg','https://randomuser.me/api/portraits/men/18.jpg','https://randomuser.me/api/portraits/men/60.jpg','https://randomuser.me/api/portraits/men/3.jpg','https://randomuser.me/api/portraits/men/76.jpg','https://randomuser.me/api/portraits/men/9.jpg','https://randomuser.me/api/portraits/men/97.jpg','https://randomuser.me/api/portraits/men/50.jpg','https://randomuser.me/api/portraits/men/64.jpg'];
+  const fotoCowok = ['https://randomuser.me/api/portraits/men/32.jpg','https://randomuser.me/api/portraits/men/75.jpg','https://randomuser.me/api/portraits/men/11.jpg','https://randomuser.me/api/portraits/men/22.jpg','https://randomuser.me/api/portraits/men/36.jpg','https://randomuser.me/api/portraits/men/52.jpg','https://randomuser.me/api/portraits/men/85.jpg','https://randomuser.me/api/portraits/men/15.jpg','https://randomuser.me/api/portraits/men/45.jpg','https://randomuser.me/api/portraits/men/67.jpg','https://randomuser.me/api/portraits/men/29.jpg','https://randomuser.me/api/portraits/men/41.jpg','https://randomuser.me/api/portraits/men/18.jpg','https://randomuser.me/api/portraits/men/60.jpg','https://randomuser.me/api/portraits/men/3.jpg','https://randomuser.me.api/portraits/men/76.jpg','https://randomuser.me/api/portraits/men/9.jpg','https://randomuser.me/api/portraits/men/97.jpg','https://randomuser.me/api/portraits/men/50.jpg','https://randomuser.me/api/portraits/men/64.jpg'];
   function toast(msg, err){ let t=document.getElementById('toast'); t.innerText=msg; t.className=err?'err':''; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3500); }
   function bersihNomor(n){ n=String(n||'').replace(/[^0-9]/g,''); if(n.startsWith('62')) n='0'+n.slice(2); return n; }
   function validNomor(n){ if(n.length<10||n.length>13){ toast('Nomor HP harus 10-13 angka bro!',true); return false; } if(!n.startsWith('08')){ toast('Nomor HP harus diawali 08 bro!',true); return false; } return true; }
   function switchTab(mode){ document.getElementById('tabMasuk').className=mode==='masuk'?'on':''; document.getElementById('tabDaftar').className=mode==='daftar'?'on':''; document.getElementById('formMasuk').style.display=mode==='masuk'?'block':'none'; document.getElementById('formDaftar').style.display=mode==='daftar'?'block':'none'; }
-  // FORMAT UANG RESMI: Rp. 50.000,- jangan 50000
   function formatRupiah(n){ return "Rp. " + Number(n||0).toLocaleString('id-ID') + ",-"; }
-  function formatNominalTarik(el){
-    let angka = String(el.value||'').replace(/[^0-9]/g,'');
-    if(!angka){ el.value=''; return; }
-    let num = Number(angka);
-    el.value = "Rp. " + num.toLocaleString('id-ID') + ",-";
-  }
+  function formatNominalTarik(el){ let angka=String(el.value||'').replace(/[^0-9]/g,''); if(!angka){ el.value=''; return; } el.value="Rp. "+Number(angka).toLocaleString('id-ID')+",-"; }
   function formatTanggal(t){ if(!t) return "Bergabung sejak -"; let d=new Date(t); return "Bergabung sejak "+d.toLocaleDateString('id-ID',{month:'short',year:'numeric'}); }
   function gantiAvatar(){ let box=document.getElementById('boxAvatar'); if(box.style.display==='block'){ box.style.display='none'; return; } box.style.display='block'; tampilAvatar('cewek'); }
   function tampilAvatar(tipe){ document.getElementById('btnCewek').className='tab-avatar '+(tipe==='cewek'?'on':'off'); document.getElementById('btnCowok').className='tab-avatar '+(tipe==='cowok'?'on':'off'); document.getElementById('btnSemua').className='tab-avatar '+(tipe==='semua'?'on':'off'); let list=document.getElementById('listAvatar'); list.innerHTML=''; let data=tipe==='cewek'?fotoCewek:tipe==='cowok'?fotoCowok:[...fotoCewek,...fotoCowok]; data.forEach(url=>{ let img=document.createElement('img'); img.src=url; img.style.cssText='width:65px;height:65px;object-fit:cover;border-radius:50%;border:2px solid #d4af5a;cursor:pointer'; img.onclick=()=>pilihAvatar(url); list.appendChild(img); }); }
@@ -246,68 +237,73 @@
   function tutupTarikSaldo(){ document.getElementById('modalTarik').style.display='none'; }
   function pilihMetode(metode,el){ metodeTarik=metode; document.querySelectorAll('.metode-item').forEach(x=>x.classList.remove('pilih')); if(el) el.classList.add('pilih'); }
   function tutupGanti(){ document.getElementById('modalGanti').style.display='none'; dataGanti=null; }
-  async function yaGantiNominal(){
-    if(!dataGanti) return;
-    let nominalBaru = dataGanti.nominal;
-    let { error } = await supabaseClient.from('penarikan').update({ nama: dataGanti.namaGabung, nominal: nominalBaru }).eq('id', dataGanti.idLama);
-    if(error){ toast(error.message,true); return; }
-    document.getElementById('modalGanti').style.display='none';
-    tutupTarikSaldo();
-    dataGanti=null;
-    toast('Nominal Penarikan berhasil diganti jadi ' + formatRupiah(nominalBaru) + ' - Penarikan sedang dalam Proses 🙏');
-  }
-  async function batalkanPenarikan(){
-    if(!idAntrianAktif) return;
-    let { error } = await supabaseClient.from('penarikan').update({ status: 'dibatalkan' }).eq('id', idAntrianAktif);
-    if(error){ toast(error.message,true); return; }
-    document.getElementById('modalAntrian').style.display='none';
-    tutupTarikSaldo();
-    idAntrianAktif=null;
-    toast('Penarikan dibatalkan. Saldo kamu aman, silakan buat penarikan baru kalo mau 🙏');
-  }
-  function lanjutkanPenarikan(){
-    document.getElementById('modalAntrian').style.display='none';
-    tutupTarikSaldo();
-    idAntrianAktif=null;
-    toast('Penarikan sedang dalam Proses, mohon tunggu ya 🙏');
-  }
-  async function kirimTarikSaldo(){
-    if(sedangKirimTarik) return;
-    let user=getUser(); if(!user){ toast('Login dulu ya bro',true); return; }
-    if(!metodeTarik){ toast('Pilih dulu mau ke GOPAY / OVO / DANA / ShopeePay / BCA / BRI / Mandiri',true); return; }
-    let nomorRek=String(document.getElementById('tarikNomor').value||'').trim();
-    let namaPenerima=String(document.getElementById('tarikNama').value||'').trim();
-    let nominal=Number(String(document.getElementById('tarikNominal').value||'').replace(/[^0-9]/g,''))||0;
-    if(!nomorRek){ toast('Isi Nomor / Rekening dulu bro',true); return; }
-    if(!namaPenerima){ toast('Isi Nama Lengkap Penerima dulu bro',true); return; }
-    if(!nominal||nominal<=0){ toast('Isi Nominal Tarik dulu bro',true); return; }
-    if(nominal>Number(user.saldo||0)){ toast('Saldo kamu cuma '+formatRupiah(user.saldo)+', jangan tarik lebih dari itu ya',true); return; }
-    sedangKirimTarik=true;
-    let { data: antrian } = await supabaseClient.from('penarikan').select('*').eq('user_id', String(user.id)).eq('tipe','penumpang').eq('status','menunggu').order('id',{ascending:false}).limit(1).maybeSingle();
-    if(antrian){
-      sedangKirimTarik=false;
-      idAntrianAktif = antrian.id;
-      if(Number(antrian.nominal||0) !== nominal){
-        document.getElementById('teksAntrian').innerHTML = 'Penarikan kamu <b style="color:#e8c87a">' + formatRupiah(antrian.nominal) + '</b> sedang dalam Proses.<br><br>Kamu mau tarik lagi <b style="color:#e8c87a">' + formatRupiah(nominal) + '</b> ke ' + metodeTarik + ' ?<br><br>Kalo mau ganti nominalnya, pencet <b>Batalkan</b> dulu, terus buat penarikan baru. Kalo mau tetep yang lama, pencet <b>Lanjutkan</b>.';
-        document.getElementById('modalAntrian').style.display='flex';
-        return;
+  async function yaGantiNominal(){ if(!dataGanti) return; let nominalBaru=dataGanti.nominal; let {error}=await supabaseClient.from('penarikan').update({nama:dataGanti.namaGabung,nominal:nominalBaru}).eq('id',dataGanti.idLama); if(error){ toast(error.message,true); return; } document.getElementById('modalGanti').style.display='none'; tutupTarikSaldo(); dataGanti=null; toast('Nominal Penarikan berhasil diganti jadi '+formatRupiah(nominalBaru)+' - Penarikan sedang dalam Proses 🙏'); }
+  async function batalkanPenarikan(){ if(!idAntrianAktif) return; let {error}=await supabaseClient.from('penarikan').update({status:'dibatalkan'}).eq('id',idAntrianAktif); if(error){ toast(error.message,true); return; } document.getElementById('modalAntrian').style.display='none'; tutupTarikSaldo(); idAntrianAktif=null; toast('Penarikan dibatalkan. Saldo kamu aman, silakan buat penarikan baru kalo mau 🙏'); }
+  function lanjutkanPenarikan(){ document.getElementById('modalAntrian').style.display='none'; tutupTarikSaldo(); idAntrianAktif=null; toast('Penarikan sedang dalam Proses, mohon tunggu ya 🙏'); }
+  async function kirimTarikSaldo(){ if(sedangKirimTarik) return; let user=getUser(); if(!user){ toast('Login dulu ya bro',true); return; } if(!metodeTarik){ toast('Pilih dulu mau ke GOPAY / OVO / DANA / ShopeePay / BCA / BRI / Mandiri',true); return; } let nomorRek=String(document.getElementById('tarikNomor').value||'').trim(); let namaPenerima=String(document.getElementById('tarikNama').value||'').trim(); let nominal=Number(String(document.getElementById('tarikNominal').value||'').replace(/[^0-9]/g,''))||0; if(!nomorRek){ toast('Isi Nomor / Rekening dulu bro',true); return; } if(!namaPenerima){ toast('Isi Nama Lengkap Penerima dulu bro',true); return; } if(!nominal||nominal<=0){ toast('Isi Nominal Tarik dulu bro',true); return; } if(nominal>Number(user.saldo||0)){ toast('Saldo kamu cuma '+formatRupiah(user.saldo)+', jangan tarik lebih dari itu ya',true); return; } sedangKirimTarik=true; let {data:antrian}=await supabaseClient.from('penarikan').select('*').eq('user_id',String(user.id)).eq('tipe','penumpang').eq('status','menunggu').order('id',{ascending:false}).limit(1).maybeSingle(); if(antrian){ sedangKirimTarik=false; idAntrianAktif=antrian.id; if(Number(antrian.nominal||0)!==nominal){ document.getElementById('teksAntrian').innerHTML='Penarikan kamu <b style="color:#e8c87a">'+formatRupiah(antrian.nominal)+'</b> sedang dalam Proses.<br><br>Kamu mau tarik lagi <b style="color:#e8c87a">'+formatRupiah(nominal)+'</b> ke '+metodeTarik+' ?<br><br>Kalo mau ganti nominalnya, pencet <b>Batalkan</b> dulu, terus buat penarikan baru. Kalo mau tetep yang lama, pencet <b>Lanjutkan</b>.'; document.getElementById('modalAntrian').style.display='flex'; return; } document.getElementById('teksAntrian').innerHTML='<b style="color:#e8c87a">'+formatRupiah(antrian.nominal)+' ke '+(antrian.nama||'').split(' | ')[1]+'</b><br>Penarikan sedang dalam Proses.<br><br>Mohon tunggu ya, jangan tarik 2x.'; document.getElementById('modalAntrian').style.display='flex'; return; } let namaGabung=namaPenerima+' | '+metodeTarik+' | '+nomorRek; let {error}=await supabaseClient.from('penarikan').insert([{tipe:'penumpang',user_id:String(user.id),nama:namaGabung,nominal:nominal,status:'menunggu'}]); sedangKirimTarik=false; if(error){ toast(error.message,true); return; } tutupTarikSaldo(); toast('Tarik Saldo '+formatRupiah(nominal)+' ke '+metodeTarik+' udah dikirim, sedang dalam Proses 🙏'); }
+  async function tampilkan(user){
+    document.getElementById('boxLogin').style.display='none';
+    document.getElementById('boxAkun').style.display='block';
+    document.getElementById('navBawah').style.display='flex';
+    document.getElementById('tampilNama').innerText=user.nama;
+    document.getElementById('tampilNomor').innerText=user.nomor;
+    document.getElementById('tampilSaldo').innerText=formatRupiah(user.saldo);
+    document.getElementById('tampilGabung').innerText=formatTanggal(user.created_at);
+    document.getElementById('tampilGoogle').innerHTML=user.email?user.email+" <span style='color:#22c55e'>✿ Terverifikasi</span>":"Belum ditautkan";
+    let avatarSimpan=localStorage.getItem('ammo_avatar');
+    if(avatarSimpan) document.getElementById('fotoProfil').src=avatarSimpan;
+    try{
+      let {data:fresh}=await supabaseClient.from('penumpang').select('*').eq('id',String(user.id)).maybeSingle();
+      if(fresh && fresh.nomor){
+        // JANGAN nimpa password kalo fresh gak bawa password - gabungin sama yang lama
+        let gabung = { ...user, ...fresh };
+        if(!fresh.password) gabung.password = user.password;
+        if(!fresh.nomor) gabung.nomor = user.nomor;
+        localStorage.setItem('ammo_user', JSON.stringify(gabung));
+        document.getElementById('tampilNama').innerText=gabung.nama;
+        document.getElementById('tampilNomor').innerText=gabung.nomor;
+        document.getElementById('tampilSaldo').innerText=formatRupiah(gabung.saldo);
       }
-      document.getElementById('teksAntrian').innerHTML = '<b style="color:#e8c87a">' + formatRupiah(antrian.nominal) + ' ke ' + (antrian.nama||'').split(' | ')[1] + '</b><br>Penarikan sedang dalam Proses.<br><br>Mohon tunggu ya, jangan tarik 2x.';
-      document.getElementById('modalAntrian').style.display='flex';
-      return;
-    }
-    let namaGabung=namaPenerima+' | '+metodeTarik+' | '+nomorRek;
-    let {error}=await supabaseClient.from('penarikan').insert([{tipe:'penumpang',user_id:String(user.id),nama:namaGabung,nominal:nominal,status:'menunggu'}]);
-    sedangKirimTarik=false;
-    if(error){ toast(error.message,true); return; }
-    tutupTarikSaldo();
-    toast('Tarik Saldo '+formatRupiah(nominal)+' ke '+metodeTarik+' udah dikirim, sedang dalam Proses 🙏');
+    }catch(e){}
+    let {data:book}=await supabaseClient.from('bookings').select('id').eq('penumpang_id',String(user.id));
+    if(book) document.getElementById('tampilBooking').innerText=book.length+" Booking Aktif";
   }
-  async function tampilkan(user){ document.getElementById('boxLogin').style.display='none'; document.getElementById('boxAkun').style.display='block'; document.getElementById('navBawah').style.display='flex'; document.getElementById('tampilNama').innerText=user.nama; document.getElementById('tampilNomor').innerText=user.nomor; document.getElementById('tampilSaldo').innerText=formatRupiah(user.saldo); document.getElementById('tampilGabung').innerText=formatTanggal(user.created_at); document.getElementById('tampilGoogle').innerHTML=user.email?user.email+" <span style='color:#22c55e'>✿ Terverifikasi</span>":"Belum ditautkan"; let avatarSimpan=localStorage.getItem('ammo_avatar'); if(avatarSimpan) document.getElementById('fotoProfil').src=avatarSimpan; try{ let {data:fresh}=await supabaseClient.from('penumpang').select('*').eq('id',String(user.id)).maybeSingle(); if(fresh){ localStorage.setItem('ammo_user',JSON.stringify(fresh)); user=fresh; document.getElementById('tampilNama').innerText=fresh.nama; document.getElementById('tampilNomor').innerText=fresh.nomor; document.getElementById('tampilSaldo').innerText=formatRupiah(fresh.saldo); document.getElementById('tampilGabung').innerText=formatTanggal(fresh.created_at); document.getElementById('tampilGoogle').innerHTML=fresh.email?fresh.email+" <span style='color:#22c55e'>✿ Terverifikasi</span>":"Belum ditautkan"; } }catch(e){} let {data:book}=await supabaseClient.from('bookings').select('id').eq('penumpang_id',String(user.id)); if(book) document.getElementById('tampilBooking').innerText=book.length+" Booking Aktif"; }
-  async function autoRefreshSaldo(){ let user=getUser(); if(!user) return; if(document.getElementById('boxAkun').style.display!=='block') return; try{ let {data:fresh}=await supabaseClient.from('penumpang').select('saldo,nama,nomor').eq('id',String(user.id)).maybeSingle(); if(fresh&&Number(fresh.saldo||0)!==Number(user.saldo||0)){ user.saldo=fresh.saldo; localStorage.setItem('ammo_user',JSON.stringify({...user,saldo:fresh.saldo})); let el=document.getElementById('tampilSaldo'); if(el) el.innerText=formatRupiah(fresh.saldo); let el2=document.getElementById('tarikSaldoInfo'); if(el2) el2.innerText=formatRupiah(fresh.saldo); } }catch(e){} }
+  // FIX: Auto-refresh CUMA ubah angka di layar, JANGAN sentuh localStorage sama sekali
+  async function autoRefreshSaldo(){
+    let user=getUser(); if(!user) return;
+    if(document.getElementById('boxAkun').style.display!=='block') return;
+    try{
+      let {data:fresh}=await supabaseClient.from('penumpang').select('saldo').eq('id',String(user.id)).maybeSingle();
+      if(fresh && Number(fresh.saldo||0)!==Number(user.saldo||0)){
+        // Cuma ubah tampilan, jangan simpan ke localStorage
+        let el=document.getElementById('tampilSaldo'); if(el) el.innerText=formatRupiah(fresh.saldo);
+        let el2=document.getElementById('tarikSaldoInfo'); if(el2) el2.innerText=formatRupiah(fresh.saldo);
+        // Update saldo di memori aja, bukan di localStorage, biar password gak kehapus
+        user.saldo=fresh.saldo;
+      }
+    }catch(e){}
+  }
   setInterval(autoRefreshSaldo,2000);
   function getUser(){ try{ return JSON.parse(localStorage.getItem('ammo_user')); }catch(e){ return null; } }
-  async function masuk(){ let nomor=bersihNomor(document.getElementById('loginNomor').value.trim()); let password=document.getElementById('loginPassword').value.trim(); if(!nomor||!password){ toast('Nomor & Password wajib diisi bro!',true); return; } if(!validNomor(nomor)) return; if(password.length<6){ toast('Password minimal 6 karakter bro!',true); return; } let {data:ada}=await supabaseClient.from('penumpang').select('*').eq('nomor',String(nomor)).maybeSingle(); if(!ada){ toast('Nomor belum terdaftar! Silakan Daftar dulu ya bro',true); switchTab('daftar'); document.getElementById('nomor').value=nomor; return; } if(ada.password!==password){ toast('Password salah bro!',true); return; } localStorage.setItem('ammo_user',JSON.stringify(ada)); tampilkan(ada); toast('Selamat datang kembali, '+ada.nama+'! 👋'); }
+  async function masuk(){
+    let nomorRaw=document.getElementById('loginNomor').value.trim();
+    let nomor=bersihNomor(nomorRaw);
+    let password=document.getElementById('loginPassword').value.trim();
+    document.getElementById('infoLogin').innerText='';
+    if(!nomor||!password){ toast('Nomor & Password wajib diisi bro!',true); return; }
+    if(!validNomor(nomor)) return;
+    if(password.length<6){ toast('Password minimal 6 karakter bro!',true); return; }
+    // Coba 2 format nomor biar gak gagal gara-gara 08 / 62
+    let {data:ada}=await supabaseClient.from('penumpang').select('*').eq('nomor',String(nomor)).maybeSingle();
+    if(!ada){
+      let nomor62='62'+nomor.slice(1);
+      let cek2=await supabaseClient.from('penumpang').select('*').eq('nomor',String(nomor62)).maybeSingle();
+      if(cek2.data) ada=cek2.data;
+    }
+    if(!ada){ toast('Nomor '+nomor+' belum terdaftar! Silakan Daftar dulu ya bro',true); document.getElementById('infoLogin').innerText='Nomor yang kamu ketik: '+nomor+' - belum ketemu di database. Coba cek lagi, mungkin nomornya keubah pas edit tadi?'; switchTab('daftar'); document.getElementById('nomor').value=nomor; return; }
+    if(String(ada.password||'')!==String(password)){ toast('Password salah bro! Coba inget-inget lagi passwordnya',true); document.getElementById('infoLogin').innerText='Nomor '+ada.nomor+' ketemu, tapi passwordnya beda. Nomornya bener, passwordnya yang salah.'; return; }
+    localStorage.setItem('ammo_user',JSON.stringify(ada)); tampilkan(ada); toast('Selamat datang kembali, '+ada.nama+'! 👋');
+  }
   async function daftar(){ let nama=document.getElementById('nama').value.trim(); let nomor=bersihNomor(document.getElementById('nomor').value.trim()); let password=document.getElementById('password').value.trim(); let email=document.getElementById('email').value.trim(); if(!nama||!nomor||!password){ toast('Nama, Nomor & Password wajib diisi!',true); return; } if(nama.length<3){ toast('Nama minimal 3 huruf bro!',true); return; } if(!validNomor(nomor)) return; if(password.length<6){ toast('Password minimal 6 karakter bro!',true); return; } if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ toast('Email salah format bro!',true); return; } let {data:cek}=await supabaseClient.from('penumpang').select('id').eq('nomor',String(nomor)).maybeSingle(); if(cek){ toast('Nomor ini sudah terdaftar! Silakan Masuk aja',true); switchTab('masuk'); return; } let {data:baru,[STRIPPED] supabaseClient.from('penumpang').insert([{nama,nomor,password,email:email||null,saldo:0}]).select().single(); if(error){ toast(error.message,true); return; } localStorage.setItem('ammo_user',JSON.stringify(baru)); tampilkan(baru); toast('Akun berhasil dibuat! Selamat datang '+nama+' 🎉'); }
   async function masukGoogle(){ toast('Login Google lagi kita sambungin ya bro, pakai Nomor HP dulu aja 🙏'); }
   function bukaModal(judul,value,placeholder,tipe){ modeEdit=tipe; document.getElementById('modalJudul').innerText=judul; let inp=document.getElementById('modalInput'); inp.value=value||''; inp.placeholder=placeholder; inp.type=tipe==='password'?'password':'text'; document.getElementById('modalEdit').style.display='flex'; inp.focus(); }
@@ -319,7 +315,7 @@
   async function simpanEdit(){ let val=document.getElementById('modalInput').value.trim(); let user=getUser(); if(!user) return; if(modeEdit==='nama'){ if(val.length<3){ toast('Nama minimal 3 huruf bro!',true); return; } let {error}=await supabaseClient.from('penumpang').update({nama:val}).eq('id',String(user.id)); if(error){ toast(error.message,true); return; } user.nama=val; } if(modeEdit==='nomor'){ val=bersihNomor(val); if(!validNomor(val)) return; let {data:cek}=await supabaseClient.from('penumpang').select('id').eq('nomor',String(val)).maybeSingle(); if(cek&&String(cek.id)!==String(user.id)){ toast('Nomor ini sudah dipakai akun lain!',true); return; } let {error}=await supabaseClient.from('penumpang').update({nomor:val}).eq('id',String(user.id)); if(error){ toast(error.message,true); return; } user.nomor=val; } if(modeEdit==='password'){ if(val.length<6){ toast('Password minimal 6 karakter bro!',true); return; } let {error}=await supabaseClient.from('penumpang').update({password:val}).eq('id',String(user.id)); if(error){ toast(error.message,true); return; } user.password=val; } if(modeEdit==='email'){ if(val&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)){ toast('Email salah format bro!',true); return; } let {error}=await supabaseClient.from('penumpang').update({email:val||null}).eq('id',String(user.id)); if(error){ toast(error.message,true); return; } user.email=val; } localStorage.setItem('ammo_user',JSON.stringify(user)); tutupModal(); tampilkan(user); toast('Berhasil diubah! ✓'); }
   function topup(){ bukaTopup(); }
   function logout(){ localStorage.removeItem('ammo_user'); location.reload(); }
-  const saved=localStorage.getItem('ammo_user'); if(saved){ tampilkan(JSON.parse(saved)); }
+  const saved=localStorage.getItem('ammo_user'); if(saved){ try{ let u=JSON.parse(saved); if(u && u.nomor) tampilkan(u); }catch(e){} }
 </script>
 </body>
 </html>
