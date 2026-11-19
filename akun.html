@@ -40,7 +40,8 @@
   .bottom a{color:#d4af5a;text-decoration:none;text-align:center;font-size:13px;flex:1;cursor:pointer}
   .bottom a b{display:block;font-size:24px;line-height:1;margin-bottom:4px}
   .bottom a.logout{color:#ff6b6b}
-  .bottom a.logout b{color:#ff6b6b}
+  .power-icon{display:inline-block;width:22px;height:22px;border:3px solid #ff6b6b;border-radius:50%;position:relative;vertical-align:middle}
+  .power-icon:after{content:'';position:absolute;left:50%;top:-2px;transform:translateX(-50%);width:3px;height:12px;background:#ff6b6b;border-radius:2px;box-shadow:0 0 0 3px #111}
   #toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);width:calc(100% - 32px);max-width:388px;background:#1a1a1a;border:1px solid #d4af5a;border-left:5px solid #22c55e;color:#fff;padding:14px 16px;border-radius:14px;z-index:999;transition:.35s;box-shadow:0 10px 30px rgba(0,0,0,.6);font-size:14px}
   #toast.show{transform:translateX(-50%) translateY(0)}
   #toast.err{border-left-color:#ef4444;border-color:#ef4444}
@@ -89,10 +90,8 @@
       <input id="nama" placeholder="Nama Lengkap">
       <input id="nomor" placeholder="Nomor HP - 08123456789" type="tel">
       <input id="password" placeholder="Password - minimal 6 karakter" type="password">
-      <input id="email" placeholder="Email Google - nama@gmail.com" type="email">
+      <input id="password2" placeholder="Konfirmasi Password - ketik ulang password" type="password">
       <button type="button" class="btn-gold" onclick="daftar()">Daftar Sekarang</button>
-      <div class="divider">atau daftar dengan</div>
-      <button type="button" class="btn-google" onclick="masukGoogle()"><span>G</span> Daftar dengan Google</button>
     </div>
   </div>
   <div id="boxAkun" style="display:none">
@@ -129,7 +128,7 @@
   </div>
   <div id="navBawah" class="bottom" style="display:none">
     <a href="index.html"><b>🏠</b>Beranda</a>
-    <a class="logout" onclick="logout()"><b>⏻</b>Log Out</a>
+    <a class="logout" onclick="logout()"><b><span class="power-icon"></span></b>Log Out</a>
   </div>
   <div id="modalTopup" class="modal"><div class="modal-box">
     <h3>Top Up Saldo</h3>
@@ -336,15 +335,15 @@
     let nama=document.getElementById('nama').value.trim();
     let nomor=bersihNomor(document.getElementById('nomor').value.trim());
     let password=document.getElementById('password').value.trim();
-    let email=document.getElementById('email').value.trim();
-    if(!nama||!nomor||!password){ toast('Nama, Nomor & Password wajib diisi!',true); return; }
+    let password2=document.getElementById('password2') ? document.getElementById('password2').value.trim() : '';
+    if(!nama||!nomor||!password||!password2){ toast('Nama, Nomor, Password & Konfirmasi Password wajib diisi!',true); return; }
     if(nama.length<3){ toast('Nama minimal 3 huruf bro!',true); return; }
     if(!validNomor(nomor)) return;
     if(password.length<6){ toast('Password minimal 6 karakter bro!',true); return; }
-    if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ toast('Email salah format bro!',true); return; }
+    if(password!==password2){ toast('Password sama Konfirmasi Password beda bro! Ketik ulang yang sama ya',true); return; }
     let cekRes=await supabaseClient.from('penumpang').select('id').eq('nomor',String(nomor)).maybeSingle();
     if(cekRes.data){ toast('Nomor ini sudah terdaftar! Silakan Masuk aja',true); switchTab('masuk'); return; }
-    let res=await supabaseClient.from('penumpang').insert([{nama: nama, nomor: nomor, password: password, email: email||null, saldo: 0}]).select().single();
+    let res=await supabaseClient.from('penumpang').insert([{nama: nama, nomor: nomor, password: password, saldo: 0}]).select().single();
     if(res.error){ toast(res.error.message,true); return; }
     let baru=res.data;
     localStorage.setItem('ammo_user',JSON.stringify(baru));
