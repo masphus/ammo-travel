@@ -131,7 +131,7 @@ let _notifyTimer=null,topupTarget=null,popupDebetId=null;
 // penarikan: id bigint, tipe text, user_id text, nama text, nominal bigint, status text
 // ATURAN: String() untuk semua yang text/uuid. Number() HANYA untuk saldo & nominal yang emang bigint.
 // USER: HP, umur 47, mata plus 0.5 -> WAJIB kasih script 1 halaman FULL, jangan potongan
-// DEBET: KOTAK TIDAK DIRUBAH. Di kartu TIDAK ADA ACC. Klik kartu -> muncul POPUP, ACC baru ada di POPUP
+// DEBET: KOTAK TIDAK DIRUBAH. Di kartu TIDAK ADA ACC. Klik kartu -> POPUP. Di POPUP cuma 2: Nama Penerima (udah termasuk GOPAY|nomor) + Nominal. TIDAK ADA confirm() Chrome lagi.
 // ===============================================
 function asText(v){ return String(v ?? ''); }
 function asSaldo(v){ return Number(v ?? 0)||0; }
@@ -163,11 +163,10 @@ function bukaPopupDebet(id){
   const tipe=asText(p.tipe||'').toLowerCase();
   const judul = tipe==='driver' ? 'Debet Driver' : (tipe==='voucher' ? 'Voucher' : 'Debet Penumpang');
   document.getElementById('debetModalJudul').textContent=judul;
-  const kemana = (p.metode||p.e_wallet||p.bank||'') + (p.nomor||p.no_wa ? ((p.metode||p.e_wallet||p.bank?' | ':'')+esc(p.nomor||p.no_wa)) : '');
+  const namaLengkap = esc(p.nama||'') + (p.metode||p.e_wallet||p.bank ? ' | ' + esc(p.metode||p.e_wallet||p.bank||'') : '') + (p.nomor||p.no_wa ? ' | ' + esc(p.nomor||p.no_wa||'') : '');
   document.getElementById('debetModalIsi').innerHTML =
-    '<small style="color:#ccc">Nama Penerima</small><br><b style="font-size:18px">'+esc(p.nama||'')+'</b><br><br>' +
-    '<small style="color:#ccc">Kemana</small><br><b style="font-size:17px">'+(kemana||'-')+'</b><br><br>' +
-    '<small style="color:#ccc">Berapa</small><br><b style="font-size:20px;color:#ffc107">'+rp(p.nominal)+'</b>';
+    '<small style="color:#ccc">Nama Penerima</small><br><b style="font-size:18px;line-height:1.4;display:block;word-break:break-word">'+namaLengkap+'</b><br>' +
+    '<small style="color:#ccc">Nominal</small><br><b style="font-size:20px;color:#ffc107">'+rp(p.nominal)+'</b>';
   document.getElementById('debetModalTolakWrap').style.display = (tipe==='voucher') ? 'block' : 'none';
   document.getElementById('debetModal').style.display='flex';
 }
@@ -204,7 +203,6 @@ function renderDebet(){
 }
 async function accDebet(id){
   const p=cachePenarikan.find(x=>asSaldo(x.id)===asSaldo(id)); if(!p) return notify('Data penarikan tidak ketemu');
-  if(!confirm('ACC tarik saldo '+p.nama+' sebesar '+rp(p.nominal)+' ? Saldo akan dipotong.')) return;
   const tipe=asText(p.tipe||'').toLowerCase();
   if(tipe==='driver'){
     const target=cacheDrivers.find(d=>asText(d.id)===asText(p.user_id));
@@ -225,7 +223,6 @@ async function accDebet(id){
 }
 async function tolakDebet(id){
   const p=cachePenarikan.find(x=>asSaldo(x.id)===asSaldo(id)); if(!p) return notify('Data tidak ketemu');
-  if(!confirm('Tolak permintaan tarik saldo '+p.nama+' ?')) return;
   await sb.from('penarikan').update({status:'tolak'}).eq('id',id);
   notify('Permintaan '+p.nama+' ditolak');
   loadAll();
