@@ -45,6 +45,14 @@
   #toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);width:calc(100% - 32px);max-width:388px;background:#1a1a1a;border:1px solid #d4af5a;border-left:5px solid #22c55e;color:#fff;padding:14px 16px;border-radius:14px;z-index:999;transition:.35s;box-shadow:0 10px 30px rgba(0,0,0,.6);font-size:14px}
   #toast.show{transform:translateX(-50%) translateY(0)}
   #toast.err{border-left-color:#ef4444;border-color:#ef4444}
+  /* POP-UP SALDO TIDAK CUKUP - TENGAH - HITAM EMAS - KOTAK MELENGKUNG */
+  #popupSaldo{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.9);width:calc(100% - 48px);max-width:340px;background:#0a0a0a;border:1.5px solid #d4af5a;border-radius:20px;padding:28px 20px 26px;text-align:center;z-index:1000;opacity:0;pointer-events:none;transition:.3s;box-shadow:0 0 0 1px #d4af5a,0 0 30px rgba(212,175,90,.45),0 20px 50px rgba(0,0,0,.8)}
+  #popupSaldo.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  #popupSaldo .p-icon{font-size:32px;line-height:1;display:block;text-align:center;margin-bottom:14px;color:#e8c87a}
+  #popupSaldo .p-judul{font-size:21px;font-weight:bold;color:#e8c87a;text-align:center;line-height:1.35}
+  #popupSaldo .p-isi{font-size:15px;color:#fff;text-align:center;margin-top:10px;line-height:1.5}
+  #bgGelap{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;display:none}
+  #bgGelap.show{display:block}
   .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:99;align-items:flex-end;justify-content:center}
   .modal-box{background:#1c1c1c;border-top:2px solid #d4af5a;padding:22px;border-radius:20px 20px 0 0;width:100%;max-width:420px;padding-bottom:30px;max-height:90vh;overflow-y:auto}
   .modal-box h3{margin-bottom:12px;color:#e8c87a;font-size:18px}
@@ -71,6 +79,12 @@
 </head>
 <body>
 <div id="toast"></div>
+<div id="bgGelap"></div>
+<div id="popupSaldo">
+  <span class="p-icon">⚠️</span>
+  <div class="p-judul">Maaf, Saldo<br>Tidak Cukup</div>
+  <div class="p-isi" id="popupSaldoIsi">Saldo kamu Rp. 0,-.</div>
+</div>
 <div class="phone">
   <div id="boxLogin" class="login-card">
     <div class="badge"><span>👑 Ammo Travel</span></div>
@@ -210,6 +224,15 @@
   const fotoCewek = ['https://randomuser.me/api/portraits/women/44.jpg','https://randomuser.me/api/portraits/women/68.jpg','https://randomuser.me/api/portraits/women/21.jpg','https://randomuser.me/api/portraits/women/26.jpg','https://randomuser.me/api/portraits/women/79.jpg','https://randomuser.me/api/portraits/women/28.jpg','https://randomuser.me/api/portraits/women/90.jpg','https://randomuser.me/api/portraits/women/15.jpg','https://randomuser.me/api/portraits/women/47.jpg','https://randomuser.me/api/portraits/women/3.jpg','https://randomuser.me/api/portraits/women/25.jpg','https://randomuser.me/api/portraits/women/56.jpg','https://randomuser.me/api/portraits/women/71.jpg','https://randomuser.me/api/portraits/women/82.jpg','https://randomuser.me/api/portraits/women/9.jpg'];
   const fotoCowok = ['https://randomuser.me/api/portraits/men/32.jpg','https://randomuser.me/api/portraits/men/75.jpg','https://randomuser.me/api/portraits/men/11.jpg','https://randomuser.me/api/portraits/men/22.jpg','https://randomuser.me/api/portraits/men/36.jpg','https://randomuser.me/api/portraits/men/52.jpg','https://randomuser.me/api/portraits/men/85.jpg','https://randomuser.me/api/portraits/men/15.jpg','https://randomuser.me/api/portraits/men/45.jpg','https://randomuser.me/api/portraits/men/67.jpg','https://randomuser.me/api/portraits/men/29.jpg','https://randomuser.me/api/portraits/men/41.jpg','https://randomuser.me/api/portraits/men/18.jpg','https://randomuser.me/api/portraits/men/60.jpg','https://randomuser.me/api/portraits/men/3.jpg','https://randomuser.me/api/portraits/men/76.jpg','https://randomuser.me/api/portraits/men/9.jpg','https://randomuser.me/api/portraits/men/97.jpg','https://randomuser.me/api/portraits/men/50.jpg','https://randomuser.me/api/portraits/men/64.jpg'];
   function toast(msg, err){ let t=document.getElementById('toast'); t.innerText=msg; t.className=err?'err':''; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3500); }
+  function tampilPopupSaldo(saldo){
+    document.getElementById('popupSaldoIsi').innerText='Saldo kamu '+formatRupiah(saldo)+'.';
+    document.getElementById('bgGelap').classList.add('show');
+    document.getElementById('popupSaldo').classList.add('show');
+    setTimeout(()=>{
+      document.getElementById('popupSaldo').classList.remove('show');
+      document.getElementById('bgGelap').classList.remove('show');
+    },3000);
+  }
   function tampilInfo(txt){ let el=document.getElementById('infoLogin'); el.style.display='block'; el.innerText=txt; }
   function bersihNomor(n){ n=String(n||'').replace(/[^0-9]/g,''); if(n.startsWith('62')) n='0'+n.slice(2); return n; }
   function validNomor(n){ if(n.length<10||n.length>13){ toast('Nomor HP harus 10-13 angka bro!',true); return false; } if(!n.startsWith('08')){ toast('Nomor HP harus diawali 08 bro!',true); return false; } return true; }
@@ -243,7 +266,7 @@
     if(!nomorRek){ toast('Isi Nomor / Rekening dulu bro',true); return; }
     if(!namaPenerima){ toast('Isi Nama Lengkap Penerima dulu bro',true); return; }
     if(!nominal||nominal<=0){ toast('Isi Nominal Tarik dulu bro',true); return; }
-    if(nominal>Number(user.saldo||0)){ toast('Saldo kamu cuma '+formatRupiah(user.saldo)+', jangan tarik lebih dari itu ya',true); return; }
+    if(nominal>Number(user.saldo||0)){ tampilPopupSaldo(user.saldo); return; }
     sedangKirimTarik=true;
     let hasil=await supabaseClient.from('penarikan').select('*').eq('user_id',String(user.id)).eq('tipe','penumpang').eq('status','menunggu').order('id',{ascending:false}).limit(1).maybeSingle();
     let antrian=hasil.data;
