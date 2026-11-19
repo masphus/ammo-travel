@@ -10,7 +10,7 @@
   body{font-family:Arial;background:#000;color:#fff;min-height:100vh}
   .phone{max-width:420px;margin:auto;background:#0a0a0a;min-height:100vh;padding:14px 14px 95px;position:relative}
   .badge{text-align:center;margin:4px 0 12px}
-  .badge span{display:inline-block;background:linear-gradient(#e8c87a,#b9974a);color:#3a2a00;padding:8px 22px;border-radius:999px;font-weight:bold;font-size:19px;border:1px solid #ffe9a8}
+  .badge span{display:inline-block;background:linear-gradient(#e8c87a,#b9974a);color:#3a2a00;padding:8px 22px;border-radius:999px;font-weight:bold;font-size:19px;border:1px solid #ffe9a8;cursor:pointer}
   .avatar{text-align:center;cursor:pointer}
   .avatar img{width:110px;height:110px;object-fit:cover;border-radius:50%;border:3px solid #d4af5a}
   .avatar p{font-size:11px;color:#999;margin-top:6px}
@@ -24,6 +24,7 @@
   .row .right{color:#e8c87a;font-weight:bold;font-size:15px;text-align:right}
   .row .arrow{color:#e8c87a;font-size:22px;font-weight:bold}
   .btn-gold{width:100%;padding:14px;background:linear-gradient(#f2d98c,#c9a94f);border:none;border-radius:12px;font-weight:bold;font-size:18px;cursor:pointer;margin-top:4px;color:#000}
+  .btn-home{width:100%;padding:13px;background:#1a1a1a;color:#e8c87a;border:1px solid #d4af5a;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer;display:block;text-align:center;text-decoration:none;margin-bottom:14px}
   .btn-google{width:100%;padding:13px;background:#fff;color:#000;border:none;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
   .btn-google span{width:24px;height:24px;background:#4285F4;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px}
   .divider{display:flex;align-items:center;gap:10px;color:#888;font-size:13px;margin:16px 0}
@@ -86,7 +87,8 @@
 </div>
 <div class="phone">
   <div id="boxLogin" class="login-card">
-    <div class="badge"><span>👑 Ammo Travel</span></div>
+    <div class="badge"><span onclick="location.href='index.html'">👑 Ammo Travel</span></div>
+    <a href="index.html" class="btn-home">🏠 Kembali ke Beranda</a>
     <div class="tabs">
       <button type="button" id="tabMasuk" class="on" onclick="switchTab('masuk')">Masuk</button>
       <button type="button" id="tabDaftar" onclick="switchTab('daftar')">Daftar</button>
@@ -108,7 +110,7 @@
     </div>
   </div>
   <div id="boxAkun" style="display:none">
-    <div class="badge"><span>👑 Member Gold</span></div>
+    <div class="badge"><span onclick="location.href='index.html'">👑 Member Gold</span></div>
     <div class="avatar" onclick="gantiAvatar()">
       <img id="fotoProfil" src="https://randomuser.me/api/portraits/women/44.jpg">
       <p>Klik foto untuk ganti</p>
@@ -139,8 +141,9 @@
       <button type="button" class="btn-gold" onclick="bukaTarikSaldo()" style="background:linear-gradient(#fff,#e8c87a);margin-top:8px">💸 Tarik Saldo</button>
     </div>
   </div>
-  <div id="navBawah" class="bottom" style="display:none">
+  <div id="navBawah" class="bottom">
     <a href="index.html"><b>🏠</b>Beranda</a>
+    <a href="akun.html"><b>👤</b>Akun</a>
     <a class="logout" onclick="logout()"><b><span class="power-icon"></span></b>Log Out</a>
   </div>
   <div id="modalTopup" class="modal"><div class="modal-box">
@@ -288,7 +291,6 @@
   async function tampilkan(user){
     document.getElementById('boxLogin').style.display='none';
     document.getElementById('boxAkun').style.display='block';
-    document.getElementById('navBawah').style.display='flex';
     document.getElementById('tampilNama').innerText=user.nama;
     document.getElementById('tampilNomor').innerText=user.nomor;
     document.getElementById('tampilSaldo').innerText=formatRupiah(user.saldo);
