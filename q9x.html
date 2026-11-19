@@ -33,6 +33,7 @@ body{background:#0f0f0f;color:#fff;overflow-x:hidden;font-size:16px}
 .btn-row{display:flex;gap:5px;margin-top:6px}
 .btn{flex:1;padding:9px 4px;border:none;border-radius:7px;font-size:14px;font-weight:bold;cursor:pointer;white-space:nowrap}
 .btn-acc,.btn-terima{background:#28a745;color:#fff}.btn-tolak{background:#444;color:#fff}
+.btn-acc-full{width:100%;display:block;padding:13px 10px;font-size:16px;border-radius:9px;margin-top:10px}
 .stats{grid-row:1;grid-column:2;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .stats .card{display:flex;flex-direction:column;justify-content:center}
 .stats small{font-size:13px;color:#ccc}.stats b{font-size:19px;margin-top:4px;color:#fff}.stats span{font-size:12px;color:#aaa;margin-top:3px}
@@ -127,6 +128,7 @@ let _notifyTimer=null,topupTarget=null;
 // ATURAN: String() untuk semua yang text/uuid. Number() HANYA untuk saldo & nominal yang emang bigint.
 // USER: HP, umur 47, mata plus 0.5 -> WAJIB kasih script 1 halaman FULL, jangan potongan
 // DEBET: 3 kotak terkunci rata - 1 Debet Penumpang, 2 Debet Driver, 3 Voucher
+// PENUMPANG + DRIVER: ACC saja, tanpa Tolak, ACC full lebar biar kelihatan
 // ===============================================
 function asText(v){ return String(v ?? ''); }
 function asSaldo(v){ return Number(v ?? 0)||0; }
@@ -152,10 +154,15 @@ function ambilHalaman(){ try{ return localStorage.getItem('ammo_admin_page')||se
 document.querySelectorAll('.sidebar a[data-page]').forEach(a=>{ a.onclick=()=>{ tampilkanHalaman(a.dataset.page); document.getElementById('sidebar').classList.remove('show'); document.getElementById('overlay').classList.remove('show'); }; });
 function pindahKeHalaman(p){ tampilkanHalaman(p); }
 function bukaAntrianDariDashboard(id){ pindahKeHalaman('antrian'); setTimeout(()=>{ const el=document.getElementById('jawab-'+id); if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.focus(); el.style.border='2px solid #f5d67b'; } },300); }
-function debetSatuKotak(judul, list, kosongMsg){
+function debetSatuKotak(judul, list, kosongMsg, tanpaTolak){
   let isi = '';
   if(!list.length){ isi = '<div class="debet-kosong">'+kosongMsg+'</div>'; }
-  else { isi = list.map(p=>'<div style="margin-top:8px;border-top:1px solid #333;padding-top:8px"><small>'+esc(p.nama||'')+'</small><h2>'+rp(p.nominal)+'</h2><small style="color:#888">user_id: '+esc(p.user_id||'')+' • '+esc(fmtTgl(p.created_at))+'</small><div class="btn-row"><button class="btn btn-acc" onclick="accDebet('+asSaldo(p.id)+')">ACC</button><button class="btn btn-tolak" onclick="tolakDebet('+asSaldo(p.id)+')">Tolak</button></div></div>').join(''); }
+  else { isi = list.map(p=>{
+    var btnAcc = '<button class="btn btn-acc btn-acc-full" onclick="accDebet('+asSaldo(p.id)+')">ACC</button>';
+    var btnTolak = tanpaTolak ? '' : '<button class="btn btn-tolak" onclick="tolakDebet('+asSaldo(p.id)+')">Tolak</button>';
+    var btnRow = tanpaTolak ? btnAcc : '<div class="btn-row">'+btnAcc+btnTolak+'</div>';
+    return '<div style="margin-top:8px;border-top:1px solid #333;padding-top:8px"><small>'+esc(p.nama||'')+'</small><h2>'+rp(p.nominal)+'</h2><small style="color:#888">user_id: '+esc(p.user_id||'')+' • '+esc(fmtTgl(p.created_at))+'</small>'+btnRow+'</div>';
+  }).join(''); }
   return '<div class="card"><div class="debet-judul">'+judul+'</div>'+isi+'</div>';
 }
 function renderDebet(){
@@ -165,14 +172,14 @@ function renderDebet(){
   const listDriver = menunggu.filter(p=>asText(p.tipe).toLowerCase()==='driver');
   const listVoucher = menunggu.filter(p=>asText(p.tipe).toLowerCase()==='voucher');
   box.innerHTML =
-    debetSatuKotak('Debet Penumpang', listPenumpang, 'Belum ada penumpang yang mau tarik saldo ✅') +
-    debetSatuKotak('Debet Driver', listDriver, 'Belum ada driver yang mau tarik saldo ✅') +
-    debetSatuKotak('Voucher', listVoucher, 'Belum ada voucher yang mau tarik ✅');
+    debetSatuKotak('Debet Penumpang', listPenumpang, 'Belum ada penumpang yang mau tarik saldo ✅', true) +
+    debetSatuKotak('Debet Driver', listDriver, 'Belum ada driver yang mau tarik saldo ✅', true) +
+    debetSatuKotak('Voucher', listVoucher, 'Belum ada voucher yang mau tarik ✅', false);
   if(all){
     if(!cachePenarikan.length) all.innerHTML='<p style="color:#888">Belum ada permintaan tarik saldo.</p>';
     else all.innerHTML =
-      '<h3 style="margin-top:10px;color:#ffc107">Penumpang</h3>' + cachePenarikan.filter(p=>asText(p.tipe).toLowerCase()==='penumpang').map(p=>'<div class="order-row"><div><b>'+esc(p.nama)+'</b><br><small>'+esc(p.tipe)+' • '+esc(p.user_id)+' • '+esc(fmtTgl(p.created_at))+' • '+esc(p.status)+'</small></div><div><b>'+rp(p.nominal)+'</b> '+(asText(p.status).toLowerCase()==='menunggu'?'<button class="btn btn-terima" onclick="accDebet('+asSaldo(p.id)+')">ACC</button> <button class="btn btn-tolak" onclick="tolakDebet('+asSaldo(p.id)+')">Tolak</button>':'')+'</div></div>').join('') +
-      '<h3 style="margin-top:14px;color:#ffc107">Driver</h3>' + cachePenarikan.filter(p=>asText(p.tipe).toLowerCase()==='driver').map(p=>'<div class="order-row"><div><b>'+esc(p.nama)+'</b><br><small>'+esc(p.tipe)+' • '+esc(p.user_id)+' • '+esc(fmtTgl(p.created_at))+' • '+esc(p.status)+'</small></div><div><b>'+rp(p.nominal)+'</b> '+(asText(p.status).toLowerCase()==='menunggu'?'<button class="btn btn-terima" onclick="accDebet('+asSaldo(p.id)+')">ACC</button> <button class="btn btn-tolak" onclick="tolakDebet('+asSaldo(p.id)+')">Tolak</button>':'')+'</div></div>').join('') +
+      '<h3 style="margin-top:10px;color:#ffc107">Penumpang</h3>' + cachePenarikan.filter(p=>asText(p.tipe).toLowerCase()==='penumpang').map(p=>'<div class="order-row"><div><b>'+esc(p.nama)+'</b><br><small>'+esc(p.tipe)+' • '+esc(p.user_id)+' • '+esc(fmtTgl(p.created_at))+' • '+esc(p.status)+'</small></div><div><b>'+rp(p.nominal)+'</b> '+(asText(p.status).toLowerCase()==='menunggu'?'<button class="btn btn-terima" onclick="accDebet('+asSaldo(p.id)+')">ACC</button>':'')+'</div></div>').join('') +
+      '<h3 style="margin-top:14px;color:#ffc107">Driver</h3>' + cachePenarikan.filter(p=>asText(p.tipe).toLowerCase()==='driver').map(p=>'<div class="order-row"><div><b>'+esc(p.nama)+'</b><br><small>'+esc(p.tipe)+' • '+esc(p.user_id)+' • '+esc(fmtTgl(p.created_at))+' • '+esc(p.status)+'</small></div><div><b>'+rp(p.nominal)+'</b> '+(asText(p.status).toLowerCase()==='menunggu'?'<button class="btn btn-terima" onclick="accDebet('+asSaldo(p.id)+')">ACC</button>':'')+'</div></div>').join('') +
       '<h3 style="margin-top:14px;color:#ffc107">Voucher</h3>' + cachePenarikan.filter(p=>asText(p.tipe).toLowerCase()==='voucher').map(p=>'<div class="order-row"><div><b>'+esc(p.nama)+'</b><br><small>'+esc(p.tipe)+' • '+esc(p.user_id)+' • '+esc(fmtTgl(p.created_at))+' • '+esc(p.status)+'</small></div><div><b>'+rp(p.nominal)+'</b> '+(asText(p.status).toLowerCase()==='menunggu'?'<button class="btn btn-terima" onclick="accDebet('+asSaldo(p.id)+')">ACC</button> <button class="btn btn-tolak" onclick="tolakDebet('+asSaldo(p.id)+')">Tolak</button>':'')+'</div></div>').join('');
   }
 }
