@@ -135,10 +135,10 @@ function tglAntrian(a){ return a.waktu||a.created_at||''; }
 function namaBooking(o){ return o.nama_penumpang||o.nama||('Penumpang #'+(o.penumpang_id||o.id)); }
 function ruteBooking(o){ const dari=o.dari_lokasi||o.dari||o.pickup||o.asal||'-'; const ke=o.ke_lokasi||o.ke||o.dropoff||o.tujuan||'-'; return dari+' → '+ke; }
 function hargaBooking(o){ return o.total_harga ?? o.total ?? o.harga ?? o.nominal ?? 0; }
-function tampilkanHalaman(page){ const p=page||'dashboard'; document.querySelectorAll('.menu-item').forEach(x=>x.classList.remove('active')); const t=document.querySelector('.menu-item[data-page="'+p+'"]'); if(t) t.classList.add('active'); document.querySelectorAll('.page').forEach(x=>x.classList.remove('active')); const el=document.getElementById('page-'+p); if(el) el.classList.add('active'); else document.getElementById('page-dashboard').classList.add('active'); simpanHalaman(p); }
+function tampilkanHalaman(page){ const p=page||'dashboard'; document.querySelectorAll('.sidebar a').forEach(x=>x.classList.remove('active')); const t=document.querySelector('.sidebar a[data-page="'+p+'"]'); if(t) t.classList.add('active'); document.querySelectorAll('.page').forEach(x=>x.classList.remove('active')); const el=document.getElementById('page-'+p); if(el) el.classList.add('active'); else document.getElementById('page-dashboard').classList.add('active'); simpanHalaman(p); }
 function simpanHalaman(p){ try{ localStorage.setItem('ammo_admin_page',p); sessionStorage.setItem('ammo_admin_page',p); }catch(e){} }
 function ambilHalaman(){ try{ return localStorage.getItem('ammo_admin_page')||sessionStorage.getItem('ammo_admin_page')||'dashboard'; }catch(e){ return 'dashboard'; } }
-document.querySelectorAll('.menu-item').forEach(a=>{ a.onclick=()=>{ tampilkanHalaman(a.dataset.page); }; });
+document.querySelectorAll('.sidebar a[data-page]').forEach(a=>{ a.onclick=()=>{ tampilkanHalaman(a.dataset.page); document.getElementById('sidebar').classList.remove('show'); document.getElementById('overlay').classList.remove('show'); }; });
 function pindahKeHalaman(p){ tampilkanHalaman(p); }
 function bukaAntrianDariDashboard(id){ pindahKeHalaman('antrian'); setTimeout(()=>{ const el=document.getElementById('jawab-'+id); if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.focus(); el.style.border='2px solid #f5d67b'; } },300); }
 async function doLogout(){ try{ localStorage.setItem('ammo_admin_logout_time',String(Date.now())); sessionStorage.setItem('ammo_admin_logout_time',String(Date.now())); localStorage.removeItem('ammo_admin_token'); sessionStorage.removeItem('ammo_admin_token'); localStorage.removeItem('ammo_role'); localStorage.removeItem('ammo_admin_email'); localStorage.removeItem('ammo_admin_nama'); localStorage.removeItem('ammo_driver_token'); localStorage.removeItem('ammo_admin_google_ok'); localStorage.removeItem('ammo_admin_page'); sessionStorage.removeItem('ammo_admin_page'); }catch(e){} try{ await sb.auth.signOut(); }catch(e){} currentAdmin=null; googleSudahDicek=false; try{ document.getElementById('googleGate').style.display='none'; }catch(e){} lemparKeIndex(); }
@@ -181,8 +181,6 @@ async function simpanSaldoKeDB(tipe,id,saldoBaru){ var tabel=tipe==='driver'?'dr
 async function catatRiwayatTopUp(tipe,targetId,targetNama,nominal,sebelum,sesudah){ try{ await sb.from('topup_riwayat').insert([{tipe:tipe,target_id:String(targetId),target_nama:targetNama,nominal:nominal,saldo_sebelum:sebelum,saldo_sesudah:sesudah,admin_nama:(currentAdmin&&(currentAdmin.nama||currentAdmin.email))||'Admin'}]); }catch(e){} }
 async function simpanTopUp(){ if(!topupTarget) return; var nominal=Number(String(document.getElementById('topupNominal').value||'').replace(/[^0-9]/g,'')); if(!nominal||nominal<=0){ notify('Isi nominal dulu bro'); return; } var sesudah=topupTarget.sebelum+nominal; var ok=await simpanSaldoKeDB(topupTarget.tipe,topupTarget.id,sesudah); if(!ok){ notify('Gagal simpan! Jalanin SQL saldo dulu di Supabase'); return; } await catatRiwayatTopUp(topupTarget.tipe,topupTarget.id,topupTarget.nama,nominal,topupTarget.sebelum,sesudah); var arr=topupTarget.tipe==='driver'?cacheDrivers:cachePenumpang; var d=arr.find(function(x){ return String(x.id)===String(topupTarget.id); }); if(d){ d.saldo=sesudah; d.saldo_emas=sesudah; d.saldo_voucher=sesudah; } tutupTopUp(); notify('Berhasil! Saldo '+topupTarget.nama+' jadi '+rp(sesudah)); try{ loadAll(); }catch(e){} }
 async function kurangiSaldoCepat(tipe,id){ var d=tipe==='driver'?cacheDrivers.find(function(x){ return String(x.id)===String(id); }):cachePenumpang.find(function(x){ return String(x.id)===String(id); }); if(!d) return; var nominal=Number(prompt('Kurangi saldo '+(d.nama||'')+'\nSaldo sekarang: '+rp(getSaldoObj(d))+'\nMau kurangi berapa?','10000')||0); if(!nominal||nominal<=0) return; if(!confirm('Kurangi saldo '+(d.nama||'')+' sebesar '+rp(nominal)+' ?')) return; var sebelum=getSaldoObj(d); var sesudah=Math.max(0,sebelum-nominal); var ok=await simpanSaldoKeDB(tipe,d.id,sesudah); if(!ok){ notify('Gagal, jalanin SQL saldo dulu ya'); return; } await catatRiwayatTopUp(tipe,d.id,d.nama,-nominal,sebelum,sesudah); d.saldo=sesudah; d.saldo_emas=sesudah; d.saldo_voucher=sesudah; notify('Saldo dikurangi jadi '+rp(sesudah)); try{ loadAll(); }catch(e){} }
-function fit(){ var w=window.innerWidth,h=window.innerHeight; var stage=document.getElementById('stage'); if(h>w){ var sx=h/1280; var sy=w/800; stage.style.transform='translate(-50%,-50%) rotate(90deg) scale('+sx+','+sy+')'; } else { var sx2=w/1280; var sy2=h/800; stage.style.transform='translate(-50%,-50%) scale('+sx2+','+sy2+')'; } }
-window.addEventListener('resize',fit); fit();
 document.addEventListener('touchmove',function(e){ if(e.target.closest('.page,.chat-list,#chatBox')) return; e.preventDefault(); },{passive:false});
 document.addEventListener('gesturestart',function(e){ e.preventDefault(); });
 document.addEventListener('dblclick',function(e){ e.preventDefault(); });
@@ -195,16 +193,6 @@ document.getElementById('chatInput').addEventListener('keydown',e=>{ if(e.key===
 cekSesi();
 try{ sb.auth.onAuthStateChange((event,session)=>{ if(event==='SIGNED_IN'&&session&&session.user&&currentAdmin&&!googleSudahDicek){ verifikasiGoogle(currentAdmin); } }); }catch(e){}
 setInterval(()=>{ if(sedangNgetik) return; if(!currentAdmin) return; if(document.getElementById('googleGate').style.display==='flex') return; loadAll(); },30000);
-</script>
-<script>
-/* ADAPTER RUMAH BARU - script asli di atas TIDAK disentuh */
-try{
-  document.querySelectorAll('.sidebar a[data-page]').forEach(a=>a.classList.add('menu-item'));
-  document.querySelectorAll('.sidebar a[data-page]').forEach(a=>{ a.onclick=()=>{ tampilkanHalaman(a.dataset.page); document.getElementById('sidebar').classList.remove('show'); document.getElementById('overlay').classList.remove('show'); }; });
-  window.fit = function(){ var s=document.getElementById('stage'); if(s){ s.style.transform='none'; } };
-  var st=document.getElementById('stage'); if(st){ st.style.transform='none'; }
-  if(screen.orientation && screen.orientation.lock){ screen.orientation.lock('landscape').catch(()=>{}); }
-}catch(e){}
 </script>
 </body>
 </html>
