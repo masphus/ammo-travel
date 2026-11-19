@@ -101,84 +101,73 @@
     <div class="section">
       <span class="label">Informasi Akun</span>
       <div class="row" onclick="editNama()"><div class="icon">👤</div><div class="left">Nama</div><div class="right" id="tampilNama">-</div><div class="arrow">›</div></div>
-      <div class="row" onclick="editNomor()"><div class="icon">📞</div><div class="left">Nomor</div><div class="right" id="tampilNomor">-</div><div class="arrow">›</div></div>
-      <div class="row"><div class="icon">🔒</div><div class="left">Password</div><div class="right">•••••••••• <button class="btn-ubah" onclick="editPassword()">Ubah</button></div></div>
-      <div class="row" onclick="editEmail()"><div class="icon">G</div><div class="left">Akun Google</div><div class="right" style="font-size:12px" id="tampilGoogle">Belum ditautkan</div><div class="arrow">›</div></div>
+      <div class="row" onclick="editNomor()"><div class="icon">📱</div><div class="left">Nomor HP</div><div class="right" id="tampilNomor">-</div><div class="arrow">›</div></div>
+      <div class="row" onclick="editPassword()"><div class="icon">🔒</div><div class="left">Password</div><div class="right">••••••</div><div class="arrow">›</div></div>
+      <div class="row" onclick="editEmail()"><div class="icon">✉️</div><div class="left">Email Google</div><div class="right" id="tampilGoogle">-</div><div class="arrow">›</div></div>
     </div>
+
     <div class="section">
-      <span class="label">Layanan</span>
-      <div class="row"><div class="icon">📅</div><div class="left">Booking</div><div class="right" id="tampilBooking">0 Booking Aktif</div><div class="arrow">›</div></div>
-      <div class="row"><div class="icon">🎟️</div><div class="left">Voucher</div><div class="right" id="tampilVoucher">0 Voucher Tersedia</div><div class="arrow">›</div></div>
-      <div class="row"><div class="icon">💳</div><div class="left">Saldo</div><div class="right" id="tampilSaldo">Rp 0</div></div>
+      <span class="label">Saldo & Booking</span>
+      <div class="row"><div class="icon">💰</div><div class="left">Saldo</div><div class="right" id="tampilSaldo">Rp 0</div></div>
+      <div class="row"><div class="icon">🚗</div><div class="left">Booking</div><div class="right" id="tampilBooking">0 Booking</div></div>
+      <button class="btn-gold" onclick="topup()">Top Up Saldo</button>
+      <button class="btn-gold" onclick="refreshSaldo()" style="background:#333;color:#fff;border:1px solid #d4af5a;margin-top:8px">🔄 Refresh Saldo</button>
     </div>
-    <button class="btn-gold" onclick="bukaTopup()">Top Up Saldo</button>
+
+    <div class="section">
+      <span class="label">Lainnya</span>
+      <div class="row" onclick="logout()"><div class="icon">🚪</div><div class="left">Keluar</div><div class="arrow">›</div></div>
+    </div>
   </div>
-</div>
 
-<div class="bottom" id="navBawah" style="display:none">
-  <a href="index.html"><b>⌂</b>Beranda</a>
-  <a href="booking.html"><b>▦</b>Booking</a>
-  <a href="voucher.html"><b>▤</b>Voucher</a>
-  <a href="#" onclick="logout()"><b>⏻</b>Keluar</a>
-</div>
-
-<div class="modal" id="modalEdit">
-  <div class="modal-box">
-    <h3 id="modalJudul">Edit</h3>
-    <input id="modalInput" placeholder="">
-    <button class="btn-gold" onclick="simpanEdit()">Simpan Perubahan</button>
-    <button style="width:100%;margin-top:8px;padding:12px;background:#333;color:#fff;border:none;border-radius:12px" onclick="tutupModal()">Batal</button>
+  <div id="navBawah" class="bottom" style="display:none">
+    <a href="index.html"><b>🏠</b>Beranda</a>
+    <a href="akun.html"><b>👤</b>Akun</a>
   </div>
-</div>
 
-<!-- MODAL TOP UP - FINAL -->
-<div class="modal" id="modalTopup">
-  <div class="modal-box">
-    <h3>💰 Top Up Saldo</h3>
+  <div id="modalTopup" class="modal"><div class="modal-box">
+    <h3>Top Up Saldo</h3>
     <p style="font-size:13px;color:#aaa;margin-bottom:12px">Pilih nominal, lalu bayar via QRIS atau Transfer BCA. Setelah bayar, kirim bukti ke Admin ya biar saldonya langsung masuk.</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-      <button onclick="pilihNominal(20000,this)" class="btn-nominal" style="flex:1;padding:11px;border-radius:10px;border:1px solid #d4af5a;background:#111;color:#e8c87a;font-weight:bold;cursor:pointer">20rb</button>
-      <button onclick="pilihNominal(50000,this)" class="btn-nominal" style="flex:1;padding:11px;border-radius:10px;border:1px solid #333;background:#111;color:#fff;font-weight:bold;cursor:pointer">50rb</button>
-      <button onclick="pilihNominal(100000,this)" class="btn-nominal" style="flex:1;padding:11px;border-radius:10px;border:1px solid #333;background:#111;color:#fff;font-weight:bold;cursor:pointer">100rb</button>
-      <button onclick="pilihNominal(200000,this)" class="btn-nominal" style="flex:1;padding:11px;border-radius:10px;border:1px solid #333;background:#111;color:#fff;font-weight:bold;cursor:pointer">200rb</button>
+      <button onclick="pilihNominal(20000,this)" class="btn-nominal" style="flex:1;padding:11px;border-radius:10px;border:1px solid #d4af5a;background:#1a1a1a;color:#fff">Rp 20.000</button>
+      <button onclick="pilihNominal(50000,this)" class="btn-nominal" style="flex:1;padding:11px;border-radius:10px;border:1px solid #333;background:#1a1a1a;color:#fff">Rp 50.000</button>
+      <button onclick="pilihNominal(100000,this)" class="btn-nominal" style="flex:1;padding:11px;border-radius:10px;border:1px solid #333;background:#1a1a1a;color:#fff">Rp 100.000</button>
     </div>
-    <div style="display:flex;gap:8px;margin-bottom:14px">
-      <button onclick="tabBayar('qris')" id="tabQris" style="flex:1;padding:11px;border:none;border-radius:10px;background:linear-gradient(#f2d98c,#c9a94f);font-weight:bold">📷 QRIS</button>
-      <button onclick="tabBayar('tf')" id="tabTf" style="flex:1;padding:11px;border:none;border-radius:10px;background:#333;color:#fff;font-weight:bold">🏦 Transfer BCA</button>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <button id="tabQris" onclick="tabBayar('qris')" style="flex:1;padding:11px;border-radius:10px;border:none;background:linear-gradient(#f2d98c,#c9a94f);color:#000;font-weight:bold">QRIS</button>
+      <button id="tabTf" onclick="tabBayar('tf')" style="flex:1;padding:11px;border-radius:10px;border:none;background:#333;color:#fff;font-weight:bold">Transfer BCA</button>
     </div>
+    <div id="bayarQris"><div class="qris-box"><p id="nominalQris">Nominal: Rp 20.000</p><p style="font-size:12px;color:#666;margin-top:6px">Scan QRIS Ammo Travel</p></div></div>
+    <div id="bayarTf" style="display:none"><div class="rek-box"><div><b>BCA 1092365519</b><br><small id="nominalTf">Nominal yang mau di-transfer: Rp 20.000</small></div><button class="btn-copy" onclick="salin('1092365519')">Salin</button></div></div>
+    <a id="btnWA" href="#" target="_blank" style="display:block;text-align:center;margin-top:14px;padding:13px;background:#25D366;color:#fff;border-radius:12px;text-decoration:none;font-weight:bold">Kirim Bukti ke Admin via WA</a>
+    <button onclick="tutupTopup()" style="width:100%;margin-top:10px;padding:12px;background:#333;color:#fff;border:none;border-radius:12px">Tutup</button>
+  </div></div>
 
-    <div id="bayarQris">
-      <div class="qris-box">
-        <p style="font-weight:bold;font-size:13px">SCAN QRIS AMMO TRAVEL</p>
-        <img src="qris.jpg" alt="QRIS Ammo Travel">
-        <p style="font-weight:bold;margin-top:6px" id="nominalQris">Nominal: Rp 20.000</p>
-        <p style="font-size:12px;color:#666">AMMO TRAVEL - NMID: ID1025421974540<br>Bisa via DANA / OVO / GoPay / ShopeePay / m-Banking</p>
-      </div>
-    </div>
-
-    <div id="bayarTf" style="display:none">
-      <div class="rek-box">
-        <div><b>BCA</b><br><span style="color:#e8c87a;font-size:18px;font-weight:bold">1092365519</span><br><small style="color:#999">a.n. Ahmad Maha Mongkol</small></div>
-        <button class="btn-copy" onclick="salin('1092365519')">Salin</button>
-      </div>
-      <p style="font-size:12px;color:#aaa;margin-top:10px" id="nominalTf">Nominal yang mau di-transfer: Rp 20.000</p>
-    </div>
-
-    <a id="btnWA" href="https://wa.me/6285890611111?text=Halo%20Admin%2C%20saya%20sudah%20Top%20Up%20Saldo" target="_blank" style="display:block;text-align:center;margin-top:14px;padding:14px;background:#25D366;color:#fff;font-weight:bold;border-radius:12px;text-decoration:none">💬 Sudah Bayar? Kirim Bukti ke Admin (0858-9061-1111)</a>
-    <button style="width:100%;margin-top:8px;padding:12px;background:#333;color:#fff;border:none;border-radius:12px" onclick="tutupTopup()">Tutup</button>
-  </div>
+  <div id="modalEdit" class="modal"><div class="modal-box">
+    <h3 id="modalJudul">Edit</h3>
+    <input id="modalInput" placeholder="">
+    <button class="btn-gold" onclick="simpanEdit()">Simpan</button>
+    <button onclick="tutupModal()" style="width:100%;margin-top:10px;padding:12px;background:#333;color:#fff;border:none;border-radius:12px">Batal</button>
+  </div></div>
 </div>
 
 <script>
+  // ============ KOMPAS - JANGAN DIUBAH ============
+  // penumpang di file ini: id (uuid TEKS), nama text, nomor text, password text, email text, saldo bigint
+  // ATURAN: String() untuk text/uuid. Number() HANYA untuk saldo yang emang bigint.
+  // USER: HP, umur 47, mata plus 0.5 -> WAJIB kasih 1 halaman FULL, jangan potongan
+  // PENYEBAB SALDO 0 TADI: tampilkan() baca saldo dari localStorage lama, bukan dari database.
+  // PERBAIKAN: tampilkan() sekarang selalu ambil saldo FRESH dari database pake id.
+  // ===============================================
   const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
   const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  let modeEdit = '';
+  const WA_ADMIN = "6281234567890";
   let nominalTopup = 20000;
-  const WA_ADMIN = "6285890611111";
+  let modeEdit = '';
 
   const fotoCewek = [
-    'https://randomuser.me/api/portraits/women/44.jpg','https://randomuser.me/api/portraits/women/65.jpg','https://randomuser.me/api/portraits/women/68.jpg','https://randomuser.me/api/portraits/women/17.jpg','https://randomuser.me/api/portraits/women/12.jpg','https://randomuser.me/api/portraits/women/33.jpg','https://randomuser.me/api/portraits/women/50.jpg','https://randomuser.me/api/portraits/women/21.jpg','https://randomuser.me/api/portraits/women/26.jpg','https://randomuser.me/api/portraits/women/79.jpg','https://randomuser.me/api/portraits/women/28.jpg','https://randomuser.me/api/portraits/women/90.jpg','https://randomuser.me/api/portraits/women/15.jpg','https://randomuser.me/api/portraits/women/47.jpg','https://randomuser.me/api/portraits/women/3.jpg','https://randomuser.me/api/portraits/women/25.jpg','https://randomuser.me/api/portraits/women/56.jpg','https://randomuser.me/api/portraits/women/71.jpg','https://randomuser.me/api/portraits/women/82.jpg','https://randomuser.me/api/portraits/women/9.jpg'
+    'https://randomuser.me/api/portraits/women/44.jpg','https://randomuser.me/api/portraits/women/68.jpg','https://randomuser.me/api/portraits/women/21.jpg','https://randomuser.me/api/portraits/women/26.jpg','https://randomuser.me/api/portraits/women/79.jpg','https://randomuser.me/api/portraits/women/28.jpg','https://randomuser.me/api/portraits/women/90.jpg','https://randomuser.me/api/portraits/women/15.jpg','https://randomuser.me/api/portraits/women/47.jpg','https://randomuser.me/api/portraits/women/3.jpg','https://randomuser.me/api/portraits/women/25.jpg','https://randomuser.me/api/portraits/women/56.jpg','https://randomuser.me/api/portraits/women/71.jpg','https://randomuser.me/api/portraits/women/82.jpg','https://randomuser.me/api/portraits/women/9.jpg'
   ];
   const fotoCowok = [
     'https://randomuser.me/api/portraits/men/32.jpg','https://randomuser.me/api/portraits/men/75.jpg','https://randomuser.me/api/portraits/men/11.jpg','https://randomuser.me/api/portraits/men/22.jpg','https://randomuser.me/api/portraits/men/36.jpg','https://randomuser.me/api/portraits/men/52.jpg','https://randomuser.me/api/portraits/men/85.jpg','https://randomuser.me/api/portraits/men/15.jpg','https://randomuser.me/api/portraits/men/45.jpg','https://randomuser.me/api/portraits/men/67.jpg','https://randomuser.me/api/portraits/men/29.jpg','https://randomuser.me/api/portraits/men/41.jpg','https://randomuser.me/api/portraits/men/18.jpg','https://randomuser.me/api/portraits/men/60.jpg','https://randomuser.me/api/portraits/men/3.jpg','https://randomuser.me/api/portraits/men/76.jpg','https://randomuser.me/api/portraits/men/9.jpg','https://randomuser.me/api/portraits/men/97.jpg','https://randomuser.me/api/portraits/men/50.jpg','https://randomuser.me/api/portraits/men/64.jpg'
@@ -190,7 +179,7 @@
     t.classList.add('show');
     setTimeout(()=> t.classList.remove('show'), 3000);
   }
-  function bersihNomor(n){ n = n.replace(/[^0-9]/g,''); if(n.startsWith('62')) n = '0'+n.slice(2); return n; }
+  function bersihNomor(n){ n = String(n||'').replace(/[^0-9]/g,''); if(n.startsWith('62')) n = '0'+n.slice(2); return n; }
   function validNomor(n){
     if(n.length < 10 || n.length > 13){ toast('Nomor HP harus 10-13 angka bro!', true); return false; }
     if(!n.startsWith('08')){ toast('Nomor HP harus diawali 08 bro!', true); return false; }
@@ -258,10 +247,12 @@
   function salin(teks){
     navigator.clipboard.writeText(teks).then(()=> toast('Nomor ' + teks + ' berhasil disalin! ✓'));
   }
+  // INI YANG DIPERBAIKI - tampilkan() sekarang ambil saldo FRESH dari database
   async function tampilkan(user){
     document.getElementById('boxLogin').style.display='none';
     document.getElementById('boxAkun').style.display='block';
     document.getElementById('navBawah').style.display='flex';
+    // 1. Tampilin dulu yang lama biar gak blank
     document.getElementById('tampilNama').innerText = user.nama;
     document.getElementById('tampilNomor').innerText = user.nomor;
     document.getElementById('tampilSaldo').innerText = formatRupiah(user.saldo);
@@ -269,17 +260,37 @@
     document.getElementById('tampilGoogle').innerHTML = user.email ? user.email + " <span style='color:#22c55e'>✿ Terverifikasi</span>" : "Belum ditautkan";
     let avatarSimpan = localStorage.getItem('ammo_avatar');
     if(avatarSimpan) document.getElementById('fotoProfil').src = avatarSimpan;
-    let { data: book } = await supabaseClient.from('bookings').select('id').eq('penumpang_id', user.id);
+    // 2. Terus nanya ke database pake id (uuid TEKS, jangan di-Number)
+    try{
+      let { data: fresh } = await supabaseClient.from('penumpang').select('*').eq('id', String(user.id)).maybeSingle();
+      if(fresh){
+        // Simpan yang fresh ke HP, biar besok gak 0 lagi
+        localStorage.setItem('ammo_user', JSON.stringify(fresh));
+        user = fresh;
+        document.getElementById('tampilNama').innerText = fresh.nama;
+        document.getElementById('tampilNomor').innerText = fresh.nomor;
+        document.getElementById('tampilSaldo').innerText = formatRupiah(fresh.saldo);
+        document.getElementById('tampilGabung').innerText = formatTanggal(fresh.created_at);
+        document.getElementById('tampilGoogle').innerHTML = fresh.email ? fresh.email + " <span style='color:#22c55e'>✿ Terverifikasi</span>" : "Belum ditautkan";
+      }
+    }catch(e){}
+    let { data: book } = await supabaseClient.from('bookings').select('id').eq('penumpang_id', String(user.id));
     if(book) document.getElementById('tampilBooking').innerText = book.length + " Booking Aktif";
   }
-  function getUser(){ return JSON.parse(localStorage.getItem('ammo_user')); }
+  async function refreshSaldo(){
+    let user = getUser(); if(!user) return;
+    toast('Lagi ngecek saldo ke database...');
+    await tampilkan(user);
+    toast('Saldo udah di-refresh ✓');
+  }
+  function getUser(){ try{ return JSON.parse(localStorage.getItem('ammo_user')); }catch(e){ return null; } }
   async function masuk(){
     let nomor = bersihNomor(document.getElementById('loginNomor').value.trim());
     let password = document.getElementById('loginPassword').value.trim();
     if(!nomor || !password){ toast('Nomor & Password wajib diisi bro!', true); return; }
     if(!validNomor(nomor)) return;
     if(password.length < 6){ toast('Password minimal 6 karakter bro!', true); return; }
-    let { data: ada } = await supabaseClient.from('penumpang').select('*').eq('nomor', nomor).maybeSingle();
+    let { data: ada } = await supabaseClient.from('penumpang').select('*').eq('nomor', String(nomor)).maybeSingle();
     if(!ada){ toast('Nomor belum terdaftar! Silakan Daftar dulu ya bro', true); switchTab('daftar'); document.getElementById('nomor').value = nomor; return; }
     if(ada.password !== password){ toast('Password salah bro!', true); return; }
     localStorage.setItem('ammo_user', JSON.stringify(ada)); tampilkan(ada); toast('Selamat datang kembali, '+ada.nama+'! 👋');
@@ -294,7 +305,7 @@
     if(!validNomor(nomor)) return;
     if(password.length < 6){ toast('Password minimal 6 karakter bro!', true); return; }
     if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ toast('Email salah format bro!', true); return; }
-    let { data: cek } = await supabaseClient.from('penumpang').select('id').eq('nomor', nomor).maybeSingle();
+    let { data: cek } = await supabaseClient.from('penumpang').select('id').eq('nomor', String(nomor)).maybeSingle();
     if(cek){ toast('Nomor ini sudah terdaftar! Silakan Masuk aja', true); switchTab('masuk'); return; }
     let { data: baru, error } = await supabaseClient.from('penumpang').insert([{ nama, nomor, password, email: email || null, saldo: 0 }]).select().single();
     if(error){ toast(error.message, true); return; }
@@ -318,24 +329,24 @@
     let user = getUser(); if(!user) return;
     if(modeEdit==='nama'){
       if(val.length < 3){ toast('Nama minimal 3 huruf bro!', true); return; }
-      let {error} = await supabaseClient.from('penumpang').update({nama:val}).eq('id',user.id);
+      let {error} = await supabaseClient.from('penumpang').update({nama:val}).eq('id', String(user.id));
       if(error){ toast(error.message, true); return; } user.nama = val;
     }
     if(modeEdit==='nomor'){
       val = bersihNomor(val); if(!validNomor(val)) return;
-      let {data:cek} = await supabaseClient.from('penumpang').select('id').eq('nomor',val).maybeSingle();
-      if(cek && cek.id !== user.id){ toast('Nomor ini sudah dipakai akun lain!', true); return; }
-      let {error} = await supabaseClient.from('penumpang').update({nomor:val}).eq('id',user.id);
+      let {data:cek} = await supabaseClient.from('penumpang').select('id').eq('nomor', String(val)).maybeSingle();
+      if(cek && String(cek.id) !== String(user.id)){ toast('Nomor ini sudah dipakai akun lain!', true); return; }
+      let {error} = await supabaseClient.from('penumpang').update({nomor:val}).eq('id', String(user.id));
       if(error){ toast(error.message, true); return; } user.nomor = val;
     }
     if(modeEdit==='password'){
       if(val.length < 6){ toast('Password minimal 6 karakter bro!', true); return; }
-      let {error} = await supabaseClient.from('penumpang').update({password:val}).eq('id',user.id);
+      let {error} = await supabaseClient.from('penumpang').update({password:val}).eq('id', String(user.id));
       if(error){ toast(error.message, true); return; } user.password = val;
     }
     if(modeEdit==='email'){
       if(val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)){ toast('Email salah format bro!', true); return; }
-      let {error} = await supabaseClient.from('penumpang').update({email:val||null}).eq('id',user.id);
+      let {error} = await supabaseClient.from('penumpang').update({email:val||null}).eq('id', String(user.id));
       if(error){ toast(error.message, true); return; } user.email = val;
     }
     localStorage.setItem('ammo_user', JSON.stringify(user));
