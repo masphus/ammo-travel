@@ -20,6 +20,10 @@
   .label-besar{font-size:15px;font-weight:800;color:#D4AF37;letter-spacing:0.02em}
   .orang-btn{background:#1A1A1A;border:1px solid #3A3A3A;color:#fff;font-weight:800;padding:10px 0;border-radius:12px;font-size:14px}
   .orang-btn.active{background:linear-gradient(135deg,#F5D67B,#D4AF37,#B8860B);color:#000;border-color:#D4AF37}
+  /* POP UP MEWAH */
+  #popup-mewah{transition:opacity .25s}
+  .popup-card{animation:popupIn .3s ease}
+  @keyframes popupIn{from{transform:scale(.92) translateY(10px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
 </style>
 </head>
 <body class="max-w-[430px] mx-auto min-h-screen bg-black text-white relative pb-28">
@@ -35,25 +39,19 @@
 
 <div id="page-beranda" class="px-5 mt-4">
   <div class="bg-[#111] gold-border rounded-[22px] p-4">
-    
-    <!-- DARI + TUJUAN RAPET, PANAH DI SAMPING -->
     <div class="flex gap-2 items-end">
       <div class="flex-1">
         <label class="label-besar">Dari</label>
         <input id="asal" value="Astana Anyar, Bandung" class="input-gold w-full mt-1.5 rounded-xl px-3 py-3.5 text-[15px] font-semibold">
-        <!-- TUJUAN DINAIKKAN, JARAK CUMA 10px -->
         <label class="label-besar mt-2.5 block">Tujuan</label>
         <input id="tujuan" value="Bandara Soekarno Hatta" class="input-gold w-full mt-1.5 rounded-xl px-3 py-3.5 text-[15px] font-semibold">
       </div>
-      <!-- PANAH ATAS BAWAH DI SAMPING, TENGAH-TENGAH -->
       <button onclick="tukar()" class="w-11 h-11 shrink-0 rounded-full gold-bg text-black font-extrabold flex items-center justify-center text-xl mb-[38px] shadow-lg shadow-yellow-500/30" title="Tukar Dari & Tujuan">↕</button>
     </div>
-
     <div class="grid grid-cols-2 gap-3 mt-4">
       <div><label class="label-besar block">Tanggal</label><input id="tanggal" type="date" class="input-gold w-full mt-1.5 rounded-xl px-3 py-3.5 text-[15px] font-semibold"></div>
       <div><label class="label-besar block">Jarak (KM)</label><input id="km" type="number" value="166" class="input-gold w-full mt-1.5 rounded-xl px-3 py-3.5 text-[15px] font-semibold"></div>
     </div>
-
     <label class="label-besar mt-4 block">Jumlah Orang</label>
     <input type="hidden" id="jumlahOrang" value="1">
     <div class="grid grid-cols-7 gap-1.5 mt-1.5">
@@ -66,18 +64,15 @@
       <button type="button" onclick="setOrang(7,this)" class="orang-btn">7</button>
     </div>
     <p class="text-[12px] text-gray-400 mt-1.5">Dipilih: <b id="orang-label" class="text-white">1 Orang</b> • 1-4 orang mobil kecil, 5-7 mobil besar</p>
-
     <div class="mt-4 bg-[#1A1A1A] gold-border rounded-2xl p-3">
-      <div class="flex justify-between items-center"><p class="font-bold text-sm">🎟️ Pakai Voucher?</p><span id="voucher-count-label" class="text-[12px] gold-bg text-black px-2 py-1 rounded-full font-bold">Login dulu</span></div>
-      <p class="text-[12px] text-gray-400 mt-1">Login dulu untuk pakai voucher.</p>
+      <div class="flex justify-between items-center"><p class="font-bold text-sm">🎟️ Pakai Voucher?</p><span id="voucher-count-label" class="text-[12px] gold-bg text-black px-2 py-1 rounded-full font-bold">Login</span></div>
+      <p class="text-[12px] text-gray-400 mt-1">Silahkan masuk untuk memakai voucher.</p>
       <div class="flex justify-between mt-2 text-sm"><span>Potongan voucher:</span><b id="potongan-label" class="text-green-400">- Rp 0</b></div>
     </div>
-
     <div class="mt-4 bg-[#1A1A1A] gold-border rounded-2xl p-4">
       <div class="flex justify-between font-extrabold text-lg"><span>Total Harga</span><span id="total-bayar" class="gold">Rp 871.500</span></div>
       <p class="text-[12px] text-gray-400 mt-2 leading-relaxed">Bila terdapat Biaya Tol, Parkir, dan Penyeberangan maka akan dibebankan kepada Penumpang</p>
     </div>
-
     <button onclick="pesan()" class="w-full mt-4 gold-bg text-black py-4 rounded-2xl font-extrabold tracking-wide">PESAN SEKARANG →</button>
     <p class="text-center text-[11px] text-gray-500 mt-2">Driver akan konfirmasi via WhatsApp</p>
   </div>
@@ -85,15 +80,15 @@
 
 <div id="page-perjalanan" class="px-5 mt-4 hidden">
   <h2 class="font-extrabold text-lg gold">Riwayat Perjalanan</h2>
-  <p class="text-[12px] text-gray-400">Semua perjalanan kamu dari database</p>
+  <p class="text-[12px] text-gray-400">Semua perjalanan Anda dari database</p>
   <div id="list-perjalanan" class="space-y-3 mt-3"></div>
 </div>
 
 <div id="page-voucher" class="px-5 mt-4 hidden">
-  <h2 class="font-extrabold text-lg gold">Voucher Kamu</h2>
+  <h2 class="font-extrabold text-lg gold">Voucher Anda</h2>
   <p class="text-[12px] text-gray-400">Berlaku selamanya • Maksimal simpan 20 voucher</p>
   <div class="gold-bg text-black rounded-[22px] p-4 mt-3 flex justify-between">
-    <div><p class="text-[12px] opacity-70">Total Voucher</p><p id="total-voucher-label" class="text-2xl font-extrabold">Rp 0</p><p class="text-[12px]" id="voucher-sub">Login dulu</p></div>
+    <div><p class="text-[12px] opacity-70">Total Voucher</p><p id="total-voucher-label" class="text-2xl font-extrabold">Rp 0</p><p class="text-[12px]" id="voucher-sub">Silahkan masuk</p></div>
     <div class="text-3xl">🎟️</div>
   </div>
   <div id="list-voucher" class="space-y-3 mt-3"></div>
@@ -114,7 +109,7 @@
   </div>
   <div id="auth-masuk">
     <h2 class="font-extrabold text-lg gold">Masuk</h2>
-    <p class="text-[12px] text-gray-400">Masuk untuk lihat voucher & riwayat perjalanan</p>
+    <p class="text-[12px] text-gray-400">Masuk untuk melihat voucher & riwayat perjalanan</p>
     <div class="bg-[#111] gold-border rounded-[22px] p-4 mt-3">
       <label class="label-besar">Nomor</label>
       <input id="login-nomor" placeholder="08xxxxxxxxxx" class="input-gold w-full mt-1.5 rounded-xl px-3 py-3.5 text-[15px] font-semibold">
@@ -155,6 +150,18 @@
   <button onclick="showPage('profil',this)" class="flex flex-col items-center gap-1"><span class="tab-icon">👤</span><span class="text-[11px] font-bold">Profil</span></button>
 </div>
 
+<!-- POP UP MEWAH - DIPAKAI SEMUA POP UP -->
+<div id="popup-mewah" class="fixed inset-0 z-[999] hidden items-center justify-center p-5">
+  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="tutupPopup()"></div>
+  <div class="popup-card relative w-full max-w-[340px] bg-[#111] gold-border rounded-[28px] p-6 text-center shadow-2xl shadow-yellow-500/20">
+    <button onclick="tutupPopup()" class="absolute top-4 right-4 w-7 h-7 rounded-full bg-[#1A1A1A] border border-[#333] text-gray-400 text-sm">✕</button>
+    <div id="popup-icon" class="w-16 h-16 mx-auto rounded-full gold-bg flex items-center justify-center text-3xl shadow-lg shadow-yellow-500/40">🔒</div>
+    <h3 id="popup-judul" class="text-[20px] font-extrabold mt-4">Login Diperlukan</h3>
+    <p id="popup-pesan" class="text-[13px] text-gray-400 mt-1.5 leading-relaxed">Silahkan masuk untuk melihat Voucher & Riwayat Perjalanan Anda</p>
+    <div id="popup-tombol" class="mt-5 space-y-2"></div>
+  </div>
+</div>
+
 <script>
 const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
 const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
@@ -162,6 +169,43 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 function fmtRp(n){ return 'Rp ' + Math.round(n||0).toLocaleString('id-ID'); }
 function nomorToEmail(nomor){ let n = (nomor||'').replace(/\D/g,''); if(n.startsWith('0')) n='62'+n.slice(1); return n+'@ammo.travel'; }
 let currentUser = null; let currentProfile = null; let voucherData = []; let perjalananData = []; let jumlahOrang = 1;
+let popupCallback = null;
+
+// ===== POP UP MEWAH - SATU UNTUK SEMUA =====
+function bukaPopup(judul, pesan, icon, tombolList){
+  document.getElementById('popup-judul').innerText = judul;
+  document.getElementById('popup-pesan').innerText = pesan;
+  document.getElementById('popup-icon').innerText = icon || '🔒';
+  let box = document.getElementById('popup-tombol');
+  box.innerHTML = tombolList.map(t=>{
+    if(t.type==='emas') return `<button onclick="popupAksi('${t.aksi}')" class="w-full gold-bg text-black py-3.5 rounded-2xl font-extrabold">${t.label}</button>`;
+    return `<button onclick="popupAksi('${t.aksi}')" class="w-full bg-[#1A1A1A] border border-[#333] text-white py-3.5 rounded-2xl font-bold">${t.label}</button>`;
+  }).join('');
+  let el = document.getElementById('popup-mewah'); el.classList.remove('hidden'); el.classList.add('flex');
+}
+function tutupPopup(){ let el=document.getElementById('popup-mewah'); el.classList.add('hidden'); el.classList.remove('flex'); }
+function popupAksi(aksi){
+  tutupPopup();
+  if(aksi==='ke-profil'){ showPage('profil',null); showAuth('masuk'); }
+  if(aksi==='ke-beranda'){ showPage('beranda', document.querySelector('.fixed button')); }
+  if(aksi==='ke-voucher'){ showPage('voucher',null); }
+}
+function popupLoginDiperlukan(namaHalaman){
+  bukaPopup('Login Diperlukan', 'Silahkan masuk untuk melihat ' + namaHalaman + ' Anda', '🔒', [
+    {label:'MASUK / DAFTAR', type:'emas', aksi:'ke-profil'},
+    {label:'Tutup', type:'gelap', aksi:'ke-beranda'}
+  ]);
+}
+function popupSukses(judul, pesan){
+  bukaPopup(judul, pesan, '✅', [
+    {label:'Lihat Perjalanan', type:'emas', aksi:'ke-voucher'},
+    {label:'Tutup', type:'gelap', aksi:'ke-beranda'}
+  ]);
+}
+function popupError(judul, pesan){
+  bukaPopup(judul, pesan, '⚠️', [{label:'Tutup', type:'emas', aksi:'ke-beranda'}]);
+}
+
 function setOrang(n, el){ jumlahOrang = n; document.getElementById('jumlahOrang').value = n; document.querySelectorAll('.orang-btn').forEach(b=>b.classList.remove('active')); if(el) el.classList.add('active'); document.getElementById('orang-label').innerText = n + ' Orang'; hitung(); }
 function showAuth(mode){ document.getElementById('auth-masuk').classList.toggle('hidden', mode!=='masuk'); document.getElementById('auth-daftar').classList.toggle('hidden', mode!=='daftar'); }
 async function loadProfile(){
@@ -191,22 +235,22 @@ async function loadVoucherDanPerjalanan(){
 }
 async function loginNomor(){
   let nomor = document.getElementById('login-nomor').value.trim(); let pass = document.getElementById('login-password').value; let err = document.getElementById('login-error');
-  if(!nomor || !pass){ err.innerText='Isi Nomor dan Password dulu'; err.classList.remove('hidden'); return; }
+  if(!nomor || !pass){ err.innerText='Isi Nomor dan Password terlebih dahulu'; err.classList.remove('hidden'); return; }
   let {error} = await supabaseClient.auth.signInWithPassword({email: nomorToEmail(nomor), password: pass});
-  if(error){ err.innerText='Nomor / Password salah. Coba lagi / Daftar dulu.'; err.classList.remove('hidden'); return; }
-  await loadProfile(); showPage('beranda', document.querySelector('.fixed button'));
+  if(error){ popupError('Login Gagal', 'Nomor / Password salah. Silahkan coba lagi atau daftar terlebih dahulu.'); return; }
+  await loadProfile(); bukaPopup('Berhasil Masuk', 'Selamat datang kembali di Ammo Travel', '👋', [{label:'Ke Beranda', type:'emas', aksi:'ke-beranda'}]);
 }
 async function registerNomor(){
   let nama = document.getElementById('reg-nama').value.trim(); let nomor = document.getElementById('reg-nomor').value.trim(); let p1 = document.getElementById('reg-password').value; let p2 = document.getElementById('reg-password2').value; let err = document.getElementById('reg-error');
   if(!nama || !nomor || !p1){ err.innerText='Lengkapi Nama, Nomor HP, Password'; err.classList.remove('hidden'); return; }
   if(p1!==p2){ err.innerText='Konfirmasi Password tidak sama'; err.classList.remove('hidden'); return; }
   let {data, error} = await supabaseClient.auth.signUp({email: nomorToEmail(nomor), password: p1, options:{data:{full_name:nama, nomor:nomor}}});
-  if(error){ err.innerText=error.message; err.classList.remove('hidden'); return; }
+  if(error){ popupError('Daftar Gagal', error.message); return; }
   if(data.user){ await supabaseClient.from('profiles').insert([{id:data.user.id, nama:nama, nomor:nomor, email: nomorToEmail(nomor)}]); }
-  alert('Daftar berhasil! Silahkan Masuk'); showAuth('masuk');
+  bukaPopup('Daftar Berhasil', 'Akun Anda berhasil dibuat. Silahkan masuk untuk melanjutkan.', '🎉', [{label:'MASUK', type:'emas', aksi:'ke-profil'}]);
 }
 async function loginGoogle(){ await supabaseClient.auth.signInWithOAuth({provider:'google', options:{redirectTo: window.location.href}}); }
-async function logout(){ await supabaseClient.auth.signOut(); currentUser=null; await loadProfile(); showPage('profil',null); }
+async function logout(){ await supabaseClient.auth.signOut(); currentUser=null; await loadProfile(); bukaPopup('Berhasil Keluar', 'Anda telah keluar dari akun.', '👋', [{label:'Tutup', type:'emas', aksi:'ke-beranda'}]); }
 function tukar(){ let a=document.getElementById('asal').value; let b=document.getElementById('tujuan').value; document.getElementById('asal').value=b; document.getElementById('tujuan').value=a; hitung(); }
 function totalVoucherDipakai(){ return voucherData.filter(v=>v.pakai).reduce((a,b)=>a+b.nominal,0); }
 function hitung(){
@@ -218,28 +262,32 @@ function hitung(){
 }
 function renderPerjalanan(){
   let el=document.getElementById('list-perjalanan');
-  if(!currentUser){ el.innerHTML='<div class="bg-[#111] gold-border rounded-[20px] p-4 text-center"><p class="font-bold">Login dulu bro</p><p class="text-[12px] text-gray-400 mt-1">Riwayat perjalanan cuma bisa dilihat kalau sudah masuk</p><button onclick="showPage(\'profil\',null)" class="gold-bg text-black px-4 py-2 rounded-xl font-bold mt-3">Masuk / Daftar</button></div>'; return; }
+  if(!currentUser){ el.innerHTML='<div class="bg-[#111] gold-border rounded-[20px] p-4 text-center"><p class="font-bold">Silahkan Masuk</p><p class="text-[12px] text-gray-400 mt-1">Riwayat perjalanan hanya dapat dilihat setelah masuk</p><button onclick="showPage(\'profil\',null)" class="gold-bg text-black px-4 py-2 rounded-xl font-bold mt-3">Masuk / Daftar</button></div>'; return; }
   if(!perjalananData.length){ el.innerHTML='<p class="text-gray-400 text-sm">Belum ada riwayat perjalanan</p>'; return; }
   el.innerHTML=perjalananData.map(p=>`<div class="bg-[#111] gold-border rounded-[20px] p-4"><div class="flex justify-between"><span class="text-[12px] bg-green-900 text-green-300 px-2 py-1 rounded-full font-bold">✓ ${p.status}</span><span class="text-[12px] text-gray-400">📅 ${p.tanggal}</span></div><p class="font-bold mt-2">${p.asal} → ${p.tujuan}</p><p class="text-[12px] text-gray-400">${p.km} KM</p><p class="font-extrabold mt-1 gold">${fmtRp(p.harga)}</p></div>`).join('');
 }
 function renderVoucher(){
   let total=voucherData.reduce((a,b)=>a+b.nominal,0); document.getElementById('total-voucher-label').innerText=fmtRp(total);
   let el=document.getElementById('list-voucher');
-  if(!currentUser){ el.innerHTML='<div class="bg-[#111] gold-border rounded-[20px] p-4 text-center"><p class="font-bold">Login dulu bro</p><p class="text-[12px] text-gray-400 mt-1">Voucher cuma bisa dilihat kalau sudah masuk</p><button onclick="showPage(\'profil\',null)" class="gold-bg text-black px-4 py-2 rounded-xl font-bold mt-3">Masuk / Daftar</button></div>'; return; }
+  if(!currentUser){ el.innerHTML='<div class="bg-[#111] gold-border rounded-[20px] p-4 text-center"><p class="font-bold">Silahkan Masuk</p><p class="text-[12px] text-gray-400 mt-1">Voucher hanya dapat dilihat setelah masuk</p><button onclick="showPage(\'profil\',null)" class="gold-bg text-black px-4 py-2 rounded-xl font-bold mt-3">Masuk / Daftar</button></div>'; return; }
   if(!voucherData.length){ el.innerHTML='<p class="text-gray-400 text-sm">Belum ada voucher</p>'; return; }
   el.innerHTML=voucherData.map((v,i)=>`<label class="bg-[#111] gold-border rounded-[20px] p-4 flex gap-3 items-center block cursor-pointer"><input type="checkbox" ${v.pakai?'checked':''} onchange="toggleVoucher(${v.id},this.checked)" class="accent-yellow-500 w-5 h-5"><div class="flex-1"><p class="font-bold">Voucher ${i+1} - ${fmtRp(v.nominal)}</p><p class="text-[12px] text-gray-400">Dari ${v.dari} • ${v.tanggal}</p><p class="text-[11px] text-green-400 font-bold">Berlaku selamanya ♾️</p></div><span class="text-2xl">🎟️</span></label>`).join('');
 }
 async function toggleVoucher(id,checked){ let v=voucherData.find(x=>x.id===id); if(v) v.pakai=checked; if(currentUser) await supabaseClient.from('vouchers').update({pakai:checked}).eq('id',id); renderVoucher(); hitung(); }
 function showPage(page,el){ ['beranda','perjalanan','voucher','profil'].forEach(p=>document.getElementById('page-'+p).classList.add('hidden')); document.getElementById('page-'+page).classList.remove('hidden'); document.querySelectorAll('.fixed button').forEach(b=>b.classList.remove('tab-active')); if(el) el.classList.add('tab-active'); }
-function cekLoginLalu(page,el){ if(!currentUser){ showPage('profil',null); showAuth('masuk'); alert('Masuk dulu bro untuk lihat '+ (page==='voucher'?'Voucher':'Riwayat Perjalanan')); return; } showPage(page,el); }
+function cekLoginLalu(page,el){
+  if(!currentUser){ popupLoginDiperlukan(page==='voucher'?'Voucher':'Riwayat Perjalanan'); return; }
+  showPage(page,el);
+}
 async function pesan(){
-  if(!currentUser){ showPage('profil',null); showAuth('masuk'); alert('Masuk dulu bro sebelum pesan'); return; }
+  if(!currentUser){ popupLoginDiperlukan('Pemesanan'); return; }
   let asal=document.getElementById('asal').value; let tujuan=document.getElementById('tujuan').value;
   let tanggal=document.getElementById('tanggal').value || new Date().toISOString().slice(0,10); let km=parseInt(document.getElementById('km').value)||0;
   let {total, voucherDapat}=hitung();
   await supabaseClient.from('perjalanan').insert([{user_id:currentUser.id, asal, tujuan, km, harga:total, status:'Selesai', jumlah_orang: jumlahOrang}]);
   if(voucherData.length<20) await supabaseClient.from('vouchers').insert([{user_id:currentUser.id, nominal:voucherDapat, dari: asal+' -> '+tujuan, pakai:false}]);
-  await loadVoucherDanPerjalanan(); alert('Pesanan dibuat!\n'+asal+' → '+tujuan+'\n'+jumlahOrang+' Orang\nTotal: '+fmtRp(total));
+  await loadVoucherDanPerjalanan();
+  popupSukses('Pesanan Berhasil', asal+' → '+tujuan+'\n'+jumlahOrang+' Orang\nTotal: '+fmtRp(total));
 }
 document.getElementById('tanggal').value=new Date().toISOString().slice(0,10);
 document.getElementById('km').addEventListener('input',hitung);
