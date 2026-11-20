@@ -8,125 +8,111 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-  body{font-family:'Plus Jakarta Sans',sans-serif;background:#F6F7FB}
-  .tab-active{color:#111827}.tab-active .tab-icon{background:#111827;color:white}
-  .tab-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#EDEEF2;color:#6B7280}
-  .chip-active{background:#111827!important;color:white!important;border-color:#111827!important}
-  .voucher-card{border:1.5px dashed #CBD5E1}
-  input[type=checkbox]{accent-color:#111827;width:20px;height:20px}
-  .voucher{font-size:12px;color:#6B7280}
+  body{font-family:'Plus Jakarta Sans',sans-serif;background:#0A0A0A}
+  .gold{color:#D4AF37}
+  .gold-bg{background:linear-gradient(135deg,#F5D67B,#D4AF37,#B8860B)}
+  .gold-border{border:1px solid #D4AF37}
+  .input-gold{background:#1A1A1A;border:1px solid #3A3A3A;color:white}
+  .input-gold:focus{border-color:#D4AF37;outline:none}
+  .tab-active{color:#D4AF37}.tab-active .tab-icon{background:#D4AF37;color:#000}
+  .tab-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#1A1A1A;color:#D4AF37;border:1px solid #333}
+  ::placeholder{color:#777}
 </style>
 </head>
-<body class="max-w-[430px] mx-auto min-h-screen bg-white relative pb-28">
+<body class="max-w-[430px] mx-auto min-h-screen bg-black text-white relative pb-28">
 
-<div class="px-5 pt-5 flex justify-between items-center">
+<!-- HEADER -->
+<div class="px-5 pt-5 flex justify-between items-start">
   <div>
-    <p class="text-[11px] tracking-widest text-gray-400 font-bold">AMMO TRAVEL</p>
-    <h1 class="text-[22px] font-extrabold leading-tight">Mau jalan kemana<br>hari ini?</h1>
+    <p class="text-[11px] tracking-[0.25em] font-bold gold">AMMO TRAVEL</p>
+    <h1 class="text-[22px] font-extrabold leading-tight mt-1">Mau jalan kemana<br>hari ini?</h1>
   </div>
-  <div class="w-11 h-11 rounded-full bg-black text-white flex items-center justify-center font-bold">A</div>
+  <!-- MOBIL KUNING, BUKAN PESAWAT -->
+  <div class="w-14 h-14 rounded-2xl bg-[#1A1A1A] gold-border flex items-center justify-center text-3xl">🚕</div>
 </div>
 
+<!-- BERANDA -->
 <div id="page-beranda" class="px-5 mt-4">
-  <div class="bg-black text-white rounded-[22px] p-4 flex justify-between items-center">
-    <div>
-      <p class="text-[11px] bg-white/20 w-fit px-2 py-1 rounded-full">VOUCHER SELAMANYA</p>
-      <p class="font-bold mt-2 leading-tight">Tiap jalan dapet voucher<br>5% • Berlaku Selamanya</p>
-      <p class="text-[12px] text-white/70 mt-1">Kita mah murah hati 😎</p>
-    </div>
-    <div class="text-4xl">🚗</div>
-  </div>
+  <div class="bg-[#111] gold-border rounded-[22px] p-4">
+    
+    <label class="text-[12px] font-bold gold">Dari</label>
+    <input id="asal" value="Astana Anyar, Bandung" class="input-gold w-full mt-1 rounded-xl px-3 py-3 text-sm">
 
-  <div class="mt-4 bg-white border rounded-[22px] p-4 shadow-sm">
-    <p class="font-bold">Pesan Perjalanan</p>
-    <label class="text-[12px] font-semibold text-gray-500 mt-3 block">Dari</label>
-    <input id="asal" value="Astana Anyar, Bandung" class="w-full mt-1 border rounded-xl px-3 py-2.5 text-sm outline-none">
-    <label class="text-[12px] font-semibold text-gray-500 mt-3 block">Ke</label>
-    <input id="tujuan" value="Bandara Soekarno Hatta" class="w-full mt-1 border rounded-xl px-3 py-2.5 text-sm outline-none">
-    <div class="grid grid-cols-2 gap-3 mt-3">
+    <!-- TOMBOL 1 AJA - TUKAR -->
+    <div class="flex justify-center my-2">
+      <button onclick="tukar()" class="w-10 h-10 rounded-full gold-bg text-black font-extrabold flex items-center justify-center text-lg shadow-lg shadow-yellow-500/30" title="Tukar">↕</button>
+    </div>
+
+    <label class="text-[12px] font-bold gold">Tujuan</label>
+    <input id="tujuan" value="Bandara Soekarno Hatta" class="input-gold w-full mt-1 rounded-xl px-3 py-3 text-sm">
+
+    <div class="grid grid-cols-2 gap-3 mt-4">
       <div>
-        <label class="text-[12px] font-semibold text-gray-500 block">Tanggal</label>
-        <input id="tanggal" type="date" class="w-full mt-1 border rounded-xl px-3 py-2.5 text-sm">
+        <label class="text-[12px] font-bold gold block">Tanggal</label>
+        <input id="tanggal" type="date" class="input-gold w-full mt-1 rounded-xl px-3 py-3 text-sm">
       </div>
       <div>
-        <label class="text-[12px] font-semibold text-gray-500 block">Jarak (KM)</label>
-        <input id="km" type="number" value="166" class="w-full mt-1 border rounded-xl px-3 py-2.5 text-sm">
+        <label class="text-[12px] font-bold gold block">Jarak (KM)</label>
+        <input id="km" type="number" value="166" class="input-gold w-full mt-1 rounded-xl px-3 py-3 text-sm">
       </div>
     </div>
-    <label class="text-[12px] font-semibold text-gray-500 mt-3 block">Jumlah Orang</label>
-    <input id="jumlahOrang" type="number" value="1" min="1" class="w-full mt-1 border rounded-xl px-3 py-2.5 text-sm">
 
-    <label class="text-[12px] font-semibold text-gray-500 mt-4 block">Layanan</label>
-    <div class="grid grid-cols-2 gap-2 mt-1">
-      <button onclick="setLayanan('reguler')" id="btn-reguler" class="chip-active border rounded-2xl p-3 text-left">
-        <p class="font-bold text-sm">Reguler</p><p class="text-[12px] opacity-70">Rp 5.000 / KM</p><p class="text-[11px] mt-1">Driver terdekat, santai</p>
-      </button>
-      <button onclick="setLayanan('prioritas')" id="btn-prioritas" class="border rounded-2xl p-3 text-left">
-        <p class="font-bold text-sm">Prioritas ⭐</p><p class="text-[12px] opacity-70">Rp 6.500 / KM</p><p class="text-[11px] mt-1">Jemput lebih cepat</p>
-      </button>
-    </div>
+    <label class="text-[12px] font-bold gold mt-4 block">Jumlah Orang</label>
+    <input id="jumlahOrang" type="number" value="1" min="1" class="input-gold w-full mt-1 rounded-xl px-3 py-3 text-sm">
 
-    <div class="mt-4 bg-yellow-50 border border-yellow-200 rounded-2xl p-3">
+    <!-- VOUCHER -->
+    <div class="mt-4 bg-[#1A1A1A] gold-border rounded-2xl p-3">
       <div class="flex justify-between items-center">
         <p class="font-bold text-sm">🎟️ Pakai Voucher?</p>
-        <span id="voucher-count-label" class="text-[12px] bg-black text-white px-2 py-1 rounded-full">3 voucher</span>
+        <span id="voucher-count-label" class="text-[12px] gold-bg text-black px-2 py-1 rounded-full font-bold">3 voucher</span>
       </div>
-      <p class="text-[12px] text-gray-600 mt-1">Centang di halaman Voucher, potongan langsung kepotong disini.</p>
-      <div class="flex justify-between mt-2 text-sm"><span>Potongan voucher:</span><b id="potongan-label" class="text-green-600">- Rp 0</b></div>
+      <p class="text-[12px] text-gray-400 mt-1">Centang di halaman Voucher, potongan langsung kepotong disini.</p>
+      <div class="flex justify-between mt-2 text-sm"><span>Potongan voucher:</span><b id="potongan-label" class="text-green-400">- Rp 0</b></div>
     </div>
 
-    <div class="mt-4 bg-gray-50 rounded-2xl p-3 text-sm space-y-1">
-      <div class="flex justify-between"><span id="rincian-km">166 KM x Rp 5.000</span><span id="rincian-dasar">Rp 830.000</span></div>
-      <div class="flex justify-between text-gray-500"><span>Biaya layanan (5%)</span><span id="rincian-fee">Rp 41.500</span></div>
-      <div class="flex justify-between text-blue-600"><span>Biaya kapal (<span id="rincian-kapal">0x Kapal</span>)</span><span id="rincian-kapal-harga">Rp 0</span></div>
-      <div class="flex justify-between"><span>Voucher dipakai</span><span id="rincian-voucher" class="text-green-600">- Rp 0</span></div>
-      <div class="flex justify-between font-extrabold text-base pt-2 border-t"><span>Total Bayar</span><span id="total-bayar">Rp 871.500</span></div>
-      <p class="text-[11px] text-gray-400">* Belum termasuk tol + parkir, ditanggung penumpang. Voucher yang didapat: <b id="voucher-dapat" class="text-black">Rp 43.575</b></p>
+    <!-- TOTAL SAJA, TANPA RINCIAN -->
+    <div class="mt-4 bg-[#1A1A1A] gold-border rounded-2xl p-4">
+      <div class="flex justify-between font-extrabold text-lg"><span>Total Harga</span><span id="total-bayar" class="gold">Rp 871.500</span></div>
+      <p class="text-[12px] text-gray-400 mt-2 leading-relaxed">Bila terdapat Biaya Tol, Parkir, dan Penyeberangan maka akan dibebankan kepada Penumpang</p>
     </div>
 
-    <div class="mt-3 bg-blue-50 rounded-2xl p-3 text-sm">
-      <p class="font-bold">Preview Rute</p>
-      <p id="prevJarak" class="text-gray-500">~ -</p>
-      <p id="prevDurasi" class="text-gray-500">- menit</p>
-      <div class="voucher" id="prevKapal">Kapal: 0x - Rp 0</div>
-      <div class="voucher" id="prevVoucher">Voucher didapat: -</div>
-      <p id="prevTotal" class="font-extrabold mt-1">Total: Rp 0</p>
-    </div>
-
-    <button onclick="pesan()" class="w-full mt-4 bg-black text-white py-3.5 rounded-2xl font-bold">PESAN SEKARANG →</button>
-    <p class="text-center text-[11px] text-gray-400 mt-2">Driver akan konfirmasi via WhatsApp</p>
+    <button onclick="pesan()" class="w-full mt-4 gold-bg text-black py-4 rounded-2xl font-extrabold tracking-wide">PESAN SEKARANG →</button>
+    <p class="text-center text-[11px] text-gray-500 mt-2">Driver akan konfirmasi via WhatsApp</p>
   </div>
 </div>
 
+<!-- PERJALANAN -->
 <div id="page-perjalanan" class="px-5 mt-4 hidden">
-  <h2 class="font-extrabold text-lg">Perjalanan Kamu</h2>
-  <p class="text-[12px] text-gray-500">Semua perjalanan dari database + ada tanggalnya</p>
+  <h2 class="font-extrabold text-lg gold">Perjalanan Kamu</h2>
   <div id="list-perjalanan" class="space-y-3 mt-3"></div>
 </div>
 
+<!-- VOUCHER -->
 <div id="page-voucher" class="px-5 mt-4 hidden">
-  <h2 class="font-extrabold text-lg">Voucher Kamu</h2>
-  <p class="text-[12px] text-gray-500">Berlaku selamanya • Maksimal simpan 20 voucher</p>
-  <div class="bg-black text-white rounded-[22px] p-4 mt-3 flex justify-between">
-    <div><p class="text-[12px] text-white/70">Total Voucher</p><p id="total-voucher-label" class="text-2xl font-extrabold">Rp 58.000</p><p class="text-[12px]">3 voucher tersimpan</p></div>
+  <h2 class="font-extrabold text-lg gold">Voucher Kamu</h2>
+  <p class="text-[12px] text-gray-400">Berlaku selamanya • Maksimal simpan 20 voucher</p>
+  <div class="gold-bg text-black rounded-[22px] p-4 mt-3 flex justify-between">
+    <div><p class="text-[12px] opacity-70">Total Voucher</p><p id="total-voucher-label" class="text-2xl font-extrabold">Rp 58.000</p><p class="text-[12px]">3 voucher tersimpan</p></div>
     <div class="text-3xl">🎟️</div>
   </div>
   <div id="list-voucher" class="space-y-3 mt-3"></div>
 </div>
 
+<!-- PROFIL -->
 <div id="page-profil" class="px-5 mt-4 hidden">
-  <h2 class="font-extrabold text-lg">Profil</h2>
-  <div class="bg-white border rounded-[22px] p-4 mt-3">
+  <h2 class="font-extrabold text-lg gold">Profil</h2>
+  <div class="bg-[#111] gold-border rounded-[22px] p-4 mt-3">
     <p class="font-bold">Penumpang Ammo</p>
-    <p class="text-sm text-gray-500">Astana Anyar, Bandung • 0812-xxxx-xxxx</p>
+    <p class="text-sm text-gray-400">Astana Anyar, Bandung • 0812-xxxx-xxxx</p>
     <div class="grid grid-cols-2 gap-3 mt-3 text-center">
-      <div class="bg-gray-50 rounded-2xl p-3"><p class="font-extrabold" id="stat-trip">4</p><p class="text-[12px]">Total Trip</p></div>
-      <div class="bg-gray-50 rounded-2xl p-3"><p class="font-extrabold" id="stat-voucher">3</p><p class="text-[12px]">Voucher</p></div>
+      <div class="bg-[#1A1A1A] rounded-2xl p-3"><p class="font-extrabold" id="stat-trip">4</p><p class="text-[12px] text-gray-400">Total Trip</p></div>
+      <div class="bg-[#1A1A1A] rounded-2xl p-3"><p class="font-extrabold" id="stat-voucher">3</p><p class="text-[12px] text-gray-400">Voucher</p></div>
     </div>
   </div>
 </div>
 
-<div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white border-t px-5 py-2 flex justify-between">
+<!-- BOTTOM NAV -->
+<div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-[#0A0A0A] border-t border-[#333] px-5 py-2 flex justify-between">
   <button onclick="showPage('beranda',this)" class="tab-active flex flex-col items-center gap-1"><span class="tab-icon">🏠</span><span class="text-[11px] font-bold">Beranda</span></button>
   <button onclick="showPage('perjalanan',this)" class="flex flex-col items-center gap-1"><span class="tab-icon">🧭</span><span class="text-[11px] font-bold">Perjalanan</span></button>
   <button onclick="showPage('voucher',this)" class="flex flex-col items-center gap-1"><span class="tab-icon">🎟️</span><span class="text-[11px] font-bold">Voucher</span></button>
@@ -134,132 +120,63 @@
 </div>
 
 <script>
-// ===== SUPABASE ASLI LU - UDAH NEMPEL, JANGAN DIEDIT =====
+// ===== SUPABASE LU - SIAP BUAT FITUR NANTI =====
 const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
 const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-window.supabaseClient = supabaseClient;
 
-let layanan = 'reguler';
-let jumlahOrang = 1;
-let kapalAktif = {kapal:0, harga:0};
+function fmtRp(n){ return 'Rp ' + Math.round(n||0).toLocaleString('id-ID'); }
 
-let perjalananData = [
-  {tanggal:'2026-11-10', asal:'Astana Anyar, Bandung', tujuan:'Bandara Soekarno Hatta', km:166, layanan:'Reguler', kapal:0, harga:871500, voucher:43575, status:'Selesai'},
-  {tanggal:'2026-11-05', asal:'Bandung', tujuan:'Lembang', km:20, layanan:'Reguler', kapal:0, harga:105000, voucher:5250, status:'Selesai'},
-];
 let voucherData = [
   {id:1, nominal:10000, dari:'Cianjur -> Bandung', tanggal:'2026-10-15', pakai:false},
   {id:2, nominal:35000, dari:'Jakarta -> Bandung', tanggal:'2026-10-28', pakai:true},
   {id:3, nominal:13000, dari:'Bandung -> Lembang', tanggal:'2026-11-05', pakai:true},
 ];
+let perjalananData = [
+  {tanggal:'2026-11-10', asal:'Astana Anyar, Bandung', tujuan:'Bandara Soekarno Hatta', km:166, harga:871500, status:'Selesai'},
+];
 
-function $(id){ return document.getElementById(id); }
-function fmtRp(n){ return 'Rp ' + Math.round(n||0).toLocaleString('id-ID'); }
-function fmtJarak(km){ return Math.round(km)+' KM'; }
-
-// ===== RUMUS ASLI LU - DARAT =====
-function hitungOngkos(km,orang){let o=orang||jumlahOrang||1;let rate=o>=5?6500:5000;let kmTagih=Math.max(Math.round(km),10);let dasar=kmTagih*rate;let fee=Math.round(dasar*0.05);let total=dasar+fee;let voucher=Math.round(total*0.05);return {kmTagih:kmTagih,ongkos:total,dasar:dasar,fee:fee,voucher:voucher,rate:rate,orang:o};}
-
-// ===== KAPAL - DARI DATABASE harga_kapal =====
-async function cekKapal(tujuanText){
-  try{
-    if(!window.supabaseClient || !tujuanText) return {kapal:0,harga:0};
-    let r = await supabaseClient.from('harga_kapal').select('kunci,kapal,harga');
-    if(r.error || !r.data) return {kapal:0,harga:0};
-    let t = tujuanText.toLowerCase();
-    let sorted = r.data.sort((a,b)=> b.kunci.length - a.kunci.length);
-    let ketemu = sorted.find(row => row.kunci && t.includes(row.kunci.toLowerCase()));
-    return ketemu ? {kapal:ketemu.kapal, harga:Number(ketemu.harga)||0} : {kapal:0,harga:0};
-  }catch(e){ return {kapal:0,harga:0}; }
-}
-function hitungOngkosDenganKapal(km,orang){
-  let h = hitungOngkos(km,orang);
-  h.kapal = kapalAktif.kapal;
-  h.hargaKapal = kapalAktif.harga;
-  h.ongkos = h.ongkos + kapalAktif.harga;
-  h.voucher = Math.round(h.ongkos*0.05);
-  return h;
-}
-
-function setLayanan(v){
-  layanan = v;
-  $('btn-reguler').className = (v==='reguler'?'chip-active ':'')+'border rounded-2xl p-3 text-left';
-  $('btn-prioritas').className = (v==='prioritas'?'chip-active ':'')+'border rounded-2xl p-3 text-left';
+function tukar(){
+  let a = document.getElementById('asal').value;
+  let b = document.getElementById('tujuan').value;
+  document.getElementById('asal').value = b;
+  document.getElementById('tujuan').value = a;
   hitung();
 }
 function totalVoucherDipakai(){ return voucherData.filter(v=>v.pakai).reduce((a,b)=>a+b.nominal,0); }
 
 function hitung(){
-  let km = parseFloat($('km').value)||0;
-  jumlahOrang = parseInt($('jumlahOrang').value)||1;
-  let h = hitungOngkosDenganKapal(km, jumlahOrang);
-  // Kalau layanan prioritas, rate 6500, hitung ulang dengan rate prioritas
-  if(layanan==='prioritas'){
-    let kmTagih = Math.max(Math.round(km),10);
-    let dasar = kmTagih*6500;
-    let fee = Math.round(dasar*0.05);
-    h.dasar = dasar; h.fee = fee; h.rate = 6500;
-    h.ongkos = dasar + fee + kapalAktif.harga;
-    h.voucher = Math.round(h.ongkos*0.05);
-  }
+  let km = parseFloat(document.getElementById('km').value)||0;
+  let kmTagih = Math.max(Math.round(km),10);
+  let dasar = kmTagih * 5000;
+  let fee = Math.round(dasar*0.05);
+  let ongkos = dasar + fee;
   let potongan = totalVoucherDipakai();
-  let totalBayar = Math.max(0, h.ongkos - potongan);
-  $('rincian-km').innerText = h.kmTagih+' KM x '+fmtRp(h.rate);
-  $('rincian-dasar').innerText = fmtRp(h.dasar);
-  $('rincian-fee').innerText = fmtRp(h.fee);
-  $('rincian-kapal').innerText = h.kapal+'x Kapal';
-  $('rincian-kapal-harga').innerText = fmtRp(h.hargaKapal);
-  $('rincian-voucher').innerText = '- '+fmtRp(potongan);
-  $('potongan-label').innerText = '- '+fmtRp(potongan);
-  $('total-bayar').innerText = fmtRp(totalBayar);
-  $('voucher-dapat').innerText = fmtRp(h.voucher);
-  return {finalHarga:h.ongkos, totalBayar, voucherDapat:h.voucher, h};
+  let total = Math.max(0, ongkos - potongan);
+  document.getElementById('potongan-label').innerText = '- '+fmtRp(potongan);
+  document.getElementById('total-bayar').innerText = fmtRp(total);
+  return {total, ongkos, voucherDapat: Math.round(ongkos*0.05)};
 }
-
-// Preview - versi asli lu + kapal
-async function hitungPreview(){
-  let a = $('asal').value;
-  let b = $('tujuan').value;
-  let km = parseFloat($('km').value)||0;
-  kapalAktif = await cekKapal(b);
-  let h = hitungOngkosDenganKapal(km, jumlahOrang);
-  // Sesuaikan prioritas
-  if(layanan==='prioritas'){
-    let kmTagih = Math.max(Math.round(km),10);
-    let dasar = kmTagih*6500; let fee = Math.round(dasar*0.05);
-    h.dasar = dasar; h.fee = fee; h.rate = 6500;
-    h.ongkos = dasar + fee + kapalAktif.harga;
-    h.voucher = Math.round(h.ongkos*0.05);
-  }
-  $('prevJarak').textContent = '~ '+fmtJarak(km);
-  $('prevDurasi').textContent = '- menit';
-  $('prevKapal').textContent = 'Kapal: '+h.kapal+'x - '+fmtRp(h.hargaKapal);
-  $('prevVoucher').textContent = 'Voucher didapat: + '+fmtRp(h.voucher);
-  $('prevTotal').textContent = 'Total: '+fmtRp(h.ongkos);
-  hitung();
-}
-
 function renderPerjalanan(){
-  $('list-perjalanan').innerHTML = perjalananData.map(p=>`
-    <div class="bg-white border rounded-[20px] p-4">
-      <div class="flex justify-between"><span class="text-[12px] bg-green-100 text-green-700 px-2 py-1 rounded-full font-bold">✓ ${p.status}</span><span class="text-[12px] text-gray-400">📅 ${p.tanggal}</span></div>
+  document.getElementById('list-perjalanan').innerHTML = perjalananData.map(p=>`
+    <div class="bg-[#111] gold-border rounded-[20px] p-4">
+      <div class="flex justify-between"><span class="text-[12px] bg-green-900 text-green-300 px-2 py-1 rounded-full font-bold">✓ ${p.status}</span><span class="text-[12px] text-gray-400">📅 ${p.tanggal}</span></div>
       <p class="font-bold mt-2">${p.asal} → ${p.tujuan}</p>
-      <p class="text-[12px] text-gray-500">${p.km} KM • ${p.layanan} • Kapal ${p.kapal||0}x • Voucher ${fmtRp(p.voucher)}</p>
-      <p class="font-extrabold mt-1">${fmtRp(p.harga)}</p>
+      <p class="text-[12px] text-gray-400">${p.km} KM</p>
+      <p class="font-extrabold mt-1 gold">${fmtRp(p.harga)}</p>
     </div>`).join('');
 }
 function renderVoucher(){
   let total = voucherData.reduce((a,b)=>a+b.nominal,0);
-  $('total-voucher-label').innerText = fmtRp(total);
-  $('voucher-count-label').innerText = voucherData.length+' voucher';
-  $('list-voucher').innerHTML = voucherData.map((v,i)=>`
-    <label class="voucher-card bg-white rounded-[20px] p-4 flex gap-3 items-center block cursor-pointer">
-      <input type="checkbox" ${v.pakai?'checked':''} onchange="toggleVoucher(${v.id},this.checked)">
+  document.getElementById('total-voucher-label').innerText = fmtRp(total);
+  document.getElementById('voucher-count-label').innerText = voucherData.length+' voucher';
+  document.getElementById('list-voucher').innerHTML = voucherData.map((v,i)=>`
+    <label class="bg-[#111] gold-border rounded-[20px] p-4 flex gap-3 items-center block cursor-pointer">
+      <input type="checkbox" ${v.pakai?'checked':''} onchange="toggleVoucher(${v.id},this.checked)" class="accent-yellow-500 w-5 h-5">
       <div class="flex-1">
         <p class="font-bold">Voucher ${i+1} - ${fmtRp(v.nominal)}</p>
-        <p class="text-[12px] text-gray-500">Dari ${v.dari} • ${v.tanggal}</p>
-        <p class="text-[11px] text-green-600 font-bold">Berlaku selamanya ♾️</p>
+        <p class="text-[12px] text-gray-400">Dari ${v.dari} • ${v.tanggal}</p>
+        <p class="text-[11px] text-green-400 font-bold">Berlaku selamanya ♾️</p>
       </div>
       <span class="text-2xl">🎟️</span>
     </label>`).join('');
@@ -268,28 +185,26 @@ function toggleVoucher(id,checked){
   let v = voucherData.find(x=>x.id===id); v.pakai=checked; renderVoucher(); hitung();
 }
 function showPage(page,el){
-  ['beranda','perjalanan','voucher','profil'].forEach(p=>$('page-'+p).classList.add('hidden'));
-  $('page-'+page).classList.remove('hidden');
+  ['beranda','perjalanan','voucher','profil'].forEach(p=>document.getElementById('page-'+p).classList.add('hidden'));
+  document.getElementById('page-'+page).classList.remove('hidden');
   document.querySelectorAll('.fixed button').forEach(b=>b.classList.remove('tab-active'));
   if(el) el.classList.add('tab-active');
 }
 function pesan(){
-  let km = $('km').value;
-  let asal = $('asal').value;
-  let tujuan = $('tujuan').value;
-  let tanggal = $('tanggal').value || new Date().toISOString().slice(0,10);
-  let {finalHarga, totalBayar, voucherDapat, h} = hitung();
-  perjalananData.unshift({tanggal, asal, tujuan, km:parseInt(km), layanan:layanan==='reguler'?'Reguler':'Prioritas', kapal:kapalAktif.kapal, harga:totalBayar, voucher:Math.round(voucherDapat), status:'Selesai'});
-  if(voucherData.length<20) voucherData.push({id:Date.now(), nominal:Math.round(voucherDapat), dari: asal+' -> '+tujuan, tanggal, pakai:false});
-  voucherData = voucherData.filter(v=>!v.pakai || v.id===Date.now());
+  let asal = document.getElementById('asal').value;
+  let tujuan = document.getElementById('tujuan').value;
+  let tanggal = document.getElementById('tanggal').value || new Date().toISOString().slice(0,10);
+  let km = parseInt(document.getElementById('km').value)||0;
+  let {total, voucherDapat} = hitung();
+  perjalananData.unshift({tanggal, asal, tujuan, km, harga:total, status:'Selesai'});
+  if(voucherData.length<20) voucherData.push({id:Date.now(), nominal:voucherDapat, dari: asal+' -> '+tujuan, tanggal, pakai:false});
   renderPerjalanan(); renderVoucher(); hitung();
-  alert('Pesanan dibuat!\nTujuan: '+tujuan+'\nKapal: '+kapalAktif.kapal+'x ('+fmtRp(kapalAktif.harga)+')\nTotal: '+fmtRp(totalBayar)+'\nVoucher baru: '+fmtRp(voucherDapat));
+  alert('Pesanan dibuat!\n'+asal+' → '+tujuan+'\nTotal: '+fmtRp(total));
 }
-$('tanggal').value = new Date().toISOString().slice(0,10);
-$('km').addEventListener('input',hitungPreview);
-$('tujuan').addEventListener('input',hitungPreview);
-$('jumlahOrang').addEventListener('input',hitungPreview);
-renderPerjalanan(); renderVoucher(); hitung(); hitungPreview();
+document.getElementById('tanggal').value = new Date().toISOString().slice(0,10);
+document.getElementById('km').addEventListener('input',hitung);
+document.getElementById('jumlahOrang').addEventListener('input',hitung);
+renderPerjalanan(); renderVoucher(); hitung();
 </script>
 </body>
 </html>
