@@ -29,17 +29,13 @@ select.input-gold{appearance:none}
 </head>
 <body class="max-w-[430px] mx-auto min-h-screen bg-black relative pb-32">
 
-<!-- HEADER - LOGO BIASA, TIDAK BISA DIKLIK JADI ADMIN -->
 <div class="px-5 pt-5 flex justify-between items-start">
   <div><p class="text-[11px] tracking-[0.25em] font-bold gold">AMMO TRAVEL</p><h1 class="text-[22px] font-extrabold leading-tight mt-1">Mau jalan kemana<br>hari ini?</h1></div>
   <img src="icon-512.png" class="w-14 h-14 rounded-2xl gold-border object-cover bg-[#1A1A1A]" alt="Ammo Travel">
 </div>
 
-<!-- BERANDA -->
 <div id="page-beranda" class="px-5 mt-4">
   <div class="bg-[#111] gold-border rounded-[22px] p-4">
-
-    <!-- DARI -->
     <label class="label-besar">Dari</label>
     <div class="flex gap-2 mt-1.5">
       <input id="pickup" placeholder="📍 Mendeteksi lokasi GPS..." autocomplete="off" class="input-gold flex-1 rounded-xl px-3 py-3.5 text-[15px] font-semibold">
@@ -48,12 +44,10 @@ select.input-gold{appearance:none}
     <div id="gpsNote" class="text-[11px] text-gray-400 mt-1">📍 Mendeteksi lokasi GPS kamu...</div>
     <div id="saranPick" class="saran-box"></div>
 
-    <!-- PANAH DI TENGAH ANTARA DARI & TUJUAN -->
     <div class="flex justify-center -my-1 relative z-10">
       <button id="swapBtn" onclick="swapLokasi()" class="w-9 h-9 rounded-full gold-bg text-black font-extrabold flex items-center justify-center text-base shadow-lg shadow-yellow-500/30 border-2 border-black" title="Tukar Dari & Tujuan">↕</button>
     </div>
 
-    <!-- TUJUAN -->
     <label class="label-besar block">Tujuan</label>
     <div class="flex gap-2 mt-1.5">
       <input id="dest" placeholder="Tujuan..." autocomplete="off" class="input-gold flex-1 rounded-xl px-3 py-3.5 text-[15px] font-semibold">
@@ -61,13 +55,11 @@ select.input-gold{appearance:none}
     </div>
     <div id="saranDest" class="saran-box"></div>
 
-    <!-- TANGGAL + JAM SEJAJAR -->
     <div class="grid grid-cols-2 gap-3 mt-4">
       <div><label class="label-besar block">Tanggal</label><input id="tanggalBerangkat" type="date" class="input-gold w-full mt-1.5 rounded-xl px-3 py-3.5 text-[15px] font-semibold"></div>
       <div><label class="label-besar block">Jam</label><input id="jamBerangkat" type="time" value="09:00" class="input-gold w-full mt-1.5 rounded-xl px-3 py-3.5 text-[15px] font-semibold"></div>
     </div>
 
-    <!-- JUMLAH ORANG JADI DROPDOWN -->
     <label class="label-besar mt-4 block">Jumlah Orang</label>
     <div class="relative mt-1.5">
       <select id="jumlahOrangSelect" onchange="gantiOrang(this.value)" class="input-gold w-full rounded-xl px-3 py-3.5 text-[15px] font-semibold pr-10">
@@ -82,14 +74,12 @@ select.input-gold{appearance:none}
       <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[#D4AF37] pointer-events-none">▼</span>
     </div>
 
-    <!-- VOUCHER -->
     <div class="mt-4 bg-[#1A1A1A] gold-border rounded-2xl p-3">
       <div class="flex justify-between items-center"><p class="font-bold text-sm">🎟️ Pakai Voucher?</p><span id="voucher-count-label" class="text-[12px] gold-bg text-black px-2 py-1 rounded-full font-bold">Login</span></div>
       <p class="text-[12px] text-gray-400 mt-1">Silahkan masuk untuk memakai voucher.</p>
       <div class="flex justify-between mt-2 text-sm"><span>Potongan voucher:</span><b id="potongan-label" class="text-green-400">- Rp 0</b></div>
     </div>
 
-    <!-- PREVIEW ONGKOS - JARAK OTOMATIS MUNCUL DISINI -->
     <div id="ongkosPreview" class="mt-4 bg-[#1A1A1A] gold-border rounded-2xl p-4" style="display:none">
       <div class="flex justify-between text-sm"><span>Jarak:</span><b id="prevJarak">-</b></div>
       <div class="flex justify-between text-sm mt-1"><span>Estimasi:</span><b id="prevEstimasi">-</b></div>
@@ -103,14 +93,12 @@ select.input-gold{appearance:none}
   </div>
 </div>
 
-<!-- PERJALANAN -->
 <div id="page-perjalanan" class="px-5 mt-4 hidden">
   <h2 class="font-extrabold text-lg gold">Riwayat Perjalanan</h2>
   <p class="text-[12px] text-gray-400">Semua perjalanan Anda dari database</p>
   <div id="list-perjalanan" class="space-y-3 mt-3"></div>
 </div>
 
-<!-- VOUCHER -->
 <div id="page-voucher" class="px-5 mt-4 hidden">
   <h2 class="font-extrabold text-lg gold">Voucher Anda</h2>
   <p class="text-[12px] text-gray-400">Berlaku selamanya • Maksimal simpan 20 voucher</p>
@@ -118,7 +106,6 @@ select.input-gold{appearance:none}
   <div id="list-voucher" class="space-y-3 mt-3"></div>
 </div>
 
-<!-- PROFIL -->
 <div id="page-profil" class="px-5 mt-4 hidden">
   <div id="profil-sudah-masuk" class="hidden">
     <h2 class="font-extrabold text-lg gold">Profil</h2>
@@ -164,7 +151,6 @@ select.input-gold{appearance:none}
   </div>
 </div>
 
-<!-- BOTTOM NAV -->
 <div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-[#0A0A0A] border-t border-[#333] px-5 py-2 flex justify-between z-50">
   <button onclick="showPage('beranda',this)" class="tab-active flex flex-col items-center gap-1"><span class="tab-icon">🏠</span><span class="text-[11px] font-bold">Beranda</span></button>
   <button onclick="cekLoginLalu('perjalanan',this)" class="flex flex-col items-center gap-1"><span class="tab-icon">🧭</span><span class="text-[11px] font-bold">Perjalanan</span></button>
@@ -172,14 +158,12 @@ select.input-gold{appearance:none}
   <button onclick="bukaAkun()" class="flex flex-col items-center gap-1"><span class="tab-icon">👤</span><span class="text-[11px] font-bold">Profil</span></button>
 </div>
 
-<!-- MODAL -->
 <div id="akunModal" class="modal"><div class="popup-card bg-[#111] gold-border rounded-[28px] p-5 w-full max-w-[340px] text-center"><h3 class="font-extrabold text-lg gold">Akun</h3><p class="text-[13px] text-gray-400 mt-1">Masuk dengan Nomor WA atau Google</p><input id="hpAkun" placeholder="08xxxxxxxxxx" class="input-gold w-full mt-3 rounded-xl px-3 py-3"><input id="passAkun" type="password" placeholder="Password" class="input-gold w-full mt-2 rounded-xl px-3 py-3"><button onclick="masukAkun()" class="w-full mt-3 gold-bg text-black py-3 rounded-2xl font-extrabold">MASUK</button><button onclick="loginGoogle()" class="w-full mt-2 bg-white text-black py-3 rounded-2xl font-bold">Masuk melalui Google</button><button onclick="tutupAkun()" class="w-full mt-2 bg-[#1A1A1A] border border-[#333] py-3 rounded-2xl font-bold">Tutup</button></div></div>
 <div id="daftarModal" class="modal"><div class="popup-card bg-[#111] gold-border rounded-[28px] p-5 w-full max-w-[340px] text-center"><h3 class="font-extrabold text-lg gold">Daftar</h3><input id="namaDaftar" placeholder="Nama lengkap" class="input-gold w-full mt-3 rounded-xl px-3 py-3"><input id="hpDaftar" placeholder="08xxxxxxxxxx" class="input-gold w-full mt-2 rounded-xl px-3 py-3"><input id="passDaftar" type="password" placeholder="Password" class="input-gold w-full mt-2 rounded-xl px-3 py-3"><button onclick="daftarPenumpang('WA')" class="w-full mt-3 gold-bg text-black py-3 rounded-2xl font-extrabold">DAFTAR</button><button onclick="tutupDaftar()" class="w-full mt-2 bg-[#1A1A1A] border border-[#333] py-3 rounded-2xl font-bold">Tutup</button></div></div>
 <div id="namaBaruModal" class="modal"><div class="popup-card bg-[#111] gold-border rounded-[28px] p-5 w-full max-w-[340px] text-center"><h3 class="font-extrabold text-lg gold">Nama Baru</h3><input id="inputNamaBaru" placeholder="Nama lengkap" class="input-gold w-full mt-3 rounded-xl px-3 py-3"><button onclick="buatAkunDariNama()" class="w-full mt-3 gold-bg text-black py-3 rounded-2xl font-extrabold">SIMPAN</button><button onclick="tutupNamaBaru()" class="w-full mt-2 bg-[#1A1A1A] border border-[#333] py-3 rounded-2xl font-bold">Tutup</button></div></div>
 <div id="logoutModal" class="modal"><div class="popup-card bg-[#111] gold-border rounded-[28px] p-5 w-full max-w-[340px] text-center"><h3 class="font-extrabold text-lg">Keluar dari Akun?</h3><div class="flex gap-2 mt-4"><button onclick="logoutAkun()" class="flex-1 bg-red-500 text-white py-3 rounded-2xl font-bold">Ya, Keluar</button><button onclick="tutupLogout()" class="flex-1 bg-[#1A1A1A] border border-[#333] py-3 rounded-2xl font-bold">Batal</button></div></div></div>
 <div id="mapModal" class="modal"><div class="bg-[#111] gold-border rounded-[28px] p-4 w-full max-w-[400px]"><h3 class="font-extrabold gold">Pilih dari Peta</h3><div id="map" class="mt-3"></div><p class="text-[12px] text-gray-400 mt-2">Geser pin ke lokasi yang diinginkan</p><button onclick="konfirmasiPeta()" class="w-full mt-3 gold-bg text-black py-3 rounded-2xl font-extrabold">Pilih Lokasi Ini</button><button onclick="tutupMap()" class="w-full mt-2 bg-[#1A1A1A] border border-[#333] py-3 rounded-2xl font-bold">Tutup</button></div></div>
 
-<!-- POP UP MEWAH -->
 <div id="popup-mewah" class="fixed inset-0 z-[999] hidden items-center justify-center p-5">
   <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="tutupPopup()"></div>
   <div class="popup-card relative w-full max-w-[340px] bg-[#111] gold-border rounded-[28px] p-6 text-center shadow-2xl shadow-yellow-500/20">
@@ -192,7 +176,6 @@ select.input-gold{appearance:none}
 </div>
 <div id="toastWrap" class="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] hidden bg-[#111] gold-border rounded-2xl px-4 py-3 flex gap-2 items-center max-w-[340px]"><span id="toastIco" class="w-7 h-7 rounded-full gold-bg text-black flex items-center justify-center font-bold">✓</span><div><p id="toastJudul" class="font-bold text-sm"></p><p id="toastIsi" class="text-[12px] text-gray-400"></p></div></div>
 
-<!-- CHAT BERSIH -->
 <div id="chatFloat" class="fixed bottom-28 right-3 z-50 w-11 h-11 rounded-full gold-bg flex items-center justify-center text-lg shadow-lg" style="cursor:pointer">💬</div>
 <div id="chatModal" class="chat-modal"><div class="bg-[#111] gold-border rounded-[28px] p-4 w-full max-w-[360px]">
   <h3 class="text-center gold font-extrabold">💬 Chat dengan CS</h3><div id="chatLog" class="mt-3 max-h-[260px] overflow-y-auto"><div class="chatBubble"><b>Bot Ammo:</b> Halo! Mau tanya apa? Ketik aja, misal: ongkos ke Cimaung berapa?</div></div>
@@ -203,7 +186,6 @@ select.input-gold{appearance:none}
 </div></div>
 
 <script>
-// ===== SUPABASE =====
 const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
 const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
 let supabaseClient = null;
@@ -212,7 +194,6 @@ window.escHtml = function(v){ return String(v ?? '').replace(/&/g,'&amp;').repla
 window.getChatSessionId = function(){ let s = localStorage.getItem('ammo_chat_session'); if(!s){ s='anon-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8); localStorage.setItem('ammo_chat_session',s); } return s; };
 window.simpanChat = async function(sender,pesan){ try{ if(!window.supabaseClient) return; let pid=localStorage.getItem('ammo_supabase_penumpang_id')||null; let payload={sender:sender,message:pesan,session_id:window.getChatSessionId()}; if(pid) payload.penumpang_id=pid; await supabaseClient.from('chats').insert([payload]); }catch(e){} };
 
-// ===== ADMIN / DRIVER AMAN - DARI DATABASE =====
 async function cekRoleDariDatabase(){
   try{
     if(!window.supabaseClient) return 'penumpang';
@@ -234,7 +215,6 @@ async function bukaHalamanDriver(){
   window.location.href = 'driver.html';
 }
 
-// ===== STATE =====
 let pickupCoord=null, destCoord=null, mapMode='pickup', map=null, marker=null, tempLat=-6.9175, tempLng=107.6191;
 let previewTimer=null, saranTimer=null, pendingHP='', jumlahOrang=6, googleSudahDiproses=false;
 let voucherData=[], perjalananData=[];
@@ -242,11 +222,20 @@ let jarakKm=0, jarakMeter=0, totalHarga=0, estimasiTeks='-', durasiDetik=0, vouc
 const $=id=>document.getElementById(id);
 const fmtRp=n=>'Rp '+Math.round(n||0).toLocaleString('id-ID');
 function fmtJarak(m){let km=m/1000;return km>=100?Math.round(km).toLocaleString('id-ID')+' km':km.toFixed(1).replace('.',',')+' km';}
-function fmtEstimasi(detik){let m=Math.round(detik/60);let h=Math.floor(m/60),hari=Math.floor(h/24);h=h%24;let sisa=m%60;if(hari>0)return hari+' hari '+(h>0?h+' jam':'');if(h>0)return h+' jam '+(sisa>0?sisa+' menit':'');return m+' menit';}
+
+// ESTIMASI REALISTIS x 1.6 - LANGSUNG TAMPIL DI DEPAN
+function fmtEstimasi(detik){
+  let m = Math.round(detik/60 * 1.6);
+  let h = Math.floor(m/60), hari = Math.floor(h/24);
+  h = h % 24; let sisa = m % 60;
+  if(hari > 0) return hari + ' hari ' + (h > 0 ? h + ' jam ' : '') + sisa + ' menit';
+  if(h > 0) return h + ' jam ' + (sisa > 0 ? sisa + ' menit' : '');
+  return m + ' menit';
+}
+
 function hitungOngkos(km,orang){let o=orang||jumlahOrang||1;let rate=o>=5?6500:5000;let kmTagih=Math.max(Math.round(km),10);let dasar=kmTagih*rate;let fee=Math.round(dasar*0.05);let total=dasar+fee;let voucher=Math.round(total*0.05);return {kmTagih,ongkos:total,dasar,fee,voucher,rate,orang:o};}
 function nomorToEmail(nomor){let n=(nomor||'').replace(/\D/g,'');if(n.startsWith('0'))n='62'+n.slice(1);return n+'@ammo.travel';}
 
-// ===== POP UP MEWAH =====
 function bukaPopup(judul,pesan,icon,tombolList){$('popup-judul').innerText=judul;$('popup-pesan').innerText=pesan;$('popup-icon').innerText=icon||'🔒';$('popup-tombol').innerHTML=tombolList.map(t=>t.type==='emas'?`<button onclick="popupAksi('${t.aksi}')" class="w-full gold-bg text-black py-3.5 rounded-2xl font-extrabold">${t.label}</button>`:`<button onclick="popupAksi('${t.aksi}')" class="w-full bg-[#1A1A1A] border border-[#333] py-3.5 rounded-2xl font-bold">${t.label}</button>`).join('');let el=$('popup-mewah');el.classList.remove('hidden');el.classList.add('flex');}
 function tutupPopup(){let el=$('popup-mewah');el.classList.add('hidden');el.classList.remove('flex');}
 function popupAksi(aksi){tutupPopup();if(aksi==='ke-profil'){showPage('profil',null);showAuth('masuk');}if(aksi==='ke-beranda'){showPage('beranda',document.querySelector('.fixed button'));}if(aksi==='ke-voucher'){showPage('voucher',null);}if(aksi==='ke-perjalanan'){showPage('perjalanan',null);}}
