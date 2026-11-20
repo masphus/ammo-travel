@@ -14,13 +14,13 @@
   .gold-border{border:1px solid #D4AF37}
   .input-gold{background:#1A1A1A;border:1px solid #3A3A3A;color:white}
   .input-gold:focus{border-color:#D4AF37;outline:none}
+  .input-locked{background:#0F0F0F!important;border:1px solid #2A2A2A!important;color:#D4AF37!important;cursor:not-allowed}
   .tab-active{color:#D4AF37}.tab-active .tab-icon{background:#D4AF37;color:#000}
   .tab-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#1A1A1A;color:#D4AF37;border:1px solid #333}
   ::placeholder{color:#777}
   .label-besar{font-size:15px;font-weight:800;color:#D4AF37;letter-spacing:0.02em}
   .orang-btn{background:#1A1A1A;border:1px solid #3A3A3A;color:#fff;font-weight:800;padding:10px 0;border-radius:12px;font-size:14px}
   .orang-btn.active{background:linear-gradient(135deg,#F5D67B,#D4AF37,#B8860B);color:#000;border-color:#D4AF37}
-  /* POP UP MEWAH */
   #popup-mewah{transition:opacity .25s}
   .popup-card{animation:popupIn .3s ease}
   @keyframes popupIn{from{transform:scale(.92) translateY(10px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
@@ -42,15 +42,20 @@
     <div class="flex gap-2 items-end">
       <div class="flex-1">
         <label class="label-besar">Dari</label>
-        <input id="asal" value="Astana Anyar, Bandung" class="input-gold w-full mt-1.5 rounded-xl px-3 py-3.5 text-[15px] font-semibold">
+        <input id="asal" value="Astana Anyar, Bandung" onchange="updateJarakOtomatis()" class="input-gold w-full mt-1.5 rounded-xl px-3 py-3.5 text-[15px] font-semibold">
         <label class="label-besar mt-2.5 block">Tujuan</label>
-        <input id="tujuan" value="Bandara Soekarno Hatta" class="input-gold w-full mt-1.5 rounded-xl px-3 py-3.5 text-[15px] font-semibold">
+        <input id="tujuan" value="Bandara Soekarno Hatta" onchange="updateJarakOtomatis()" class="input-gold w-full mt-1.5 rounded-xl px-3 py-3.5 text-[15px] font-semibold">
       </div>
-      <button onclick="tukar()" class="w-11 h-11 shrink-0 rounded-full gold-bg text-black font-extrabold flex items-center justify-center text-xl mb-[38px] shadow-lg shadow-yellow-500/30" title="Tukar Dari & Tujuan">↕</button>
+      <button onclick="tukar()" class="w-11 h-11 shrink-0 rounded-full gold-bg text-black font-extrabold flex items-center justify-center text-xl mb-[38px] shadow-lg shadow-yellow-500/30">↕</button>
     </div>
     <div class="grid grid-cols-2 gap-3 mt-4">
       <div><label class="label-besar block">Tanggal</label><input id="tanggal" type="date" class="input-gold w-full mt-1.5 rounded-xl px-3 py-3.5 text-[15px] font-semibold"></div>
-      <div><label class="label-besar block">Jarak (KM)</label><input id="km" type="number" value="166" class="input-gold w-full mt-1.5 rounded-xl px-3 py-3.5 text-[15px] font-semibold"></div>
+      <!-- JARAK DIKUNCI - TIDAK BISA DIEDIT -->
+      <div>
+        <label class="label-besar block">Jarak (KM) 🔒</label>
+        <input id="km" type="number" value="166" readonly class="input-gold input-locked w-full mt-1.5 rounded-xl px-3 py-3.5 text-[15px] font-extrabold">
+        <p class="text-[10px] text-gray-500 mt-1">Otomatis • Terkunci</p>
+      </div>
     </div>
     <label class="label-besar mt-4 block">Jumlah Orang</label>
     <input type="hidden" id="jumlahOrang" value="1">
@@ -150,7 +155,6 @@
   <button onclick="showPage('profil',this)" class="flex flex-col items-center gap-1"><span class="tab-icon">👤</span><span class="text-[11px] font-bold">Profil</span></button>
 </div>
 
-<!-- POP UP MEWAH - DIPAKAI SEMUA POP UP -->
 <div id="popup-mewah" class="fixed inset-0 z-[999] hidden items-center justify-center p-5">
   <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="tutupPopup()"></div>
   <div class="popup-card relative w-full max-w-[340px] bg-[#111] gold-border rounded-[28px] p-6 text-center shadow-2xl shadow-yellow-500/20">
@@ -169,9 +173,52 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 function fmtRp(n){ return 'Rp ' + Math.round(n||0).toLocaleString('id-ID'); }
 function nomorToEmail(nomor){ let n = (nomor||'').replace(/\D/g,''); if(n.startsWith('0')) n='62'+n.slice(1); return n+'@ammo.travel'; }
 let currentUser = null; let currentProfile = null; let voucherData = []; let perjalananData = []; let jumlahOrang = 1;
-let popupCallback = null;
 
-// ===== POP UP MEWAH - SATU UNTUK SEMUA =====
+// ===== JARAK OTOMATIS - KUNCI DARI PENUMPANG ISENG =====
+// Kunci: normalisasi teks, cari di tabel. Kalau rute baru belum ada, pakai jarak default aman (tidak bisa diedit penumpang)
+const JARAK_TABEL = {
+  'astana anyar|soekarno hatta':166, 'soekarno hatta|astana anyar':166,
+  'astana anyar|bandara soekarno hatta':166, 'bandara soekarno hatta|astana anyar':166,
+  'bandung|soekarno hatta':166, 'soekarno hatta|bandung':166,
+  'bandung|jakarta':155, 'jakarta|bandung':155,
+  'bandung|cianjur':70, 'cianjur|bandung':70,
+  'bandung|lembang':15, 'lembang|bandung':15,
+  'bandung|garut':60, 'garut|bandung':60,
+  'bandung|cimahi':12, 'cimahi|bandung':12,
+  'bandung|sumedang':45, 'sumedang|bandung':45,
+  'bandung|tasikmalaya':105, 'tasikmalaya|bandung':105,
+  'bandung|bogor':110, 'bogor|bandung':110,
+  'bandung|depok':130, 'depok|bandung':130,
+  'bandung|bekasi':140, 'bekasi|bandung':140,
+  'bandung|halim':150, 'halim|bandung':150,
+  'bandung|kerta jati':120, 'kerta jati|bandung':120,
+  'bandung|husein':8, 'husein|bandung':8,
+};
+function normalisasi(s){ return (s||'').toLowerCase().replace(/bandara|,\s*bandung|bandung/g,'').replace(/[^a-z ]/g,'').trim().replace(/\s+/g,' '); }
+function cariJarak(asal, tujuan){
+  let a = normalisasi(asal); let b = normalisasi(tujuan);
+  // Coba cari persis
+  for(let k in JARAK_TABEL){ if(k.includes(a) || k.includes(b)){ if((k.includes(a) && k.includes(b))) return JARAK_TABEL[k]; } }
+  // Coba cari kata kunci soekarno / jakarta dll
+  let teks = (asal+' '+tujuan).toLowerCase();
+  if(teks.includes('soekarno')) return 166;
+  if(teks.includes('halim')) return 150;
+  if(teks.includes('kerta jati')) return 120;
+  if(teks.includes('cianjur')) return 70;
+  if(teks.includes('lembang')) return 15;
+  if(teks.includes('garut')) return 60;
+  if(teks.includes('bogor')) return 110;
+  if(teks.includes('jakarta')) return 155;
+  return 50; // Default aman kalau rute baru, nanti admin yang update di tabel
+}
+function updateJarakOtomatis(){
+  let asal = document.getElementById('asal').value;
+  let tujuan = document.getElementById('tujuan').value;
+  let km = cariJarak(asal, tujuan);
+  document.getElementById('km').value = km;
+  hitung();
+}
+
 function bukaPopup(judul, pesan, icon, tombolList){
   document.getElementById('popup-judul').innerText = judul;
   document.getElementById('popup-pesan').innerText = pesan;
@@ -184,28 +231,10 @@ function bukaPopup(judul, pesan, icon, tombolList){
   let el = document.getElementById('popup-mewah'); el.classList.remove('hidden'); el.classList.add('flex');
 }
 function tutupPopup(){ let el=document.getElementById('popup-mewah'); el.classList.add('hidden'); el.classList.remove('flex'); }
-function popupAksi(aksi){
-  tutupPopup();
-  if(aksi==='ke-profil'){ showPage('profil',null); showAuth('masuk'); }
-  if(aksi==='ke-beranda'){ showPage('beranda', document.querySelector('.fixed button')); }
-  if(aksi==='ke-voucher'){ showPage('voucher',null); }
-}
-function popupLoginDiperlukan(namaHalaman){
-  bukaPopup('Login Diperlukan', 'Silahkan masuk untuk melihat ' + namaHalaman + ' Anda', '🔒', [
-    {label:'MASUK / DAFTAR', type:'emas', aksi:'ke-profil'},
-    {label:'Tutup', type:'gelap', aksi:'ke-beranda'}
-  ]);
-}
-function popupSukses(judul, pesan){
-  bukaPopup(judul, pesan, '✅', [
-    {label:'Lihat Perjalanan', type:'emas', aksi:'ke-voucher'},
-    {label:'Tutup', type:'gelap', aksi:'ke-beranda'}
-  ]);
-}
-function popupError(judul, pesan){
-  bukaPopup(judul, pesan, '⚠️', [{label:'Tutup', type:'emas', aksi:'ke-beranda'}]);
-}
-
+function popupAksi(aksi){ tutupPopup(); if(aksi==='ke-profil'){ showPage('profil',null); showAuth('masuk'); } if(aksi==='ke-beranda'){ showPage('beranda', document.querySelector('.fixed button')); } if(aksi==='ke-voucher'){ showPage('voucher',null); } }
+function popupLoginDiperlukan(namaHalaman){ bukaPopup('Login Diperlukan', 'Silahkan masuk untuk melihat ' + namaHalaman + ' Anda', '🔒', [{label:'MASUK / DAFTAR', type:'emas', aksi:'ke-profil'},{label:'Tutup', type:'gelap', aksi:'ke-beranda'}]); }
+function popupSukses(judul, pesan){ bukaPopup(judul, pesan, '✅', [{label:'Lihat Perjalanan', type:'emas', aksi:'ke-voucher'},{label:'Tutup', type:'gelap', aksi:'ke-beranda'}]); }
+function popupError(judul, pesan){ bukaPopup(judul, pesan, '⚠️', [{label:'Tutup', type:'emas', aksi:'ke-beranda'}]); }
 function setOrang(n, el){ jumlahOrang = n; document.getElementById('jumlahOrang').value = n; document.querySelectorAll('.orang-btn').forEach(b=>b.classList.remove('active')); if(el) el.classList.add('active'); document.getElementById('orang-label').innerText = n + ' Orang'; hitung(); }
 function showAuth(mode){ document.getElementById('auth-masuk').classList.toggle('hidden', mode!=='masuk'); document.getElementById('auth-daftar').classList.toggle('hidden', mode!=='daftar'); }
 async function loadProfile(){
@@ -251,7 +280,7 @@ async function registerNomor(){
 }
 async function loginGoogle(){ await supabaseClient.auth.signInWithOAuth({provider:'google', options:{redirectTo: window.location.href}}); }
 async function logout(){ await supabaseClient.auth.signOut(); currentUser=null; await loadProfile(); bukaPopup('Berhasil Keluar', 'Anda telah keluar dari akun.', '👋', [{label:'Tutup', type:'emas', aksi:'ke-beranda'}]); }
-function tukar(){ let a=document.getElementById('asal').value; let b=document.getElementById('tujuan').value; document.getElementById('asal').value=b; document.getElementById('tujuan').value=a; hitung(); }
+function tukar(){ let a=document.getElementById('asal').value; let b=document.getElementById('tujuan').value; document.getElementById('asal').value=b; document.getElementById('tujuan').value=a; updateJarakOtomatis(); }
 function totalVoucherDipakai(){ return voucherData.filter(v=>v.pakai).reduce((a,b)=>a+b.nominal,0); }
 function hitung(){
   let km = parseFloat(document.getElementById('km').value)||0; let kmTagih = Math.max(Math.round(km),10);
@@ -275,10 +304,7 @@ function renderVoucher(){
 }
 async function toggleVoucher(id,checked){ let v=voucherData.find(x=>x.id===id); if(v) v.pakai=checked; if(currentUser) await supabaseClient.from('vouchers').update({pakai:checked}).eq('id',id); renderVoucher(); hitung(); }
 function showPage(page,el){ ['beranda','perjalanan','voucher','profil'].forEach(p=>document.getElementById('page-'+p).classList.add('hidden')); document.getElementById('page-'+page).classList.remove('hidden'); document.querySelectorAll('.fixed button').forEach(b=>b.classList.remove('tab-active')); if(el) el.classList.add('tab-active'); }
-function cekLoginLalu(page,el){
-  if(!currentUser){ popupLoginDiperlukan(page==='voucher'?'Voucher':'Riwayat Perjalanan'); return; }
-  showPage(page,el);
-}
+function cekLoginLalu(page,el){ if(!currentUser){ popupLoginDiperlukan(page==='voucher'?'Voucher':'Riwayat Perjalanan'); return; } showPage(page,el); }
 async function pesan(){
   if(!currentUser){ popupLoginDiperlukan('Pemesanan'); return; }
   let asal=document.getElementById('asal').value; let tujuan=document.getElementById('tujuan').value;
@@ -290,7 +316,8 @@ async function pesan(){
   popupSukses('Pesanan Berhasil', asal+' → '+tujuan+'\n'+jumlahOrang+' Orang\nTotal: '+fmtRp(total));
 }
 document.getElementById('tanggal').value=new Date().toISOString().slice(0,10);
-document.getElementById('km').addEventListener('input',hitung);
+// JANGAN ADA addEventListener input untuk KM - SUDAH DIKUNCI
+updateJarakOtomatis();
 loadProfile(); renderVoucher(); renderPerjalanan(); hitung();
 </script>
 </body>
