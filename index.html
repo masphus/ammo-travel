@@ -2,536 +2,294 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Ammo Travel</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;overflow-x:hidden;background:#000;font-family:Arial,sans-serif;color:#fff}
-.phone{max-width:430px;width:100%;margin:0 auto;background:#0f0f0f;position:relative;padding-bottom:140px;overflow:hidden;min-height:100vh}
-.header{background:#000;color:#d4af37;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #d4af37}
-.logo-left{display:flex;align-items:center;gap:10px;min-width:0}
-.logo-left img{width:44px;height:44px;border-radius:50%;background:#fff;object-fit:cover;flex-shrink:0;border:2px solid #d4af37}
-.logo-left b{font-size:32px;white-space:nowrap;color:#d4af37;letter-spacing:.5px}
-.title{padding:18px 16px 6px;text-align:center}
-.title h1{font-size:22px;line-height:1.2;color:#fff;font-weight:400}
-.title h1 b{color:#d4af37}
-.form{padding:0 16px;position:relative}
-.lbl{font-weight:bold;font-size:16px;color:#d4af37;margin:0 0 6px 6px}
-.row{display:flex;align-items:center;gap:8px;background:#1a1a1a;border:1px solid #d4af37;border-radius:14px;padding:6px 6px 6px 12px;margin-bottom:8px;width:100%}
-.pin{font-size:26px;flex-shrink:0;color:#d4af37}
-.row input{flex:1;min-width:0;border:none;outline:none;background:transparent;font-size:15px;padding:10px 0;color:#fff}
-.row input::placeholder{color:#888}
-.btn-map{background:#d4af37;color:#000;border:none;border-radius:8px;padding:9px 10px;font-weight:bold;font-size:14px;white-space:nowrap;flex-shrink:0;cursor:pointer}
-.swap-wrap{display:flex;justify-content:center;padding:4px 0 8px}
-.swap-btn{width:48px;height:48px;border-radius:50%;border:2px solid #d4af37;background:#d4af37;color:#000;font-size:26px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(212,175,55,.4)}
-.swap-btn:disabled{opacity:.35;cursor:not-allowed}
-.saran-box{display:none;background:#1e1e1e;border:1px solid #d4af37;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.5);margin:0 0 12px;padding:6px 0;position:relative;z-index:5;max-height:260px;overflow-y:auto}
-.saran-box div{padding:12px 14px;cursor:pointer;font-size:15px;border-bottom:1px solid #333;line-height:1.3;color:#fff}
-.saran-box .loading{color:#aaa;text-align:center}
-.saran-box .jarak{color:#d4af37;font-size:13px;font-weight:bold}
-.orang-wrap{background:#1a1a1a;border:1px solid #d4af37;border-radius:14px;padding:10px;margin-bottom:12px}
-.orang-row{display:flex;justify-content:center;gap:8px;margin-bottom:8px}
-.orang-row.bawah{margin-bottom:0}
-.orang-btn{width:44px;height:44px;border-radius:12px;border:1px solid #d4af37;background:transparent;color:#d4af37;font-weight:bold;font-size:16px;cursor:pointer}
-.orang-btn.aktif{background:#d4af37;color:#000}
-.ongkos-preview{display:none;background:#1e1e1e;border:1px solid #d4af37;border-radius:12px;padding:14px;margin:4px 0 12px}
-.ongkos-preview h3{font-size:18px;color:#d4af37;margin-bottom:8px}
-.ongkos-preview .meta{display:flex;gap:16px;font-size:15px;color:#fff;margin-bottom:8px}
-.ongkos-preview .meta b{display:block;font-size:16px;color:#fff}
-.ongkos-preview .total{font-size:22px;font-weight:bold;color:#d4af37;white-space:nowrap}
-.ongkos-preview .voucher{font-size:14px;color:#aaa;margin-top:6px}
-.btn-cek{display:block;width:calc(100% - 32px);margin:14px 16px 0;background:#d4af37;color:#000;border:none;border-radius:12px;padding:16px;font-size:22px;font-weight:bold;cursor:pointer;position:relative;z-index:5}
-.order-spacer{height:90px}
-.chat{width:56px;height:56px;border-radius:50%;background:#d4af37;display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;position:relative}
-.chat i{position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:#ff4444;border-radius:50%;display:none}
-.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#000;border-top:1px solid #d4af37;display:flex;justify-content:space-around;padding:10px 0;z-index:20}
-.nav div{text-align:center;font-size:12px;color:#aaa;cursor:pointer}
-.nav div.on{color:#d4af37}
-.nav div span{display:block;font-size:20px}
-.date-input{background:transparent;color:#fff;border:none;outline:none;font-size:15px;flex:1}
-.date-input::-webkit-calendar-picker-indicator{filter:invert(1)}
-.chat-modal,.daftar-modal,.map-modal,.center-modal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;z-index:99;align-items:flex-end;justify-content:center}
-.chat-modal.show,.daftar-modal.show,.map-modal.show,.center-modal.show{display:flex}
-.chat-box,.daftar-box{background:#1a1a1a;width:100%;max-width:430px;border-radius:20px 20px 0 0;padding:18px;max-height:85vh;overflow:auto}
-.chatBubble{background:#222;padding:10px 12px;border-radius:12px;margin:8px 0;font-size:14px;line-height:1.4}
-#chatInputRow{display:flex;gap:8px;margin-top:10px}
-#chatInput{flex:1;background:#111;border:1px solid #333;border-radius:12px;padding:12px;color:#fff;outline:none;font-size:16px}
-#chatSend{background:#d4af37;border:none;border-radius:12px;padding:0 16px;font-weight:900;cursor:pointer;min-width:52px;font-size:18px}
-.waRow{display:flex;gap:8px;margin-top:10px}
-.waBtn{flex:1;text-align:center;padding:12px;border-radius:12px;text-decoration:none;font-weight:900;font-size:13px}
-.waAdmin{background:#25D366;color:#fff}
-.waCall{background:#333;color:#fff}
-.chat-close{width:100%;margin-top:10px;padding:12px;border:1px solid #333;background:#111;color:#fff;border-radius:12px;cursor:pointer}
-.pinTitle{text-align:center;color:#d4af37;font-size:18px;font-weight:800}
-.pinSub{text-align:center;color:#aaa;font-size:13px;margin:4px 0 12px}
-.pinBoxes{display:flex;gap:8px;justify-content:center;margin:12px 0}
-.pinBox{width:40px;height:48px;border:1px solid #d4af37;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px}
-#pinMsg{text-align:center;font-size:13px;min-height:18px}
-.pinPad{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
-.pinKey{padding:14px;border:1px solid #333;background:#111;color:#fff;border-radius:12px;font-size:18px;cursor:pointer}
-.pinBack{width:100%;margin-top:10px;padding:12px;background:transparent;border:none;color:#d4af37;cursor:pointer}
-.pinCodeInput{width:100%;background:#111;border:1px solid #d4af37;border-radius:12px;padding:12px;color:#fff;outline:none;margin:6px 0 6px;font-size:15px;text-align:center}
-.map-box{background:#1a1a1a;width:100%;max-width:430px;border-radius:20px 20px 0 0;padding:12px}
-#map{height:340px;border-radius:12px}
-.map-addr{font-size:13px;color:#aaa;padding:10px 4px}
-.map-btns{display:flex;gap:8px}
-.map-btns button{flex:1;padding:12px;border:none;border-radius:10px;font-weight:900;cursor:pointer}
-.daftar-handle{width:40px;height:5px;background:#444;border-radius:10px;margin:0 auto 12px}
-.daftar-box h2{color:#d4af37;margin-bottom:6px}
-.daftar-box p{font-size:13px;color:#aaa;margin-bottom:12px}
-.daftar-label{font-size:13px;color:#d4af37;font-weight:900}
-.daftar-input{width:100%;background:#111;border:1px solid #333;border-radius:12px;padding:12px;color:#fff;outline:none;margin:6px 0 12px;font-size:15px}
-.daftar-input:focus{border-color:#d4af37}
-.daftar-btn{width:100%;padding:13px;border:none;border-radius:12px;font-weight:900;cursor:pointer;margin-bottom:8px;font-size:15px}
-.daftar-sekarang{background:#d4af37;color:#000}
-.daftar-google{background:#fff;color:#000;display:flex;align-items:center;justify-content:center;gap:8px}
-.daftar-google img{width:18px;height:18px}
-.daftar-batal{width:100%;padding:10px;background:transparent;border:none;color:#aaa;cursor:pointer}
-.daftar-syarat{font-size:11px!important;text-align:center;color:#888!important}
-.atau{text-align:center;color:#888;font-size:12px;margin:6px 0}
-.pass-wrap{position:relative}
-.pass-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer}
-.akun-foto{width:80px;height:80px;border-radius:50%;background:#222;border:2px solid #d4af37;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 10px}
-.akun-nama{text-align:center;font-size:20px;font-weight:900;color:#d4af37}
-.akun-sub{text-align:center;font-size:13px;color:#aaa;margin:6px 0 12px;line-height:1.4}
-.akun-info{display:flex;gap:8px;margin-bottom:12px}
-.akun-info div{flex:1;background:#111;border:1px solid #333;border-radius:12px;padding:10px;text-align:center;font-size:12px;color:#aaa}
-.akun-info b{display:block;color:#d4af37;font-size:16px;margin-top:4px}
-.btn-logout{background:#ff6b81!important;color:#fff!important}
-.btn-tutup{background:#111!important;color:#fff!important;border:1px solid #333!important}
-.center-box{background:#1a1a1a;width:90%;max-width:360px;border-radius:16px;padding:20px;text-align:center}
-.center-box h3{color:#d4af37;margin:10px 0 6px}
-.center-box p{font-size:13px;color:#aaa;margin-bottom:12px}
-.center-box label{display:block;text-align:left;font-size:13px;color:#d4af37;font-weight:900}
-.center-box input{width:100%;background:#111;border:1px solid #333;border-radius:12px;padding:12px;color:#fff;outline:none;margin:6px 0 12px}
-.center-btns{display:flex;gap:8px}
-.center-btns button{flex:1;padding:12px;border:none;border-radius:10px;font-weight:900;cursor:pointer}
-.toast-wrap{position:fixed;inset:0;display:none;z-index:200;align-items:flex-end;justify-content:center;padding:0 16px 90px;pointer-events:none}
-.toast-wrap.show{display:flex}
-.toast{background:#1a1a1a;border:1px solid #d4af37;border-radius:14px;padding:12px;display:flex;gap:10px;align-items:center;width:100%;max-width:430px;pointer-events:auto}
-.toast .ico{width:36px;height:36px;border-radius:50%;background:#d4af37;color:#000;display:flex;align-items:center;justify-content:center;font-weight:900;flex-shrink:0}
-.toast b{color:#d4af37;font-size:14px}
-.toast p{font-size:13px;color:#ddd}
-.toast button{border:none;background:#d4af37;border-radius:8px;padding:8px 12px;font-weight:900;cursor:pointer}
-.gps-note{font-size:12px;color:#d4af37;text-align:center;margin-top:6px;display:none}
-.chat-float{position:fixed !important;right:16px !important;bottom:calc(82px + env(safe-area-inset-bottom)) !important;z-index:999 !important;pointer-events:auto !important;display:flex !important;margin:0 !important}
-.chat-float .chat{width:clamp(52px,14vw,62px);height:clamp(52px,14vw,62px);background:linear-gradient(145deg,#f5d67b,#d4af37,#9a7b1a);color:#000;box-shadow:0 8px 24px rgba(212,175,55,.45), inset 0 1px 0 rgba(255,255,255,.6);border:2px solid #f5d67b;pointer-events:auto !important;cursor:pointer !important}
-#pinView{background:radial-gradient(circle at 50% 0%, #2a2100 0%, #000 45%, #000 100%) !important;border-top:2px solid #d4af37 !important;padding:28px 22px 18px !important;text-align:center}
-.lock-logo{width:72px;height:72px;margin:6px auto 10px;border-radius:50%;background:linear-gradient(145deg,#f5d67b,#9a7b1a);color:#000;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 0 0 4px #000, 0 0 0 6px #d4af37, 0 10px 30px rgba(212,175,55,.4)}
-.pinTitle{font-size:22px !important;letter-spacing:1px;color:#f5d67b !important}
-.pinSub{color:#c9b45a !important}
-.pinBoxes{gap:14px !important;margin:22px 0 8px !important}
-.pinBox{width:14px !important;height:14px !important;border-radius:50% !important;border:1.5px solid #d4af37 !important;background:transparent !important}
-.pinBox.on{background:#f5d67b !important;box-shadow:0 0 10px #f5d67b}
-.pinPad{gap:12px !important;margin-top:18px !important}
-.pinKey{width:100%;aspect-ratio:1/1;border-radius:50% !important;border:1.5px solid rgba(212,175,55,.7) !important;background:rgba(255,255,255,.04) !important;color:#f5d67b !important;font-size:24px !important;font-weight:700 !important}
-.pinKey:active{background:#d4af37 !important;color:#000 !important}
-.pinCodeInput{display:none !important}
-#pinMsg{color:#f5d67b}
-@keyframes goyang{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
-.goyang{animation:goyang .3s ease 2}
-#mapModal{z-index:9999 !important}
-#mapModal.show{display:flex !important}
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AMMO TRAVEL - Bandung</title>
+<script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-try{ window.supabaseClient = supabase.createClient("https://xxtgmohxdztesiubfxap.supabase.co", "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv"); }catch(e){ window.supabaseClient = null; }
-window.escHtml = function(v){ return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); };
-window.pendingKodeChat = '';
-window.getChatSessionId = function(){ let s = localStorage.getItem('ammo_chat_session'); if(!s){ s='anon-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8); localStorage.setItem('ammo_chat_session',s); } return s; };
-window.simpanChat = async function(sender,pesan){ try{ if(!window.supabaseClient) return; let pid=localStorage.getItem('ammo_supabase_penumpang_id')||null; let payload={sender:sender,message:pesan,session_id:window.getChatSessionId()}; if(pid) payload.penumpang_id=pid; await supabaseClient.from('chats').insert([payload]); }catch(e){} };
-window.buatKarcis = function(codeVal, pinVal, role, dataAkun){
-  try{
-    var tok = String(codeVal||'').toLowerCase().trim() + '|' + String(pinVal||'').trim() + '|' + (Date.now()+2*60*60*1000);
-    try{ sessionStorage.setItem('ammo_admin_token', tok); }catch(e){}
-    try{ localStorage.setItem('ammo_admin_token', tok); }catch(e){}
-    try{ localStorage.setItem('ammo_role', role); }catch(e){}
-    if(role==='admin'){
-      try{ localStorage.setItem('ammo_admin_email', dataAkun.email||''); }catch(e){}
-      try{ localStorage.setItem('ammo_admin_nama', dataAkun.nama||''); }catch(e){}
-      try{ localStorage.setItem('ammo_driver_token', tok); }catch(e){}
-    }
-    if(role==='driver'){
-      try{ localStorage.setItem('ammo_driver', JSON.stringify(dataAkun)); }catch(e){}
-      try{ localStorage.setItem('ammo_driver_id', dataAkun.id); }catch(e){}
-      try{ localStorage.setItem('ammo_driver_nama', dataAkun.nama); }catch(e){}
-      try{ localStorage.setItem('ammo_driver_token', tok); }catch(e){}
-    }
-  }catch(e){}
-};
-window.cariAkunByCode = async function(codeVal){
-  codeVal = String(codeVal||'').toLowerCase().trim(); if(!codeVal) return null;
-  if(!window.supabaseClient) return null;
-  try{ let r = await supabaseClient.rpc('cek_code_saja', { p_code: codeVal }); if(r && !r.error && r.data && r.data.length) return r.data[0]; }catch(e){}
-  try{ let a = await supabaseClient.from('admin').select('*').ilike('code', codeVal).maybeSingle(); if(a && a.data){ a.data.role='admin'; return a.data; } }catch(e){}
-  try{ let d = await supabaseClient.from('drivers').select('*').ilike('code', codeVal).maybeSingle(); if(d && d.data){ d.data.role='driver'; return d.data; } }catch(e){}
-  try{ let d2 = await supabaseClient.from('driver').select('*').ilike('code', codeVal).maybeSingle(); if(d2 && d2.data){ d2.data.role='driver'; return d2.data; } }catch(e){}
-  return null;
-};
-window.cariAkunByCodePin = async function(codeVal, pinVal){
-  codeVal = String(codeVal||'').toLowerCase().trim(); pinVal = String(pinVal||'').trim(); if(!codeVal || !pinVal) return null;
-  if(!window.supabaseClient) return null;
-  try{ let r = await supabaseClient.rpc('cek_pin_login', { p_code: codeVal, p_pin: pinVal }); if(r && !r.error && r.data && r.data.length) return r.data[0]; }catch(e){}
-  try{ let a = await supabaseClient.from('admin').select('*').ilike('code', codeVal).eq('pin', pinVal).maybeSingle(); if(a && a.data){ a.data.role='admin'; return a.data; } }catch(e){}
-  try{ let d = await supabaseClient.from('drivers').select('*').ilike('code', codeVal).eq('pin', pinVal).maybeSingle(); if(d && d.data){ d.data.role='driver'; return d.data; } }catch(e){}
-  try{ let d2 = await supabaseClient.from('driver').select('*').ilike('code', codeVal).eq('pin', pinVal).maybeSingle(); if(d2 && d2.data){ d2.data.role='driver'; return d2.data; } }catch(e){}
-  return null;
-};
-window.masukDenganCodePin = async function(codeVal, pinVal){
-  try{
-    let d = await window.cariAkunByCodePin(codeVal, pinVal);
-    if(!d){ window.pendingKodeChat=''; return null; }
-    window.pendingKodeChat='';
-    if(d.role==='admin'){ window.buatKarcis(codeVal, pinVal, 'admin', d); setTimeout(()=>{ window.location.href='q9x.html'; }, 600); return 'Sebentar ya...'; }
-    if(d.role==='driver'){ if(String(d.status||'').toLowerCase()!=='aktif' && String(d.status||'').toLowerCase()!=='active') return null; window.buatKarcis(codeVal, pinVal, 'driver', d); setTimeout(()=>{ window.location.href='driver.html'; }, 600); return 'Sebentar ya...'; }
-    return null;
-  }catch(e){ return null; }
-};
-window.handleKodeKhusus = async function(pesan){
-  try{
-    let q = String(pesan||'').trim(); if(!q) return null;
-    if(window.pendingKodeChat){
-      let mPin = q.match(/^[#@]?(\d{4,6})$/);
-      if(mPin){ let hasil = await window.masukDenganCodePin(window.pendingKodeChat, mPin[1]); if(hasil) return hasil; return 'Maaf, saya tidak mengerti. Mau tanya ongkos ke mana?'; }
-      window.pendingKodeChat='';
-    }
-    let m = q.match(/^[#@]([A-Za-z0-9_]+)-(\d{4,6})$/);
-    if(m){ let hasil = await window.masukDenganCodePin(m[1].toLowerCase(), m[2]); if(hasil) return hasil; return 'Maaf, saya tidak mengerti. Mau tanya ongkos ke mana?'; }
-    let m2 = q.match(/^[#@]([A-Za-z0-9_]+)$/);
-    if(m2){
-      let codeVal = m2[1].toLowerCase();
-      let akun = await window.cariAkunByCode(codeVal);
-      if(akun){ window.pendingKodeChat = codeVal; setTimeout(()=>{ if(window.bukaPin) window.bukaPin('login', codeVal); }, 300); return 'Sebentar ya, saya cek dulu...'; }
-      return 'Maaf, saya tidak mengerti. Mau tanya ongkos ke mana?';
-    }
-    return null;
-  }catch(e){ return null; }
-};
-window.botReply = async function(pesan){
-  try{
-    let khusus = await window.handleKodeKhusus(pesan);
-    if(khusus) return khusus;
-    let q = String(pesan||'').toLowerCase().trim();
-    if(window.supabaseClient){
-      try{
-        let r = await supabaseClient.from('bot').select('kunci,jawaban');
-        if(r && !r.error && r.data && r.data.length){
-          let ketemu = r.data.find(row=>row.kunci && row.kunci.toLowerCase().trim()===q);
-          if(!ketemu) ketemu = r.data.find(row=>row.kunci && row.kunci.toLowerCase().trim() && (q.includes(row.kunci.toLowerCase().trim()) || row.kunci.toLowerCase().trim().includes(q)));
-          if(ketemu && ketemu.jawaban) return ketemu.jawaban;
-        } else if(r && r.error){
-          return 'Maaf, saya tidak mengerti. Mau tanya ongkos ke mana?';
-        }
-      }catch(e){ return 'Maaf, saya tidak mengerti. Mau tanya ongkos ke mana?'; }
-    } else {
-      return 'Maaf, saya tidak mengerti. Mau tanya ongkos ke mana?';
-    }
-    if(q.includes('ongkos')||q.includes('harga')||q.includes('tarif')||q.includes('berapa')) return 'Ongkos kita hitung per km bro. 1-4 orang Rp 5.000/km, 5-7 orang Rp 6.500/km, minimal 10 km. Tinggal isi Dari & Tujuan di atas, pilih dari saran / peta, harga langsung muncul.';
-    if(q.includes('halo')||q.includes('hai')||q.includes('selamat')) return 'Halo! Selamat datang di Ammo Travel 🙏 Mau diantar ke mana hari ini?';
-    if(q.includes('wa')||q.includes('admin')) return 'Klik tombol WA Admin di bawah, nomor Admin 0858-9061-1111. Admin online ya.';
-    return 'Siap, kami bantu. Coba ceritain mau ke mana? Atau isi Dari & Tujuan di atas, pilih dari saran, harga langsung muncul.';
-  }catch(e){ return 'Maaf, saya tidak mengerti. Mau tanya ongkos ke mana?'; }
-};
-window.openChat = function(){ try{ var m=document.getElementById('chatModal'); if(m){ m.classList.add('show'); m.style.display='flex'; } var pv=document.getElementById('pinView'); if(pv) pv.style.display='none'; var cv=document.getElementById('chatView'); if(cv) cv.style.display='block'; }catch(e){} };
-window.closeChat = function(){ try{ var m=document.getElementById('chatModal'); if(m){ m.classList.remove('show'); m.style.display='none'; } try{ var inp=document.getElementById('chatInput'); if(inp) inp.blur(); }catch(e){} }catch(e){} };
-window.kirimChat = function(){
-  try{
-    var inp = document.getElementById('chatInput');
-    var log = document.getElementById('chatLog');
-    var btn = document.getElementById('chatSend');
-    if(!inp || !log) return;
-    var v = inp.value.trim();
-    if(!v){ try{ inp.focus(); }catch(e){} return; }
-    if(btn) btn.textContent = '...';
-    inp.value = '';
-    log.innerHTML += '<div class="chatBubble"><b>Kamu:</b> ' + window.escHtml(v) + '</div>';
-    log.scrollTop = log.scrollHeight;
-    log.innerHTML += '<div class="chatBubble" id="botTyping">Bot sedang mengetik...</div>';
-    log.scrollTop = log.scrollHeight;
-    window.botReply(v).then(function(jawab){
-      var t = document.getElementById('botTyping'); if(t) t.remove();
-      log.innerHTML += '<div class="chatBubble"><b>Bot Ammo:</b> ' + window.escHtml(jawab||'Siap, kami bantu.') + '</div>';
-      log.scrollTop = log.scrollHeight;
-      try{ window.simpanChat('bot', jawab); }catch(e){}
-      if(btn) btn.textContent = '➤';
-    }).catch(function(err){
-      var t2 = document.getElementById('botTyping'); if(t2) t2.remove();
-      log.innerHTML += '<div class="chatBubble"><b>Bot Ammo:</b> Maaf, saya tidak mengerti. Mau tanya ongkos ke mana?</div>';
-      if(btn) btn.textContent = '➤';
-    });
-    try{ window.simpanChat('user', v); }catch(e){}
-    try{ inp.focus(); }catch(e){}
-  }catch(e){ alert('kirimChat error: '+e.message); }
-};
-window._ketukLogo=0; window._waktuKetukLogo=0;
-window._pendingBackup = null;
-window.bersihkanTujuan = function(){
-  try{
-    var d = document.getElementById('dest');
-    if(d){ d.value=''; d.removeAttribute('value'); }
-    try{ localStorage.removeItem('masphus_order'); }catch(e){}
-    var s = document.getElementById('saranDest'); if(s) s.style.display='none';
-    var o = document.getElementById('ongkosPreview'); if(o) o.style.display='none';
-  }catch(e){}
-};
-window.addEventListener('load', function(){
-  try{ var _lg=document.getElementById('logoRahasia'); if(_lg){ _lg.addEventListener('click', function(){ var skrg=Date.now(); if(skrg-window._waktuKetukLogo>2000) window._ketukLogo=0; window._waktuKetukLogo=skrg; window._ketukLogo++; if(window._ketukLogo>=5){ window._ketukLogo=0; if(window.bukaPin) window.bukaPin('login',''); } }); } }catch(e){}
-});
-</script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body{font-family:'Plus Jakarta Sans',sans-serif;background:#F6F7FB}
+  .tab-active{color:#111827}.tab-active .tab-icon{background:#111827;color:white}
+  .tab-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#EDEEF2;color:#6B7280}
+  .chip-active{background:#111827!important;color:white!important;border-color:#111827!important}
+  .voucher-card{border:1.5px dashed #CBD5E1}
+  input[type=checkbox]{accent-color:#111827;width:20px;height:20px}
+  .voucher{font-size:12px;color:#6B7280}
+</style>
 </head>
-<body>
-<div id="homePage" class="phone">
-<div class="header"><div class="logo-left" id="logoRahasia"><img src="icon-512.png" alt="Ammo Travel"><b>Ammo Travel</b></div></div>
-<div class="title"><h1>Mau Diantar <b>Kemana?</b></h1></div>
-<div class="form" autocomplete="off">
-<div class="lbl">Dari</div>
-<div class="row"><input id="pickup" placeholder="📍 Mendeteksi lokasi GPS..." autocomplete="off"><button class="btn-map" onclick="openMap('pickup')">📍 Peta</button></div>
-<div id="gpsNote" class="gps-note">📍 Mendeteksi lokasi GPS kamu...</div>
-<div id="saranPick" class="saran-box"></div>
-<div class="swap-wrap"><button id="swapBtn" class="swap-btn" onclick="swapLokasi()" disabled title="Tukar Penjemputan & Tujuan">⇅</button></div>
-<div class="lbl">Tujuan</div>
-<div class="row"><input id="dest" placeholder="Ketik / Pilih Tujuan..." autocomplete="off" value="" name="tujuan_baru_xyz"><button class="btn-map" onclick="openMap('dest')">📍 Peta</button></div>
-<div id="saranDest" class="saran-box"></div>
-<div class="lbl">Berapa Orang</div>
-<div class="orang-wrap">
-<div class="orang-row atas">
-<button type="button" class="orang-btn" data-orang="1">1</button>
-<button type="button" class="orang-btn" data-orang="2">2</button>
-<button type="button" class="orang-btn" data-orang="3">3</button>
-<button type="button" class="orang-btn" data-orang="4">4</button>
+<body class="max-w-[430px] mx-auto min-h-screen bg-white relative pb-28">
+
+<div class="px-5 pt-5 flex justify-between items-center">
+  <div>
+    <p class="text-[11px] tracking-widest text-gray-400 font-bold">AMMO TRAVEL</p>
+    <h1 class="text-[22px] font-extrabold leading-tight">Mau jalan kemana<br>hari ini?</h1>
+  </div>
+  <div class="w-11 h-11 rounded-full bg-black text-white flex items-center justify-center font-bold">A</div>
 </div>
-<div class="orang-row bawah">
-<button type="button" class="orang-btn" data-orang="5">5</button>
-<button type="button" class="orang-btn aktif" data-orang="6">6</button>
-<button type="button" class="orang-btn" data-orang="7">7</button>
+
+<div id="page-beranda" class="px-5 mt-4">
+  <div class="bg-black text-white rounded-[22px] p-4 flex justify-between items-center">
+    <div>
+      <p class="text-[11px] bg-white/20 w-fit px-2 py-1 rounded-full">VOUCHER SELAMANYA</p>
+      <p class="font-bold mt-2 leading-tight">Tiap jalan dapet voucher<br>5% • Berlaku Selamanya</p>
+      <p class="text-[12px] text-white/70 mt-1">Kita mah murah hati 😎</p>
+    </div>
+    <div class="text-4xl">🚗</div>
+  </div>
+
+  <div class="mt-4 bg-white border rounded-[22px] p-4 shadow-sm">
+    <p class="font-bold">Pesan Perjalanan</p>
+    <label class="text-[12px] font-semibold text-gray-500 mt-3 block">Dari</label>
+    <input id="asal" value="Astana Anyar, Bandung" class="w-full mt-1 border rounded-xl px-3 py-2.5 text-sm outline-none">
+    <label class="text-[12px] font-semibold text-gray-500 mt-3 block">Ke</label>
+    <input id="tujuan" value="Bandara Soekarno Hatta" class="w-full mt-1 border rounded-xl px-3 py-2.5 text-sm outline-none">
+    <div class="grid grid-cols-2 gap-3 mt-3">
+      <div>
+        <label class="text-[12px] font-semibold text-gray-500 block">Tanggal</label>
+        <input id="tanggal" type="date" class="w-full mt-1 border rounded-xl px-3 py-2.5 text-sm">
+      </div>
+      <div>
+        <label class="text-[12px] font-semibold text-gray-500 block">Jarak (KM)</label>
+        <input id="km" type="number" value="166" class="w-full mt-1 border rounded-xl px-3 py-2.5 text-sm">
+      </div>
+    </div>
+    <label class="text-[12px] font-semibold text-gray-500 mt-3 block">Jumlah Orang</label>
+    <input id="jumlahOrang" type="number" value="1" min="1" class="w-full mt-1 border rounded-xl px-3 py-2.5 text-sm">
+
+    <label class="text-[12px] font-semibold text-gray-500 mt-4 block">Layanan</label>
+    <div class="grid grid-cols-2 gap-2 mt-1">
+      <button onclick="setLayanan('reguler')" id="btn-reguler" class="chip-active border rounded-2xl p-3 text-left">
+        <p class="font-bold text-sm">Reguler</p><p class="text-[12px] opacity-70">Rp 5.000 / KM</p><p class="text-[11px] mt-1">Driver terdekat, santai</p>
+      </button>
+      <button onclick="setLayanan('prioritas')" id="btn-prioritas" class="border rounded-2xl p-3 text-left">
+        <p class="font-bold text-sm">Prioritas ⭐</p><p class="text-[12px] opacity-70">Rp 6.500 / KM</p><p class="text-[11px] mt-1">Jemput lebih cepat</p>
+      </button>
+    </div>
+
+    <div class="mt-4 bg-yellow-50 border border-yellow-200 rounded-2xl p-3">
+      <div class="flex justify-between items-center">
+        <p class="font-bold text-sm">🎟️ Pakai Voucher?</p>
+        <span id="voucher-count-label" class="text-[12px] bg-black text-white px-2 py-1 rounded-full">3 voucher</span>
+      </div>
+      <p class="text-[12px] text-gray-600 mt-1">Centang di halaman Voucher, potongan langsung kepotong disini.</p>
+      <div class="flex justify-between mt-2 text-sm"><span>Potongan voucher:</span><b id="potongan-label" class="text-green-600">- Rp 0</b></div>
+    </div>
+
+    <div class="mt-4 bg-gray-50 rounded-2xl p-3 text-sm space-y-1">
+      <div class="flex justify-between"><span id="rincian-km">166 KM x Rp 5.000</span><span id="rincian-dasar">Rp 830.000</span></div>
+      <div class="flex justify-between text-gray-500"><span>Biaya layanan (5%)</span><span id="rincian-fee">Rp 41.500</span></div>
+      <div class="flex justify-between text-blue-600"><span>Biaya kapal (<span id="rincian-kapal">0x Kapal</span>)</span><span id="rincian-kapal-harga">Rp 0</span></div>
+      <div class="flex justify-between"><span>Voucher dipakai</span><span id="rincian-voucher" class="text-green-600">- Rp 0</span></div>
+      <div class="flex justify-between font-extrabold text-base pt-2 border-t"><span>Total Bayar</span><span id="total-bayar">Rp 871.500</span></div>
+      <p class="text-[11px] text-gray-400">* Belum termasuk tol + parkir, ditanggung penumpang. Voucher yang didapat: <b id="voucher-dapat" class="text-black">Rp 43.575</b></p>
+    </div>
+
+    <div class="mt-3 bg-blue-50 rounded-2xl p-3 text-sm">
+      <p class="font-bold">Preview Rute</p>
+      <p id="prevJarak" class="text-gray-500">~ -</p>
+      <p id="prevDurasi" class="text-gray-500">- menit</p>
+      <div class="voucher" id="prevKapal">Kapal: 0x - Rp 0</div>
+      <div class="voucher" id="prevVoucher">Voucher didapat: -</div>
+      <p id="prevTotal" class="font-extrabold mt-1">Total: Rp 0</p>
+    </div>
+
+    <button onclick="pesan()" class="w-full mt-4 bg-black text-white py-3.5 rounded-2xl font-bold">PESAN SEKARANG →</button>
+    <p class="text-center text-[11px] text-gray-400 mt-2">Driver akan konfirmasi via WhatsApp</p>
+  </div>
 </div>
+
+<div id="page-perjalanan" class="px-5 mt-4 hidden">
+  <h2 class="font-extrabold text-lg">Perjalanan Kamu</h2>
+  <p class="text-[12px] text-gray-500">Semua perjalanan dari database + ada tanggalnya</p>
+  <div id="list-perjalanan" class="space-y-3 mt-3"></div>
 </div>
-<div class="lbl">Tanggal dan Jam</div>
-<div class="row"><span class="pin">📅</span><input id="tanggalBerangkat" type="date" class="date-input"><input id="jamBerangkat" type="time" class="date-input" value="09:00" style="max-width:110px"></div>
-<div id="ongkosPreview" class="ongkos-preview">
-<h3>💰 Estimasi Ongkos</h3>
-<div class="meta"><div>Jarak<b id="prevJarak">-</b></div><div>Estimasi<b id="prevEstimasi">-</b></div></div>
-<div class="total" id="prevOngkos">-</div>
-<div class="voucher" id="prevVoucher">Voucher didapat: -</div>
+
+<div id="page-voucher" class="px-5 mt-4 hidden">
+  <h2 class="font-extrabold text-lg">Voucher Kamu</h2>
+  <p class="text-[12px] text-gray-500">Berlaku selamanya • Maksimal simpan 20 voucher</p>
+  <div class="bg-black text-white rounded-[22px] p-4 mt-3 flex justify-between">
+    <div><p class="text-[12px] text-white/70">Total Voucher</p><p id="total-voucher-label" class="text-2xl font-extrabold">Rp 58.000</p><p class="text-[12px]">3 voucher tersimpan</p></div>
+    <div class="text-3xl">🎟️</div>
+  </div>
+  <div id="list-voucher" class="space-y-3 mt-3"></div>
 </div>
+
+<div id="page-profil" class="px-5 mt-4 hidden">
+  <h2 class="font-extrabold text-lg">Profil</h2>
+  <div class="bg-white border rounded-[22px] p-4 mt-3">
+    <p class="font-bold">Penumpang Ammo</p>
+    <p class="text-sm text-gray-500">Astana Anyar, Bandung • 0812-xxxx-xxxx</p>
+    <div class="grid grid-cols-2 gap-3 mt-3 text-center">
+      <div class="bg-gray-50 rounded-2xl p-3"><p class="font-extrabold" id="stat-trip">4</p><p class="text-[12px]">Total Trip</p></div>
+      <div class="bg-gray-50 rounded-2xl p-3"><p class="font-extrabold" id="stat-voucher">3</p><p class="text-[12px]">Voucher</p></div>
+    </div>
+  </div>
 </div>
-<button class="btn-cek" onclick="cekDriver()">ORDER NOW</button>
-<div class="order-spacer"></div>
+
+<div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white border-t px-5 py-2 flex justify-between">
+  <button onclick="showPage('beranda',this)" class="tab-active flex flex-col items-center gap-1"><span class="tab-icon">🏠</span><span class="text-[11px] font-bold">Beranda</span></button>
+  <button onclick="showPage('perjalanan',this)" class="flex flex-col items-center gap-1"><span class="tab-icon">🧭</span><span class="text-[11px] font-bold">Perjalanan</span></button>
+  <button onclick="showPage('voucher',this)" class="flex flex-col items-center gap-1"><span class="tab-icon">🎟️</span><span class="text-[11px] font-bold">Voucher</span></button>
+  <button onclick="showPage('profil',this)" class="flex flex-col items-center gap-1"><span class="tab-icon">👤</span><span class="text-[11px] font-bold">Profil</span></button>
 </div>
-<div class="nav" id="bottomNav">
-<div class="on"><span>🏠</span>Beranda</div>
-<div><span>🚗</span>Perjalanan</div>
-<div onclick="bukaVoucher()" style="cursor:pointer"><span>🎟️</span>Voucher</div>
-<div onclick="bukaAkun()" style="cursor:pointer"><span>👤</span>Profil</div>
-</div>
-<div id="chatModal" class="chat-modal"><div class="chat-box">
-<div id="chatView">
-<h3 style="text-align:center;color:#d4af37">💬 Chat dengan CS</h3>
-<div id="chatLog"><div class="chatBubble">Halo! Mau tanya apa? Ketik aja, misal: ongkos ke Cimaung berapa?</div></div>
-<div id="chatInputRow"><input id="chatInput" placeholder="Ketik pesan..." autocomplete="off" enterkeyhint="send"><button id="chatSend" type="button" onclick="kirimChat()">➤</button></div>
-<div style="font-size:12px;color:#888;margin-top:6px;text-align:center">Dijawab Bot Ammo Travel • CS online</div>
-<div id="waRow" class="waRow">
-<a class="waBtn waAdmin" target="_blank" href="https://wa.me/6285890611111?text=Halo%20Admin%20Ammo%20Travel%2C%20mau%20tanya...">💬 WA Admin</a>
-<a class="waBtn waCall" target="_blank" href="https://wa.me/6285890611111?text=Halo%20Admin%2C%20mau%20telpon%20lewat%20WA...">📞 Call Admin</a>
-</div>
-<div style="text-align:center;margin-top:8px"><span onclick="bukaPin('login')" style="color:#1a1a1a;font-size:10px;cursor:pointer">.</span></div>
-<button class="chat-close" onclick="closeChat()">Tutup</button>
-</div>
-<div id="pinView" style="display:none">
-<div class="lock-logo">🔒</div>
-<div class="pinTitle" id="pinTitle">Masukkan PIN</div>
-<div class="pinSub" id="pinSub">Ammo Travel • Aman, bro</div>
-<input id="pinCodeInput" class="pinCodeInput" placeholder="Code" autocomplete="off">
-<div class="pinBoxes"><div class="pinBox"></div><div class="pinBox"></div><div class="pinBox"></div><div class="pinBox"></div><div class="pinBox"></div><div class="pinBox"></div></div>
-<div id="pinMsg"></div>
-<div class="pinPad">
-<button class="pinKey" onclick="pressPin('1')">1</button>
-<button class="pinKey" onclick="pressPin('2')">2</button>
-<button class="pinKey" onclick="pressPin('3')">3</button>
-<button class="pinKey" onclick="pressPin('4')">4</button>
-<button class="pinKey" onclick="pressPin('5')">5</button>
-<button class="pinKey" onclick="pressPin('6')">6</button>
-<button class="pinKey" onclick="pressPin('7')">7</button>
-<button class="pinKey" onclick="pressPin('8')">8</button>
-<button class="pinKey" onclick="pressPin('9')">9</button>
-<button class="pinKey" onclick="delPin()">⌫</button>
-<button class="pinKey" onclick="pressPin('0')">0</button>
-<button class="pinKey" onclick="clearPin()">C</button>
-</div>
-<button onclick="cekPin()" style="width:100%;margin-top:12px;padding:14px;background:#d4af37;color:#000;border:none;border-radius:12px;font-weight:900;font-size:16px;cursor:pointer">MASUK ➤</button>
-<button class="pinBack" onclick="backToChat()">← Kembali ke Chat</button>
-</div>
-</div></div>
-<div id="mapModal" class="map-modal"><div class="map-box"><div id="map"></div><div id="mapAddr" class="map-addr">Memuat alamat...</div><div class="map-btns"><button style="background:#333;color:#fff" onclick="closeMap()">Batal</button><button style="background:#d4af37;color:#000" onclick="confirmMap()">OK, Pakai Lokasi Ini</button></div></div></div>
-<div id="akunModal" class="daftar-modal"><div class="daftar-box"><div class="daftar-handle"></div>
-<div id="akunSudahLogin" style="display:none">
-<div class="akun-foto"><span>👤</span></div>
-<div class="akun-nama" id="akunNama">Maspus</div>
-<div class="akun-sub" id="akunSub">0812xxxxxx - Penumpang<br>akun Google: maspus@gmail.com</div>
-<div class="akun-info"><div>⭐ Saldo Voucher<b id="akunVoucher">Rp. 0</b></div><div>📍 Perjalanan<b id="akunPerjalanan">0 Perjalanan</b></div></div>
-<button class="daftar-btn btn-logout" onclick="tanyaLogout()">Logout</button>
-<button class="daftar-btn btn-tutup" onclick="tutupAkun()">Tutup</button>
-</div>
-<div id="akunBelumLogin" style="display:none">
-<h2>Masuk Akun</h2>
-<div class="akun-foto"><span>👤</span></div>
-<div><span class="daftar-label">Nomor WhatsApp</span></div>
-<input class="daftar-input" id="loginWA" placeholder="0812xxxx" inputmode="numeric">
-<div><span class="daftar-label">Password</span></div>
-<div class="pass-wrap"><input class="daftar-input" id="loginPass" type="password" placeholder="••••••"><span class="pass-eye" onclick="togglePass()">👁️</span></div>
-<button class="daftar-btn daftar-sekarang" onclick="loginWA()">Masuk</button>
-<div class="atau">atau</div>
-<button class="daftar-btn daftar-google" onclick="daftarPenumpang('Google')"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G">Lanjut dengan Google</button>
-<p class="daftar-syarat">Belum punya akun? Daftar otomatis saat masuk pertama kali.</p>
-<button class="daftar-batal" onclick="tutupAkun()">Tutup</button>
-</div>
-</div></div>
-<div id="daftarModal" class="daftar-modal"><div class="daftar-box"><div class="daftar-handle"></div><h2>Daftar dulu yuk</h2><p>Akun penumpang kamu belum ketemu di database. Daftar dulu biar orderanmu kesimpen, abis itu otomatis ke Halaman Penumpang.</p><div><span class="daftar-label">Nama</span></div><input class="daftar-input" id="namaDaftar" placeholder="Maspus"><div><span class="daftar-label">Nomor WhatsApp</span></div><input class="daftar-input" id="hpDaftar" placeholder="No. WA, contoh 0812xxxx"><button class="daftar-btn daftar-google" onclick="daftarPenumpang('Google')"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G">Lanjut dengan Google</button><button class="daftar-btn daftar-sekarang" onclick="daftarPenumpang('WA')">Daftar Sekarang</button><button class="daftar-batal" onclick="tutupDaftar()">Batal</button><p class="daftar-syarat">Dengan lanjut, kamu setuju dengan Syarat &amp; Ketentuan Ammo Travel</p></div></div>
-<div id="namaBaruModal" class="center-modal"><div class="center-box">
-<div style="font-size:36px">🙏</div>
-<h3>Tolong Masukkan nama terlebih dahulu 🙏🙏🙏</h3>
-<p>WA belum terdaftar, silakan isi nama kamu untuk daftar baru</p>
-<label>Nama Lengkap</label>
-<input id="inputNamaBaru" placeholder="Contoh: Masphus">
-<div class="center-btns"><button style="background:#333;color:#fff" onclick="tutupNamaBaru()">Batal</button><button style="background:#d4af37;color:#000" onclick="buatAkunDariNama()">Buat Akun</button></div>
-</div></div>
-<div id="logoutModal" class="center-modal"><div class="center-box">
-<div style="font-size:36px">👋</div>
-<h3>Yakin mau logout?</h3>
-<p>Kamu harus login lagi untuk order.</p>
-<div class="center-btns"><button style="background:#333;color:#fff" onclick="tutupLogout()">Batal</button><button style="background:#ff6b81;color:#fff" onclick="logoutAkun()">Ya, Logout</button></div>
-</div></div>
-<div id="toastWrap" class="toast-wrap"><div class="toast"><div class="ico" id="toastIco">✓</div><div style="flex:1"><b id="toastJudul">Berhasil</b><p id="toastIsi">-</p></div><button onclick="tutupToast()">OK</button></div></div>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
-let pickupCoord=null, destCoord=null, mapMode='pickup';
-let map=null, marker=null, tempLat=-6.9175, tempLng=107.6191, tempAddr='Lokasi Saya Saat Ini';
-let previewTimer=null, saranTimer=null;
-let pendingHP='', pendingPass='';
-let jumlahOrang=6;
-let pendingRole=null, pendingKode='';
-let googleSudahDiproses=false;
-const $=id=>document.getElementById(id);
-const fmtRp=n=>'Rp. '+Math.round(n).toLocaleString('id-ID');
-function fmtJarak(m){let km=m/1000;return km>=100?Math.round(km).toLocaleString('id-ID')+' km':km.toFixed(1).replace('.',',')+' km';}
-function fmtEstimasi(detik){let m=Math.round(detik/60);let h=Math.floor(m/60),hari=Math.floor(h/24);h=h%24;let sisa=m%60;if(hari>0)return hari+' hari '+(h>0?h+' jam':'');if(h>0)return h+' jam '+(sisa>0?sisa+' menit':'');return m+' menit';}
-function haversine(a1,b1,a2,b2){let R=6371,dLat=(a2-a1)*Math.PI/180,dLon=(b2-b1)*Math.PI/180;let a=Math.sin(dLat/2)**2+Math.cos(a1*Math.PI/180)*Math.cos(a2*Math.PI/180)*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.sqrt(a));}
+// ===== SUPABASE ASLI LU - UDAH NEMPEL, JANGAN DIEDIT =====
+const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
+const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+window.supabaseClient = supabaseClient;
+
+let layanan = 'reguler';
+let jumlahOrang = 1;
+let kapalAktif = {kapal:0, harga:0};
+
+let perjalananData = [
+  {tanggal:'2026-11-10', asal:'Astana Anyar, Bandung', tujuan:'Bandara Soekarno Hatta', km:166, layanan:'Reguler', kapal:0, harga:871500, voucher:43575, status:'Selesai'},
+  {tanggal:'2026-11-05', asal:'Bandung', tujuan:'Lembang', km:20, layanan:'Reguler', kapal:0, harga:105000, voucher:5250, status:'Selesai'},
+];
+let voucherData = [
+  {id:1, nominal:10000, dari:'Cianjur -> Bandung', tanggal:'2026-10-15', pakai:false},
+  {id:2, nominal:35000, dari:'Jakarta -> Bandung', tanggal:'2026-10-28', pakai:true},
+  {id:3, nominal:13000, dari:'Bandung -> Lembang', tanggal:'2026-11-05', pakai:true},
+];
+
+function $(id){ return document.getElementById(id); }
+function fmtRp(n){ return 'Rp ' + Math.round(n||0).toLocaleString('id-ID'); }
+function fmtJarak(km){ return Math.round(km)+' KM'; }
+
+// ===== RUMUS ASLI LU - DARAT =====
 function hitungOngkos(km,orang){let o=orang||jumlahOrang||1;let rate=o>=5?6500:5000;let kmTagih=Math.max(Math.round(km),10);let dasar=kmTagih*rate;let fee=Math.round(dasar*0.05);let total=dasar+fee;let voucher=Math.round(total*0.05);return {kmTagih:kmTagih,ongkos:total,dasar:dasar,fee:fee,voucher:voucher,rate:rate,orang:o};}
-function updateSwap(){ try{ $('swapBtn').disabled=!($('pickup').value.trim() && $('dest').value.trim()); }catch(e){} }
-let toastTimer=null;
-function showToast(judul,isi,error){try{$('toastJudul').textContent=judul;$('toastIsi').textContent=isi;$('toastIco').textContent=error?'!':'✓';$('toastWrap').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(tutupToast,3000);}catch(e){}}
-function tutupToast(){try{$('toastWrap').classList.remove('show');}catch(e){}}
-function bukaVoucher(){showToast('Voucher','Voucher kamu: Rp '+(localStorage.getItem('ammo_voucher')||0)+' - Berlaku selamanya');}
-function sembunyikanHarga(){try{$('ongkosPreview').style.display='none';$('prevJarak').textContent='-';$('prevEstimasi').textContent='-';$('prevOngkos').textContent='-';$('prevVoucher').textContent='Voucher didapat: -';}catch(e){}}
-document.addEventListener('click',function(e){let b=e.target.closest('.orang-btn');if(!b)return;jumlahOrang=parseInt(b.dataset.orang);document.querySelectorAll('.orang-btn').forEach(x=>x.classList.remove('aktif'));b.classList.add('aktif');jadwalPreview(true);});
-function swapLokasi(){let a=$('pickup').value,b=$('dest').value;$('pickup').value=b;$('dest').value=a;let tc=pickupCoord;pickupCoord=destCoord;destCoord=tc;updateSwap();jadwalPreview(true);showToast('Ditukar','Dari & Tujuan berhasil ditukar');}
-async function reverseGeocode(lat,lng){try{let r=await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lng);let d=await r.json();return d.display_name||('Titik Peta ('+lat.toFixed(4)+', '+lng.toFixed(4)+')');}catch(e){return 'Titik Peta ('+lat.toFixed(4)+', '+lng.toFixed(4)+')';}}
-function pakaiGpsTersimpan(){ try{ let last=JSON.parse(localStorage.getItem('ammo_last_gps')||'null'); if(last && last.lat && last.lon && !$('pickup').value.trim()){ pickupCoord=[last.lat,last.lon]; tempLat=last.lat; tempLng=last.lon; $('pickup').value=last.nama||('Titik Peta ('+last.lat.toFixed(4)+', '+last.lon.toFixed(4)+')'); updateSwap(); return true; } }catch(e){} return false; }
-function isiPenjemputanOtomatis(force){ try{ if(!force && $('pickup').value.trim() && pickupCoord) return; if(!force && $('pickup').value.trim() && $('pickup').value.indexOf('Mendeteksi')===-1) return; if(pakaiGpsTersimpan() && !force) { setTimeout(()=>{ try{ isiPenjemputanOtomatis(true); }catch(e){} }, 500); return; } if(!$('pickup').value.trim()) $('pickup').value='📍 Mendeteksi lokasi GPS...'; if($('gpsNote')) $('gpsNote').style.display='block'; if(!navigator.geolocation){ if($('gpsNote')) $('gpsNote').textContent='GPS tidak didukung, pilih dari Peta / ketik manual ya'; if($('pickup').value.indexOf('Mendeteksi')!==-1) $('pickup').value=''; return; } navigator.geolocation.getCurrentPosition(async pos=>{ try{ tempLat=pos.coords.latitude; tempLng=pos.coords.longitude; pickupCoord=[tempLat,tempLng]; try{ localStorage.setItem('ammo_last_gps', JSON.stringify({lat:tempLat,lon:tempLng,nama:'',waktu:Date.now()})); }catch(e){} let a=await reverseGeocode(tempLat,tempLng); try{ localStorage.setItem('ammo_last_gps', JSON.stringify({lat:tempLat,lon:tempLng,nama:a,waktu:Date.now()})); }catch(e){} $('pickup').value=a; if($('gpsNote')) $('gpsNote').style.display='none'; updateSwap(); jadwalPreview(true); }catch(e){} }, (err)=>{ try{ if($('gpsNote')) $('gpsNote').textContent='GPS belum ketemu, nyoba lagi... Ketik manual juga bisa ya, bro.'; if($('pickup').value.indexOf('Mendeteksi')!==-1) $('pickup').value='📍 Mendeteksi lokasi GPS...'; pakaiGpsTersimpan(); setTimeout(()=>{ if(!pickupCoord) { try{ isiPenjemputanOtomatis(true); }catch(e){} } }, 6000); }catch(e){} }, {enableHighAccuracy:true, timeout:10000, maximumAge:60000}); }catch(e){} }
-function jadwalPreview(langsung){clearTimeout(previewTimer);if(langsung)hitungPreview();else previewTimer=setTimeout(hitungPreview,800);}
-async function hitungPreview(){ let a=$('pickup').value.trim(), b=$('dest').value.trim(); if(!a||!b){sembunyikanHarga();return;} if(!pickupCoord||!destCoord){sembunyikanHarga();return;} $('ongkosPreview').style.display='block'; $('prevJarak').textContent='Menghitung...';$('prevEstimasi').textContent='Menghitung...';$('prevOngkos').textContent='Menghitung...'; try{ let url=`https://router.project-osrm.org/route/v1/driving/${pickupCoord[1]},${pickupCoord[0]};${destCoord[1]},${destCoord[0]}?overview=false`; let r=await fetch(url);let d=await r.json(); if(d.routes&&d.routes.length){ let route=d.routes[0];let km=route.distance/1000;let h=hitungOngkos(km,jumlahOrang); $('prevJarak').textContent='~ '+fmtJarak(route.distance); $('prevEstimasi').textContent='± '+fmtEstimasi(route.duration); $('prevOngkos').textContent='ONGKOS '+fmtRp(h.ongkos); $('prevVoucher').textContent='Voucher didapat: + '+fmtRp(h.voucher); } }catch(e){sembunyikanHarga();} }
-async function cariSaran(q, boxEl, inputEl, isPickup){ if(!q || q.length < 3){ boxEl.style.display='none'; return; } boxEl.style.display='block'; boxEl.innerHTML='<div class="loading">Mencari saran...</div>'; try{ let r = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=6&countrycodes=id&q='+encodeURIComponent(q)); let d = await r.json(); if(!d || !d.length){ boxEl.innerHTML='<div class="loading">Tidak ketemu, coba kata lain / pilih dari Peta</div>'; return; } boxEl.innerHTML=''; d.forEach(function(item){ let div=document.createElement('div'); let namaPendek=item.display_name.split(',').slice(0,3).join(','); div.innerHTML='📍 '+namaPendek+'<div class="jarak">'+item.display_name.split(',').slice(3,5).join(',')+'</div>'; div.onclick=function(){ inputEl.value=item.display_name; let coord=[parseFloat(item.lat), parseFloat(item.lon)]; if(isPickup){ pickupCoord=coord; if($('gpsNote')) $('gpsNote').style.display='none'; } else { destCoord=coord; } boxEl.style.display='none'; updateSwap(); jadwalPreview(true); }; boxEl.appendChild(div); }); }catch(e){ boxEl.innerHTML='<div class="loading">Gagal cari saran, coba lagi / pakai Peta</div>'; } }
-function jadwalSaran(inputEl, boxEl, isPickup){ clearTimeout(saranTimer); saranTimer=setTimeout(function(){ cariSaran(inputEl.value.trim(), boxEl, inputEl, isPickup); }, 400); }
-document.addEventListener('click', function(e){ try{ if(!$('saranPick').contains(e.target) && e.target.id!=='pickup') $('saranPick').style.display='none'; if(!$('saranDest').contains(e.target) && e.target.id!=='dest') $('saranDest').style.display='none'; }catch(e){} });
-function getDB(){try{return JSON.parse(localStorage.getItem('ammo_penumpang_db')||'[]');}catch(e){return [];}}
-function saveDB(db){localStorage.setItem('ammo_penumpang_db',JSON.stringify(db));}
-function getSesi(){try{let s=JSON.parse(localStorage.getItem('ammo_sesi')||'null');if(s&&(s.nama||s.hp||s.email))return s;return null;}catch(e){return null;}}
-function sudahLogin(s){ s = s || getSesi(); if(!s) return false; return !!(s.email || s.hp || s.google_email); }
-function simpanPendingOrder(){ localStorage.setItem('ammo_pending_order', JSON.stringify({ asal:$('pickup').value.trim(), tujuan:$('dest').value.trim(), asalCoord: pickupCoord, tujuanCoord: destCoord, jumlahOrang: jumlahOrang, tanggal: $('tanggalBerangkat')?$('tanggalBerangkat').value:'', jam: $('jamBerangkat')?$('jamBerangkat').value:'09:00', mauOrder: true, waktu: Date.now() })); try{ window._pendingBackup = localStorage.getItem('ammo_pending_order'); }catch(e){} }
-function pulihkanPendingOrder(){ try{ let raw = window._pendingBackup || localStorage.getItem('ammo_pending_order'); if(!raw) return null; let p=JSON.parse(raw); if(!p) return null; if(p.asal) $('pickup').value=p.asal; if(p.tujuan) $('dest').value=p.tujuan; if(p.asalCoord) pickupCoord=p.asalCoord; if(p.tujuanCoord) destCoord=p.tujuanCoord; if(p.jumlahOrang){ jumlahOrang=p.jumlahOrang; document.querySelectorAll('.orang-btn').forEach(x=>{ x.classList.toggle('aktif', parseInt(x.dataset.orang)===jumlahOrang); }); } if(p.tanggal && $('tanggalBerangkat')) $('tanggalBerangkat').value=p.tanggal; if(p.jam && $('jamBerangkat')) $('jamBerangkat').value=p.jam; updateSwap(); jadwalPreview(true); return p; }catch(e){ return null; } }
-function mauLanjutOrder(){ return localStorage.getItem('ammo_mau_order')==='1'; }
-function setMauOrder(v){ if(v) localStorage.setItem('ammo_mau_order','1'); else localStorage.removeItem('ammo_mau_order'); }
-async function geocodeAlamat(q){ try{ let r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=id&q='+encodeURIComponent(q)); let d=await r.json(); if(d && d.length) return [parseFloat(d[0].lat), parseFloat(d[0].lon)]; }catch(e){} return null; }
-function lanjutJikaMauOrder(){ if(!mauLanjutOrder()) return false; try{ pulihkanPendingOrder(); }catch(e){} if(!$('pickup').value.trim() || !$('dest').value.trim()) return false; setMauOrder(false); localStorage.removeItem('ammo_pending_order'); try{ window._pendingBackup=null; }catch(e){} if(!pickupCoord || !destCoord){ (async()=>{ try{ if(!pickupCoord) pickupCoord=await geocodeAlamat($('pickup').value.trim()); if(!destCoord) destCoord=await geocodeAlamat($('dest').value.trim()); }catch(e){} simpanOrderDanLanjut(); })(); return true; } simpanOrderDanLanjut(); return true; }
-async function simpanOrderDanLanjut(){ let a=$('pickup').value.trim(), b=$('dest').value.trim(); let tgl=$('tanggalBerangkat')?$('tanggalBerangkat').value:''; if(!tgl){tgl=new Date().toISOString().slice(0,10);} let jam=$('jamBerangkat')?$('jamBerangkat').value:'09:00'; if(!pickupCoord) pickupCoord=await geocodeAlamat(a); if(!destCoord) destCoord=await geocodeAlamat(b); if(!pickupCoord||!destCoord){showToast('Pilih Dulu','Pilih Dari & Tujuan dari saran / peta dulu ya, jangan cuma diketik',true);return;} let sesi=getSesi(); if(!sudahLogin(sesi)){ simpanPendingOrder(); setMauOrder(true); bukaAkun(); showToast('Login Dulu','Login pakai Google atau WA dulu ya, salah satu aja cukup',true); return; } if(sesi.hp || sesi.email){ try{ await syncPenumpangKeSupabase(sesi.nama||'Penumpang', sesi.hp||'', sesi.via||'Google', sesi.email||'', sesi.google_id||''); }catch(e){} } let jarakKm=null, totalHarga=null, voucherDapat=0, estimasiTeks='', durasiDetik=0, jarakMeter=0; try{ let url=`https://router.project-osrm.org/route/v1/driving/${pickupCoord[1]},${pickupCoord[0]};${destCoord[1]},${destCoord[0]}?overview=false`; let r=await fetch(url); let d=await r.json(); if(d.routes&&d.routes.length){ let route=d.routes[0]; jarakMeter=route.distance; let km=route.distance/1000; let h=hitungOngkos(km,jumlahOrang); jarakKm=h.kmTagih; totalHarga=h.ongkos; voucherDapat=h.voucher; estimasiTeks=fmtEstimasi(route.duration); durasiDetik=route.duration; } }catch(e){} if(!jarakKm){ let kmRaw=haversine(pickupCoord[0],pickupCoord[1],destCoord[0],destCoord[1]); let h=hitungOngkos(kmRaw,jumlahOrang); jarakKm=h.kmTagih; totalHarga=h.ongkos; voucherDapat=h.voucher; estimasiTeks=fmtEstimasi(kmRaw/40*3600); durasiDetik=Math.round(kmRaw/40*3600); jarakMeter=Math.round(kmRaw*1000); } let voucherLama=parseInt(localStorage.getItem('ammo_voucher')||'0'); localStorage.setItem('ammo_voucher', voucherLama+voucherDapat); localStorage.setItem('masphus_order',JSON.stringify({ asal:{nama:a,lat:pickupCoord?pickupCoord[0]:null,lon:pickupCoord?pickupCoord[1]:null}, tujuan:{nama:b,lat:destCoord?destCoord[0]:null,lon:destCoord?destCoord[1]:null}, waktu:Date.now(),jarak_km:jarakKm,jarak_meter:jarakMeter,total_harga:totalHarga,estimasi:estimasiTeks,durasi_detik:durasiDetik,jumlah_orang:jumlahOrang,voucher_didapat:voucherDapat,jenis_layanan:'Travel Penumpang',tanggal_berangkat:tgl,jam_berangkat:jam,nama_penumpang:sesi?sesi.nama:null,no_wa:sesi?sesi.hp:null,email:sesi?sesi.email:null,penumpang_id:localStorage.getItem('ammo_supabase_penumpang_id')||null,locked:true,sumber_hitung:'OSRM' })); sessionStorage.setItem('ammo_from_index','1'); sessionStorage.removeItem('ammo_clear'); sessionStorage.removeItem('ammo_must_clear_dest'); setMauOrder(false); localStorage.removeItem('ammo_pending_order'); try{ window._pendingBackup=null; }catch(e){} window.location.href='penumpang.html'; }
-async function cekDriver(){ let a=$('pickup').value.trim(), b=$('dest').value.trim(); if(!a||!b){showToast('Lengkapi Dulu','Isi Penjemputan dan Tujuan dulu Bro!',true);return;} if(a.indexOf('Mendeteksi')!==-1 && !pickupCoord){showToast('Tunggu GPS','Tunggu GPS keisi dulu ya, atau pilih dari Peta',true);return;} if(sudahLogin()){ simpanOrderDanLanjut(); return; } simpanPendingOrder(); setMauOrder(true); bukaAkun(); }
-function tutupDaftar(){try{$('daftarModal').classList.remove('show');}catch(e){}}
-async function daftarPenumpang(via){ try{ if(via==='Google'){ simpanPendingOrder(); setMauOrder(true); if(window.supabaseClient) await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href}}); return; } let nama=$('namaDaftar').value.trim(); let hp=$('hpDaftar').value.trim(); if(!nama){showToast('Nama Kosong','Tolong Masukkan nama terlebih dahulu 🙏🙏🙏',true);return;} if(!hp){showToast('No. WA Kosong','Isi No. WA dulu ya.',true);return;} let db=getDB(); let user=db.find(u=>u.hp===hp); if(!user){user={nama:nama,hp:hp,via:via,created:Date.now()};db.push(user);saveDB(db);} else{user.nama=nama;user.via=via;saveDB(db);} localStorage.setItem('ammo_sesi',JSON.stringify(user)); localStorage.setItem('ammo_last_hp',hp); tutupDaftar(); tutupAkun(); try{await syncPenumpangKeSupabase(nama,hp,via,'','');}catch(e){} if(!lanjutJikaMauOrder()){ showToast('Terdaftar','Akun berhasil dibuat, '+nama); } }catch(e){} }
-async function refreshProfilDariDB(){ let s=getSesi(); if(!s) return null; try{ if(!window.supabaseClient) return s; let cek=null; if(s.email){ cek=await supabaseClient.from('penumpang').select('*').eq('google_email',s.email).maybeSingle(); } if(!cek || !cek.data){ if(s.hp){ let c2=await supabaseClient.from('penumpang').select('*').eq('no_wa',s.hp).maybeSingle(); if(c2.data) cek=c2; } } if(cek && cek.data){ if(s.email && !cek.data.google_email){ try{ await supabaseClient.from('penumpang').update({google_email:s.email, google_id:s.google_id||null}).eq('id',cek.data.id); }catch(e){} } if(s.hp && !cek.data.no_wa){ try{ await supabaseClient.from('penumpang').update({no_wa:s.hp}).eq('id',cek.data.id); }catch(e){} } s.nama=cek.data.nama||s.nama; if(cek.data.no_wa) s.hp=cek.data.no_wa; if(cek.data.google_email) s.email=cek.data.google_email; if(cek.data.google_id) s.google_id=cek.data.google_id; localStorage.setItem('ammo_sesi',JSON.stringify(s)); localStorage.setItem('ammo_supabase_penumpang_id',cek.data.id); if(s.hp) localStorage.setItem('ammo_last_hp',s.hp); let b=await supabaseClient.from('bookings').select('id',{count:'exact',head:true}).eq('penumpang_id',cek.data.id); s.total_perjalanan=(b.count||0); } }catch(e){} return s; }
-async function bukaAkun(){ try{ let s=getSesi(); if(s){ s=await refreshProfilDariDB()||s; } if(sudahLogin(s)){ $('akunSudahLogin').style.display='block';$('akunBelumLogin').style.display='none'; $('akunNama').textContent=s.nama||'Penumpang'; $('akunSub').innerHTML=(s.hp||'-')+' - Penumpang<br>akun '+(s.via||'WA')+': '+(s.email||'-'); if($('akunVoucher')) $('akunVoucher').textContent='Rp. '+(parseInt(localStorage.getItem('ammo_voucher')||'0')).toLocaleString('id-ID'); if($('akunPerjalanan')) $('akunPerjalanan').textContent=(s.total_perjalanan||0)+' Perjalanan'; }else{$('akunSudahLogin').style.display='none';$('akunBelumLogin').style.display='block';} $('akunModal').classList.add('show'); }catch(e){} }
-function tutupAkun(){try{$('akunModal').classList.remove('show');}catch(e){}}
-function togglePass(){let p=$('loginPass');p.type=p.type==='password'?'text':'password';}
-async function loginWA(){ let hp=$('loginWA').value.trim(); if(!hp){showToast('WA Kosong','Isi No. WA dulu',true);return;} try{ if(window.supabaseClient){ let cek=await supabaseClient.from('penumpang').select('*').eq('no_wa',hp).maybeSingle(); if(cek.data){ let user={nama:cek.data.nama,hp:cek.data.no_wa,via:'WA',email:cek.data.google_email||'',google_id:cek.data.google_id||''}; localStorage.setItem('ammo_sesi',JSON.stringify(user)); localStorage.setItem('ammo_supabase_penumpang_id',cek.data.id); localStorage.setItem('ammo_last_hp',hp); tutupAkun(); if(!lanjutJikaMauOrder()){ showToast('Berhasil','Selamat datang, '+user.nama); } return; } } }catch(e){} let db=getDB();let user=db.find(u=>u.hp===hp); if(user){ localStorage.setItem('ammo_sesi',JSON.stringify(user)); localStorage.setItem('ammo_last_hp',hp); tutupAkun(); if(!lanjutJikaMauOrder()){ showToast('Berhasil','Selamat datang, '+user.nama); } } else{$('daftarModal').classList.add('show');$('namaDaftar').value='';$('hpDaftar').value=hp;} }
-function tanyaLogout(){try{$('logoutModal').classList.add('show');}catch(e){}}
-function tutupLogout(){try{$('logoutModal').classList.remove('show');}catch(e){}}
-async function logoutAkun(){ try{ if(window.supabaseClient) await supabaseClient.auth.signOut(); }catch(e){} localStorage.removeItem('ammo_sesi'); localStorage.removeItem('ammo_supabase_penumpang_id'); setMauOrder(false); localStorage.removeItem('ammo_pending_order'); localStorage.removeItem('masphus_order'); try{ window._pendingBackup=null; }catch(e){} googleSudahDiproses=false; tutupLogout();tutupAkun(); resetIndexKecualiPickupAkun(); showToast('Logout','Kamu berhasil logout'); }
-function tutupNamaBaru(){try{$('namaBaruModal').classList.remove('show');}catch(e){}}
-function buatAkunDariNama(){ let n=$('inputNamaBaru').value.trim(); if(!n){showToast('Nama Kosong','Isi nama dulu',true);return;} let user={nama:n,hp:pendingHP||localStorage.getItem('ammo_last_hp')||'',via:'WA'}; localStorage.setItem('ammo_sesi',JSON.stringify(user)); if(user.hp) localStorage.setItem('ammo_last_hp',user.hp); tutupNamaBaru(); tutupAkun(); if(!lanjutJikaMauOrder()){ showToast('Terdaftar','Akun dibuat, '+n); } }
-function openMap(mode){ try{ mapMode=mode; if(mode==='pickup'&&pickupCoord){tempLat=pickupCoord[0];tempLng=pickupCoord[1];} if(mode==='dest'&&destCoord){tempLat=destCoord[0];tempLng=destCoord[1];} let m=$('mapModal'); m.classList.add('show'); m.style.display='flex'; setTimeout(async()=>{ try{ if(!map){ map=L.map('map').setView([tempLat,tempLng],14); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map); marker=L.marker([tempLat,tempLng],{draggable:true}).addTo(map); marker.on('dragend',async()=>{ let p=marker.getLatLng();tempLat=p.lat;tempLng=p.lng; tempAddr=await reverseGeocode(tempLat,tempLng); $('mapAddr').textContent=tempAddr; }); map.on('click',async e=>{ tempLat=e.latlng.lat;tempLng=e.latlng.lng;marker.setLatLng(e.latlng); tempAddr=await reverseGeocode(tempLat,tempLng); $('mapAddr').textContent=tempAddr; }); }else{map.setView([tempLat,tempLng],14);marker.setLatLng([tempLat,tempLng]);} setTimeout(()=>{ try{ map.invalidateSize(); }catch(e){} }, 200); setTimeout(()=>{ try{ map.invalidateSize(); }catch(e){} }, 600); tempAddr=await reverseGeocode(tempLat,tempLng); $('mapAddr').textContent=tempAddr; }catch(e){ $('mapAddr').textContent='Peta gagal dimuat, coba lagi ya'; } },100); }catch(e){} }
-function closeMap(){try{let m=$('mapModal'); m.classList.remove('show'); m.style.display='none';}catch(e){}}
-function confirmMap(){ try{ let inp=mapMode==='pickup'?$('pickup'):$('dest'); inp.value=tempAddr; if(mapMode==='pickup'){pickupCoord=[tempLat,tempLng]; if($('gpsNote')) $('gpsNote').style.display='none';} else destCoord=[tempLat,tempLng]; try{ if(mapMode==='pickup') localStorage.setItem('ammo_last_gps', JSON.stringify({lat:tempLat,lon:tempLng,nama:tempAddr,waktu:Date.now()})); }catch(e){} closeMap();updateSwap();jadwalPreview(true); }catch(e){} }
-function kosongkanTujuan(){ try{ $('dest').value=''; destCoord=null; if($('saranDest')) $('saranDest').style.display='none'; sembunyikanHarga(); localStorage.removeItem('masphus_order'); updateSwap(); }catch(e){} }
-function resetIndexKecualiPickupAkun(){ try{ $('dest').value=''; destCoord=null; if($('saranDest')) $('saranDest').style.display='none'; if($('saranPick')) $('saranPick').style.display='none'; sembunyikanHarga(); localStorage.removeItem('masphus_order'); localStorage.removeItem('ammo_pending_order'); try{ window._pendingBackup=null; }catch(e){} setMauOrder(false); jumlahOrang=6; document.querySelectorAll('.orang-btn').forEach(x=>{ x.classList.toggle('aktif', parseInt(x.dataset.orang)===6); }); try{ let t=$('tanggalBerangkat'); if(t) t.value=new Date().toISOString().slice(0,10); }catch(e){} try{ let j=$('jamBerangkat'); if(j) j.value='09:00'; }catch(e){} updateSwap(); }catch(e){} }
-try{ if(mauLanjutOrder() && sudahLogin()){ pulihkanPendingOrder(); lanjutJikaMauOrder(); } else { resetIndexKecualiPickupAkun(); } }catch(e){}
-window.addEventListener('pageshow',function(){ try{ if(mauLanjutOrder() && sudahLogin()){ pulihkanPendingOrder(); lanjutJikaMauOrder(); return; } resetIndexKecualiPickupAkun(); if(!$('pickup').value.trim()) isiPenjemputanOtomatis(); }catch(e){} });
-try{ isiPenjemputanOtomatis(); }catch(e){}
-try{let t=$('tanggalBerangkat');if(t&&!t.value)t.value=new Date().toISOString().slice(0,10);}catch(e){}
-try{ $('pickup').addEventListener('input',()=>{ if($('gpsNote')) $('gpsNote').style.display='none'; pickupCoord=null;updateSwap();sembunyikanHarga();jadwalSaran($('pickup'),$('saranPick'),true);}); $('dest').addEventListener('input',()=>{destCoord=null;updateSwap();sembunyikanHarga();jadwalSaran($('dest'),$('saranDest'),false);}); }catch(e){}
-</script>
-<script>
-let pinKode='';
-window.bukaPin = function(role,kode){
-  try{ pendingRole=role; pendingKode=kode||''; pinKode=''; renderPin(); if($('pinCodeInput')) $('pinCodeInput').value=kode||''; $('pinMsg').textContent=''; $('pinTitle').textContent='Masukkan PIN'; $('pinSub').textContent='Ammo Travel • Aman, bro'; $('chatView').style.display='none'; $('pinView').style.display='block'; var m=$('chatModal'); if(m){ m.classList.add('show'); m.style.display='flex'; } }catch(e){}
-};
-window.pressPin = function(n){try{if(pinKode.length>=6)return;pinKode+=n;renderPin();if(pinKode.length===6){setTimeout(cekPin,250);}}catch(e){}};
-window.delPin = function(){pinKode=pinKode.slice(0,-1);renderPin();};
-window.clearPin = function(){pinKode='';renderPin();};
-window.renderPin = function(){ try{ let boxes=document.querySelectorAll('.pinBox'); boxes.forEach((b,i)=>{ b.classList.toggle('on', i<pinKode.length); }); }catch(e){} };
-window.cekPin = async function(){
+
+// ===== KAPAL - DARI DATABASE harga_kapal =====
+async function cekKapal(tujuanText){
   try{
-    let codeVal = ($('pinCodeInput') ? $('pinCodeInput').value.trim() : '').toLowerCase();
-    if(!codeVal){ $('pinMsg').textContent='Kode kosong, isi dulu ya'; $('pinMsg').style.color='#ff6b81'; pinKode=''; renderPin(); return; }
-    if(!pinKode || pinKode.length<4){ $('pinMsg').textContent='Isi PIN dulu 4-6 digit'; $('pinMsg').style.color='#ff6b81'; return; }
-    $('pinMsg').textContent='Mengecek...'; $('pinMsg').style.color='#facc15';
-    let hasil = await window.cariAkunByCodePin(codeVal, pinKode);
-    if(hasil){
-      if(hasil.role==='admin'){ window.buatKarcis(codeVal, pinKode, 'admin', hasil); window.location.href='q9x.html'; return; }
-      if(hasil.role==='driver'){ if(String(hasil.status||'').toLowerCase()!=='aktif' && String(hasil.status||'').toLowerCase()!=='active'){ $('pinMsg').textContent='Akun driver belum aktif. Tunggu verifikasi admin.'; $('pinMsg').style.color='#ff6b81'; pinKode=''; renderPin(); return; } window.buatKarcis(codeVal, pinKode, 'driver', hasil); window.location.href='driver.html'; return; }
-    }
-  }catch(e){console.log(e);}
-  try{ $('pinMsg').textContent='Salah, coba lagi ya'; $('pinMsg').style.color='#ff6b81'; pinKode=''; renderPin(); let pv=$('pinView'); if(pv){ pv.classList.remove('goyang'); void pv.offsetWidth; pv.classList.add('goyang'); } }catch(e){}
-  return;
-};
-window.backToChat = function(){try{pendingRole=null;pinKode='';renderPin();$('pinView').style.display='none';$('chatView').style.display='block';}catch(e){}};
-try{
-  if($('chatSend')) $('chatSend').addEventListener('click', function(){ window.kirimChat(); });
-  if($('chatInput')) $('chatInput').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); window.kirimChat(); } });
-  if($('chatModal')) $('chatModal').addEventListener('click', function(e){ if(e.target.id==='chatModal') window.closeChat(); });
-}catch(e){}
-</script>
-<script>
-async function syncPenumpangKeSupabase(nama, hp, via, google_email, google_id){
-  try{
-    if(!window.supabaseClient) return null;
-    let cek=null;
-    if(google_email){ let c=await supabaseClient.from('penumpang').select('*').eq('google_email',google_email).maybeSingle(); if(c.data) cek=c; }
-    if((!cek || !cek.data) && hp){ let c=await supabaseClient.from('penumpang').select('*').eq('no_wa',hp).maybeSingle(); if(c.data) cek=c; }
-    if(cek && cek.data){ let upd={}; if(google_email && !cek.data.google_email) upd.google_email=google_email; if(google_id && !cek.data.google_id) upd.google_id=google_id; if(hp && !cek.data.no_wa) upd.no_wa=hp; if(nama && !cek.data.nama) upd.nama=nama; if(Object.keys(upd).length){ await supabaseClient.from('penumpang').update(upd).eq('id',cek.data.id); } localStorage.setItem('ammo_supabase_penumpang_id',cek.data.id); return cek.data.id; }
-    if(!hp && !google_email) return null;
-    let payload={nama:nama||'Penumpang', via:via||'Google'}; if(hp) payload.no_wa=hp; if(google_email) payload.google_email=google_email; if(google_id) payload.google_id=google_id; let ins=await supabaseClient.from('penumpang').insert([payload]).select('*').single(); if(ins.data){ localStorage.setItem('ammo_supabase_penumpang_id',ins.data.id); return ins.data.id; }
-  }catch(e){}
-  return null;
+    if(!window.supabaseClient || !tujuanText) return {kapal:0,harga:0};
+    let r = await supabaseClient.from('harga_kapal').select('kunci,kapal,harga');
+    if(r.error || !r.data) return {kapal:0,harga:0};
+    let t = tujuanText.toLowerCase();
+    let sorted = r.data.sort((a,b)=> b.kunci.length - a.kunci.length);
+    let ketemu = sorted.find(row => row.kunci && t.includes(row.kunci.toLowerCase()));
+    return ketemu ? {kapal:ketemu.kapal, harga:Number(ketemu.harga)||0} : {kapal:0,harga:0};
+  }catch(e){ return {kapal:0,harga:0}; }
 }
-async function prosesBalikanGoogle(){
-  if(googleSudahDiproses) return; googleSudahDiproses=true;
-  try{
-    if(!window.supabaseClient){ pulihkanPendingOrder(); return; }
-    const {data:{session}} = await supabaseClient.auth.getSession();
-    if(session && session.user){
-      let namaGoogle=session.user.user_metadata?.full_name||session.user.user_metadata?.name||session.user.email?.split('@')[0]||'Penumpang'; let emailGoogle=session.user.email||''; let idGoogle=session.user.id||''; let sesiLama=getSesi();
-      if(!sesiLama){ let user={nama:namaGoogle, hp:'', email:emailGoogle, google_id:idGoogle, via:'Google'}; localStorage.setItem('ammo_sesi',JSON.stringify(user)); sesiLama=user; } else { let berubah=false; if(emailGoogle && !sesiLama.email){ sesiLama.email=emailGoogle; berubah=true; } if(idGoogle && !sesiLama.google_id){ sesiLama.google_id=idGoogle; berubah=true; } if(berubah) localStorage.setItem('ammo_sesi',JSON.stringify(sesiLama)); }
-      if(emailGoogle){ try{ await syncPenumpangKeSupabase(sesiLama.nama, sesiLama.hp||'', 'Google', emailGoogle, idGoogle); }catch(e){} }
-      pulihkanPendingOrder(); if(mauLanjutOrder()){ setTimeout(()=>{ lanjutJikaMauOrder(); }, 600); }
-    } else { pulihkanPendingOrder(); }
-  }catch(e){}
+function hitungOngkosDenganKapal(km,orang){
+  let h = hitungOngkos(km,orang);
+  h.kapal = kapalAktif.kapal;
+  h.hargaKapal = kapalAktif.harga;
+  h.ongkos = h.ongkos + kapalAktif.harga;
+  h.voucher = Math.round(h.ongkos*0.05);
+  return h;
 }
-prosesBalikanGoogle();
-try{ if(window.supabaseClient){ supabaseClient.auth.onAuthStateChange((event, session)=>{ if(event==='SIGNED_IN' && session && session.user){ prosesBalikanGoogle(); } }); } }catch(e){}
-</script>
-<div class="chat-float" id="chatFloat"><div class="chat" id="chatBtn">💬<i></i></div></div>
-<script>
-(function(){ try{ var f=document.getElementById('chatFloat'); var b=document.getElementById('chatBtn'); function go(e){ if(e){ e.preventDefault(); e.stopPropagation(); } window.openChat(); } if(f) f.addEventListener('click', go); if(b) b.addEventListener('click', go); }catch(e){} })();
+
+function setLayanan(v){
+  layanan = v;
+  $('btn-reguler').className = (v==='reguler'?'chip-active ':'')+'border rounded-2xl p-3 text-left';
+  $('btn-prioritas').className = (v==='prioritas'?'chip-active ':'')+'border rounded-2xl p-3 text-left';
+  hitung();
+}
+function totalVoucherDipakai(){ return voucherData.filter(v=>v.pakai).reduce((a,b)=>a+b.nominal,0); }
+
+function hitung(){
+  let km = parseFloat($('km').value)||0;
+  jumlahOrang = parseInt($('jumlahOrang').value)||1;
+  let h = hitungOngkosDenganKapal(km, jumlahOrang);
+  // Kalau layanan prioritas, rate 6500, hitung ulang dengan rate prioritas
+  if(layanan==='prioritas'){
+    let kmTagih = Math.max(Math.round(km),10);
+    let dasar = kmTagih*6500;
+    let fee = Math.round(dasar*0.05);
+    h.dasar = dasar; h.fee = fee; h.rate = 6500;
+    h.ongkos = dasar + fee + kapalAktif.harga;
+    h.voucher = Math.round(h.ongkos*0.05);
+  }
+  let potongan = totalVoucherDipakai();
+  let totalBayar = Math.max(0, h.ongkos - potongan);
+  $('rincian-km').innerText = h.kmTagih+' KM x '+fmtRp(h.rate);
+  $('rincian-dasar').innerText = fmtRp(h.dasar);
+  $('rincian-fee').innerText = fmtRp(h.fee);
+  $('rincian-kapal').innerText = h.kapal+'x Kapal';
+  $('rincian-kapal-harga').innerText = fmtRp(h.hargaKapal);
+  $('rincian-voucher').innerText = '- '+fmtRp(potongan);
+  $('potongan-label').innerText = '- '+fmtRp(potongan);
+  $('total-bayar').innerText = fmtRp(totalBayar);
+  $('voucher-dapat').innerText = fmtRp(h.voucher);
+  return {finalHarga:h.ongkos, totalBayar, voucherDapat:h.voucher, h};
+}
+
+// Preview - versi asli lu + kapal
+async function hitungPreview(){
+  let a = $('asal').value;
+  let b = $('tujuan').value;
+  let km = parseFloat($('km').value)||0;
+  kapalAktif = await cekKapal(b);
+  let h = hitungOngkosDenganKapal(km, jumlahOrang);
+  // Sesuaikan prioritas
+  if(layanan==='prioritas'){
+    let kmTagih = Math.max(Math.round(km),10);
+    let dasar = kmTagih*6500; let fee = Math.round(dasar*0.05);
+    h.dasar = dasar; h.fee = fee; h.rate = 6500;
+    h.ongkos = dasar + fee + kapalAktif.harga;
+    h.voucher = Math.round(h.ongkos*0.05);
+  }
+  $('prevJarak').textContent = '~ '+fmtJarak(km);
+  $('prevDurasi').textContent = '- menit';
+  $('prevKapal').textContent = 'Kapal: '+h.kapal+'x - '+fmtRp(h.hargaKapal);
+  $('prevVoucher').textContent = 'Voucher didapat: + '+fmtRp(h.voucher);
+  $('prevTotal').textContent = 'Total: '+fmtRp(h.ongkos);
+  hitung();
+}
+
+function renderPerjalanan(){
+  $('list-perjalanan').innerHTML = perjalananData.map(p=>`
+    <div class="bg-white border rounded-[20px] p-4">
+      <div class="flex justify-between"><span class="text-[12px] bg-green-100 text-green-700 px-2 py-1 rounded-full font-bold">✓ ${p.status}</span><span class="text-[12px] text-gray-400">📅 ${p.tanggal}</span></div>
+      <p class="font-bold mt-2">${p.asal} → ${p.tujuan}</p>
+      <p class="text-[12px] text-gray-500">${p.km} KM • ${p.layanan} • Kapal ${p.kapal||0}x • Voucher ${fmtRp(p.voucher)}</p>
+      <p class="font-extrabold mt-1">${fmtRp(p.harga)}</p>
+    </div>`).join('');
+}
+function renderVoucher(){
+  let total = voucherData.reduce((a,b)=>a+b.nominal,0);
+  $('total-voucher-label').innerText = fmtRp(total);
+  $('voucher-count-label').innerText = voucherData.length+' voucher';
+  $('list-voucher').innerHTML = voucherData.map((v,i)=>`
+    <label class="voucher-card bg-white rounded-[20px] p-4 flex gap-3 items-center block cursor-pointer">
+      <input type="checkbox" ${v.pakai?'checked':''} onchange="toggleVoucher(${v.id},this.checked)">
+      <div class="flex-1">
+        <p class="font-bold">Voucher ${i+1} - ${fmtRp(v.nominal)}</p>
+        <p class="text-[12px] text-gray-500">Dari ${v.dari} • ${v.tanggal}</p>
+        <p class="text-[11px] text-green-600 font-bold">Berlaku selamanya ♾️</p>
+      </div>
+      <span class="text-2xl">🎟️</span>
+    </label>`).join('');
+}
+function toggleVoucher(id,checked){
+  let v = voucherData.find(x=>x.id===id); v.pakai=checked; renderVoucher(); hitung();
+}
+function showPage(page,el){
+  ['beranda','perjalanan','voucher','profil'].forEach(p=>$('page-'+p).classList.add('hidden'));
+  $('page-'+page).classList.remove('hidden');
+  document.querySelectorAll('.fixed button').forEach(b=>b.classList.remove('tab-active'));
+  if(el) el.classList.add('tab-active');
+}
+function pesan(){
+  let km = $('km').value;
+  let asal = $('asal').value;
+  let tujuan = $('tujuan').value;
+  let tanggal = $('tanggal').value || new Date().toISOString().slice(0,10);
+  let {finalHarga, totalBayar, voucherDapat, h} = hitung();
+  perjalananData.unshift({tanggal, asal, tujuan, km:parseInt(km), layanan:layanan==='reguler'?'Reguler':'Prioritas', kapal:kapalAktif.kapal, harga:totalBayar, voucher:Math.round(voucherDapat), status:'Selesai'});
+  if(voucherData.length<20) voucherData.push({id:Date.now(), nominal:Math.round(voucherDapat), dari: asal+' -> '+tujuan, tanggal, pakai:false});
+  voucherData = voucherData.filter(v=>!v.pakai || v.id===Date.now());
+  renderPerjalanan(); renderVoucher(); hitung();
+  alert('Pesanan dibuat!\nTujuan: '+tujuan+'\nKapal: '+kapalAktif.kapal+'x ('+fmtRp(kapalAktif.harga)+')\nTotal: '+fmtRp(totalBayar)+'\nVoucher baru: '+fmtRp(voucherDapat));
+}
+$('tanggal').value = new Date().toISOString().slice(0,10);
+$('km').addEventListener('input',hitungPreview);
+$('tujuan').addEventListener('input',hitungPreview);
+$('jumlahOrang').addEventListener('input',hitungPreview);
+renderPerjalanan(); renderVoucher(); hitung(); hitungPreview();
 </script>
 </body>
 </html>
