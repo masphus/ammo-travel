@@ -8,90 +8,70 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
 body{background:#000;display:flex;justify-content:center}
 .phone{width:100%;max-width:430px;background:#0f0f0f;min-height:100vh;padding-bottom:20px;position:relative;color:#fff;overflow:hidden}
-.bintang{position:absolute;inset:0;pointer-events:none;z-index:0;background-image:radial-gradient(2px 2px at 20px 30px,#fff8dc 50%,transparent 51%),radial-gradient(1.5px 1.5px at 80px 120px,#FFD700 50%,transparent 51%),radial-gradient(2px 2px at 150px 60px,#fff 50%,transparent 51%),radial-gradient(1.5px 1.5px at 200px 140px,#FFD700 50%,transparent 51%),radial-gradient(2px 2px at 300px 80px,#fff 50%,transparent 51%);animation:kedipBintang 4s infinite}
-.bintang2{background-position:60px 80px;opacity:.6;animation-duration:4.5s}
-.bintang3{background-position:-40px 150px;opacity:.4;animation-duration:5.5s}
-@keyframes kedipBintang{0%,100%{opacity:.5}50%{opacity:1}}
-.phone:before{content:"";position:absolute;left:-80px;top:200px;width:200px;height:600px;background:radial-gradient(ellipse at center,rgba(255,215,0,.18) 0%,transparent 70%);filter:blur(8px);z-index:0;pointer-events:none;transform:rotate(15deg)}
-.phone:after{content:"";position:absolute;right:-80px;top:100px;width:200px;height:600px;background:radial-gradient(ellipse at center,rgba(255,215,0,.18) 0%,transparent 70%);filter:blur(8px);z-index:0;pointer-events:none;transform:rotate(-15deg)}
-header{background:#000;color:#e8c96a;padding:14px 16px;display:none;align-items:center;gap:14px}
-header a{color:#e8c96a;font-size:24px;text-decoration:none}
-header b{font-size:22px;color:#e8c96a}
-.radar-wrap{text-align:center;padding:0;background:#000;overflow:hidden;position:relative}
-.radar{width:100%;height:220px;margin:auto;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000 70%)}
+.bintang{position:absolute;inset:0;pointer-events:none;z-index:0;background-image:radial-gradient(2px 2px at 20px 30px,#fff8dc 50%,transparent 51%),radial-gradient(1.5px 1.5px at 80px 120px,#FFD700 50%,transparent 51%)}
+.radar{width:100%;height:220px;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 50%,#1a1a1a 0%,#000 70%)}
 .radar:before,.radar:after{content:"";position:absolute;border:1px solid rgba(255,215,0,.35);border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}
 .radar:before{width:300px;height:300px}
 .radar:after{width:180px;height:180px}
-.radar .lingkar3{position:absolute;width:90px;height:90px;border:1px solid rgba(255,215,0,.35);border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}
-.radar .garis-v{position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,215,0,.15)}
-.radar .garis-h{position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(255,215,0,.15)}
-.radar .sapu{position:absolute;left:50%;top:50%;width:50%;height:2px;background:linear-gradient(90deg, rgba(255,215,0,0) 0%, #FFD700 100%);transform-origin:left center;animation:spin 2.5s linear infinite;box-shadow:0 0 12px #FFD700}
-.radar .sapu-bayang{position:absolute;left:50%;top:50%;width:50%;height:110px;background:conic-gradient(from 0deg, rgba(255,215,0,.25) 0deg, rgba(255,215,0,0) 60deg);transform-origin:left top;animation:spin 2.5s linear infinite;clip-path:polygon(0 0, 100% 0, 0 100%)}
+.sapu{position:absolute;left:50%;top:50%;width:50%;height:2px;background:linear-gradient(90deg,transparent,#FFD700);transform-origin:left center;animation:spin 2.5s linear infinite}
+.sapu-bayang{position:absolute;left:50%;top:50%;width:50%;height:110px;background:conic-gradient(from 0deg,rgba(255,215,0,.25),transparent 60deg);transform-origin:left top;animation:spin 2.5s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .titik{position:absolute;width:7px;height:7px;background:#FFD700;border-radius:50%;box-shadow:0 0 10px #FFD700;animation:kedip 2.5s infinite;opacity:0}
-@keyframes kedip{0%,100%{opacity:0;transform:scale(0.5)}20%{opacity:1;transform:scale(1.2)}40%{opacity:0.2}60%{opacity:1}}
+@keyframes kedip{0%,100%{opacity:0}20%{opacity:1}40%{opacity:.2}60%{opacity:1}}
 .radar-label{position:absolute;bottom:10px;left:0;right:0;text-align:center;color:#FFD700;font-size:12px;letter-spacing:3px;font-weight:bold}
 .title{text-align:center;font-size:30px;color:#e8c96a;margin-top:8px}
 .sub{text-align:center;font-size:14px;padding:6px 20px 14px;color:#f5d76e}
-.card{margin:22px 16px 14px;border:2px solid #d4af37;border-radius:18px;padding:18px 16px;background:#131313;display:flex;flex-wrap:wrap;gap:12px;box-shadow:0 0 18px rgba(212,175,55,.18)}
+.card{margin:22px 16px 14px;border:2px solid #d4af37;border-radius:18px;padding:18px 16px;background:#131313;display:flex;flex-wrap:wrap;gap:12px}
 .card h2{color:#e8c96a;font-size:26px;width:100%}
 .driver-top{width:100%;border:1.5px solid #d4af37;border-radius:16px;padding:14px;background:#0f0f0f;order:1;display:flex;gap:14px;align-items:center}
 .driver-top img{width:72px;height:72px;border-radius:50%;border:3px solid #d4af37;object-fit:cover;background:#222;flex-shrink:0}
 .driver-top .info{flex:1;min-width:0}
-.driver-top small{color:#e8c96a;font-size:15px;font-weight:900;letter-spacing:.5px}
-.driver-top b{display:block;font-size:21px;color:#fff;margin-top:4px;line-height:1.2}
+.driver-top small{color:#e8c96a;font-size:15px;font-weight:900}
+.driver-top b{display:block;font-size:21px;color:#fff;margin-top:4px}
 .driver-top span{display:block;font-size:15px;color:#f5d76e;margin-top:2px}
 .driver-top .plat{font-size:17px;color:#fff;font-weight:900}
 .route{margin:6px 0 0 4px;border-left:2px dashed #d4af37;padding-left:22px;width:100%;order:2}
-.route b{font-size:19px;display:block;line-height:1.4;color:#ffffff}
+.route b{font-size:19px;display:block;color:#fff}
 .route small{color:#e8c96a;font-size:16px;font-weight:900}
 .meta{flex:1;display:flex;flex-direction:column;gap:8px;border:1.5px solid #d4af37;border-radius:16px;padding:14px;background:#0f0f0f;order:3;min-width:0}
 .meta div{font-size:15px;color:#f5d76e}
 .meta b{display:block;font-size:18px;color:#e8c96a;margin-top:2px}
 .ongkos{flex:1;background:#0f0f0f;border:1.5px solid #d4af37;border-radius:16px;padding:14px;font-weight:900;font-size:24px;color:#e8c96a;order:4;min-width:0}
 .ongkos small{display:block;font-size:14px;color:#f5d76e;margin-bottom:8px}
-.note{font-size:15px;color:#fff;margin-top:0;line-height:1.4;text-align:center;width:100%;order:5;border:1.5px solid #d4af37;border-radius:16px;padding:12px 14px;background:#0f0f0f}
-.note:before{content:"PENTING!";display:block;color:#ff2b2b;font-size:26px;font-weight:900;letter-spacing:.5px;margin-bottom:4px}
+.note{font-size:15px;color:#fff;text-align:center;width:100%;order:5;border:1.5px solid #d4af37;border-radius:16px;padding:12px 14px;background:#0f0f0f}
+.note:before{content:"PENTING!";display:block;color:#ff2b2b;font-size:26px;font-weight:900}
 .btn-batal{margin:22px 16px 0;background:linear-gradient(180deg,#4a1212,#2a0707);color:#fff;border:2px solid #ff2b2b;width:calc(100% - 32px);padding:16px;border-radius:14px;font-weight:900;font-size:22px;cursor:pointer}
 .btn-chat{margin:12px 16px 0;background:#d4af37;color:#000;border:none;width:calc(100% - 32px);padding:14px;border-radius:14px;font-weight:900;font-size:18px;cursor:pointer;display:none}
-.chat-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;align-items:flex-end;justify-content:center}
-.chat-modal.show{display:flex}
+.chat-modal,.notif-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;align-items:flex-end;justify-content:center}
+.chat-modal.show,.notif-modal.show{display:flex}
 .chat-box{width:100%;max-width:430px;background:#1a1a1a;border-radius:16px 16px 0 0;padding:14px;max-height:85vh;overflow-y:auto;color:#fff}
 .chat-head{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid #333}
-.chat-bubble{background:#222;border-radius:12px;padding:10px 12px;margin:8px 0;font-size:15px;line-height:1.4;max-width:85%;color:#fff}
+.chat-bubble{background:#222;border-radius:12px;padding:10px 12px;margin:8px 0;font-size:15px;max-width:85%;color:#fff}
 .chat-bubble.driver{background:#2a2410;border:1px solid #d4af37}
 .chat-bubble.me{background:#d4af37;color:#000;margin-left:auto}
 .chat-bubble.system{background:#2a2410;border:1px solid #FFD700;text-align:center;margin:10px auto;font-size:14px;color:#f5d76e;max-width:95%}
 .chat-input{display:flex;gap:8px;margin-top:10px}
-.chat-input input{flex:1;padding:12px;border:1px solid #333;border-radius:20px;outline:none;font-size:15px;background:#111;color:#fff}
+.chat-input input{flex:1;padding:12px;border:1px solid #333;border-radius:20px;outline:none;background:#111;color:#fff}
 .chat-input button{background:#d4af37;color:#000;border:none;border-radius:50%;width:44px;height:44px;font-size:20px;cursor:pointer}
-.chat-close{display:block;width:100%;margin-top:10px;padding:12px;border:none;border-radius:10px;background:#111;color:#fff;font-weight:bold;font-size:16px;cursor:pointer;border:1px solid #333}
-.notif-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:120;align-items:flex-end;justify-content:center}
-.notif-modal.show{display:flex}
+.chat-close{display:block;width:100%;margin-top:10px;padding:12px;border:none;border-radius:10px;background:#111;color:#fff;font-weight:bold;cursor:pointer;border:1px solid #333}
 .notif-box{width:100%;max-width:430px;background:#1a1a1a;border:1px solid #d4af37;border-radius:16px 16px 0 0;padding:20px 16px 16px;text-align:center}
-.notif-box .ikon{font-size:48px;margin-bottom:8px}
-.notif-box h3{font-size:20px;color:#e8c96a;margin-bottom:8px;line-height:1.3}
-.notif-box p{font-size:15px;color:#ccc;line-height:1.5;margin-bottom:16px}
+.notif-box .ikon{font-size:48px}
+.notif-box h3{font-size:20px;color:#e8c96a;margin-bottom:8px}
+.notif-box p{font-size:15px;color:#ccc;margin-bottom:16px}
 .notif-btns{display:flex;gap:10px}
 .notif-btns button{flex:1;padding:14px;border-radius:10px;border:none;font-weight:bold;font-size:16px;cursor:pointer}
 .btn-ya-batal{background:#e60000;color:#fff}
 .btn-lanjutkan{background:#d4af37;color:#000}
 .btn-ok-notif{background:#d4af37;color:#000;width:100%;padding:14px;border-radius:10px;border:none;font-weight:bold;font-size:16px;cursor:pointer}
-.spinner{width:36px;height:36px;border:3px solid #333;border-top:3px solid #ff2b2b;border-radius:50%;margin:0 auto 10px;animation:spin 0.8s linear infinite}
+.spinner{width:36px;height:36px;border:3px solid #333;border-top:3px solid #ff2b2b;border-radius:50%;margin:0 auto 10px;animation:spin .8s linear infinite}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="phone">
 <div class="bintang"></div>
-<div class="bintang bintang2"></div>
-<div class="bintang bintang3"></div>
-<header><a href="javascript:void(0)" onclick="kembaliKeIndex()">←</a><b>Menunggu Driver</b></header>
 <div class="radar-wrap" id="radarWrap">
-<div class="radar" id="radarEl">
-<div class="garis-v"></div>
-<div class="garis-h"></div>
-<div class="lingkar3"></div>
+<div class="radar">
 <div class="sapu-bayang"></div>
 <div class="sapu"></div>
 <div id="titikWrap"></div>
@@ -102,32 +82,53 @@ header b{font-size:22px;color:#e8c96a}
 <p class="sub" id="waitSub">Booking dikirim ke driver terdekat. Tunggu driver menerima.</p>
 <div class="card">
 <h2>📍 Rute Perjalanan</h2>
-<div class="driver-top" id="driverTopBox">
-<img id="wDriverFoto" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72'%3E%3Ccircle cx='36' cy='36' r='36' fill='%23222'/%3E%3Ctext x='36' y='44' text-anchor='middle' fill='%23d4af37' font-size='28'%3E👤%3C/text%3E%3C/svg%3E" alt="Driver">
+<div class="driver-top">
+<img id="wDriverFoto" src="https://via.placeholder.com/72" alt="Driver">
 <div class="info">
 <small>INFORMASI DRIVER</small>
 <b id="wDriverNama">Mencari Driver...</b>
-<span id="wDriverKendaraan">Menunggu driver menerima order...</span>
+<span id="wDriverKendaraan">Menunggu driver terdekat...</span>
 <span class="plat" id="wDriverPlat">-</span>
 </div>
 </div>
-<div class="route"><small>Dari</small><b id="wDari">Memuat...</b><br><br><small>Tujuan</small><b id="wTujuan">Memuat...</b></div>
-<div class="meta"><div>🅰️ Jarak<b id="wJarak">Menghitung...</b></div><div>🕒 Estimasi<b id="wEstimasi">Menghitung...</b></div></div>
-<div class="ongkos"><small>ONGKOS</small><span id="wOngkos">Menghitung...</span></div>
+<div class="route">
+<small>Dari</small>
+<b id="wDari">Memuat...</b>
+<br><br>
+<small>Tujuan</small>
+<b id="wTujuan">Memuat...</b>
+</div>
+<div class="meta">
+<div>🅰️ Jarak<b id="wJarak">Menghitung...</b></div>
+<div>🕒 Estimasi<b id="wEstimasi">Menghitung...</b></div>
+</div>
+<div class="ongkos">
+<small>ONGKOS</small>
+<span id="wOngkos">Menghitung...</span>
+</div>
 <p class="note">ⓘ Biaya Parkir, Tol, dan Penyeberangan akan dibebankan kepada Penumpang bilamana ada</p>
 </div>
 <button class="btn-chat" id="btnChat" onclick="bukaChat()">💬 Chat Driver</button>
 <button class="btn-batal" onclick="batalkanPesanan()">Batalkan Pesanan</button>
 </div>
-<div id="chatModal" class="chat-modal"><div class="chat-box">
-<div class="chat-head"><img id="chatFoto" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Ccircle cx='22' cy='22' r='22' fill='%23222'/%3E%3Ctext x='22' y='28' text-anchor='middle' fill='%23d4af37' font-size='18'%3E👤%3C/text%3E%3C/svg%3E" style="width:44px;height:44px;border-radius:50%;object-fit:cover"><div><b id="chatNama">Driver</b><br><small id="chatStatus" style="color:#aaa">● Menunggu driver...</small></div></div>
-<div id="chatIsi">
-<div class="chat-bubble system">Chat akan aktif setelah driver menerima order kamu.</div>
+
+<div id="chatModal" class="chat-modal">
+<div class="chat-box">
+<div class="chat-head">
+<img id="chatFoto" src="https://via.placeholder.com/44" style="width:44px;height:44px;border-radius:50%;object-fit:cover">
+<div><b id="chatNama">Driver</b><br><small style="color:#00a651">● Online</small></div>
 </div>
-<div class="chat-input"><input id="chatInput" placeholder="Ketik pesan ke driver..."><button onclick="kirimChat()">➤</button></div>
+<div id="chatIsi"></div>
+<div class="chat-input">
+<input id="chatInput" placeholder="Ketik pesan ke driver...">
+<button onclick="kirimChat()">➤</button>
+</div>
 <button class="chat-close" onclick="tutupChat()">Tutup Chat</button>
-</div></div>
-<div id="modalKembali" class="notif-modal"><div class="notif-box">
+</div>
+</div>
+
+<div id="modalKembali" class="notif-modal">
+<div class="notif-box">
 <div class="ikon">⚠️</div>
 <h3>Anda Masih Mempunyai Perjalanan</h3>
 <p id="teksKembali">Driver sudah OTW ke titik jemputmu.<br>Yakin ingin membatalkan perjalanan ini?</p>
@@ -135,244 +136,359 @@ header b{font-size:22px;color:#e8c96a}
 <button class="btn-ya-batal" onclick="konfirmasiKembaliYa()">Ya, Batalkan</button>
 <button class="btn-lanjutkan" onclick="konfirmasiKembaliLanjut()">Lanjutkan Perjalanan</button>
 </div>
-</div></div>
-<div id="modalBatal" class="notif-modal"><div class="notif-box">
+</div>
+</div>
+
+<div id="modalBatal" class="notif-modal">
+<div class="notif-box">
 <div class="spinner"></div>
 <h3>Membatalkan Perjalanan...</h3>
-<p id="teksBatal">Mengirim pemberitahuan pembatalan ke driver...<br>Driver akan diberitahu bahwa penumpang membatalkan perjalanan.</p>
-</div></div>
-<div id="modalBatalSukses" class="notif-modal"><div class="notif-box">
+<p>Mengirim pemberitahuan pembatalan ke driver...</p>
+</div>
+</div>
+
+<div id="modalBatalSukses" class="notif-modal">
+<div class="notif-box">
 <div class="ikon">✅</div>
 <h3>Perjalanan Dibatalkan</h3>
-<p>Driver sudah diberitahu bahwa kamu membatalkan perjalanan.<br>Terima kasih sudah menggunakan Ammo Travel.</p>
+<p>Driver sudah diberitahu bahwa kamu membatalkan perjalanan.</p>
 <button class="btn-ok-notif" onclick="selesaiBatalKeIndex()">OK, Kembali ke Beranda</button>
-</div></div>
+</div>
+</div>
+
+<div id="modalNaik" class="notif-modal">
+<div class="notif-box">
+<div class="ikon">🚗</div>
+<h3>Konfirmasi Sudah Naik?</h3>
+<p id="teksNaik">Driver bilang kamu sudah naik kendaraan. Apakah benar kamu sudah di dalam kendaraan?</p>
+<div class="notif-btns">
+<button class="btn-lanjutkan" onclick="jawabNaik(true)">Ya, Sudah Naik</button>
+<button class="btn-ya-batal" onclick="jawabNaik(false)">Belum Naik!</button>
+</div>
+</div>
+</div>
+
+<div id="modalSelesai" class="notif-modal">
+<div class="notif-box">
+<div class="ikon">📍</div>
+<h3>Driver Klaim Sudah Sampai</h3>
+<p id="teksSelesai">Driver mengklaim sudah sampai tujuan, tapi GPS driver masih jauh. Apakah benar kamu sudah sampai tujuan?</p>
+<div class="notif-btns">
+<button class="btn-lanjutkan" onclick="jawabSelesai(true)">Ya, Sudah Sampai</button>
+<button class="btn-ya-batal" onclick="jawabSelesai(false)">Belum Sampai!</button>
+</div>
+</div>
+</div>
+
 <script>
-let supabaseClient = null;
-try{ supabaseClient = supabase.createClient("https://xxtgmohxdztesiubfxap.supabase.co", "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv"); }catch(e){}
+try{
+  window.supabaseClient = supabase.createClient("https://xxtgmohxdztesiubfxap.supabase.co", "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv");
+}catch(e){ window.supabaseClient = null; }
+
 const saved = JSON.parse(localStorage.getItem('masphus_order') || 'null');
 const ASAL_NAMA = (saved && saved.asal && saved.asal.nama) ? saved.asal.nama : '-';
 const TUJUAN_NAMA = (saved && saved.tujuan && saved.tujuan.nama) ? saved.tujuan.nama : '-';
-let ASAL_COORD = (saved && saved.asal && saved.asal.lat) ? [saved.asal.lat, saved.asal.lon] : null;
-let TUJUAN_COORD = (saved && saved.tujuan && saved.tujuan.lat) ? [saved.tujuan.lat, saved.tujuan.lon] : null;
+let bookingId = (saved && saved.booking_id) ? saved.booking_id : localStorage.getItem('ammo_booking_id') || null;
+
 let driverDitemukan = false;
-let bookingId = (saved && saved.booking_id) ? saved.booking_id : null;
-let driverIdReal = null;
-let chatSudahDibukaOtomatis = false;
-let chatTerakhirId = 0;
-let etaInterval = null;
-let etaDetik = 0;
-let namaDriverAktif = '';
 let bolehKeluar = false;
 let lagiTampilNotif = false;
+let chatSudahAutoBuka = false;
+let sudahRedirectSelesai = false;
+let sudahTampilNaik = false;
+let sudahTampilSelesai = false;
+let lastChatIds = new Set();
+let namaDriverAktif = '';
+
 document.getElementById('wDari').textContent = ASAL_NAMA;
 document.getElementById('wTujuan').textContent = TUJUAN_NAMA;
-document.getElementById('chatRute') ? null : null;
-function escHtml(v){ return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function updateDriverTop(nama, foto, kendaraan, plat){
-  try{
-    if(foto) document.getElementById('wDriverFoto').src = foto;
-    if(nama) document.getElementById('wDriverNama').textContent = nama;
-    if(kendaraan) document.getElementById('wDriverKendaraan').textContent = kendaraan;
-    if(plat) document.getElementById('wDriverPlat').textContent = plat;
-  }catch(e){}
-}
+
+function fmtRp(n){ return 'Rp. ' + Math.round(n).toLocaleString('id-ID'); }
+function fmtJarak(m){ let km = m/1000; return km >= 100 ? Math.round(km) + ' km' : km.toFixed(1).replace('.',',') + ' km'; }
+function fmtEstimasi(d){ let m = Math.round(d/60), h = Math.floor(m/60), hari = Math.floor(h/24); h = h % 24; let s = m % 60; if(hari > 0) return hari + ' hari ' + (h > 0 ? h + ' jam' : ''); if(h > 0) return h + ' jam ' + (s > 0 ? s + ' menit' : ''); return m + ' menit'; }
+
 function buatTitikRadar(){
-  let wrap = document.getElementById('titikWrap');
-  if(!wrap) return;
-  wrap.innerHTML = '';
-  for(let i=0;i<8;i++){
+  let w = document.getElementById('titikWrap');
+  if(!w) return;
+  w.innerHTML = '';
+  for(let i = 0; i < 8; i++){
     let d = document.createElement('div');
     d.className = 'titik';
     d.style.left = (12 + Math.random()*76) + '%';
     d.style.top = (12 + Math.random()*68) + '%';
-    d.style.animationDelay = (Math.random()*3).toFixed(2) + 's';
-    d.style.animationDuration = (1.8 + Math.random()*2.5).toFixed(2) + 's';
-    let warna = ['#FFD700','#FFD700','#FFD700','#FFD700','#00FF88','#FFFFFF'][Math.floor(Math.random()*6)];
-    d.style.background = warna;
-    d.style.boxShadow = '0 0 10px ' + warna;
-    wrap.appendChild(d);
+    w.appendChild(d);
   }
 }
 buatTitikRadar();
 setInterval(buatTitikRadar, 6000);
-function fmtRp(n){ return 'Rp. ' + Math.round(n).toLocaleString('id-ID'); }
-function fmtJarak(m){ let km=m/1000; return km>=100 ? Math.round(km).toLocaleString('id-ID')+' km' : km.toFixed(1).replace('.',',')+' km'; }
-function fmtEstimasi(detik){ let m=Math.round(detik/60); let h=Math.floor(m/60), hari=Math.floor(h/24); h=h%24; let sisa=m%60; if(hari>0) return hari+' hari '+(h>0?h+' jam':''); if(h>0) return h+' jam '+(sisa>0?sisa+' menit':''); return m+' menit'; }
-async function hitungRute(){
+
+function tampilkanTarifDariIndex(){
   if(saved && saved.total_harga){
     if(saved.jarak_meter) document.getElementById('wJarak').textContent = '~ ' + fmtJarak(saved.jarak_meter);
     else if(saved.jarak_km) document.getElementById('wJarak').textContent = '~ ' + saved.jarak_km + ' km';
     if(saved.estimasi) document.getElementById('wEstimasi').textContent = '± ' + saved.estimasi;
     else if(saved.durasi_detik) document.getElementById('wEstimasi').textContent = '± ' + fmtEstimasi(saved.durasi_detik);
     document.getElementById('wOngkos').textContent = fmtRp(saved.total_harga);
-    return;
+    return true;
   }
-  document.getElementById('wJarak').textContent='-';
+  return false;
 }
-hitungRute();
-async function buatBookingReal(){
-  if(!supabaseClient || !saved) return null;
-  if(bookingId) return bookingId;
+
+async function buatBookingJikaBelum(){
+  if(bookingId || !saved || !window.supabaseClient) return;
   try{
-    let sesi = JSON.parse(localStorage.getItem('ammo_sesi')||'null');
-    let penumpangId = localStorage.getItem('ammo_supabase_penumpang_id') || (saved && saved.penumpang_id) || null;
+    let sesi = JSON.parse(localStorage.getItem('ammo_sesi') || 'null');
     let payload = {
-      penumpang_id: penumpangId,
-      asal: ASAL_NAMA, tujuan: TUJUAN_NAMA,
-      asal_lat: ASAL_COORD ? ASAL_COORD[0] : null, asal_lon: ASAL_COORD ? ASAL_COORD[1] : null,
-      tujuan_lat: TUJUAN_COORD ? TUJUAN_COORD[0] : null, tujuan_lon: TUJUAN_COORD ? TUJUAN_COORD[1] : null,
-      jarak_km: saved.jarak_km || null, total_harga: saved.total_harga || null,
-      jumlah_orang: saved.jumlah_orang || 6, tanggal_berangkat: saved.tanggal_berangkat || null, jam_berangkat: saved.jam_berangkat || null,
-      status: 'mencari_driver', nama_penumpang: (sesi && sesi.nama) || saved.nama_penumpang || null, no_wa: (sesi && sesi.hp) || saved.no_wa || null
+      penumpang_id: localStorage.getItem('ammo_supabase_penumpang_id') || saved.penumpang_id || null,
+      asal_nama: ASAL_NAMA,
+      tujuan_nama: TUJUAN_NAMA,
+      asal_lat: saved.asal ? saved.asal.lat : null,
+      asal_lon: saved.asal ? saved.asal.lon : null,
+      tujuan_lat: saved.tujuan ? saved.tujuan.lat : null,
+      tujuan_lon: saved.tujuan ? saved.tujuan.lon : null,
+      total_harga: saved.total_harga || null,
+      jarak_km: saved.jarak_km || null,
+      estimasi: saved.estimasi || null,
+      jumlah_orang: saved.jumlah_orang || null,
+      nama_penumpang: (saved.nama_penumpang || (sesi ? sesi.nama : null)),
+      no_wa: (saved.no_wa || (sesi ? sesi.hp : null)),
+      status: 'mencari',
+      payment_method: saved.payment_method || saved.metode_bayar || 'tunai'
     };
-    let ins = await supabaseClient.from('bookings').insert([payload]).select('*').single();
-    if(ins.data){ bookingId = ins.data.id; saved.booking_id = bookingId; localStorage.setItem('masphus_order', JSON.stringify(saved)); return bookingId; }
-  }catch(e){}
-  return null;
-}
-async function cekBookingReal(){
-  if(!supabaseClient) return;
-  if(!bookingId){ bookingId = await buatBookingReal(); if(!bookingId) return; }
-  try{
-    let r = await supabaseClient.from('bookings').select('*').eq('id', bookingId).maybeSingle();
-    if(!r.data) return;
-    if(r.data.status === 'dibatalkan' || r.data.status === 'batal'){ return; }
-    let did = r.data.driver_id || r.data.drivers_id || r.data.id_driver || null;
-    if(did && !driverDitemukan){
-      let d = await supabaseClient.from('drivers').select('*').eq('id', did).maybeSingle();
-      if(d.data) tampilkanDriverReal(d.data, r.data);
-      else if(r.data.nama_driver) tampilkanDriverReal({nama: r.data.nama_driver, plat: r.data.plat || r.data.plat_nomor || '-', kendaraan: r.data.kendaraan || r.data.type_kendaraan || 'Kendaraan Driver', foto: r.data.foto_driver || ''}, r.data);
+    let r = await supabaseClient.from('bookings').insert([payload]).select('id').single();
+    if(r && r.data){
+      bookingId = r.data.id;
+      localStorage.setItem('ammo_booking_id', bookingId);
+      saved.booking_id = bookingId;
+      localStorage.setItem('masphus_order', JSON.stringify(saved));
     }
   }catch(e){}
 }
-function tampilkanDriverReal(driver, booking){
-  driverDitemukan = true;
-  driverIdReal = driver.id || null;
-  namaDriverAktif = driver.nama || 'Driver';
-  let foto = driver.foto || driver.foto_url || driver.avatar || '';
-  let kendaraan = driver.kendaraan || driver.type_kendaraan || driver.mobil || 'Kendaraan Driver';
-  let plat = driver.plat || driver.plat_nomor || driver.nomor_plat || '-';
-  document.getElementById('radarWrap').style.display = 'none';
-  document.getElementById('waitTitle').textContent = 'Driver Ditemukan!';
-  document.getElementById('waitSub').textContent = 'Driver sedang OTW ke titik jemputmu';
-  updateDriverTop(namaDriverAktif, foto, kendaraan, plat);
-  document.getElementById('chatFoto').src = foto || document.getElementById('chatFoto').src;
-  document.getElementById('chatNama').textContent = namaDriverAktif;
-  document.getElementById('chatStatus').textContent = '● Online';
-  document.getElementById('chatStatus').style.color = '#00a651';
-  document.getElementById('btnChat').style.display = 'block';
-  // CHAT OTOMATIS, TAPI CUMA SEKALI, DAN CUMA KALAU DRIVER BENERAN TERIMA. Bukan timer demo.
-  if(!chatSudahDibukaOtomatis){
-    chatSudahDibukaOtomatis = true;
-    muatChatReal();
-    setTimeout(()=>{ bukaChat(); }, 600);
-  }
-  mulaiPollingChat();
+
+function updateDriverTop(nama, foto, kendaraan, plat){
+  if(foto) document.getElementById('wDriverFoto').src = foto;
+  if(nama) document.getElementById('wDriverNama').textContent = nama;
+  if(kendaraan) document.getElementById('wDriverKendaraan').textContent = kendaraan;
+  if(plat) document.getElementById('wDriverPlat').textContent = plat;
 }
-setInterval(cekBookingReal, 5000);
-cekBookingReal();
-function bukaChat(){
-  if(!driverDitemukan) return;
-  document.getElementById('chatModal').classList.add('show');
-  muatChatReal();
-}
-function tutupChat(){ document.getElementById('chatModal').classList.remove('show'); }
-async function muatChatReal(){
-  if(!supabaseClient || !bookingId) return;
+
+async function cekBooking(){
+  if(!bookingId || !window.supabaseClient) return;
   try{
-    let r = await supabaseClient.from('chats').select('*').eq('booking_id', bookingId).order('created_at', {ascending:true});
-    if(r.data && r.data.length){
-      let isi = document.getElementById('chatIsi');
-      isi.innerHTML = '';
-      r.data.forEach(m=>{
-        let cls = (m.sender === 'penumpang' || m.sender === 'user') ? 'me' : 'driver';
-        let nama = cls === 'me' ? 'Kamu' : namaDriverAktif;
-        isi.innerHTML += '<div class="chat-bubble '+cls+'"><b>'+escHtml(nama)+':</b> '+escHtml(m.message||m.pesan||'')+'</div>';
-        chatTerakhirId = Math.max(chatTerakhirId, m.id || 0);
+    let r = await supabaseClient.from('bookings').select('*').eq('id', bookingId).single();
+    if(!r || !r.data) return;
+    let b = r.data;
+    let status = String(b.status || '').toLowerCase();
+
+    if((status === 'selesai' || status === 'completed' || status === 'done') && !sudahRedirectSelesai){
+      sudahRedirectSelesai = true;
+      document.getElementById('waitTitle').textContent = 'Perjalanan Selesai!';
+      document.getElementById('waitSub').textContent = 'Terima kasih sudah pakai Ammo Travel. Balik ke beranda ya...';
+      setTimeout(() => {
+        try{ localStorage.removeItem('masphus_order'); localStorage.removeItem('ammo_booking_id'); }catch(e){}
+        window.location.href = 'index.html';
+      }, 3000);
+      return;
+    }
+
+    if(b.driver_id || b.driver_nama || b.nama_driver || status === 'diterima' || status === 'accepted' || status === 'otw' || status === 'jalan' || status === 'minta_jemput' || status === 'minta_selesai' || status === 'dijemput'){
+      let nama = b.driver_nama || b.nama_driver || b.driver_name || namaDriverAktif || 'Driver';
+      let foto = b.driver_foto || b.foto_driver || b.driver_photo || 'https://via.placeholder.com/72';
+      let kendaraan = b.driver_kendaraan || b.kendaraan || b.vehicle || b.type_kendaraan || 'Kendaraan Driver';
+      let plat = b.driver_plat || b.plat || b.plat_nomor || '-';
+      if(!driverDitemukan){
+        driverDitemukan = true;
+        namaDriverAktif = nama;
+        document.getElementById('radarWrap').style.display = 'none';
+        document.getElementById('waitTitle').textContent = 'Driver Ditemukan!';
+        document.getElementById('waitSub').textContent = 'Driver sedang OTW ke titik jemputmu';
+        document.getElementById('btnChat').style.display = 'block';
+        updateDriverTop(nama, foto, kendaraan, plat);
+        document.getElementById('chatFoto').src = foto;
+        document.getElementById('chatNama').textContent = nama;
+      }
+      if(!chatSudahAutoBuka){
+        chatSudahAutoBuka = true;
+        setTimeout(() => {
+          document.getElementById('chatModal').classList.add('show');
+          muatChat(true);
+        }, 800);
+      }
+    }
+
+    if(status === 'minta_jemput' && !sudahTampilNaik){
+      let bayar = String(b.payment_method || b.metode_bayar || saved.payment_method || 'tunai').toLowerCase();
+      if(bayar !== 'tunai' && bayar !== 'cash'){
+        sudahTampilNaik = true;
+        document.getElementById('modalNaik').classList.add('show');
+      } else {
+        jawabNaik(true);
+      }
+    }
+
+    if(status === 'minta_selesai' && !sudahTampilSelesai){
+      sudahTampilSelesai = true;
+      let jarakTxt = b.jarak_driver_ke_tujuan_m || b.driver_distance_m || b.jarak_selesai_m || '';
+      document.getElementById('teksSelesai').innerHTML = 'Driver mengklaim sudah sampai tujuan, tapi GPS driver masih <b>' + (jarakTxt ? Math.round(jarakTxt) + ' meter' : 'jauh dari tujuan (lebih dari 500m)') + '</b>. Apakah benar kamu sudah sampai tujuan?';
+      document.getElementById('modalSelesai').classList.add('show');
+    }
+
+  }catch(e){}
+}
+
+async function jawabNaik(ya){
+  document.getElementById('modalNaik').classList.remove('show');
+  if(!window.supabaseClient || !bookingId) return;
+  try{
+    if(ya){
+      await supabaseClient.from('bookings').update({ status: 'jalan' }).eq('id', bookingId);
+      document.getElementById('waitSub').textContent = 'Kamu sudah di dalam kendaraan. Perjalanan dimulai.';
+    } else {
+      await supabaseClient.from('bookings').update({ status: 'diterima' }).eq('id', bookingId);
+      sudahTampilNaik = false;
+      document.getElementById('waitSub').textContent = 'Driver diberitahu kamu belum naik. Menunggu konfirmasi driver.';
+    }
+  }catch(e){}
+}
+
+async function jawabSelesai(ya){
+  document.getElementById('modalSelesai').classList.remove('show');
+  if(!window.supabaseClient || !bookingId) return;
+  try{
+    if(ya){
+      await supabaseClient.from('bookings').update({ status: 'selesai' }).eq('id', bookingId);
+    } else {
+      await supabaseClient.from('bookings').update({ status: 'jalan' }).eq('id', bookingId);
+      sudahTampilSelesai = false;
+      document.getElementById('waitSub').textContent = 'Kamu bilang belum sampai. Driver diminta lanjut ke tujuan.';
+    }
+  }catch(e){}
+}
+
+function renderChatItem(c){
+  let isi = document.getElementById('chatIsi');
+  let div = document.createElement('div');
+  let dariDriver = (c.sender === 'driver' || c.pengirim === 'driver' || c.role === 'driver');
+  div.className = 'chat-bubble ' + (dariDriver ? 'driver' : 'me');
+  div.textContent = c.message || c.pesan || c.text || '';
+  isi.appendChild(div);
+  isi.scrollTop = isi.scrollHeight;
+}
+
+async function muatChat(pertama){
+  if(!bookingId || !window.supabaseClient) return;
+  try{
+    let r = await supabaseClient.from('chats').select('*').eq('booking_id', bookingId).order('created_at', { ascending: true });
+    if(r && r.data){
+      if(pertama){ document.getElementById('chatIsi').innerHTML = ''; lastChatIds.clear(); }
+      r.data.forEach(c => {
+        let id = c.id || c.created_at + '-' + (c.message || '');
+        if(!lastChatIds.has(id)){ lastChatIds.add(id); renderChatItem(c); }
       });
-      isi.scrollTop = isi.scrollHeight;
     }
   }catch(e){}
 }
-function mulaiPollingChat(){ if(window._pollChat) return; window._pollChat = setInterval(muatChatReal, 4000); }
+
+function bukaChat(){ document.getElementById('chatModal').classList.add('show'); muatChat(false); }
+function tutupChat(){ document.getElementById('chatModal').classList.remove('show'); }
+
 async function kirimChat(){
   let inp = document.getElementById('chatInput');
   let teks = inp.value.trim();
-  if(!teks) return;
-  if(!driverDitemukan){ inp.value=''; return; }
+  if(!teks || !bookingId) return;
   inp.value = '';
-  let isi = document.getElementById('chatIsi');
-  isi.innerHTML += '<div class="chat-bubble me"><b>Kamu:</b> '+escHtml(teks)+'</div>';
-  isi.scrollTop = isi.scrollHeight;
-  // REAL: kirim ke Supabase, TIDAK ada balesan robot lagi.
   try{
-    if(supabaseClient && bookingId){
-      await supabaseClient.from('chats').insert([{booking_id: bookingId, penumpang_id: localStorage.getItem('ammo_supabase_penumpang_id')||null, driver_id: driverIdReal, sender:'penumpang', message: teks}]);
+    if(window.supabaseClient){
+      await supabaseClient.from('chats').insert([{ booking_id: bookingId, sender: 'penumpang', message: teks }]);
+    } else {
+      renderChatItem({ sender: 'penumpang', message: teks });
     }
-  }catch(e){}
+    setTimeout(() => muatChat(false), 500);
+  }catch(e){ renderChatItem({ sender: 'penumpang', message: teks }); }
 }
-document.getElementById('chatInput').addEventListener('keypress', function(e){ if(e.key==='Enter') kirimChat(); });
-function kirimNotifKeDriver(pesan){
-  try{ if(supabaseClient && bookingId){ supabaseClient.from('chats').insert([{booking_id: bookingId, sender:'system', message: pesan}]); } }catch(e){}
-  let isi = document.getElementById('chatIsi');
-  if(isi){ isi.innerHTML += '<div class="chat-bubble system">📢 ' + escHtml(pesan) + '</div>'; }
-}
+
+document.getElementById('chatInput').addEventListener('keypress', function(e){ if(e.key === 'Enter') kirimChat(); });
+
 function tampilkanNotifKembali(){
-  if(driverDitemukan){ document.getElementById('teksKembali').innerHTML = 'Driver <b>' + escHtml(namaDriverAktif) + '</b> sudah OTW ke titik jemputmu.<br>Yakin ingin membatalkan perjalanan ini?'; }
-  else { document.getElementById('teksKembali').innerHTML = 'Kami masih mencari driver untukmu.<br>Yakin ingin membatalkan perjalanan ini?'; }
+  if(driverDitemukan){
+    document.getElementById('teksKembali').innerHTML = 'Driver <b>' + namaDriverAktif + '</b> sudah OTW ke titik jemputmu.<br>Yakin ingin membatalkan perjalanan ini?';
+  } else {
+    document.getElementById('teksKembali').innerHTML = 'Kami masih mencari driver untukmu.<br>Yakin ingin membatalkan perjalanan ini?';
+  }
   document.getElementById('modalKembali').classList.add('show');
 }
+
 function kunciBack(){
-  history.pushState({page:'penumpang-lock'}, '', location.href);
-  history.pushState({page:'penumpang-lock'}, '', location.href);
-  history.pushState({page:'penumpang-lock'}, '', location.href);
+  history.pushState({ page: 'penumpang-lock' }, '', location.href);
+  history.pushState({ page: 'penumpang-lock' }, '', location.href);
+  history.pushState({ page: 'penumpang-lock' }, '', location.href);
 }
 kunciBack();
-window.addEventListener('popstate', function(e){
+
+window.addEventListener('popstate', function(){
   if(bolehKeluar) return;
   kunciBack();
   if(lagiTampilNotif) return;
   lagiTampilNotif = true;
   tampilkanNotifKembali();
 });
+
 function kembaliKeIndex(){
   if(!saved && !driverDitemukan){ bersihkanDanKembali(); return; }
   tampilkanNotifKembali();
 }
+
 function konfirmasiKembaliLanjut(){
   document.getElementById('modalKembali').classList.remove('show');
   lagiTampilNotif = false;
   setTimeout(kunciBack, 50);
 }
+
 function konfirmasiKembaliYa(){
   document.getElementById('modalKembali').classList.remove('show');
   lagiTampilNotif = false;
   jalankanPembatalan();
 }
+
 function batalkanPesanan(){ jalankanPembatalan(); }
+
 async function jalankanPembatalan(){
   document.getElementById('modalBatal').classList.add('show');
-  try{ if(supabaseClient && bookingId){ await supabaseClient.from('bookings').update({status:'dibatalkan'}).eq('id', bookingId); } }catch(e){}
-  if(driverDitemukan){ kirimNotifKeDriver('Penumpang membatalkan perjalanan ke ' + TUJUAN_NAMA + '.'); }
-  setTimeout(()=>{
+  try{
+    if(window.supabaseClient && bookingId) await supabaseClient.from('bookings').update({ status: 'dibatalkan' }).eq('id', bookingId);
+  }catch(e){}
+  setTimeout(() => {
     document.getElementById('modalBatal').classList.remove('show');
     document.getElementById('modalBatalSukses').classList.add('show');
   }, 1500);
 }
+
 function selesaiBatalKeIndex(){
   document.getElementById('modalBatalSukses').classList.remove('show');
   bersihkanDanKembali();
 }
+
 function bersihkanDanKembali(){
   bolehKeluar = true;
-  localStorage.removeItem('masphus_order');
-  localStorage.removeItem('masphus_driver');
+  try{ localStorage.removeItem('masphus_order'); localStorage.removeItem('ammo_booking_id'); }catch(e){}
   sessionStorage.setItem('ammo_clear', '1');
   sessionStorage.setItem('ammo_must_clear_dest', '1');
   sessionStorage.removeItem('ammo_from_index');
   window.location.href = 'index.html';
 }
+
+async function init(){
+  if(!tampilkanTarifDariIndex()){
+    document.getElementById('wJarak').textContent = '-';
+    document.getElementById('wEstimasi').textContent = '-';
+    document.getElementById('wOngkos').textContent = '-';
+  }
+  await buatBookingJikaBelum();
+  cekBooking();
+  setInterval(cekBooking, 5000);
+  setInterval(() => { if(driverDitemukan) muatChat(false); }, 3000);
+}
+init();
 </script>
 </body>
 </html>
