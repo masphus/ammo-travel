@@ -233,7 +233,12 @@ function fmtEstimasi(detik){
   return m + ' menit';
 }
 
-function hitungOngkos(km,orang){let o=orang||jumlahOrang||1;let rate=o>=5?6500:5000;let kmTagih=Math.max(Math.round(km),10);let dasar=kmTagih*rate;let fee=Math.round(dasar*0.05);let total=dasar+fee;let voucher=Math.round(total*0.05);return {kmTagih,ongkos:total,dasar,fee,voucher,rate,orang:o};}
+// FIX VOUCHER: key per-user, bukan global
+function keyVoucher(){ try{ let s=getSesi(); let id=(s&&(s.hp||s.email||s.id))||'guest'; return 'ammo_voucher_'+String(id).replace(/[^0-9a-zA-Z]/g,'_'); }catch(e){ return 'ammo_voucher_guest'; } }
+function getVoucher(){ return parseInt(localStorage.getItem(keyVoucher())||'0')||0; }
+function setVoucher(v){ localStorage.setItem(keyVoucher(), String(Math.max(0,Math.round(v)))); }
+
+function hitungOngkos(km,orang){let o=orang||jumlahOrang||1;let rate=o>=5?6500:5000;let kmTagih=Math.max(Math.round(km),10);let dasar=kmTagih*rate;let fee=Math.round(dasar*0.05);let total=dasar+fee;let voucher=Math.round(dasar*0.05);return {kmTagih,ongkos:total,dasar,fee,voucher,rate,orang:o};}
 function nomorToEmail(nomor){let n=(nomor||'').replace(/\D/g,'');if(n.startsWith('0'))n='62'+n.slice(1);return n+'@ammo.travel';}
 
 function bukaPopup(judul,pesan,icon,tombolList){$('popup-judul').innerText=judul;$('popup-pesan').innerText=pesan;$('popup-icon').innerText=icon||'🔒';$('popup-tombol').innerHTML=tombolList.map(t=>t.type==='emas'?`<button onclick="popupAksi('${t.aksi}')" class="w-full gold-bg text-black py-3.5 rounded-2xl font-extrabold">${t.label}</button>`:`<button onclick="popupAksi('${t.aksi}')" class="w-full bg-[#1A1A1A] border border-[#333] py-3.5 rounded-2xl font-bold">${t.label}</button>`).join('');let el=$('popup-mewah');el.classList.remove('hidden');el.classList.add('flex');}
@@ -248,7 +253,7 @@ function showPage(page,el){['beranda','perjalanan','voucher','profil'].forEach(p
 function showAuth(mode){$('auth-masuk').classList.toggle('hidden',mode!=='masuk');$('auth-daftar').classList.toggle('hidden',mode!=='daftar');}
 function cekLoginLalu(page,el){if(!getSesi()){popupLoginDiperlukan(page==='voucher'?'Voucher':'Riwayat Perjalanan');return;}showPage(page,el);}
 function bukaAkun(){showPage('profil',null);}
-function bukaVoucher(){if(!getSesi()){popupLoginDiperlukan('Voucher');return;}showPage('voucher',null);showToast('Voucher','Voucher kamu: Rp '+(localStorage.getItem('ammo_voucher')||0)+' - Berlaku selamanya');}
+function bukaVoucher(){if(!getSesi()){popupLoginDiperlukan('Voucher');return;}showPage('voucher',null);showToast('Voucher','Voucher kamu: Rp '+getVoucher()+' - Berlaku selamanya');}
 function getDB(){try{return JSON.parse(localStorage.getItem('ammo_penumpang_db')||'[]');}catch(e){return [];}}function saveDB(db){localStorage.setItem('ammo_penumpang_db',JSON.stringify(db));}
 function getSesi(){try{let s=JSON.parse(localStorage.getItem('ammo_sesi')||'null');if(s&&(s.nama||s.hp||s.email))return s;return null;}catch(e){return null;}}
 function sudahLogin(s){s=s||getSesi();if(!s)return false;return !!(s.email||s.hp||s.google_email);}
@@ -333,7 +338,7 @@ async function loadProfile(){
 }
 async function loadVoucherDanPerjalanan(){
   let sesi=getSesi();if(!sesi)return;
-  let totalV=parseInt(localStorage.getItem('ammo_voucher')||'0');
+  let totalV=getVoucher();
   voucherData=totalV>0?[{id:1,nominal:totalV,dari:'Akumulasi Perjalanan',tanggal:new Date().toISOString().slice(0,10),pakai:false}]:[];
   let pRaw=localStorage.getItem('masphus_order');perjalananData=pRaw?[JSON.parse(pRaw)].map(x=>({tanggal:new Date(x.waktu||Date.now()).toISOString().slice(0,10),asal:x.asal?.nama||x.asal||'-',tujuan:x.tujuan?.nama||x.tujuan||'-',km:x.jarak_km||0,harga:x.total_harga||0,status:'Selesai'})):[];
   $('stat-trip').innerText=perjalananData.length;$('stat-voucher').innerText=voucherData.length;
@@ -347,7 +352,7 @@ function renderPerjalanan(){
   el.innerHTML=perjalananData.map(p=>`<div class="bg-[#111] gold-border rounded-[20px] p-4"><div class="flex justify-between"><span class="text-[12px] bg-green-900 text-green-300 px-2 py-1 rounded-full font-bold">✓ ${p.status}</span><span class="text-[12px] text-gray-400">📅 ${p.tanggal}</span></div><p class="font-bold mt-2">${p.asal} → ${p.tujuan}</p><p class="text-[12px] text-gray-400">${p.km} KM</p><p class="font-extrabold mt-1 gold">${fmtRp(p.harga)}</p></div>`).join('');
 }
 function renderVoucher(){
-  let total=parseInt(localStorage.getItem('ammo_voucher')||'0');$('total-voucher-label').innerText=fmtRp(total);
+  let total=getVoucher();$('total-voucher-label').innerText=fmtRp(total);
   let el=$('list-voucher');
   if(!getSesi()){el.innerHTML='<div class="bg-[#111] gold-border rounded-[20px] p-4 text-center"><p class="font-bold">Silahkan Masuk</p><p class="text-[12px] text-gray-400 mt-1">Voucher hanya dapat dilihat setelah masuk</p><button onclick="showPage(\'profil\',null)" class="gold-bg text-black px-4 py-2 rounded-xl font-bold mt-3">Masuk / Daftar</button></div>';return;}
   if(!total){el.innerHTML='<p class="text-gray-400 text-sm">Belum ada voucher</p>';return;}
@@ -381,10 +386,10 @@ async function hitungPreview(){
     if(d.routes&&d.routes.length){
       let route=d.routes[0];let km=route.distance/1000;let h=hitungOngkos(km,jumlahOrang);
       jarakKm=h.kmTagih;jarakMeter=route.distance;durasiDetik=route.duration;estimasiTeks=fmtEstimasi(route.duration);
-      let pakaiVoucher=localStorage.getItem('ammo_voucher_pakai')==='1';let potongan=pakaiVoucher?Math.min(parseInt(localStorage.getItem('ammo_voucher')||'0'),h.ongkos):0;
-      totalHarga=Math.max(0,h.ongkos-potongan);voucherDapat=h.voucher;
-      $('prevJarak').textContent='~ '+fmtJarak(route.distance);$('prevEstimasi').textContent='± '+fmtEstimasi(route.duration);$('prevOngkos').textContent='ONGKOS '+fmtRp(totalHarga);$('prevVoucher').textContent='Voucher didapat: + '+fmtRp(h.voucher);
-      $('potongan-label').innerText='- '+fmtRp(potongan);$('voucher-count-label').innerText='Rp '+parseInt(localStorage.getItem('ammo_voucher')||'0').toLocaleString('id-ID');
+      let pakaiVoucher=localStorage.getItem('ammo_voucher_pakai')==='1';let potongan=pakaiVoucher?Math.min(getVoucher(),h.ongkos):0;
+      totalHarga=Math.max(0,h.ongkos-potongan);voucherDapat=Math.round(totalHarga*0.05);
+      $('prevJarak').textContent='~ '+fmtJarak(route.distance);$('prevEstimasi').textContent='± '+fmtEstimasi(route.duration);$('prevOngkos').textContent='ONGKOS '+fmtRp(totalHarga);$('prevVoucher').textContent='Voucher didapat: + '+fmtRp(voucherDapat);
+      $('potongan-label').innerText='- '+fmtRp(potongan);$('voucher-count-label').innerText='Rp '+getVoucher().toLocaleString('id-ID');
     }
   }catch(e){sembunyikanHarga();}
 }
@@ -397,12 +402,16 @@ async function simpanOrderDanLanjut(){
   let a=$('pickup').value.trim(),b=$('dest').value.trim(),tgl=$('tanggalBerangkat')?$('tanggalBerangkat').value:new Date().toISOString().slice(0,10),jam=$('jamBerangkat')?$('jamBerangkat').value:'09:00';let sesi=getSesi();
   if(!a||!b){popupError('Lengkapi Data','Isi Penjemputan dan Tujuan terlebih dahulu.');return;}
   await hitungPreview();
-  let voucherLama=parseInt(localStorage.getItem('ammo_voucher')||'0');localStorage.setItem('ammo_voucher',voucherLama+voucherDapat);
+  // FIX: voucher TIDAK ditambah saat klik PESAN, cuma pas perjalanan SELESAI
+  // Kalau pakai voucher, potong sekarang biar gak dipakai 2x
+  try{ let pakai=localStorage.getItem('ammo_voucher_pakai')==='1'; if(pakai){ let sv=getVoucher(); let pot=Math.min(sv,totalHarga+0); let ongkosKotor=totalHarga+pot; let potBener=Math.min(sv,ongkosKotor); if(potBener>0) setVoucher(sv-potBener); localStorage.setItem('ammo_voucher_pakai','0'); } }catch(e){}
   localStorage.setItem('masphus_order',JSON.stringify({asal:{nama:a,lat:pickupCoord?pickupCoord[0]:null,lon:pickupCoord?pickupCoord[1]:null},tujuan:{nama:b,lat:destCoord?destCoord[0]:null,lon:destCoord?destCoord[1]:null},waktu:Date.now(),jarak_km:jarakKm,jarak_meter:jarakMeter,total_harga:totalHarga,estimasi:estimasiTeks,durasi_detik:durasiDetik,jumlah_orang:jumlahOrang,voucher_didapat:voucherDapat,jenis_layanan:'Travel Penumpang',tanggal_berangkat:tgl,jam_berangkat:jam,nama_penumpang:sesi?sesi.nama:null,no_wa:sesi?sesi.hp:null,email:sesi?sesi.email:null,penumpang_id:localStorage.getItem('ammo_supabase_penumpang_id')||null,locked:true,sumber_hitung:'OSRM'}));
   sessionStorage.setItem('ammo_from_index','1');setMauOrder(false);localStorage.removeItem('ammo_pending_order');try{window._pendingBackup=null;}catch(e){}
   popupSukses('Pesanan Berhasil',a+' → '+b+'\n'+jumlahOrang+' Orang • '+fmtJarak(jarakMeter)+'\nTotal: '+fmtRp(totalHarga));
   await loadVoucherDanPerjalanan();
 }
+// Panggil ini dari halaman selesai, baru voucher ditambah
+function kasihVoucherSelesai(totalBayar){ let dapat=Math.round(Number(totalBayar||0)*0.05); if(dapat>0) setVoucher(getVoucher()+dapat); return dapat; }
 async function cekDriver(){
   let a=$('pickup').value.trim(),b=$('dest').value.trim();
   if(!a||!b){popupError('Lengkapi Data','Isi Penjemputan dan Tujuan terlebih dahulu.');return;}
@@ -422,7 +431,7 @@ window.kirimChat=function(){
     let jawab='Halo! Mau tanya ongkos ke mana? Ketik misal: ongkos ke Cimaung berapa? Atau klik WA Admin untuk tanya langsung.';
     if(q.includes('ongkos')||q.includes('harga')||q.includes('biaya')||q.includes('berapa')){
       jawab='Untuk cek ongkos yang akurat, silahkan isi Dari & Tujuan di Beranda, lalu pilih dari Peta. Jarak dihitung otomatis, tarif menyesuaikan jumlah orang. Kalau mau tanya rute khusus, klik WA Admin di bawah.';
-    }else if(q.includes('voucher')){jawab='Voucher kamu: Rp '+(localStorage.getItem('ammo_voucher')||0)+', berlaku selamanya. Voucher didapat 5% dari setiap perjalanan.';}
+    }else if(q.includes('voucher')){jawab='Voucher kamu: Rp '+getVoucher()+', berlaku selamanya. Voucher didapat 5% dari setiap perjalanan.';}
     else if(q.includes('halo')||q.includes('hai')||q.includes('selamat')){jawab='Halo! Selamat datang di Ammo Travel. Mau diantar ke mana hari ini?';}
     setTimeout(()=>{let t2=document.getElementById('botTyping');if(t2)t2.remove();log.innerHTML+='<div class="chatBubble"><b>Bot Ammo:</b> '+jawab+'</div>';log.scrollTop=log.scrollHeight;try{window.simpanChat('bot',jawab);}catch(e){}if(btn)btn.textContent='➤';},600);
     try{window.simpanChat('user',v);}catch(e){}try{inp.focus();}catch(e){}
