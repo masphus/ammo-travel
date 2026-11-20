@@ -14,8 +14,7 @@
 .gold{color:#D4AF37}.gold-bg{background:linear-gradient(135deg,#F5D67B,#D4AF37,#B8860B)}
 .gold-border{border:1px solid #D4AF37}.input-gold{background:#1A1A1A;border:1px solid #3A3A3A;color:#fff}
 .input-gold:focus{border-color:#D4AF37;outline:none}.input-locked{background:#0F0F0F!important;border-color:#2A2A2A!important;color:#D4AF37!important;cursor:not-allowed}
-.label-besar{font-size:15px;font-weight:800;color:#D4AF37}.orang-btn{background:#1A1A1A;border:1px solid #3A3A3A;color:#fff;font-weight:800;padding:10px 0;border-radius:12px}
-.orang-btn.active,.orang-btn.aktif{background:linear-gradient(135deg,#F5D67B,#D4AF37,#B8860B);color:#000;border-color:#D4AF37}
+.label-besar{font-size:15px;font-weight:800;color:#D4AF37}
 .tab-active{color:#D4AF37}.tab-active .tab-icon{background:#D4AF37;color:#000}
 .tab-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#1A1A1A;color:#D4AF37;border:1px solid #333}
 .saran-box{display:none;background:#1e1e1e;border:1px solid #D4AF37;border-radius:12px;margin-bottom:12px;max-height:260px;overflow-y:auto}
@@ -25,48 +24,72 @@
 #mapModal{z-index:9999!important}#mapModal.show{display:flex!important}#map{height:320px;width:100%;border-radius:14px}
 .chat-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px}
 .chat-modal.show{display:flex}.chatBubble{background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:10px;margin-bottom:8px;font-size:14px;line-height:1.4}
+select.input-gold{appearance:none}
 </style>
 </head>
 <body class="max-w-[430px] mx-auto min-h-screen bg-black relative pb-32">
 
+<!-- HEADER - LOGO BIASA, TIDAK BISA DIKLIK JADI ADMIN -->
 <div class="px-5 pt-5 flex justify-between items-start">
   <div><p class="text-[11px] tracking-[0.25em] font-bold gold">AMMO TRAVEL</p><h1 class="text-[22px] font-extrabold leading-tight mt-1">Mau jalan kemana<br>hari ini?</h1></div>
-  <!-- LOGO BERSIH - TIDAK BISA DIKLIK JADI ADMIN -->
   <img src="icon-512.png" class="w-14 h-14 rounded-2xl gold-border object-cover bg-[#1A1A1A]" alt="Ammo Travel">
 </div>
 
+<!-- BERANDA -->
 <div id="page-beranda" class="px-5 mt-4">
   <div class="bg-[#111] gold-border rounded-[22px] p-4">
-    <div class="flex gap-2 items-end">
-      <div class="flex-1">
-        <label class="label-besar">Dari</label>
-        <div class="flex gap-2 mt-1.5"><input id="pickup" placeholder="📍 Mendeteksi lokasi GPS..." autocomplete="off" class="input-gold flex-1 rounded-xl px-3 py-3.5 text-[15px] font-semibold"><button onclick="openMap('pickup')" class="gold-bg text-black rounded-xl px-3 font-bold text-sm shrink-0">📍 Peta</button></div>
-        <div id="gpsNote" class="text-[11px] text-gray-400 mt-1">📍 Mendeteksi lokasi GPS kamu...</div>
-        <div id="saranPick" class="saran-box"></div>
-        <label class="label-besar mt-2.5 block">Tujuan</label>
-        <div class="flex gap-2 mt-1.5"><input id="dest" placeholder="Tujuan..." autocomplete="off" class="input-gold flex-1 rounded-xl px-3 py-3.5 text-[15px] font-semibold"><button onclick="openMap('dest')" class="gold-bg text-black rounded-xl px-3 font-bold text-sm shrink-0">📍 Peta</button></div>
-        <div id="saranDest" class="saran-box"></div>
-      </div>
-      <button id="swapBtn" onclick="swapLokasi()" class="w-11 h-11 shrink-0 rounded-full gold-bg text-black font-extrabold flex items-center justify-center text-xl mb-[38px]">↕</button>
+
+    <!-- DARI -->
+    <label class="label-besar">Dari</label>
+    <div class="flex gap-2 mt-1.5">
+      <input id="pickup" placeholder="📍 Mendeteksi lokasi GPS..." autocomplete="off" class="input-gold flex-1 rounded-xl px-3 py-3.5 text-[15px] font-semibold">
+      <button onclick="openMap('pickup')" class="gold-bg text-black rounded-xl px-3 font-bold text-sm shrink-0 whitespace-nowrap">📍 Peta</button>
     </div>
+    <div id="gpsNote" class="text-[11px] text-gray-400 mt-1">📍 Mendeteksi lokasi GPS kamu...</div>
+    <div id="saranPick" class="saran-box"></div>
+
+    <!-- PANAH DI TENGAH ANTARA DARI & TUJUAN -->
+    <div class="flex justify-center -my-1 relative z-10">
+      <button id="swapBtn" onclick="swapLokasi()" class="w-9 h-9 rounded-full gold-bg text-black font-extrabold flex items-center justify-center text-base shadow-lg shadow-yellow-500/30 border-2 border-black" title="Tukar Dari & Tujuan">↕</button>
+    </div>
+
+    <!-- TUJUAN -->
+    <label class="label-besar block">Tujuan</label>
+    <div class="flex gap-2 mt-1.5">
+      <input id="dest" placeholder="Tujuan..." autocomplete="off" class="input-gold flex-1 rounded-xl px-3 py-3.5 text-[15px] font-semibold">
+      <button onclick="openMap('dest')" class="gold-bg text-black rounded-xl px-3 font-bold text-sm shrink-0 whitespace-nowrap">📍 Peta</button>
+    </div>
+    <div id="saranDest" class="saran-box"></div>
+
+    <!-- TANGGAL + JAM SEJAJAR -->
     <div class="grid grid-cols-2 gap-3 mt-4">
       <div><label class="label-besar block">Tanggal</label><input id="tanggalBerangkat" type="date" class="input-gold w-full mt-1.5 rounded-xl px-3 py-3.5 text-[15px] font-semibold"></div>
-      <div><label class="label-besar block">Jarak (KM) 🔒</label><input id="km" type="text" value="-" readonly class="input-gold input-locked w-full mt-1.5 rounded-xl px-3 py-3.5 text-[15px] font-extrabold"><p class="text-[10px] text-gray-500 mt-1">Otomatis OSRM • Terkunci</p></div>
-    </div>
-    <div class="grid grid-cols-2 gap-3 mt-3">
       <div><label class="label-besar block">Jam</label><input id="jamBerangkat" type="time" value="09:00" class="input-gold w-full mt-1.5 rounded-xl px-3 py-3.5 text-[15px] font-semibold"></div>
-      <div><label class="label-besar block">Estimasi</label><input id="estimasiLabel" value="-" readonly class="input-gold input-locked w-full mt-1.5 rounded-xl px-3 py-3.5 text-[15px] font-semibold"></div>
     </div>
+
+    <!-- JUMLAH ORANG JADI DROPDOWN -->
     <label class="label-besar mt-4 block">Jumlah Orang</label>
-    <div class="grid grid-cols-7 gap-1.5 mt-1.5">
-      <button class="orang-btn" data-orang="1">1</button><button class="orang-btn" data-orang="2">2</button><button class="orang-btn" data-orang="3">3</button><button class="orang-btn" data-orang="4">4</button><button class="orang-btn" data-orang="5">5</button><button class="orang-btn" data-orang="6">6</button><button class="orang-btn" data-orang="7">7</button>
+    <div class="relative mt-1.5">
+      <select id="jumlahOrangSelect" onchange="gantiOrang(this.value)" class="input-gold w-full rounded-xl px-3 py-3.5 text-[15px] font-semibold pr-10">
+        <option value="1">1 Orang</option>
+        <option value="2">2 Orang</option>
+        <option value="3">3 Orang</option>
+        <option value="4">4 Orang</option>
+        <option value="5">5 Orang</option>
+        <option value="6" selected>6 Orang</option>
+        <option value="7">7 Orang</option>
+      </select>
+      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[#D4AF37] pointer-events-none">▼</span>
     </div>
-    <p class="text-[12px] text-gray-400 mt-1.5">Dipilih: <b id="orang-label" class="text-white">6 Orang</b> • 1-4 Rp 5.000/KM, 5-7 Rp 6.500/KM</p>
+
+    <!-- VOUCHER -->
     <div class="mt-4 bg-[#1A1A1A] gold-border rounded-2xl p-3">
       <div class="flex justify-between items-center"><p class="font-bold text-sm">🎟️ Pakai Voucher?</p><span id="voucher-count-label" class="text-[12px] gold-bg text-black px-2 py-1 rounded-full font-bold">Login</span></div>
       <p class="text-[12px] text-gray-400 mt-1">Silahkan masuk untuk memakai voucher.</p>
       <div class="flex justify-between mt-2 text-sm"><span>Potongan voucher:</span><b id="potongan-label" class="text-green-400">- Rp 0</b></div>
     </div>
+
+    <!-- PREVIEW ONGKOS - JARAK OTOMATIS MUNCUL DISINI -->
     <div id="ongkosPreview" class="mt-4 bg-[#1A1A1A] gold-border rounded-2xl p-4" style="display:none">
       <div class="flex justify-between text-sm"><span>Jarak:</span><b id="prevJarak">-</b></div>
       <div class="flex justify-between text-sm mt-1"><span>Estimasi:</span><b id="prevEstimasi">-</b></div>
@@ -74,17 +97,20 @@
       <p id="prevVoucher" class="text-[12px] text-green-400 mt-1">Voucher didapat: -</p>
       <p class="text-[12px] text-gray-400 mt-2 leading-relaxed">Bila terdapat Biaya Tol, Parkir, dan Penyeberangan maka akan dibebankan kepada Penumpang</p>
     </div>
+
     <button onclick="cekDriver()" class="w-full mt-4 gold-bg text-black py-4 rounded-2xl font-extrabold tracking-wide">PESAN SEKARANG →</button>
     <p class="text-center text-[11px] text-gray-500 mt-2">Driver akan konfirmasi via WhatsApp</p>
   </div>
 </div>
 
+<!-- PERJALANAN -->
 <div id="page-perjalanan" class="px-5 mt-4 hidden">
   <h2 class="font-extrabold text-lg gold">Riwayat Perjalanan</h2>
   <p class="text-[12px] text-gray-400">Semua perjalanan Anda dari database</p>
   <div id="list-perjalanan" class="space-y-3 mt-3"></div>
 </div>
 
+<!-- VOUCHER -->
 <div id="page-voucher" class="px-5 mt-4 hidden">
   <h2 class="font-extrabold text-lg gold">Voucher Anda</h2>
   <p class="text-[12px] text-gray-400">Berlaku selamanya • Maksimal simpan 20 voucher</p>
@@ -92,6 +118,7 @@
   <div id="list-voucher" class="space-y-3 mt-3"></div>
 </div>
 
+<!-- PROFIL -->
 <div id="page-profil" class="px-5 mt-4 hidden">
   <div id="profil-sudah-masuk" class="hidden">
     <h2 class="font-extrabold text-lg gold">Profil</h2>
@@ -137,6 +164,7 @@
   </div>
 </div>
 
+<!-- BOTTOM NAV -->
 <div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-[#0A0A0A] border-t border-[#333] px-5 py-2 flex justify-between z-50">
   <button onclick="showPage('beranda',this)" class="tab-active flex flex-col items-center gap-1"><span class="tab-icon">🏠</span><span class="text-[11px] font-bold">Beranda</span></button>
   <button onclick="cekLoginLalu('perjalanan',this)" class="flex flex-col items-center gap-1"><span class="tab-icon">🧭</span><span class="text-[11px] font-bold">Perjalanan</span></button>
@@ -144,13 +172,14 @@
   <button onclick="bukaAkun()" class="flex flex-col items-center gap-1"><span class="tab-icon">👤</span><span class="text-[11px] font-bold">Profil</span></button>
 </div>
 
+<!-- MODAL -->
 <div id="akunModal" class="modal"><div class="popup-card bg-[#111] gold-border rounded-[28px] p-5 w-full max-w-[340px] text-center"><h3 class="font-extrabold text-lg gold">Akun</h3><p class="text-[13px] text-gray-400 mt-1">Masuk dengan Nomor WA atau Google</p><input id="hpAkun" placeholder="08xxxxxxxxxx" class="input-gold w-full mt-3 rounded-xl px-3 py-3"><input id="passAkun" type="password" placeholder="Password" class="input-gold w-full mt-2 rounded-xl px-3 py-3"><button onclick="masukAkun()" class="w-full mt-3 gold-bg text-black py-3 rounded-2xl font-extrabold">MASUK</button><button onclick="loginGoogle()" class="w-full mt-2 bg-white text-black py-3 rounded-2xl font-bold">Masuk melalui Google</button><button onclick="tutupAkun()" class="w-full mt-2 bg-[#1A1A1A] border border-[#333] py-3 rounded-2xl font-bold">Tutup</button></div></div>
 <div id="daftarModal" class="modal"><div class="popup-card bg-[#111] gold-border rounded-[28px] p-5 w-full max-w-[340px] text-center"><h3 class="font-extrabold text-lg gold">Daftar</h3><input id="namaDaftar" placeholder="Nama lengkap" class="input-gold w-full mt-3 rounded-xl px-3 py-3"><input id="hpDaftar" placeholder="08xxxxxxxxxx" class="input-gold w-full mt-2 rounded-xl px-3 py-3"><input id="passDaftar" type="password" placeholder="Password" class="input-gold w-full mt-2 rounded-xl px-3 py-3"><button onclick="daftarPenumpang('WA')" class="w-full mt-3 gold-bg text-black py-3 rounded-2xl font-extrabold">DAFTAR</button><button onclick="tutupDaftar()" class="w-full mt-2 bg-[#1A1A1A] border border-[#333] py-3 rounded-2xl font-bold">Tutup</button></div></div>
 <div id="namaBaruModal" class="modal"><div class="popup-card bg-[#111] gold-border rounded-[28px] p-5 w-full max-w-[340px] text-center"><h3 class="font-extrabold text-lg gold">Nama Baru</h3><input id="inputNamaBaru" placeholder="Nama lengkap" class="input-gold w-full mt-3 rounded-xl px-3 py-3"><button onclick="buatAkunDariNama()" class="w-full mt-3 gold-bg text-black py-3 rounded-2xl font-extrabold">SIMPAN</button><button onclick="tutupNamaBaru()" class="w-full mt-2 bg-[#1A1A1A] border border-[#333] py-3 rounded-2xl font-bold">Tutup</button></div></div>
 <div id="logoutModal" class="modal"><div class="popup-card bg-[#111] gold-border rounded-[28px] p-5 w-full max-w-[340px] text-center"><h3 class="font-extrabold text-lg">Keluar dari Akun?</h3><div class="flex gap-2 mt-4"><button onclick="logoutAkun()" class="flex-1 bg-red-500 text-white py-3 rounded-2xl font-bold">Ya, Keluar</button><button onclick="tutupLogout()" class="flex-1 bg-[#1A1A1A] border border-[#333] py-3 rounded-2xl font-bold">Batal</button></div></div></div>
-
 <div id="mapModal" class="modal"><div class="bg-[#111] gold-border rounded-[28px] p-4 w-full max-w-[400px]"><h3 class="font-extrabold gold">Pilih dari Peta</h3><div id="map" class="mt-3"></div><p class="text-[12px] text-gray-400 mt-2">Geser pin ke lokasi yang diinginkan</p><button onclick="konfirmasiPeta()" class="w-full mt-3 gold-bg text-black py-3 rounded-2xl font-extrabold">Pilih Lokasi Ini</button><button onclick="tutupMap()" class="w-full mt-2 bg-[#1A1A1A] border border-[#333] py-3 rounded-2xl font-bold">Tutup</button></div></div>
 
+<!-- POP UP MEWAH -->
 <div id="popup-mewah" class="fixed inset-0 z-[999] hidden items-center justify-center p-5">
   <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="tutupPopup()"></div>
   <div class="popup-card relative w-full max-w-[340px] bg-[#111] gold-border rounded-[28px] p-6 text-center shadow-2xl shadow-yellow-500/20">
@@ -161,11 +190,10 @@
     <div id="popup-tombol" class="mt-5 space-y-2"></div>
   </div>
 </div>
-
 <div id="toastWrap" class="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] hidden bg-[#111] gold-border rounded-2xl px-4 py-3 flex gap-2 items-center max-w-[340px]"><span id="toastIco" class="w-7 h-7 rounded-full gold-bg text-black flex items-center justify-center font-bold">✓</span><div><p id="toastJudul" class="font-bold text-sm"></p><p id="toastIsi" class="text-[12px] text-gray-400"></p></div></div>
 
-<!-- CHAT BERSIH - TANPA PIN, TANPA TITIK TERSEMBUNYI -->
-<div id="chatFloat" class="fixed bottom-24 right-4 z-50 w-12 h-12 rounded-full gold-bg flex items-center justify-center text-xl shadow-lg" style="cursor:pointer">💬</div>
+<!-- CHAT BERSIH -->
+<div id="chatFloat" class="fixed bottom-28 right-3 z-50 w-11 h-11 rounded-full gold-bg flex items-center justify-center text-lg shadow-lg" style="cursor:pointer">💬</div>
 <div id="chatModal" class="chat-modal"><div class="bg-[#111] gold-border rounded-[28px] p-4 w-full max-w-[360px]">
   <h3 class="text-center gold font-extrabold">💬 Chat dengan CS</h3><div id="chatLog" class="mt-3 max-h-[260px] overflow-y-auto"><div class="chatBubble"><b>Bot Ammo:</b> Halo! Mau tanya apa? Ketik aja, misal: ongkos ke Cimaung berapa?</div></div>
   <div class="flex gap-2 mt-3"><input id="chatInput" placeholder="Ketik pesan..." class="input-gold flex-1 rounded-xl px-3 py-3"><button id="chatSend" onclick="kirimChat()" class="gold-bg text-black w-11 rounded-xl font-bold">➤</button></div>
@@ -175,7 +203,7 @@
 </div></div>
 
 <script>
-// ===== SUPABASE - URL & KEY =====
+// ===== SUPABASE =====
 const SUPABASE_URL = "https://xxtgmohxdztesiubfxap.supabase.co";
 const SUPABASE_KEY = "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv";
 let supabaseClient = null;
@@ -184,8 +212,7 @@ window.escHtml = function(v){ return String(v ?? '').replace(/&/g,'&amp;').repla
 window.getChatSessionId = function(){ let s = localStorage.getItem('ammo_chat_session'); if(!s){ s='anon-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8); localStorage.setItem('ammo_chat_session',s); } return s; };
 window.simpanChat = async function(sender,pesan){ try{ if(!window.supabaseClient) return; let pid=localStorage.getItem('ammo_supabase_penumpang_id')||null; let payload={sender:sender,message:pesan,session_id:window.getChatSessionId()}; if(pid) payload.penumpang_id=pid; await supabaseClient.from('chats').insert([payload]); }catch(e){} };
 
-// ===== ADMIN / DRIVER AMAN - DARI DATABASE, BUKAN DARI HP =====
-// Role dicek dari tabel profiles di Supabase. Penumpang tidak bisa ubah sendiri.
+// ===== ADMIN / DRIVER AMAN - DARI DATABASE =====
 async function cekRoleDariDatabase(){
   try{
     if(!window.supabaseClient) return 'penumpang';
@@ -237,7 +264,7 @@ function getDB(){try{return JSON.parse(localStorage.getItem('ammo_penumpang_db')
 function getSesi(){try{let s=JSON.parse(localStorage.getItem('ammo_sesi')||'null');if(s&&(s.nama||s.hp||s.email))return s;return null;}catch(e){return null;}}
 function sudahLogin(s){s=s||getSesi();if(!s)return false;return !!(s.email||s.hp||s.google_email);}
 function setMauOrder(v){try{localStorage.setItem('ammo_mau_order',v?'1':'0');}catch(e){}}function mauLanjutOrder(){return localStorage.getItem('ammo_mau_order')==='1';}
-document.addEventListener('click',function(e){let b=e.target.closest('.orang-btn');if(!b)return;jumlahOrang=parseInt(b.dataset.orang);document.querySelectorAll('.orang-btn').forEach(x=>x.classList.remove('aktif','active'));b.classList.add('aktif');$('orang-label').innerText=jumlahOrang+' Orang';jadwalPreview(true);});
+function gantiOrang(v){jumlahOrang=parseInt(v)||6;jadwalPreview(true);}
 
 async function syncPenumpangKeSupabase(nama,hp,via,google_email,google_id){
   try{
@@ -286,8 +313,7 @@ async function registerNomor(){
 }
 async function loginGoogle(){simpanPendingOrder();setMauOrder(true);if(window.supabaseClient)await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href}});}
 function tanyaLogout(){try{$('logoutModal').classList.add('show');}catch(e){}}function tutupLogout(){try{$('logoutModal').classList.remove('show');}catch(e){}}
-// LOGOUT BERSIH - TIDAK ADA TOKEN ADMIN LAGI
-async function logoutAkun(){try{if(window.supabaseClient)await supabaseClient.auth.signOut();}catch(e){}localStorage.removeItem('ammo_sesi');localStorage.removeItem('ammo_supabase_penumpang_id');localStorage.removeItem('ammo_admin_token');localStorage.removeItem('ammo_driver_token');localStorage.removeItem('ammo_role');localStorage.removeItem('ammo_driver');localStorage.removeItem('ammo_driver_id');setMauOrder(false);localStorage.removeItem('ammo_pending_order');localStorage.removeItem('masphus_order');try{window._pendingBackup=null;}catch(e){}googleSudahDiproses=false;tutupLogout();tutupAkun();resetIndexKecualiPickupAkun();bukaPopup('Berhasil Keluar','Anda telah keluar dari akun.','👋',[{label:'Tutup',type:'emas',aksi:'ke-beranda'}]);}
+async function logoutAkun(){try{if(window.supabaseClient)await supabaseClient.auth.signOut();}catch(e){}localStorage.removeItem('ammo_sesi');localStorage.removeItem('ammo_supabase_penumpang_id');localStorage.removeItem('ammo_admin_token');localStorage.removeItem('ammo_driver_token');localStorage.removeItem('ammo_role');setMauOrder(false);localStorage.removeItem('ammo_pending_order');localStorage.removeItem('masphus_order');try{window._pendingBackup=null;}catch(e){}googleSudahDiproses=false;tutupLogout();tutupAkun();resetIndexKecualiPickupAkun();bukaPopup('Berhasil Keluar','Anda telah keluar dari akun.','👋',[{label:'Tutup',type:'emas',aksi:'ke-beranda'}]);}
 function tutupNamaBaru(){try{$('namaBaruModal').classList.remove('show');}catch(e){}}
 function buatAkunDariNama(){let n=$('inputNamaBaru').value.trim();if(!n){popupError('Nama Kosong','Isi nama terlebih dahulu.');return;}let user={nama:n,hp:pendingHP||localStorage.getItem('ammo_last_hp')||'',via:'WA'};localStorage.setItem('ammo_sesi',JSON.stringify(user));if(user.hp)localStorage.setItem('ammo_last_hp',user.hp);tutupNamaBaru();tutupAkun();if(!lanjutJikaMauOrder()){popupSukses('Terdaftar','Akun dibuat, '+n);}}
 function tutupDaftar(){try{$('daftarModal').classList.remove('show');}catch(e){}}
@@ -368,7 +394,6 @@ async function hitungPreview(){
       jarakKm=h.kmTagih;jarakMeter=route.distance;durasiDetik=route.duration;estimasiTeks=fmtEstimasi(route.duration);
       let pakaiVoucher=localStorage.getItem('ammo_voucher_pakai')==='1';let potongan=pakaiVoucher?Math.min(parseInt(localStorage.getItem('ammo_voucher')||'0'),h.ongkos):0;
       totalHarga=Math.max(0,h.ongkos-potongan);voucherDapat=h.voucher;
-      $('km').value=fmtJarak(route.distance)+' (Terkunci 🔒)';$('estimasiLabel').value=estimasiTeks;
       $('prevJarak').textContent='~ '+fmtJarak(route.distance);$('prevEstimasi').textContent='± '+fmtEstimasi(route.duration);$('prevOngkos').textContent='ONGKOS '+fmtRp(totalHarga);$('prevVoucher').textContent='Voucher didapat: + '+fmtRp(h.voucher);
       $('potongan-label').innerText='- '+fmtRp(potongan);$('voucher-count-label').innerText='Rp '+parseInt(localStorage.getItem('ammo_voucher')||'0').toLocaleString('id-ID');
     }
@@ -376,7 +401,7 @@ async function hitungPreview(){
 }
 
 function simpanPendingOrder(){localStorage.setItem('ammo_pending_order',JSON.stringify({asal:$('pickup').value.trim(),tujuan:$('dest').value.trim(),asalCoord:pickupCoord,tujuanCoord:destCoord,jumlahOrang:jumlahOrang,tanggal:$('tanggalBerangkat')?$('tanggalBerangkat').value:'',jam:$('jamBerangkat')?$('jamBerangkat').value:'09:00',mauOrder:true,waktu:Date.now()}));try{window._pendingBackup=localStorage.getItem('ammo_pending_order');}catch(e){}}
-function pulihkanPendingOrder(){try{let raw=window._pendingBackup||localStorage.getItem('ammo_pending_order');if(!raw)return null;let p=JSON.parse(raw);if(!p)return null;if(p.asal)$('pickup').value=p.asal;if(p.tujuan)$('dest').value=p.tujuan;if(p.asalCoord)pickupCoord=p.asalCoord;if(p.tujuanCoord)destCoord=p.tujuanCoord;if(p.jumlahOrang)jumlahOrang=p.jumlahOrang;if(p.tanggal&&$('tanggalBerangkat'))$('tanggalBerangkat').value=p.tanggal;if(p.jam&&$('jamBerangkat'))$('jamBerangkat').value=p.jam;updateSwap();return p;}catch(e){return null;}}
+function pulihkanPendingOrder(){try{let raw=window._pendingBackup||localStorage.getItem('ammo_pending_order');if(!raw)return null;let p=JSON.parse(raw);if(!p)return null;if(p.asal)$('pickup').value=p.asal;if(p.tujuan)$('dest').value=p.tujuan;if(p.asalCoord)pickupCoord=p.asalCoord;if(p.tujuanCoord)destCoord=p.tujuanCoord;if(p.jumlahOrang){jumlahOrang=p.jumlahOrang;if($('jumlahOrangSelect'))$('jumlahOrangSelect').value=String(jumlahOrang);}if(p.tanggal&&$('tanggalBerangkat'))$('tanggalBerangkat').value=p.tanggal;if(p.jam&&$('jamBerangkat'))$('jamBerangkat').value=p.jam;updateSwap();return p;}catch(e){return null;}}
 function lanjutJikaMauOrder(){if(!mauLanjutOrder())return false;setMauOrder(false);let p=pulihkanPendingOrder();if(p){simpanOrderDanLanjut();return true;}return false;}
 function resetIndexKecualiPickupAkun(){try{localStorage.removeItem('masphus_order');sessionStorage.removeItem('ammo_from_index');$('dest').value='';destCoord=null;sembunyikanHarga();}catch(e){}}
 async function simpanOrderDanLanjut(){
@@ -407,7 +432,7 @@ window.kirimChat=function(){
     let q=v.toLowerCase();
     let jawab='Halo! Mau tanya ongkos ke mana? Ketik misal: ongkos ke Cimaung berapa? Atau klik WA Admin untuk tanya langsung.';
     if(q.includes('ongkos')||q.includes('harga')||q.includes('biaya')||q.includes('berapa')){
-      jawab='Untuk cek ongkos yang akurat, silahkan isi Dari & Tujuan di Beranda, lalu pilih dari Peta. Jarak dihitung otomatis via OSRM, tarif 1-4 orang Rp 5.000/KM, 5-7 orang Rp 6.500/KM + fee 5%. Kalau mau tanya rute khusus, klik WA Admin di bawah.';
+      jawab='Untuk cek ongkos yang akurat, silahkan isi Dari & Tujuan di Beranda, lalu pilih dari Peta. Jarak dihitung otomatis, tarif menyesuaikan jumlah orang. Kalau mau tanya rute khusus, klik WA Admin di bawah.';
     }else if(q.includes('voucher')){jawab='Voucher kamu: Rp '+(localStorage.getItem('ammo_voucher')||0)+', berlaku selamanya. Voucher didapat 5% dari setiap perjalanan.';}
     else if(q.includes('halo')||q.includes('hai')||q.includes('selamat')){jawab='Halo! Selamat datang di Ammo Travel. Mau diantar ke mana hari ini?';}
     setTimeout(()=>{let t2=document.getElementById('botTyping');if(t2)t2.remove();log.innerHTML+='<div class="chatBubble"><b>Bot Ammo:</b> '+jawab+'</div>';log.scrollTop=log.scrollHeight;try{window.simpanChat('bot',jawab);}catch(e){}if(btn)btn.textContent='➤';},600);
@@ -425,7 +450,6 @@ try{if($('pickup'))$('pickup').addEventListener('input',function(){jadwalSaran(t
 try{if($('dest'))$('dest').addEventListener('input',function(){jadwalSaran(this,$('saranDest'),false);jadwalPreview(true);});}catch(e){}
 (function(){try{var f=document.getElementById('chatFloat');function go(e){if(e){e.preventDefault();e.stopPropagation();}window.openChat();}if(f)f.addEventListener('click',go);}catch(e){}})();
 document.getElementById('tanggalBerangkat').value=new Date().toISOString().slice(0,10);
-document.querySelectorAll('.orang-btn').forEach((btn,i)=>{if(i===5)btn.classList.add('active');});
 prosesBalikanGoogle();
 try{if(window.supabaseClient){supabaseClient.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_IN'&&session&&session.user){prosesBalikanGoogle();}});}}catch(e){}
 loadProfile();renderVoucher();renderPerjalanan();isiPenjemputanOtomatis(false);
