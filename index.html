@@ -262,7 +262,7 @@ let chatMode='CS';
 let callTimerInt=null, callDetik=0, isMuted=false;
 const SUPABASE_URL = 'https://xxtgmohxdztesiubfxap.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv';
-// ===== TELP GRATIS - WebRTC + Supabase Realtime =====
+// ===== TELP GRATIS - WebRTC + Supabase Realtime - FINAL, kirim ke 2 ruangan =====
 let sbClient=null, callChannel=null, peerConn=null, localStream=null, currentCallId=null, incomingOffer=null, callTimeout=null;
 try{ if(window.supabase) sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); }catch(e){}
 const STUN_SERVERS = { iceServers: [ {urls:'stun:stun.l.google.com:19302'}, {urls:'stun:stun1.l.google.com:19302'}, {urls:'stun:stun2.l.google.com:19302'} ] };
@@ -293,7 +293,6 @@ function tampilkanPanggilanMasuk(nama){
   $('callBtnsOut').style.display='none';
   $('callBtnsIn').style.display='flex';
   $('callModal').classList.add('show');
-  try{ new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=').play().catch(()=>{}); }catch(e){}
 }
 async function terimaTelp(){
   try{
@@ -508,7 +507,7 @@ function driverDitemukan(){
   let plat = driverAktif.plat_mobil || driverAktif.plat || '-';
   let foto = '🚗';
   driverAktif._nama = nama; driverAktif._mobil = mobil; driverAktif._plat = plat; driverAktif._foto = foto;
-  driverAktif._callId = 'order-' + Date.now() + '-' + Math.floor(Math.random()*1000);
+  driverAktif._callId = 'room-1';
   $('modal').classList.remove('show');
   $('btnSearching').style.display='none';
   $('driverFoto').textContent=foto;
@@ -549,7 +548,7 @@ async function telpDriver(){
   let nama = driverAktif._nama || 'Driver';
   let mobil = driverAktif._mobil || '';
   let plat = driverAktif._plat || '';
-  let callId = driverAktif._callId || ('order-'+Date.now());
+  let callId = driverAktif._callId || 'room-1';
   driverAktif._callId = callId;
   $('callNama').textContent = nama;
   $('callInfo').textContent = (mobil + ' • ' + plat).trim();
@@ -567,7 +566,17 @@ async function telpDriver(){
     localStream.getTracks().forEach(t=>peerConn.addTrack(t, localStream));
     let offer = await peerConn.createOffer();
     await peerConn.setLocalDescription(offer);
+    // Kirim ke 2 ruangan biar pasti nyambung ke driver.html
     callChannel.send({type:'broadcast', event:'offer', payload:{offer, callId, to:'driver', fromName:'Penumpang AMMO'}});
+    try{
+      let driverCode = (driverAktif.code || driverAktif._nama || '').toString().toLowerCase().replace(/\s+/g,'-');
+      let ch2 = sbClient.channel('ammo-call-driver-'+driverCode, {config:{broadcast:{self:true}}});
+      await ch2.subscribe();
+      ch2.send({type:'broadcast', event:'offer', payload:{offer, callId, to:'driver-'+driverCode, fromName:'Penumpang AMMO'}});
+      let ch3 = sbClient.channel('ammo-call-room-1', {config:{broadcast:{self:true}}});
+      await ch3.subscribe();
+      ch3.send({type:'broadcast', event:'offer', payload:{offer, callId:'room-1', to:'driver', fromName:'Penumpang AMMO'}});
+    }catch(e){}
     $('callStatus').textContent='Memanggil driver... (Gratis via Supabase)';
     mulaiTimerTelp();
     clearTimeout(callTimeout);
