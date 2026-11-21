@@ -21,6 +21,14 @@ input::placeholder{color:#888}
 .chat-float{position:fixed;bottom:96px;right:16px;width:52px;height:52px;border-radius:9999px;font-size:22px;z-index:60;box-shadow:0 4px 16px rgba(0,0,0,.5)}
 .saran-item{width:100%;text-align:left;padding:12px;border:1px solid #333;border-radius:14px;background:#1A1A1A;margin-top:8px;font-size:14px}
 .saran-item:active{background:#D4AF37;color:#000}
+.wrap-input{position:relative}
+.dropdown-saran{position:absolute;top:100%;left:0;right:0;background:#1A1A1A;border:1px solid #D4AF37;border-radius:16px;margin-top:6px;z-index:80;overflow:hidden;display:none;max-height:280px;overflow-y:auto;box-shadow:0 10px 30px rgba(0,0,0,.6)}
+.dropdown-saran.show{display:block}
+.opt-saran{padding:12px 14px;border-bottom:1px solid #2a2a2a;cursor:pointer;text-align:left;width:100%;background:#1A1A1A}
+.opt-saran:active{background:#D4AF37;color:#000}
+.opt-saran b{font-size:14px;display:block}
+.opt-saran span{font-size:11px;color:#aaa;display:block}
+.opt-saran:active span{color:#000}
 </style>
 </head>
 <body>
@@ -29,20 +37,25 @@ input::placeholder{color:#888}
 <button onclick="showPage('profil')" id="btnAkun" class="gold-bg px-4 py-2 rounded-full font-bold text-sm">Masuk</button>
 </header>
 
-<!-- BERANDA -->
 <div id="page-beranda" class="px-5 pb-32 max-w-md mx-auto">
 <h2 class="font-extrabold text-[28px] leading-tight">Mau jalan kemana<br>hari ini?</h2>
 <div class="mt-4 bg-[#111] gold-border rounded-[24px] p-4">
 <p class="font-bold text-[#D4AF37] text-lg">Dari</p>
 <div class="flex gap-2 mt-1">
-<input id="pickup" value="Jalan Muara Raya, Pelindung" oninput="hitungPreview()" class="flex-1 min-w-0 p-3 rounded-2xl border border-[#333] text-[15px]">
+<div class="wrap-input flex-1 min-w-0">
+<input id="pickup" value="Jalan Muara Raya, Pelindung" autocomplete="off" oninput="onKetik('pickup')" onfocus="onKetik('pickup')" class="w-full p-3 rounded-2xl border border-[#333] text-[15px]">
+<div id="drop-pickup" class="dropdown-saran"></div>
+</div>
 <button type="button" onclick="bukaSaran('pickup')" class="gold-bg px-3 rounded-2xl font-bold shrink-0 text-sm">📍 Peta</button>
 </div>
 <p class="text-[12px] text-gray-400 mt-1">📍 <span id="gpsLabel">Mendeteksi lokasi GPS kamu...</span></p>
 <div class="flex justify-center -my-1 relative z-10"><button type="button" onclick="swapLokasi()" class="gold-bg w-10 h-10 rounded-full font-bold shadow-lg">↕</button></div>
 <p class="font-bold text-[#D4AF37] text-lg mt-1">Tujuan</p>
 <div class="flex gap-2 mt-1">
-<input id="dest" placeholder="Tujuan... ketik / pilih dari Peta" oninput="hitungPreview()" class="flex-1 min-w-0 p-3 rounded-2xl border border-[#333] text-[15px]">
+<div class="wrap-input flex-1 min-w-0">
+<input id="dest" placeholder="Tujuan... ketik, misal cimaung" autocomplete="off" oninput="onKetik('dest')" onfocus="onKetik('dest')" class="w-full p-3 rounded-2xl border border-[#333] text-[15px]">
+<div id="drop-dest" class="dropdown-saran"></div>
+</div>
 <button type="button" onclick="bukaSaran('dest')" class="gold-bg px-3 rounded-2xl font-bold shrink-0 text-sm">📍 Peta</button>
 </div>
 <p class="text-[12px] text-gray-400 mt-2">Saran cepat:</p>
@@ -78,7 +91,6 @@ input::placeholder{color:#888}
 </div>
 </div>
 
-<!-- PERJALANAN -->
 <div id="page-perjalanan" class="px-5 pb-32 hidden max-w-md mx-auto">
 <h2 class="font-extrabold text-lg gold">Riwayat Perjalanan</h2>
 <p class="text-[12px] text-gray-400">Riwayat hanya tampil di Profil.</p>
@@ -86,7 +98,6 @@ input::placeholder{color:#888}
 <button type="button" onclick="showPage('beranda')" class="w-full bg-[#333] py-3 rounded-xl mt-2">Kembali</button>
 </div>
 
-<!-- VOUCHER -->
 <div id="page-voucher" class="px-5 pb-32 hidden max-w-md mx-auto">
 <h2 class="font-extrabold text-lg gold">Voucher Anda</h2>
 <p class="text-[12px] text-gray-400">Voucher didapat 3% dari ongkos, berlaku selamanya. Voucher baru masuk setelah perjalanan SELESAI.</p>
@@ -94,7 +105,6 @@ input::placeholder{color:#888}
 <button type="button" onclick="showPage('beranda')" class="w-full bg-[#333] py-3 rounded-xl mt-4">Kembali</button>
 </div>
 
-<!-- PROFIL -->
 <div id="page-profil" class="px-5 pb-32 hidden max-w-md mx-auto">
 <h2 class="font-extrabold text-xl">Profil</h2>
 <div id="authBox" class="bg-[#111] gold-border rounded-2xl p-4 mt-4 space-y-3">
@@ -123,7 +133,6 @@ input::placeholder{color:#888}
 
 <button type="button" onclick="alert('Chat WA Admin: hubungi admin Ammo')" class="chat-float gold-bg font-bold">💬</button>
 
-<!-- MODAL SARAN -->
 <div id="saranModal" class="modal"><div class="bg-[#1A1A1A] gold-border rounded-2xl p-5 w-full max-w-sm">
 <h3 class="font-extrabold text-lg" id="saranJudul">Pilih Lokasi</h3>
 <p class="text-xs text-gray-400 mt-1">Ketik untuk cari, atau klik salah satu saran di bawah.</p>
@@ -137,7 +146,6 @@ input::placeholder{color:#888}
 <div id="popupIcon" class="text-4xl">🎉</div><h3 id="popupJudul" class="font-extrabold text-lg mt-2"></h3><p id="popupIsi" class="text-sm text-gray-300 mt-2 whitespace-pre-line"></p><div id="popupAksi" class="mt-4 space-y-2"></div>
 </div></div>
 
-<!-- MODAL MENCARI DRIVER - INI PERBAIKAN ORDER NOW -->
 <div id="searchingModal" class="modal"><div class="bg-[#1A1A1A] gold-border rounded-2xl p-6 w-full max-w-sm text-center">
 <div class="spin"></div><h3 class="font-extrabold text-lg mt-4">Mencari Driver...</h3><p id="searchingIsi" class="text-sm text-gray-300 mt-2 whitespace-pre-line"></p><p class="text-xs text-gray-500 mt-2">Status: <b id="searchingStatus" class="gold">mencari_driver</b></p><button type="button" onclick="batalkanOrder()" class="w-full bg-red-600 py-3 rounded-xl font-bold mt-4">BATALKAN PESANAN</button>
 </div></div>
@@ -148,6 +156,7 @@ let supabaseClient=null; try{ if(SUPABASE_URL) supabaseClient=supabase.createCli
 const $=id=>document.getElementById(id);
 let jumlahOrang=6, jarakKm=0, jarakMeter=0, totalHarga=0, estimasiTeks='-', durasiDetik=0, voucherDapat=0;
 let pickupCoord=null, destCoord=null, pollingTimer=null, currentOrderId=null, saranTarget='dest';
+let userLat=-6.917, userLon=107.61, timerKetik=null, hasilSaran={};
 const DAFTAR_LOKASI=[
 {name:'Jalan Muara Raya, Pelindung Hewan, Astanaanyar, Bandung', lat:-6.917, lon:107.61},
 {name:'Cimaung, Kabupaten Bandung', lat:-7.043, lon:107.56},
@@ -164,6 +173,31 @@ const DAFTAR_LOKASI=[
 {name:'Banjaran, Kabupaten Bandung', lat:-7.04, lon:107.59},
 {name:'Katapang, Kabupaten Bandung', lat:-7.0, lon:107.57},
 ];
+// ===== RESET PAS REFRESH: SEMUA BALIK NOL, CACHE DIBUANG, GAK ADA YANG DIINGET =====
+function resetFormPasRefresh(){
+  try{
+    // Buang semua draft / cache ketikan lama, biar refresh bener-bener nol
+    localStorage.removeItem('ammo_draft_pickup');
+    localStorage.removeItem('ammo_draft_dest');
+    localStorage.removeItem('ammo_draft');
+    localStorage.removeItem('ammo_cache_saran');
+    localStorage.removeItem('ammo_mau_order');
+    sessionStorage.clear();
+    hasilSaran={};
+    pickupCoord=null; destCoord=null;
+    jarakKm=0; jarakMeter=0; totalHarga=0; durasiDetik=0; estimasiTeks='-'; voucherDapat=0;
+    jumlahOrang=6;
+  }catch(e){}
+  // Form balik ke awal
+  if($('pickup')) $('pickup').value='Jalan Muara Raya, Pelindung';
+  if($('dest')) $('dest').value='';
+  if($('jumlahOrangSelect')) $('jumlahOrangSelect').value='6';
+  if($('prevJarak')) $('prevJarak').textContent='-';
+  if($('prevEstimasi')) $('prevEstimasi').textContent='-';
+  if($('prevOngkos')) $('prevOngkos').textContent='-';
+  if($('prevVoucher')) $('prevVoucher').textContent='Voucher didapat: -';
+  tutupDropdown('pickup'); tutupDropdown('dest');
+}
 function showPage(p){ ['beranda','perjalanan','voucher','profil'].forEach(x=>{ $('page-'+x).classList.toggle('hidden',x!==p); $('nav-'+x).classList.toggle('active',x===p); }); if(p==='profil') renderProfil(); if(p==='voucher') renderVoucherPage(); }
 function getSesi(){ try{return JSON.parse(localStorage.getItem('ammo_sesi')||'null')}catch(e){return null} }
 function sudahLogin(){ let s=getSesi(); return !!(s&&(s.nama||s.hp)); }
@@ -181,6 +215,49 @@ function labelStatus(st){
   if(st==='selesai'||st==='Selesai') return {teks:'✅ Selesai', warna:'text-green-400'};
   return {teks:'🔍 '+st, warna:'text-yellow-400'};
 }
+function jarakKe(lat,lon){ let R=6371,dLat=(lat-userLat)*Math.PI/180,dLon=(lon-userLon)*Math.PI/180; let a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(userLat*Math.PI/180)*Math.cos(lat*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2); return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)); }
+// ===== SARAN OTOMATIS - SELALU FETCH BARU, GAK PAKE CACHE LAMA =====
+function onKetik(target){
+  let val = $(target).value.trim();
+  // GAK NYIMPEN KE LOCALSTORAGE SAMA SEKALI, biar refresh gak inget
+  if(target==='pickup') pickupCoord=null; else destCoord=null;
+  if(val.length<3){ tutupDropdown(target); return; }
+  clearTimeout(timerKetik);
+  timerKetik=setTimeout(()=>{ cariSaran(target,val); },400);
+}
+async function cariSaran(target,q){
+  let drop = $('drop-'+target);
+  drop.innerHTML='<div style="padding:12px;font-size:13px;color:#aaa">🔍 Mencari saran...</div>'; drop.classList.add('show');
+  try{
+    // SELALU FETCH BARU KE NOMINATIM, GAK PAKE CACHE, jadi ketik cimaung kapanpun tetep nyaranin
+    let url='https://nominatim.openstreetmap.org/search?format=json&limit=8&countrycodes=id&addressdetails=1&q='+encodeURIComponent(q)+'&_='+Date.now();
+    let r=await fetch(url,{headers:{'Accept':'application/json'}});
+    let data=await r.json();
+    data.sort((a,b)=> jarakKe(parseFloat(a.lat),parseFloat(a.lon)) - jarakKe(parseFloat(b.lat),parseFloat(b.lon)));
+    hasilSaran[target]=data;
+    if(!data.length){ drop.innerHTML='<div style="padding:12px;font-size:13px;color:#aaa">Tidak ketemu, coba kata lain / pilih dari Peta</div>'; return; }
+    drop.innerHTML = data.map((it,i)=>{
+      let nama = it.display_name || it.name || q;
+      let utama = nama.split(',')[0];
+      let sisa = nama.split(',').slice(1,4).join(',');
+      let km = jarakKe(parseFloat(it.lat),parseFloat(it.lon));
+      return '<button type="button" class="opt-saran" onclick="pilihSaranOtomatis(\''+target+'\','+i+')"><b>📍 '+utama+'</b><span>'+sisa+' • '+km.toFixed(1)+' km dari kamu</span></button>';
+    }).join('');
+  }catch(e){
+    let list = DAFTAR_LOKASI.filter(l=>l.name.toLowerCase().indexOf(q.toLowerCase())!==-1);
+    if(!list.length) list=DAFTAR_LOKASI.slice(0,5);
+    drop.innerHTML = list.map(l=>'<button type="button" class="opt-saran" onclick="pilihSaranLangsung(\''+target+'\',\''+l.name.replace(/'/g,'')+'\');tutupDropdown(\''+target+'\')"><b>📍 '+l.name.split(',')[0]+'</b><span>'+l.name+'</span></button>').join('');
+  }
+}
+function pilihSaranOtomatis(target,i){
+  let it = (hasilSaran[target]||[])[i]; if(!it) return;
+  $(target).value = it.display_name;
+  let lat=parseFloat(it.lat), lon=parseFloat(it.lon);
+  if(target==='pickup') pickupCoord=[lat,lon]; else destCoord=[lat,lon];
+  tutupDropdown(target); hitungPreview();
+}
+function tutupDropdown(target){ let d=$('drop-'+target); if(d) d.classList.remove('show'); }
+document.addEventListener('click',e=>{ if(!e.target.closest('.wrap-input')){ tutupDropdown('pickup'); tutupDropdown('dest'); } });
 function bukaSaran(target){ saranTarget=target; $('saranJudul').textContent = target==='pickup' ? 'Pilih Penjemputan' : 'Pilih Tujuan'; $('saranSearch').value = $(target).value || ''; $('saranModal').classList.add('show'); renderSaran(); }
 function tutupSaran(){ $('saranModal').classList.remove('show'); }
 function renderSaran(){
@@ -192,10 +269,10 @@ function renderSaran(){
 function pilihDariDaftar(idx){ let l = DAFTAR_LOKASI[idx]; $(saranTarget).value = l.name; if(saranTarget==='pickup') pickupCoord=[l.lat,l.lon]; else destCoord=[l.lat,l.lon]; tutupSaran(); hitungPreview(); }
 function pilihTeksBebas(){ let v = $('saranSearch').value.trim(); if(v){ $(saranTarget).value=v; tutupSaran(); hitungPreview(); } }
 function pilihSaranLangsung(target,nama){ $(target).value=nama; let found = DAFTAR_LOKASI.find(l=>l.name.indexOf(nama.split(',')[0])!==-1); if(found){ if(target==='pickup') pickupCoord=[found.lat,found.lon]; else destCoord=[found.lat,found.lon]; } hitungPreview(); }
-function pakaiGPS(){ if(!navigator.geolocation){ alert('GPS tidak didukung HP ini'); return; } $('gpsLabel').textContent='Mendeteksi GPS...'; navigator.geolocation.getCurrentPosition(pos=>{ let lat=pos.coords.latitude, lon=pos.coords.longitude; let nama='Lokasi GPS Saya ('+lat.toFixed(4)+', '+lon.toFixed(4)+')'; $(saranTarget).value = saranTarget==='pickup' ? 'Jalan Muara Raya, Pelindung Hewan, Astanaanyar, Bandung' : nama; if(saranTarget==='pickup') pickupCoord=[lat,lon]; else destCoord=[lat,lon]; $('gpsLabel').textContent='GPS aktif - Bandung'; tutupSaran(); hitungPreview(); },err=>{ $('gpsLabel').textContent='GPS gagal, pilih dari daftar'; alert('GPS gagal: '+err.message); },{timeout:8000}); }
+function pakaiGPS(){ if(!navigator.geolocation){ alert('GPS tidak didukung HP ini'); return; } $('gpsLabel').textContent='Mendeteksi GPS...'; navigator.geolocation.getCurrentPosition(pos=>{ let lat=pos.coords.latitude, lon=pos.coords.longitude; userLat=lat; userLon=lon; let nama='Lokasi GPS Saya ('+lat.toFixed(4)+', '+lon.toFixed(4)+')'; $(saranTarget).value = saranTarget==='pickup' ? 'Jalan Muara Raya, Pelindung Hewan, Astanaanyar, Bandung' : nama; if(saranTarget==='pickup') pickupCoord=[lat,lon]; else destCoord=[lat,lon]; $('gpsLabel').textContent='GPS aktif - Bandung'; tutupSaran(); hitungPreview(); },err=>{ $('gpsLabel').textContent='GPS gagal, pilih dari daftar'; alert('GPS gagal: '+err.message); },{timeout:8000}); }
 function hitungOngkos(km,orang){ let ongkos=Math.round(km*3500+orang*5000); return {kmTagih:km,ongkos,voucher:Math.round(ongkos*0.03)}; }
 async function hitungPreview(){
-  let a=$('pickup').value.trim(), b=$('dest').value.trim(); if(!a||!b) return;
+  let a=$('pickup').value.trim(), b=$('dest').value.trim(); if(!a||!b){ $('prevJarak').textContent='-'; $('prevEstimasi').textContent='-'; $('prevOngkos').textContent='-'; $('prevVoucher').textContent='Voucher didapat: -'; return; }
   try{
     if(pickupCoord&&destCoord){
       let url=`https://router.project-osrm.org/route/v1/driving/${pickupCoord[1]},${pickupCoord[0]};${destCoord[1]},${destCoord[0]}?overview=false`;
@@ -229,7 +306,6 @@ async function cekDriver(){
   if(!sudahLogin()){ localStorage.setItem('ammo_mau_order','1'); showPage('profil'); return; }
   await simpanOrderDanLanjut();
 }
-// ORDER NOW YANG UDAH DIBENERIN: GAK LANGSUNG SUKSES, TAPI MENCARI DRIVER
 async function simpanOrderDanLanjut(){
   let a=$('pickup').value.trim(), b=$('dest').value.trim();
   let tgl=$('tanggalBerangkat').value||new Date().toISOString().slice(0,10); let jam=$('jamBerangkat').value||'09:00'; let sesi=getSesi();
@@ -273,9 +349,12 @@ function renderPerjalanan(){
   let lab = labelStatus(st);
   el.innerHTML='<div class="bg-[#111] gold-border rounded-[20px] p-4"><div class="flex justify-between gap-2"><b class="flex-1">'+pendek(p.asal?.nama||p.asal)+ ' → ' +pendek(p.tujuan?.nama||p.tujuan)+'</b><span class="'+lab.warna+' text-xs font-bold shrink-0">'+lab.teks+'</span></div><p class="text-sm text-gray-400 mt-2">'+(p.jumlah_orang||6)+' Orang • '+fmtJarak(p.jarak_meter||p.jarak_m||0)+' • '+fmtRp(p.total_harga||0)+'</p><p class="text-xs text-gray-500">'+new Date(p.waktu||Date.now()).toLocaleString('id-ID')+'</p></div>';
 }
+if(navigator.geolocation){ navigator.geolocation.getCurrentPosition(pos=>{ userLat=pos.coords.latitude; userLon=pos.coords.longitude; $('gpsLabel').textContent='GPS aktif - Bandung'; },()=>{ $('gpsLabel').textContent='GPS aktif - Bandung'; },{timeout:5000}); }
 setTimeout(()=>{ $('gpsLabel').textContent='GPS aktif - Bandung'; },1500);
 $('tanggalBerangkat').value=new Date().toISOString().slice(0,10);
-hitungPreview(); renderProfil(); renderVoucherPage();
+// JALANKAN RESET DI PALING AKHIR, BIAR REFRESH BENER-BENER NOL
+resetFormPasRefresh();
+renderProfil(); renderVoucherPage();
 let s=getSesi(); if(s) $('btnAkun').textContent=s.nama;
 </script>
 </body>
