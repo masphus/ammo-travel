@@ -3,101 +3,128 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Penumpang - AMMO TRAVEL</title>
+<title>Mencari Driver - AMMO TRAVEL</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
-body{background:#000;color:#fff}
-.app{max-width:480px;margin:0 auto;min-height:100vh;background:#0a0a0a;padding:18px 16px 110px}
-.logo{text-align:center;font-size:30px;font-weight:900;letter-spacing:2px;background:linear-gradient(180deg,#FFE9A8,#D4AF37,#9A7B1A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;padding:6px 0 2px}
-h1{font-size:24px;margin:10px 4px 14px}
-.card{border:1px solid #C9A227;border-radius:22px;padding:16px;background:#111}
-.row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #222;font-size:14px}
-.row:last-child{border:none}
-.row span{color:#aaa}
-.row b{text-align:right;color:#fff}
-.status{margin-top:14px;border:1px solid #C9A227;border-radius:18px;padding:16px;background:#111;text-align:center}
-.spinner{width:40px;height:40px;border:4px solid #333;border-top:4px solid #D4AF37;border-radius:50%;margin:12px auto;animation:spin 1s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.driverCard{margin-top:14px;border:1px solid #C9A227;border-radius:18px;padding:16px;background:#111;display:none}
-.btn{width:100%;margin-top:14px;padding:16px;border:none;border-radius:14px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-size:17px;font-weight:900;cursor:pointer}
-.btn2{width:100%;margin-top:10px;padding:12px;border:1px solid #ff4d4d;background:transparent;color:#ff6b6b;border-radius:12px;font-weight:800;cursor:pointer}
+body{background:#0a0a22;color:#fff}
+.app{max-width:480px;margin:0 auto;min-height:100vh;background:linear-gradient(180deg,#14143a 0%,#0e0e2e 45%,#0a0a22 100%);padding:0 16px 110px;overflow:hidden}
+.radarWrap{position:relative;height:260px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.radar{position:relative;width:280px;height:280px;border-radius:50%;border:1px solid rgba(255,215,0,.35);overflow:hidden}
+.radar::before{content:'';position:absolute;inset:28px;border-radius:50%;border:1px solid rgba(255,215,0,.35)}
+.radar::after{content:'';position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,rgba(255,215,0,.35),transparent 70deg);animation:sweep 2.8s linear infinite}
+@keyframes sweep{to{transform:rotate(360deg)}}
+.dot{position:absolute;width:9px;height:9px;background:#FFD700;border-radius:50%;box-shadow:0 0 10px #FFD700;z-index:2}
+.d1{top:22%;left:48%}.d2{top:30%;left:62%}.d3{top:48%;left:72%}.d4{top:62%;left:68%}.d5{top:72%;left:30%}.d6{top:55%;left:18%}.d7{top:38%;left:28%}
+.centerDot{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:10px;height:10px;background:#FFD700;border-radius:50%;box-shadow:0 0 14px #FFD700;z-index:3}
+.labelRadar{position:absolute;bottom:8px;left:0;right:0;text-align:center;color:#FFD700;font-size:12px;letter-spacing:3px;font-weight:800;z-index:4}
+h1{text-align:center;font-size:30px;color:#FFE27A;font-weight:800;margin-top:2px}
+.sub{text-align:center;color:#FFD700;font-size:13px;margin-top:6px;line-height:1.5;padding:0 10px}
+.cardRute{margin-top:22px;border:2px solid #FFD700;border-radius:18px;padding:18px 16px;background:rgba(255,255,255,.03)}
+.cardRute h2{font-size:25px;color:#FFE27A;margin-bottom:14px}
+.boxDriver{border:2px solid #FFD700;border-radius:16px;padding:14px;display:flex;gap:14px;align-items:center;background:rgba(255,215,0,.04)}
+.avatar{width:72px;height:72px;min-width:72px;border-radius:50%;background:#fff;color:#000;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;text-align:center;border:3px solid #FFE27A;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.info small{color:#FFE27A;font-size:11px;letter-spacing:1px;font-weight:800}
+.info b{font-size:19px;display:block;margin:2px 0}
+.info p{font-size:13px;color:#FFD700;line-height:1.4}
+.lockRow{display:flex;align-items:center;gap:10px;margin-top:16px}
+.lockRow span{font-size:10px;letter-spacing:1px;color:#9aa0ff}
+.pill{border:1px solid #FFD700;color:#FFE27A;font-size:10px;font-weight:800;padding:4px 10px;border-radius:999px}
+.ruteList{margin-top:14px;border-left:2px dashed #FFD700;padding-left:14px}
+.ruteList label{color:#FFD700;font-size:14px;font-weight:800}
+.ruteList p{font-size:18px;font-weight:800;line-height:1.35;margin:2px 0 12px}
+.ruteList small{color:#aaa;font-size:12px}
+.btnBatal{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:448px;padding:15px;border-radius:999px;border:1px solid #ff5555;background:rgba(255,60,60,.12);color:#ff7777;font-size:14px;font-weight:800;letter-spacing:1px;cursor:pointer;z-index:10}
+.btnBatal:active{background:rgba(255,60,60,.25);color:#fff}
+.btnHome{width:100%;margin-top:14px;padding:14px;border:none;border-radius:999px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-size:15px;font-weight:900;color:#000;cursor:pointer}
 </style>
 </head>
 <body>
 <div class="app">
-<div class="logo">AMMO TRAVEL</div>
-<h1>Mencari Driver...</h1>
-<div class="card">
-<div class="row"><span>Dari</span><b id="wDari">-</b></div>
-<div class="row"><span>Tujuan</span><b id="wTujuan">-</b></div>
-<div class="row"><span>Tanggal</span><b id="wTanggal">-</b></div>
-<div class="row"><span>Jam Berangkat</span><b id="wJam">-</b></div>
-<div class="row"><span>Jumlah Orang</span><b id="wOrang">-</b></div>
-<div class="row"><span>Jarak</span><b id="wJarak">-</b></div>
-<div class="row"><span>Estimasi</span><b id="wEstimasi">-</b></div>
-<div class="row"><span>Total Harga</span><b id="wHarga" style="color:#E8C766">-</b></div>
+<div class="radarWrap">
+<div class="radar">
+<i class="dot d1"></i><i class="dot d2"></i><i class="dot d3"></i><i class="dot d4"></i><i class="dot d5"></i><i class="dot d6"></i><i class="dot d7"></i>
+<div class="centerDot"></div>
 </div>
-<div class="status" id="boxCari">
-<div class="spinner"></div>
-<b id="txtStatus">MENCARI DRIVER...</b>
-<p style="color:#aaa;font-size:13px;margin-top:6px">Driver terdekat lagi dicari, tunggu ya Kak</p>
+<div class="labelRadar">● MENCARI DRIVER TERDEKAT...</div>
 </div>
-<div class="driverCard" id="driverCard">
-<b id="dNama" style="color:#E8C766;font-size:18px">-</b>
-<p id="dMobil" style="color:#aaa;margin-top:6px">-</p>
-<p id="dPlat" style="font-weight:900;margin-top:4px">-</p>
-<p style="color:#4ade80;margin-top:8px;font-weight:800">● Driver OTW ke lokasi kamu</p>
+
+<h1 id="judulUtama">Mencari Driver...</h1>
+<p class="sub" id="subUtama">Booking dikirim ke driver terdekat. Tunggu driver<br>menerima.</p>
+
+<div class="cardRute">
+<h2>Rute Perjalanan</h2>
+<div class="boxDriver">
+<div class="avatar" id="dAvatar">72 x 72</div>
+<div class="info">
+<small>INFORMASI DRIVER</small>
+<b id="dNama">Mencari Driver...</b>
+<p id="dKet">Menunggu driver<br>terdekat...</p>
+<p id="dExtra" style="color:#fff;margin-top:4px">-</p>
 </div>
-<button class="btn" onclick="window.location.href='index.html'">KEMBALI KE BERANDA</button>
-<button class="btn2" onclick="batal()">BATALKAN PESANAN</button>
 </div>
+<div class="lockRow"><span>RUTE TERKUNCI</span><span class="pill">LOCKED - CUMA KETERANGAN</span></div>
+<div class="ruteList">
+<label>Dari</label>
+<p id="wDari">-</p>
+<label>Tujuan</label>
+<p id="wTujuan">-</p>
+<small id="wMeta">-</small>
+</div>
+<button class="btnHome" id="btnHome" style="display:none" onclick="window.location.href='index.html'">Kembali ke Beranda</button>
+</div>
+</div>
+<button class="btnBatal" onclick="batalkan()">BATALKAN</button>
+
 <script>
-const saved = JSON.parse(localStorage.getItem('ammo_penumpang') || localStorage.getItem('masphus_order') || '{}');
-const fmt = n => 'Rp ' + Math.round(n||0).toLocaleString('id-ID');
-function tampil(o){
-  document.getElementById('wDari').textContent = o.asal_nama || o.dari || '-';
-  document.getElementById('wTujuan').textContent = o.tujuan_nama || o.tujuan || '-';
-  document.getElementById('wTanggal').textContent = o.tanggal || o.tanggal_berangkat || '-';
-  document.getElementById('wJam').textContent = o.jam || o.jam_berangkat || '-';
-  document.getElementById('wOrang').textContent = (o.jumlah_orang || o.orang || '-') + ' Orang';
-  document.getElementById('wJarak').textContent = o.jarak_km ? Number(o.jarak_km).toFixed(1)+' km' : '-';
-  document.getElementById('wEstimasi').textContent = o.estimasi || '-';
-  document.getElementById('wHarga').textContent = fmt(o.total_harga || o.total || o.harga || 0);
-}
-tampil(saved);
 const SUPABASE_URL = 'https://xxtgmohxdztesiubfxap.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv';
+const H = {'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
+const saved = JSON.parse(localStorage.getItem('ammo_penumpang') || localStorage.getItem('masphus_order') || '{}');
 const orderId = saved.order_id || saved.id || localStorage.getItem('ammo_order_id');
+let sudahBatal = false;
+function isi(o){
+  document.getElementById('wDari').textContent = o.dari_lokasi || o.pickup || o.asal_nama || o.dari || '-';
+  document.getElementById('wTujuan').textContent = o.ke_lokasi || o.tujuan || o.tujuan_nama || '-';
+  document.getElementById('wMeta').textContent = (o.tanggal_berangkat||o.tanggal||'') + ' • ' + (o.jam_berangkat||o.jam||'') + ' • ' + (o.jumlah_orang||1) + ' Orang • ' + (o.jarak_km||'-') + ' km';
+}
+isi(saved);
 async function cekDriver(){
-  if(!orderId) return;
+  if(!orderId || sudahBatal) return;
   try{
-    let r = await fetch(SUPABASE_URL + '/rest/v1/orders?id=eq.' + orderId + '&select=*', {headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}});
-    let j = await r.json();
-    let o = j && j[0];
-    if(!o) return;
-    tampil(o);
+    let r = await fetch(SUPABASE_URL + '/rest/v1/bookings?id=eq.'+orderId+'&select=*', {headers:H});
+    let j = await r.json(); let o = j && j[0]; if(!o) return;
+    isi(o);
     if(o.status==='diterima' || o.status==='dijemput' || o.status==='jalan'){
-      document.getElementById('boxCari').style.display='none';
-      document.getElementById('driverCard').style.display='block';
-      document.querySelector('h1').textContent = 'Driver Ditemukan!';
-      document.getElementById('dNama').textContent = o.driver_code || 'Driver AMMO';
-      document.getElementById('dMobil').textContent = 'Driver AMMO • OTW';
-      document.getElementById('dPlat').textContent = o.driver_id ? 'ID Driver: '+o.driver_id : '';
       clearInterval(window._poll);
+      document.getElementById('judulUtama').textContent = 'Driver Ditemukan!';
+      document.getElementById('subUtama').innerHTML = 'Driver sedang menuju lokasi kamu.';
+      document.querySelector('.labelRadar').textContent = '● DRIVER DITEMUKAN';
+      let nm = o.driver_nama || o.driver_code || 'Driver AMMO';
+      document.getElementById('dNama').textContent = nm;
+      document.getElementById('dKet').innerHTML = 'Driver OTW ke lokasi kamu';
+      document.getElementById('dAvatar').textContent = nm.charAt(0).toUpperCase();
+      document.getElementById('dExtra').textContent = 'ID Driver: ' + (o.driver_id||'-');
+      document.getElementById('btnHome').style.display = 'block';
     }
     if(o.status==='ditolak' || o.status==='batal'){
-      document.getElementById('txtStatus').textContent = 'Order ditolak / dibatalkan';
       clearInterval(window._poll);
+      alert('Maaf, order dibatalkan. Coba pesan lagi ya.');
+      window.location.href='index.html';
     }
   }catch(e){}
 }
 if(orderId){ window._poll = setInterval(cekDriver, 3000); cekDriver(); }
-function batal(){
-  if(confirm('Batalkan pesanan ini?')){
-    localStorage.removeItem('ammo_penumpang');
-    localStorage.removeItem('masphus_order');
-    window.location.href='index.html?cancelled=1';
+async function batalkan(){
+  if(!confirm('Batalkan pencarian driver? Antrian akan dihapus dari database.')) return;
+  sudahBatal = true; clearInterval(window._poll);
+  if(orderId){
+    try{ await fetch(SUPABASE_URL + '/rest/v1/bookings?id=eq.'+orderId, {method:'DELETE', headers:H}); }catch(e){}
+    try{ await fetch(SUPABASE_URL + '/rest/v1/orders?id=eq.'+orderId, {method:'DELETE', headers:H}); }catch(e){}
   }
+  localStorage.removeItem('ammo_penumpang'); localStorage.removeItem('masphus_order'); localStorage.removeItem('ammo_order_id');
+  alert('Pesanan dibatalkan. Antrian sudah dihapus.');
+  window.location.href='index.html?cancelled=1';
 }
 </script>
 </body>
