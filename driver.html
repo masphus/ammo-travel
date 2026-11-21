@@ -52,7 +52,6 @@ p.sub{color:#aaa;font-size:13px;margin:0 4px 16px}
 .kosong{text-align:center;color:#777;padding:20px;font-size:13px}
 hr{border:none;border-top:1px solid #222;margin:10px 0}
 .small{font-size:11px;color:#666}
-/* === TELP GRATIS - AMMO === */
 .callModal{position:fixed;inset:0;background:linear-gradient(180deg,#0a0a0a,#1a1a1a);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:500;padding:20px;text-align:center}
 .callModal.show{display:flex}
 .callAvatar{width:110px;height:110px;border-radius:50%;background:linear-gradient(180deg,#FFE9A8,#D4AF37);display:flex;align-items:center;justify-content:center;font-size:56px;border:3px solid #fff;box-shadow:0 0 30px rgba(212,175,55,.6);animation:pulseCall 1.5s infinite}
@@ -81,6 +80,7 @@ hr{border:none;border-top:1px solid #222;margin:10px 0}
   <button id="tabBaru" class="on" onclick="setTab('baru')">📥 Order Baru <span id="countBaru"></span></button>
   <button id="tabRiwayat" onclick="setTab('riwayat')">📜 Riwayat</button>
 </div>
+<div id="boxAktif" style="display:none"></div>
 <div id="boxBaru"></div>
 <div id="boxRiwayat" style="display:none"></div>
 <div class="card">
@@ -165,14 +165,14 @@ async function cekPin(){
       if(data && data.length>0){
         driver=data[0];
         try{ localStorage.setItem('ammo_driver', JSON.stringify(driver)); }catch(e){}
-        tutupPin(); tampilDriver(); loadOrderBaru(); loadRiwayat(); gabungChannelTelpDriver();
+        tutupPin(); tampilDriver(); tampilOrderAktif(); loadOrderBaru(); loadRiwayat(); gabungChannelTelpDriver();
         return;
       }
       let r2=await sb.from('driver').select('*').eq('pin',pinInput).limit(1);
       if(r2.data && r2.data.length>0){
         driver=r2.data[0];
         try{ localStorage.setItem('ammo_driver', JSON.stringify(driver)); }catch(e){}
-        tutupPin(); tampilDriver(); loadOrderBaru(); loadRiwayat(); gabungChannelTelpDriver();
+        tutupPin(); tampilDriver(); tampilOrderAktif(); loadOrderBaru(); loadRiwayat(); gabungChannelTelpDriver();
         return;
       }
       document.querySelectorAll('.pinDot').forEach(d=>d.classList.add('wrong'));
@@ -223,40 +223,17 @@ function mapOrder(o){
 }
 async function loadOrderBaru(){
   let baru=[];
-  try{
-    let r=await sb.from('orders').select('*').eq('status','mencari').order('id',{ascending:false}).limit(20);
-    if(r.data) baru=r.data.map(mapOrder);
-  }catch(e){ console.log('loadOrder error',e); }
-  if(baru.length===0){ try{ let ls=JSON.parse(localStorage.getItem('ammo_orders')||'[]'); let f=ls.filter(o=>o.status==='BARU'||o.status==='MENUNGGU'); baru=f.map(o=>({id:o.id,dari:o.dari||'-',tujuan:o.tujuan||'-',tanggal:o.tanggal||'-',jam:o.jam||'',orang:o.orang||'',km:o.km||'-',total:o.total||0,status:'mencari'})); }catch(e){} }
+  try{ let r=await sb.from('orders').select('*').eq('status','mencari').order('id',{ascending:false}).limit(20); if(r.data) baru=r.data.map(mapOrder); }catch(e){ console.log('loadOrder error',e); }
   $('countBaru').textContent = baru.length>0 ? '('+baru.length+')' : '';
-  if(baru.length===0){
-    $('boxBaru').innerHTML='<div class="card"><h3>📥 Order Baru</h3><div class="kosong">Belum ada order baru.<br>Tunggu penumpang pesan ya.</div></div>';
-  } else {
-    $('boxBaru').innerHTML=baru.map((o,i)=>`
-      <div class="card">
-        <h3>Order #${o.id||i+1} <span class="badge baru">BARU</span></h3>
-        <p>Dari: <b>${o.dari||'-'}</b><br>Ke: <b>${o.tujuan||'-'}</b><br>Tanggal: <b>${o.tanggal||'-'} ${o.jam||''}</b><br>Penumpang: <b>${o.orang||''} Orang</b><br>Jarak: <b>${o.km||'-'}</b></p>
-        <p style="margin-top:8px">Total: <b style="color:#E8C766;font-size:16px">${fmt(o.total||0)}</b></p>
-        <button class="btn" onclick="lihatOrder(${i})">Lihat Detail</button>
-      </div>`).join('');
-  }
+  if(baru.length===0){ $('boxBaru').innerHTML='<div class="card"><h3>📥 Order Baru</h3><div class="kosong">Belum ada order baru.<br>Tunggu penumpang pesan ya.</div></div>'; }
+  else { $('boxBaru').innerHTML=baru.map((o,i)=>`<div class="card"><h3>Order #${o.id||i+1} <span class="badge baru">BARU</span></h3><p>Dari: <b>${o.dari||'-'}</b><br>Ke: <b>${o.tujuan||'-'}</b><br>Tanggal: <b>${o.tanggal||'-'} ${o.jam||''}</b><br>Penumpang: <b>${o.orang||''} Orang</b><br>Jarak: <b>${o.km||'-'}</b></p><p style="margin-top:8px">Total: <b style="color:#E8C766;font-size:16px">${fmt(o.total||0)}</b></p><button class="btn" onclick="lihatOrder(${i})">Lihat Detail</button></div>`).join(''); }
   daftarOrder = baru;
 }
 async function loadRiwayat(){
   let riw=[];
-  try{
-    let r=await sb.from('orders').select('*').neq('status','mencari').order('id',{ascending:false}).limit(30);
-    if(r.data) riw=r.data.map(mapOrder);
-  }catch(e){}
-  if(riw.length===0){
-    $('boxRiwayat').innerHTML='<div class="card"><h3>📜 Riwayat</h3><div class="kosong">Belum ada riwayat order.</div></div>';
-  } else {
-    $('boxRiwayat').innerHTML=riw.map((o,i)=>`
-      <div class="card">
-        <h3>Order #${o.id||i+1} <span class="badge ${o.status==='SELESAI'?'selesai':'batal'}">${o.status||''}</span></h3>
-        <p>${o.dari||'-'} → ${o.tujuan||'-'}<br>${o.tanggal||''} ${o.jam||''} • ${fmt(o.total||0)}</p>
-      </div>`).join('');
-  }
+  try{ let r=await sb.from('orders').select('*').neq('status','mencari').order('id',{ascending:false}).limit(30); if(r.data) riw=r.data.map(mapOrder); }catch(e){}
+  if(riw.length===0){ $('boxRiwayat').innerHTML='<div class="card"><h3>📜 Riwayat</h3><div class="kosong">Belum ada riwayat order.</div></div>'; }
+  else { $('boxRiwayat').innerHTML=riw.map((o,i)=>`<div class="card"><h3>Order #${o.id||i+1} <span class="badge ${o.status==='SELESAI'?'selesai':'batal'}">${o.status||''}</span></h3><p>${o.dari||'-'} → ${o.tujuan||'-'}<br>${o.tanggal||''} ${o.jam||''} • ${fmt(o.total||0)}</p></div>`).join(''); }
   daftarRiwayat = riw;
 }
 function lihatOrder(i){
@@ -269,21 +246,49 @@ function lihatOrder(i){
   $('modalOrder').classList.add('show');
 }
 function tutupOrder(){ $('modalOrder').classList.remove('show'); orderTerpilih=null; }
+let orderAktif=null; try{ orderAktif=JSON.parse(localStorage.getItem('ammo_active_order')||'null'); }catch(e){}
+function tampilOrderAktif(){
+  let box=document.getElementById('boxAktif'); if(!box) return;
+  if(!orderAktif){ box.style.display='none'; box.innerHTML=''; return; }
+  box.style.display='block';
+  box.innerHTML=`<div class="card" style="border:2px solid #D4AF37"><h3>🚖 Order Aktif - Kamu OTW</h3><p>Order #<b>${orderAktif.id}</b><br>Dari: <b>${orderAktif.dari||'-'}</b><br>Ke: <b>${orderAktif.tujuan||'-'}</b><br>Tanggal: <b>${orderAktif.tanggal||'-'} ${orderAktif.jam||''}</b><br>Penumpang: <b>${orderAktif.orang||''} Orang</b><br>Total: <b style="color:#E8C766">${fmt(orderAktif.total||0)}</b></p><button class="btn" onclick="selesaikanOrder()">✅ Selesaikan Order</button><button class="btn danger" onclick="batalkanOrderAktif()">❌ Batalkan Order Ini</button></div>`;
+}
 async function terimaOrder(){
   if(!orderTerpilih) return;
   let nama=(driver&&(driver.nama||driver.name||driver.code))||'Driver';
   try{ await sb.from('orders').update({status:'diterima', driver_nama:nama, driver_id:driver?driver.id:null}).eq('id',orderTerpilih.id); }catch(e){ console.log(e); }
-  tutupOrder(); await loadOrderBaru(); await loadRiwayat(); alert('Order diterima! Silahkan OTW ke titik jemput.');
+  try{ await sb.from('bookings').update({status:'diterima', driver_nama:nama}).eq('id',orderTerpilih.id); }catch(e){}
+  orderAktif=orderTerpilih; try{ localStorage.setItem('ammo_active_order', JSON.stringify(orderAktif)); }catch(e){}
+  tutupOrder(); await loadOrderBaru(); await loadRiwayat(); tampilOrderAktif();
+  let bb=document.getElementById('boxBaru'); if(bb) bb.style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+  alert('Order diterima! Kamu OTW ke titik jemput: '+(orderAktif.dari||''));
+}
+async function selesaikanOrder(){
+  if(!orderAktif) return; if(!confirm('Order sudah selesai?')) return;
+  try{ await sb.from('orders').update({status:'selesai'}).eq('id',orderAktif.id); }catch(e){}
+  try{ await sb.from('bookings').update({status:'selesai'}).eq('id',orderAktif.id); }catch(e){}
+  orderAktif=null; localStorage.removeItem('ammo_active_order'); tampilOrderAktif();
+  let bb=document.getElementById('boxBaru'); if(bb) bb.style.display='block';
+  await loadOrderBaru(); await loadRiwayat(); alert('Order selesai! Mantap, lanjut terima order berikutnya.');
+}
+async function batalkanOrderAktif(){
+  if(!orderAktif) return; if(!confirm('Batalkan order aktif ini?')) return;
+  try{ await sb.from('orders').update({status:'dibatalkan'}).eq('id',orderAktif.id); }catch(e){}
+  try{ await sb.from('bookings').update({status:'dibatalkan'}).eq('id',orderAktif.id); }catch(e){}
+  orderAktif=null; localStorage.removeItem('ammo_active_order'); tampilOrderAktif();
+  let bb=document.getElementById('boxBaru'); if(bb) bb.style.display='block';
+  await loadOrderBaru(); await loadRiwayat();
 }
 async function tolakOrder(){
   if(!orderTerpilih) return;
   try{ await sb.from('orders').update({status:'ditolak'}).eq('id',orderTerpilih.id); }catch(e){}
+  try{ await sb.from('bookings').update({status:'ditolak'}).eq('id',orderTerpilih.id); }catch(e){}
   tutupOrder(); await loadOrderBaru(); await loadRiwayat(); alert('Order ditolak.');
 }
 function logoutDriver(){
-  if(confirm('Keluar dari akun driver?')){ localStorage.removeItem('ammo_driver'); localStorage.removeItem('ammo_driver_token'); sessionStorage.removeItem('ammo_driver_token'); driver=null; location.href='index.html'; }
+  if(confirm('Keluar dari akun driver?')){ localStorage.removeItem('ammo_driver'); localStorage.removeItem('ammo_driver_token'); sessionStorage.removeItem('ammo_driver_token'); localStorage.removeItem('ammo_active_order'); driver=null; location.href='index.html'; }
 }
-/* === TELP GRATIS DRIVER === */
 let callChannels=[], peerConn=null, localStreamTelp=null, currentCallId=null, incomingOffer=null, callTimerInt=null, callDetik=0, isMutedTelp=false;
 const STUN_SERVERS = { iceServers: [{urls:'stun:stun.l.google.com:19302'}, {urls:'stun:stun1.l.google.com:19302'}] };
 function buatPeerTelp(){
@@ -368,7 +373,6 @@ function akhiriTelpDiam(){
   let a=document.getElementById('remoteAudio'); if(a) a.srcObject=null;
 }
 async function cekAkses(){
-  // GUARD: kalau belum pernah login via PIN, jangan tampilkan dashboard, langsung minta PIN. Nama driver TIDAK boleh ketik manual, harus dari database via PIN.
   buatKeypad();
   try{
     let saved = localStorage.getItem('ammo_driver');
@@ -376,7 +380,7 @@ async function cekAkses(){
   }catch(e){}
   if(driver){
     $('loading').style.display='none';
-    tampilDriver(); loadOrderBaru(); loadRiwayat();
+    tampilDriver(); tampilOrderAktif(); loadOrderBaru(); loadRiwayat();
     gabungChannelTelpDriver();
   } else {
     $('loading').style.display='none';
