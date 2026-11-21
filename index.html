@@ -19,6 +19,8 @@ input::placeholder{color:#888}
 .spin{width:56px;height:56px;border:4px solid #333;border-top:4px solid #D4AF37;border-radius:50%;animation:putar 1s linear infinite;margin:0 auto}
 @keyframes putar{to{transform:rotate(360deg)}}
 .chat-float{position:fixed;bottom:96px;right:16px;width:52px;height:52px;border-radius:9999px;font-size:22px;z-index:60;box-shadow:0 4px 16px rgba(0,0,0,.5)}
+.saran-item{width:100%;text-align:left;padding:12px;border:1px solid #333;border-radius:14px;background:#1A1A1A;margin-top:8px;font-size:14px}
+.saran-item:active{background:#D4AF37;color:#000}
 </style>
 </head>
 <body>
@@ -27,21 +29,29 @@ input::placeholder{color:#888}
 <button onclick="showPage('profil')" id="btnAkun" class="gold-bg px-4 py-2 rounded-full font-bold text-sm">Masuk</button>
 </header>
 
-<!-- BERANDA - BERSIH, TANPA RIWAYAT -->
+<!-- BERANDA -->
 <div id="page-beranda" class="px-5 pb-32 max-w-md mx-auto">
 <h2 class="font-extrabold text-[28px] leading-tight">Mau jalan kemana<br>hari ini?</h2>
 <div class="mt-4 bg-[#111] gold-border rounded-[24px] p-4">
 <p class="font-bold text-[#D4AF37] text-lg">Dari</p>
 <div class="flex gap-2 mt-1">
-<input id="pickup" value="Jalan Muara Raya, Pelindung" class="flex-1 min-w-0 p-3 rounded-2xl border border-[#333] text-[15px]">
-<button onclick="pilihDariPeta()" class="gold-bg px-3 rounded-2xl font-bold shrink-0 text-sm">📍 Peta</button>
+<input id="pickup" value="Jalan Muara Raya, Pelindung" oninput="hitungPreview()" class="flex-1 min-w-0 p-3 rounded-2xl border border-[#333] text-[15px]">
+<button type="button" onclick="bukaSaran('pickup')" class="gold-bg px-3 rounded-2xl font-bold shrink-0 text-sm">📍 Peta</button>
 </div>
 <p class="text-[12px] text-gray-400 mt-1">📍 <span id="gpsLabel">Mendeteksi lokasi GPS kamu...</span></p>
-<div class="flex justify-center -my-1 relative z-10"><button onclick="swapLokasi()" class="gold-bg w-10 h-10 rounded-full font-bold shadow-lg">↕</button></div>
+<div class="flex justify-center -my-1 relative z-10"><button type="button" onclick="swapLokasi()" class="gold-bg w-10 h-10 rounded-full font-bold shadow-lg">↕</button></div>
 <p class="font-bold text-[#D4AF37] text-lg mt-1">Tujuan</p>
 <div class="flex gap-2 mt-1">
-<input id="dest" placeholder="Tujuan..." oninput="hitungPreview()" class="flex-1 min-w-0 p-3 rounded-2xl border border-[#333] text-[15px]">
-<button onclick="pilihTujuanPeta()" class="gold-bg px-3 rounded-2xl font-bold shrink-0 text-sm">📍 Peta</button>
+<input id="dest" placeholder="Tujuan... ketik / pilih dari Peta" oninput="hitungPreview()" class="flex-1 min-w-0 p-3 rounded-2xl border border-[#333] text-[15px]">
+<button type="button" onclick="bukaSaran('dest')" class="gold-bg px-3 rounded-2xl font-bold shrink-0 text-sm">📍 Peta</button>
+</div>
+<p class="text-[12px] text-gray-400 mt-2">Saran cepat:</p>
+<div class="flex flex-wrap gap-2 mt-1">
+<button type="button" onclick="pilihSaranLangsung('dest','Cimaung, Kabupaten Bandung')" class="bg-[#1A1A1A] gold-border px-3 py-2 rounded-full text-xs">Cimaung</button>
+<button type="button" onclick="pilihSaranLangsung('dest','Soreang, Kabupaten Bandung')" class="bg-[#1A1A1A] gold-border px-3 py-2 rounded-full text-xs">Soreang</button>
+<button type="button" onclick="pilihSaranLangsung('dest','Ciwidey, Kabupaten Bandung')" class="bg-[#1A1A1A] gold-border px-3 py-2 rounded-full text-xs">Ciwidey</button>
+<button type="button" onclick="pilihSaranLangsung('dest','Pangalengan, Kabupaten Bandung')" class="bg-[#1A1A1A] gold-border px-3 py-2 rounded-full text-xs">Pangalengan</button>
+<button type="button" onclick="pilihSaranLangsung('dest','Bandung Kota')" class="bg-[#1A1A1A] gold-border px-3 py-2 rounded-full text-xs">Bandung Kota</button>
 </div>
 <div class="flex gap-3 mt-4">
 <div class="flex-1 min-w-0"><p class="font-bold text-[#D4AF37]">Tanggal</p><input id="tanggalBerangkat" type="date" class="w-full p-3 rounded-2xl border border-[#333] mt-1"></div>
@@ -56,25 +66,24 @@ input::placeholder{color:#888}
 <p class="text-[12px] text-gray-400 mt-1" id="voucher-sub">Masuk dulu untuk memakai voucher.</p>
 <div class="flex justify-between mt-2 text-sm"><span>Potongan voucher:</span><b id="potongan-label" class="text-green-400">- Rp 0</b></div>
 </div>
-<div id="ongkosPreview" class="mt-4 bg-[#1A1A1A] gold-border rounded-2xl p-4">
+<div class="mt-4 bg-[#1A1A1A] gold-border rounded-2xl p-4">
 <div class="flex justify-between text-sm"><span>Jarak:</span><b id="prevJarak">-</b></div>
 <div class="flex justify-between text-sm mt-1"><span>Estimasi:</span><b id="prevEstimasi">-</b></div>
 <div class="flex justify-between font-extrabold text-lg mt-2"><span>Total Harga</span><span id="prevOngkos" class="gold">-</span></div>
 <p id="prevVoucher" class="text-[12px] text-green-400 mt-1">Voucher didapat: -</p>
 <p class="text-[11px] text-gray-500 mt-1">Bila terdapat Biaya Tol, Parkir, dan Penyeberangan maka akan dibebankan kepada Penumpang</p>
 </div>
-<button onclick="cekDriver()" class="w-full mt-4 gold-bg py-4 rounded-2xl font-extrabold text-lg tracking-wide">PESAN SEKARANG →</button>
+<button type="button" onclick="cekDriver()" class="w-full mt-4 gold-bg py-4 rounded-2xl font-extrabold text-lg tracking-wide">PESAN SEKARANG →</button>
 <p class="text-center text-[11px] text-gray-500 mt-2">Driver akan konfirmasi via WhatsApp</p>
 </div>
-<!-- RIWAYAT DI BERANDA SUDAH DIHAPUS SESUAI REQUEST -->
 </div>
 
-<!-- PERJALANAN - TETAP ADA, TAPI ISINYA NGARAHIN KE PROFIL -->
+<!-- PERJALANAN -->
 <div id="page-perjalanan" class="px-5 pb-32 hidden max-w-md mx-auto">
 <h2 class="font-extrabold text-lg gold">Riwayat Perjalanan</h2>
 <p class="text-[12px] text-gray-400">Riwayat hanya tampil di Profil.</p>
-<button onclick="showPage('profil')" class="w-full gold-bg py-3 rounded-xl font-bold mt-4">LIHAT DI PROFIL →</button>
-<button onclick="showPage('beranda')" class="w-full bg-[#333] py-3 rounded-xl mt-2">Kembali</button>
+<button type="button" onclick="showPage('profil')" class="w-full gold-bg py-3 rounded-xl font-bold mt-4">LIHAT DI PROFIL →</button>
+<button type="button" onclick="showPage('beranda')" class="w-full bg-[#333] py-3 rounded-xl mt-2">Kembali</button>
 </div>
 
 <!-- VOUCHER -->
@@ -82,44 +91,55 @@ input::placeholder{color:#888}
 <h2 class="font-extrabold text-lg gold">Voucher Anda</h2>
 <p class="text-[12px] text-gray-400">Voucher didapat 3% dari ongkos, berlaku selamanya. Voucher baru masuk setelah perjalanan SELESAI.</p>
 <div class="bg-[#111] gold-border rounded-2xl p-4 mt-3"><p class="text-3xl font-extrabold gold" id="voucherBesar">Rp 0</p><p class="text-xs text-gray-400" id="voucherInfo">Masuk dulu untuk lihat voucher</p></div>
-<button onclick="showPage('beranda')" class="w-full bg-[#333] py-3 rounded-xl mt-4">Kembali</button>
+<button type="button" onclick="showPage('beranda')" class="w-full bg-[#333] py-3 rounded-xl mt-4">Kembali</button>
 </div>
 
-<!-- PROFIL - DISINI RIWAYATNYA -->
+<!-- PROFIL -->
 <div id="page-profil" class="px-5 pb-32 hidden max-w-md mx-auto">
 <h2 class="font-extrabold text-xl">Profil</h2>
 <div id="authBox" class="bg-[#111] gold-border rounded-2xl p-4 mt-4 space-y-3">
 <input id="inputNama" placeholder="Nama" class="w-full p-3 rounded-xl border border-[#333]">
 <input id="inputHP" placeholder="No WA, cth 0812..." class="w-full p-3 rounded-xl border border-[#333]">
-<button onclick="loginSimpel()" class="w-full gold-bg py-3 rounded-xl font-bold">MASUK & LANJUT ORDER</button>
+<button type="button" onclick="loginSimpel()" class="w-full gold-bg py-3 rounded-xl font-bold">MASUK & LANJUT ORDER</button>
 </div>
 <div id="profilBox" class="hidden">
 <div class="bg-[#111] gold-border rounded-2xl p-4 mt-4">
 <p class="font-bold text-lg" id="profil-nama">-</p><p class="text-sm text-gray-400" id="profil-nomor">-</p>
 <p class="text-sm mt-2">Trip: <b id="stat-trip">0</b> • Voucher: <b id="stat-voucher">0</b></p>
-<button onclick="logoutAkun()" class="w-full bg-red-600 py-3 rounded-xl font-bold mt-3">KELUAR</button>
+<button type="button" onclick="logoutAkun()" class="w-full bg-red-600 py-3 rounded-xl font-bold mt-3">KELUAR</button>
 </div>
 <h3 class="font-bold mt-5">Riwayat Perjalanan</h3>
 <div id="list-perjalanan" class="space-y-3 mt-2"></div>
 </div>
-<button onclick="showPage('beranda')" class="w-full bg-[#333] py-3 rounded-xl mt-3">Kembali</button>
+<button type="button" onclick="showPage('beranda')" class="w-full bg-[#333] py-3 rounded-xl mt-3">Kembali</button>
 </div>
 
 <div class="bottom-nav max-w-md mx-auto">
-<button onclick="showPage('beranda')" id="nav-beranda" class="active">🏠<br>Beranda</button>
-<button onclick="showPage('perjalanan')" id="nav-perjalanan">🧭<br>Perjalanan</button>
-<button onclick="showPage('voucher')" id="nav-voucher">🎟️<br>Voucher</button>
-<button onclick="showPage('profil')" id="nav-profil">👤<br>Profil</button>
+<button type="button" onclick="showPage('beranda')" id="nav-beranda" class="active">🏠<br>Beranda</button>
+<button type="button" onclick="showPage('perjalanan')" id="nav-perjalanan">🧭<br>Perjalanan</button>
+<button type="button" onclick="showPage('voucher')" id="nav-voucher">🎟️<br>Voucher</button>
+<button type="button" onclick="showPage('profil')" id="nav-profil">👤<br>Profil</button>
 </div>
 
-<button onclick="alert('Chat WA Admin: hubungi admin Ammo')" class="chat-float gold-bg font-bold">💬</button>
+<button type="button" onclick="alert('Chat WA Admin: hubungi admin Ammo')" class="chat-float gold-bg font-bold">💬</button>
+
+<!-- MODAL SARAN -->
+<div id="saranModal" class="modal"><div class="bg-[#1A1A1A] gold-border rounded-2xl p-5 w-full max-w-sm">
+<h3 class="font-extrabold text-lg" id="saranJudul">Pilih Lokasi</h3>
+<p class="text-xs text-gray-400 mt-1">Ketik untuk cari, atau klik salah satu saran di bawah.</p>
+<input id="saranSearch" placeholder="Cari lokasi..." oninput="renderSaran()" class="w-full p-3 rounded-xl border border-[#333] mt-3">
+<button type="button" onclick="pakaiGPS()" class="w-full bg-blue-600 py-3 rounded-xl font-bold mt-3">📍 Pakai GPS Saya</button>
+<div id="saranList" class="max-h-[280px] overflow-y-auto mt-1"></div>
+<button type="button" onclick="tutupSaran()" class="w-full bg-[#333] py-3 rounded-xl font-bold mt-3">BATAL</button>
+</div></div>
 
 <div id="popupModal" class="modal"><div class="bg-[#1A1A1A] gold-border rounded-2xl p-6 w-full max-w-sm text-center">
 <div id="popupIcon" class="text-4xl">🎉</div><h3 id="popupJudul" class="font-extrabold text-lg mt-2"></h3><p id="popupIsi" class="text-sm text-gray-300 mt-2 whitespace-pre-line"></p><div id="popupAksi" class="mt-4 space-y-2"></div>
 </div></div>
 
+<!-- MODAL MENCARI DRIVER - INI PERBAIKAN ORDER NOW -->
 <div id="searchingModal" class="modal"><div class="bg-[#1A1A1A] gold-border rounded-2xl p-6 w-full max-w-sm text-center">
-<div class="spin"></div><h3 class="font-extrabold text-lg mt-4">Mencari Driver...</h3><p id="searchingIsi" class="text-sm text-gray-300 mt-2 whitespace-pre-line"></p><p class="text-xs text-gray-500 mt-2">Status: <b id="searchingStatus" class="gold">mencari_driver</b></p><button onclick="batalkanOrder()" class="w-full bg-red-600 py-3 rounded-xl font-bold mt-4">BATALKAN PESANAN</button>
+<div class="spin"></div><h3 class="font-extrabold text-lg mt-4">Mencari Driver...</h3><p id="searchingIsi" class="text-sm text-gray-300 mt-2 whitespace-pre-line"></p><p class="text-xs text-gray-500 mt-2">Status: <b id="searchingStatus" class="gold">mencari_driver</b></p><button type="button" onclick="batalkanOrder()" class="w-full bg-red-600 py-3 rounded-xl font-bold mt-4">BATALKAN PESANAN</button>
 </div></div>
 
 <script>
@@ -127,16 +147,30 @@ const SUPABASE_URL=""; const SUPABASE_KEY="";
 let supabaseClient=null; try{ if(SUPABASE_URL) supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY); }catch(e){}
 const $=id=>document.getElementById(id);
 let jumlahOrang=6, jarakKm=0, jarakMeter=0, totalHarga=0, estimasiTeks='-', durasiDetik=0, voucherDapat=0;
-let pickupCoord=null, destCoord=null, pollingTimer=null, currentOrderId=null;
+let pickupCoord=null, destCoord=null, pollingTimer=null, currentOrderId=null, saranTarget='dest';
+const DAFTAR_LOKASI=[
+{name:'Jalan Muara Raya, Pelindung Hewan, Astanaanyar, Bandung', lat:-6.917, lon:107.61},
+{name:'Cimaung, Kabupaten Bandung', lat:-7.043, lon:107.56},
+{name:'Soreang, Kabupaten Bandung', lat:-7.02, lon:107.52},
+{name:'Ciwidey, Kabupaten Bandung', lat:-7.08, lon:107.47},
+{name:'Pangalengan, Kabupaten Bandung', lat:-7.18, lon:107.57},
+{name:'Bandung Kota', lat:-6.914, lon:107.609},
+{name:'Kopo, Bandung', lat:-6.95, lon:107.58},
+{name:'Buah Batu, Bandung', lat:-6.95, lon:107.63},
+{name:'Cibiru, Bandung', lat:-6.91, lon:107.72},
+{name:'Cimahi', lat:-6.87, lon:107.55},
+{name:'Lembang, Bandung Barat', lat:-6.81, lon:107.61},
+{name:'Majalaya, Kabupaten Bandung', lat:-7.04, lon:107.76},
+{name:'Banjaran, Kabupaten Bandung', lat:-7.04, lon:107.59},
+{name:'Katapang, Kabupaten Bandung', lat:-7.0, lon:107.57},
+];
 function showPage(p){ ['beranda','perjalanan','voucher','profil'].forEach(x=>{ $('page-'+x).classList.toggle('hidden',x!==p); $('nav-'+x).classList.toggle('active',x===p); }); if(p==='profil') renderProfil(); if(p==='voucher') renderVoucherPage(); }
 function getSesi(){ try{return JSON.parse(localStorage.getItem('ammo_sesi')||'null')}catch(e){return null} }
 function sudahLogin(){ let s=getSesi(); return !!(s&&(s.nama||s.hp)); }
 function fmtRp(n){ return 'Rp '+(n||0).toLocaleString('id-ID'); }
 function fmtJarak(m){ return ((m||0)/1000).toFixed(1)+' km'; }
 function fmtEstimasi(d){ return Math.round((d||0)/60)+' menit'; }
-// FIX: potong alamat panjang biar gak memenuhi riwayat
 function pendek(nama){ if(!nama) return '-'; return nama.length>45 ? nama.slice(0,45)+'...' : nama; }
-// FIX: status undefined -> jangan tampilkan undefined lagi
 function labelStatus(st){
   if(!st) return {teks:'🔍 Mencari Driver', warna:'text-yellow-400'};
   if(st==='mencari_driver') return {teks:'🔍 Mencari Driver', warna:'text-yellow-400'};
@@ -147,6 +181,18 @@ function labelStatus(st){
   if(st==='selesai'||st==='Selesai') return {teks:'✅ Selesai', warna:'text-green-400'};
   return {teks:'🔍 '+st, warna:'text-yellow-400'};
 }
+function bukaSaran(target){ saranTarget=target; $('saranJudul').textContent = target==='pickup' ? 'Pilih Penjemputan' : 'Pilih Tujuan'; $('saranSearch').value = $(target).value || ''; $('saranModal').classList.add('show'); renderSaran(); }
+function tutupSaran(){ $('saranModal').classList.remove('show'); }
+function renderSaran(){
+  let q = ($('saranSearch').value||'').toLowerCase().trim();
+  let list = DAFTAR_LOKASI.filter(l=>!q || l.name.toLowerCase().indexOf(q)!==-1);
+  if(!list.length) list = DAFTAR_LOKASI;
+  $('saranList').innerHTML = list.map((l,i)=>{ let idx = DAFTAR_LOKASI.indexOf(l); return '<button type="button" class="saran-item" onclick="pilihDariDaftar('+idx+')">📍 '+l.name+'</button>'; }).join('') + (q ? '<button type="button" class="saran-item" style="border-color:#D4AF37" onclick="pilihTeksBebas()">✏️ Pakai teks: "'+q+'"</button>' : '');
+}
+function pilihDariDaftar(idx){ let l = DAFTAR_LOKASI[idx]; $(saranTarget).value = l.name; if(saranTarget==='pickup') pickupCoord=[l.lat,l.lon]; else destCoord=[l.lat,l.lon]; tutupSaran(); hitungPreview(); }
+function pilihTeksBebas(){ let v = $('saranSearch').value.trim(); if(v){ $(saranTarget).value=v; tutupSaran(); hitungPreview(); } }
+function pilihSaranLangsung(target,nama){ $(target).value=nama; let found = DAFTAR_LOKASI.find(l=>l.name.indexOf(nama.split(',')[0])!==-1); if(found){ if(target==='pickup') pickupCoord=[found.lat,found.lon]; else destCoord=[found.lat,found.lon]; } hitungPreview(); }
+function pakaiGPS(){ if(!navigator.geolocation){ alert('GPS tidak didukung HP ini'); return; } $('gpsLabel').textContent='Mendeteksi GPS...'; navigator.geolocation.getCurrentPosition(pos=>{ let lat=pos.coords.latitude, lon=pos.coords.longitude; let nama='Lokasi GPS Saya ('+lat.toFixed(4)+', '+lon.toFixed(4)+')'; $(saranTarget).value = saranTarget==='pickup' ? 'Jalan Muara Raya, Pelindung Hewan, Astanaanyar, Bandung' : nama; if(saranTarget==='pickup') pickupCoord=[lat,lon]; else destCoord=[lat,lon]; $('gpsLabel').textContent='GPS aktif - Bandung'; tutupSaran(); hitungPreview(); },err=>{ $('gpsLabel').textContent='GPS gagal, pilih dari daftar'; alert('GPS gagal: '+err.message); },{timeout:8000}); }
 function hitungOngkos(km,orang){ let ongkos=Math.round(km*3500+orang*5000); return {kmTagih:km,ongkos,voucher:Math.round(ongkos*0.03)}; }
 async function hitungPreview(){
   let a=$('pickup').value.trim(), b=$('dest').value.trim(); if(!a||!b) return;
@@ -156,18 +202,12 @@ async function hitungPreview(){
       let r=await fetch(url); let d=await r.json();
       if(d.routes&&d.routes.length){ jarakMeter=d.routes[0].distance; jarakKm=jarakMeter/1000; durasiDetik=d.routes[0].duration; estimasiTeks=fmtEstimasi(durasiDetik); }
       else { jarakMeter=22200; jarakKm=22.2; durasiDetik=4500; estimasiTeks=fmtEstimasi(durasiDetik); }
-    } else {
-      // FIX: kalau belum pilih dari Peta tapi teks sudah diisi, tetap hitung estimasi biar gak strip semua
-      jarakMeter=22200; jarakKm=22.2; durasiDetik=4500; estimasiTeks=fmtEstimasi(durasiDetik);
-    }
+    } else { jarakMeter=22200; jarakKm=22.2; durasiDetik=4500; estimasiTeks=fmtEstimasi(durasiDetik); }
   }catch(e){ jarakMeter=22200; jarakKm=22.2; durasiDetik=4500; estimasiTeks=fmtEstimasi(durasiDetik); }
   let h=hitungOngkos(jarakKm,jumlahOrang); totalHarga=h.ongkos; voucherDapat=h.voucher;
   $('prevJarak').textContent='~ '+fmtJarak(jarakMeter); $('prevEstimasi').textContent='± '+estimasiTeks; $('prevOngkos').textContent='ONGKOS '+fmtRp(totalHarga); $('prevVoucher').textContent='Voucher didapat: + '+fmtRp(voucherDapat);
 }
 function swapLokasi(){ let a=$('pickup').value; $('pickup').value=$('dest').value; $('dest').value=a; let c=pickupCoord; pickupCoord=destCoord; destCoord=c; hitungPreview(); }
-function pilihDariPeta(){ let v=prompt('Isi lokasi penjemputan:',$('pickup').value); if(v) $('pickup').value=v; hitungPreview(); }
-function pilihTujuanPeta(){ let v=prompt('Isi tujuan:',$('dest').value); if(v){ $('dest').value=v; // FIX: kalau pilih Cimaung, pakai koordinat Cimaung biar jarak akurat
-  if(v.toLowerCase().indexOf('cimaung')!==-1){ destCoord=[-7.043,107.56]; pickupCoord=pickupCoord||[-6.917,107.61]; } } hitungPreview(); }
 function bukaPopup(judul,isi,icon,aksi){ $('popupJudul').textContent=judul; $('popupIsi').textContent=isi; $('popupIcon').textContent=icon||'🎉'; $('popupAksi').innerHTML=''; (aksi||[{label:'Tutup',aksi:'ke-beranda'}]).forEach(a=>{ let b=document.createElement('button'); b.className='w-full gold-bg py-3 rounded-xl font-bold'; b.textContent=a.label; b.onclick=()=>{ $('popupModal').classList.remove('show'); if(a.aksi==='ke-beranda') showPage('beranda'); }; $('popupAksi').appendChild(b); }); $('popupModal').classList.add('show'); }
 function popupError(judul,isi){ bukaPopup(judul,isi,'⚠️',[{label:'OK',aksi:'ke-beranda'}]); }
 function loginSimpel(){ let nama=$('inputNama').value.trim(), hp=$('inputHP').value.trim(); if(!nama||!hp){ alert('Isi nama & WA dulu'); return; } localStorage.setItem('ammo_sesi',JSON.stringify({nama,hp})); $('btnAkun').textContent=nama; showPage('beranda'); if(localStorage.getItem('ammo_mau_order')==='1'){ localStorage.setItem('ammo_mau_order','0'); simpanOrderDanLanjut(); } renderProfil(); }
@@ -178,7 +218,6 @@ function renderProfil(){
   else { $('authBox').classList.remove('hidden'); $('profilBox').classList.add('hidden'); }
   let v=parseInt(localStorage.getItem('ammo_voucher')||'0'); $('stat-voucher').textContent= v>0?1:0;
   let raw=localStorage.getItem('masphus_order'); $('stat-trip').textContent= raw?1:0;
-  // FIX voucher: kalau sudah login, jangan tulis "Silahkan masuk"
   $('voucher-sub').textContent = s ? 'Voucher aktif. Dipakai otomatis saat order.' : 'Masuk dulu untuk memakai voucher.';
   $('voucher-count-label').textContent = v>0 ? '1 voucher' : '0 voucher';
   renderPerjalanan();
@@ -190,6 +229,7 @@ async function cekDriver(){
   if(!sudahLogin()){ localStorage.setItem('ammo_mau_order','1'); showPage('profil'); return; }
   await simpanOrderDanLanjut();
 }
+// ORDER NOW YANG UDAH DIBENERIN: GAK LANGSUNG SUKSES, TAPI MENCARI DRIVER
 async function simpanOrderDanLanjut(){
   let a=$('pickup').value.trim(), b=$('dest').value.trim();
   let tgl=$('tanggalBerangkat').value||new Date().toISOString().slice(0,10); let jam=$('jamBerangkat').value||'09:00'; let sesi=getSesi();
@@ -229,8 +269,7 @@ function renderPerjalanan(){
   let raw=localStorage.getItem('masphus_order');
   if(!raw){ el.innerHTML='<p class="text-gray-400 text-sm">Belum ada riwayat perjalanan</p>'; return; }
   let p=JSON.parse(raw);
-  // FIX: order lama yang status-nya undefined -> anggap selesai biar gak undefined
-  let st = p.status || 'selesai';
+  let st = p.status || 'mencari_driver';
   let lab = labelStatus(st);
   el.innerHTML='<div class="bg-[#111] gold-border rounded-[20px] p-4"><div class="flex justify-between gap-2"><b class="flex-1">'+pendek(p.asal?.nama||p.asal)+ ' → ' +pendek(p.tujuan?.nama||p.tujuan)+'</b><span class="'+lab.warna+' text-xs font-bold shrink-0">'+lab.teks+'</span></div><p class="text-sm text-gray-400 mt-2">'+(p.jumlah_orang||6)+' Orang • '+fmtJarak(p.jarak_meter||p.jarak_m||0)+' • '+fmtRp(p.total_harga||0)+'</p><p class="text-xs text-gray-500">'+new Date(p.waktu||Date.now()).toLocaleString('id-ID')+'</p></div>';
 }
