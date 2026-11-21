@@ -165,6 +165,7 @@ body{background:#000;display:flex;justify-content:center}
 <div class="ikon">✅</div>
 <h3>Perjalanan Dibatalkan</h3>
 <p>Driver sudah diberitahu bahwa kamu membatalkan perjalanan.</p>
+<p style="font-size:12px;color:#888">Otomatis kembali ke Beranda...</p>
 <button class="btn-ok-notif" onclick="selesaiBatalKeIndex()">OK, Kembali ke Beranda Sekarang</button>
 </div>
 </div>
@@ -292,18 +293,16 @@ async function cekBooking(){
     if(!r || !r.data) return;
     let b = r.data;
     let status = String(b.status || '').toLowerCase();
-
     if((status === 'selesai' || status === 'completed' || status === 'done') && !sudahRedirectSelesai){
       sudahRedirectSelesai = true;
       document.getElementById('waitTitle').textContent = 'Perjalanan Selesai!';
       document.getElementById('waitSub').textContent = 'Terima kasih sudah pakai Ammo Travel. Balik ke beranda ya...';
       setTimeout(() => {
-        try{ localStorage.removeItem('masphus_order'); localStorage.removeItem('ammo_booking_id'); }catch(e){}
+        try{ localStorage.removeItem('masphus_order'); localStorage.removeItem('ammo_booking_id'); localStorage.removeItem('ammo_pending_order'); localStorage.removeItem('ammo_mau_order'); localStorage.removeItem('ammo_current_order'); }catch(e){}
         window.location.href = 'index.html';
       }, 3000);
       return;
     }
-
     if(b.driver_id || b.driver_nama || b.nama_driver || status === 'diterima' || status === 'accepted' || status === 'otw' || status === 'jalan' || status === 'minta_jemput' || status === 'minta_selesai' || status === 'dijemput'){
       let nama = b.driver_nama || b.nama_driver || b.driver_name || namaDriverAktif || 'Driver';
       let foto = b.driver_foto || b.foto_driver || b.driver_photo || 'https://via.placeholder.com/72';
@@ -328,7 +327,6 @@ async function cekBooking(){
         }, 800);
       }
     }
-
     if(status === 'minta_jemput' && !sudahTampilNaik){
       let bayar = String(b.payment_method || b.metode_bayar || saved.payment_method || 'tunai').toLowerCase();
       if(bayar !== 'tunai' && bayar !== 'cash'){
@@ -338,14 +336,12 @@ async function cekBooking(){
         jawabNaik(true);
       }
     }
-
     if(status === 'minta_selesai' && !sudahTampilSelesai){
       sudahTampilSelesai = true;
       let jarakTxt = b.jarak_driver_ke_tujuan_m || b.driver_distance_m || b.jarak_selesai_m || '';
       document.getElementById('teksSelesai').innerHTML = 'Driver mengklaim sudah sampai tujuan, tapi GPS driver masih <b>' + (jarakTxt ? Math.round(jarakTxt) + ' meter' : 'jauh dari tujuan (lebih dari 500m)') + '</b>. Apakah benar kamu sudah sampai tujuan?';
       document.getElementById('modalSelesai').classList.add('show');
     }
-
   }catch(e){}
 }
 
@@ -484,18 +480,31 @@ function selesaiBatalKeIndex(){
 
 function bersihkanDanKembali(){
   bolehKeluar = true;
-  try{ localStorage.removeItem('masphus_order'); localStorage.removeItem('ammo_booking_id'); }catch(e){}
+  try{ localStorage.removeItem('masphus_order'); localStorage.removeItem('ammo_booking_id'); localStorage.removeItem('ammo_pending_order'); localStorage.removeItem('ammo_mau_order'); localStorage.removeItem('ammo_current_order'); }catch(e){}
   sessionStorage.setItem('ammo_clear', '1');
   sessionStorage.setItem('ammo_must_clear_dest', '1');
   sessionStorage.removeItem('ammo_from_index');
-  window.location.href = 'index.html';
+  window.location.href = 'index.html?reset=1';
 }
 
 function toggleEditTujuan(){ let box=document.getElementById('boxEditTujuan'); let btn=document.getElementById('btnEditTujuan'); let isOpen=box.style.display==='block'; if(isOpen){ box.style.display='none'; btn.textContent='EDIT TUJUAN'; btn.classList.remove('on'); } else { box.style.display='block'; btn.textContent='TUTUP EDIT'; btn.classList.add('on'); document.getElementById('editDari').value=document.getElementById('wDari').textContent; document.getElementById('editTujuan').value=document.getElementById('wTujuan').textContent; } }
 function simpanEditTujuan(){ let d=document.getElementById('editDari').value.trim(); let tj=document.getElementById('editTujuan').value.trim(); if(!d||!tj){ alert('Dari & Tujuan gak boleh kosong'); return; } document.getElementById('wDari').textContent=d; document.getElementById('wTujuan').textContent=tj; try{ let s=JSON.parse(localStorage.getItem('masphus_order')||'null'); if(s){ if(s.asal) s.asal.nama=d; else s.asal={nama:d}; if(s.tujuan) s.tujuan.nama=tj; else s.tujuan={nama:tj}; localStorage.setItem('masphus_order', JSON.stringify(s)); } }catch(e){} toggleEditTujuan(); alert('Tujuan diupdate!'); }
 function editLewatMaps(){ try{ let s=JSON.parse(localStorage.getItem('masphus_order')||'null')||{}; s.asal={nama:document.getElementById('editDari').value.trim()||document.getElementById('wDari').textContent}; s.tujuan={nama:document.getElementById('editTujuan').value.trim()||document.getElementById('wTujuan').textContent}; s.edit_mode=true; localStorage.setItem('masphus_order', JSON.stringify(s)); }catch(e){} bolehKeluar=true; window.location.href='index.html?edit=1'; }
-async function init(){
 
+function cekAdaBooking(){
+  try{
+    let s = JSON.parse(localStorage.getItem('masphus_order') || 'null');
+    if(!s || !s.asal || !s.asal.nama || !s.tujuan || !s.tujuan.nama || !s.total_harga) return false;
+    return true;
+  }catch(e){ return false; }
+}
+async function init(){
+  if(!cekAdaBooking()){
+    document.getElementById('waitTitle').textContent = 'Belum Ada Booking...';
+    document.getElementById('waitSub').textContent = 'Balik ke Beranda ya, pilih dulu mau kemana...';
+    setTimeout(()=>{ window.location.href = 'index.html?reset=1'; }, 1200);
+    return;
+  }
   if(!tampilkanTarifDariIndex()){
     document.getElementById('wJarak').textContent = '-';
     document.getElementById('wEstimasi').textContent = '-';
