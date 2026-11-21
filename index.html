@@ -6,6 +6,7 @@
 <title>AMMO TRAVEL</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#000;color:#fff}
@@ -16,54 +17,132 @@ h1{font-size:26px;line-height:1.2;margin:10px 4px 14px}
 .field{padding:10px 6px;position:relative}
 label{color:#D4AF37;font-size:13px;font-weight:700;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 input,select{width:100%;background:#1a1a1a;border:1px solid #333;border-radius:12px;color:#fff;padding:13px;font-size:15px;outline:none;appearance:none}
-select{cursor:pointer} select option{background:#1a1a1a;color:#fff}
+select{cursor:pointer}
+select option{background:#1a1a1a;color:#fff}
 input:focus,select:focus{border-color:#D4AF37}
-.inputRow{display:flex;gap:8px;align-items:stretch}.inputRow input{flex:1;min-width:0}
-.btnMapsSide{flex-shrink:0;padding:0 14px;border:1px solid #D4AF37;background:#1a1a1a;color:#E8C766;border-radius:12px;font-weight:900;font-size:12px;cursor:pointer}
+.inputRow{display:flex;gap:8px;align-items:stretch}
+.inputRow input{flex:1;min-width:0}
+.btnMapsSide{flex-shrink:0;padding:0 14px;border:1px solid #D4AF37;background:#1a1a1a;color:#E8C766;border-radius:12px;font-weight:900;font-size:12px;cursor:pointer;letter-spacing:1px}
 .btnMapsSide.active{background:linear-gradient(180deg,#FFE9A8,#D4AF37);color:#000}
-.swap{display:flex;justify-content:center;margin:2px 0}.swap button{width:44px;height:44px;border-radius:50%;border:1px solid #D4AF37;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-size:20px;font-weight:900;cursor:pointer}
+.swap{display:flex;justify-content:center;margin:2px 0}
+.swap button{width:44px;height:44px;border-radius:50%;border:1px solid #D4AF37;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-size:20px;font-weight:900;cursor:pointer}
 .divider{height:1px;background:#C9A227;margin:8px 4px;opacity:.6}
 .row{display:flex;gap:10px}.row .field{flex:1}
 .sug{position:absolute;left:0;right:0;top:100%;background:#1c1c1c;border:1px solid #C9A227;border-radius:12px;z-index:30;display:none;overflow:hidden;max-height:280px;overflow-y:auto}
-.sug div{padding:12px;border-bottom:1px solid #333;cursor:pointer;font-size:14px;line-height:1.3}.sug div small{color:#D4AF37;display:block;font-size:11px;margin-top:2px}
-.miniMap{height:200px;border-radius:14px;border:1px solid #C9A227;margin-top:8px;z-index:1;display:none}.miniMap.show{display:block}
-.mapHint{display:none;justify-content:space-between;font-size:11px;color:#888;margin-top:6px}.mapHint.show{display:flex}.mapHint button{background:none;border:none;color:#D4AF37;font-weight:700;cursor:pointer;font-size:11px}
+.sug div{padding:12px;border-bottom:1px solid #333;cursor:pointer;font-size:14px;line-height:1.3}
+.sug div small{color:#D4AF37;display:block;font-size:11px;margin-top:2px}
+.miniMap{height:200px;border-radius:14px;border:1px solid #C9A227;margin-top:8px;z-index:1;display:none}
+.miniMap.show{display:block}
+.mapHint{display:none;justify-content:space-between;font-size:11px;color:#888;margin-top:6px}
+.mapHint.show{display:flex}
+.mapHint button{background:none;border:none;color:#D4AF37;font-weight:700;cursor:pointer;font-size:11px}
 .priceBox{margin-top:14px;border:1px solid #C9A227;border-radius:18px;padding:16px;background:#111}
-.priceTop{display:flex;justify-content:space-between;align-items:center}.priceTop b{font-size:18px;color:#E8C766}.priceVal{font-size:24px;font-weight:900;color:#E8C766}
-.detail{margin-top:12px;font-size:13px;line-height:2}.detail div{display:flex;justify-content:space-between;gap:8px}.detail span{color:#aaa}.detail b{color:#fff;text-align:right}
+.priceTop{display:flex;justify-content:space-between;align-items:center}
+.priceTop b{font-size:18px;color:#E8C766}.priceVal{font-size:24px;font-weight:900;color:#E8C766}
+.detail{margin-top:12px;font-size:13px;line-height:2}
+.detail div{display:flex;justify-content:space-between;gap:8px}
+.detail span{color:#aaa}.detail b{color:#fff;text-align:right}
 .note{font-size:11px;color:#888;margin-top:10px;line-height:1.5}
 .btn{width:100%;margin-top:14px;padding:17px;border:none;border-radius:14px;background:linear-gradient(180deg,#FFE9A8,#D4AF37,#B8962E);font-size:18px;font-weight:900;cursor:pointer}
+.btn2{width:100%;margin-top:10px;padding:12px;border:1px solid #ff4d4d;background:transparent;color:#ff6b6b;border-radius:12px;font-weight:800;cursor:pointer;display:none}
 .btnSearching{width:100%;margin-top:14px;padding:17px;border:1px solid #D4AF37;background:#1a1a1a;color:#E8C766;border-radius:14px;font-size:16px;font-weight:900;display:none;align-items:center;justify-content:center;gap:10px}
 .spinnerSmall{width:20px;height:20px;border:3px solid #333;border-top:3px solid #D4AF37;border-radius:50%;animation:spin 1s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+.driverCard{margin-top:14px;border:1px solid #C9A227;border-radius:18px;padding:16px;background:linear-gradient(180deg,#1a1a1a,#111);display:none}
+.driverTop{display:flex;gap:12px;align-items:center}
+.driverFoto{width:64px;height:64px;border-radius:50%;background:linear-gradient(180deg,#FFE9A8,#D4AF37);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;border:2px solid #fff;overflow:hidden}
+.driverInfo{flex:1;min-width:0}
+.driverInfo b{font-size:17px;color:#fff;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.driverInfo span{font-size:12px;color:#E8C766}
+.statusDriver{font-size:11px;background:#1a3a1a;color:#4ade80;padding:4px 8px;border-radius:20px;font-weight:800;margin-top:4px;display:inline-block}
+.vehicleBox{margin-top:12px;background:#0a0a0a;border:1px solid #333;border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center}
+.vehicleBox b{font-size:15px}
+.plate{background:#fff;color:#000;font-weight:900;padding:6px 10px;border-radius:6px;font-size:14px;letter-spacing:1px;border:2px solid #000}
+.driverBtns{display:flex;gap:10px;margin-top:12px}
+.driverBtns button{flex:1;padding:13px;border:none;border-radius:12px;font-weight:900;cursor:pointer;font-size:14px}
+.btnChat{background:linear-gradient(180deg,#FFE9A8,#D4AF37);color:#000}
+.btnCall{background:#1a1a1a;border:1px solid #D4AF37!important;color:#E8C766}
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#0a0a0a;border-top:1px solid #222;display:flex;padding:10px 0 16px;z-index:50}
-.nav button{flex:1;background:none;border:none;color:#777;cursor:pointer;font-size:12px}.nav button.active{color:#D4AF37}.nav button span{font-size:22px;display:block}
-.popup{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99;display:none;align-items:flex-end;justify-content:center}.popup.show{display:flex}
-.popupBox{width:100%;max-width:480px;background:#1a1a1a;border:1px solid #D4AF37;border-radius:20px 20px 0 0;padding:20px;text-align:center}
-.popupBox h3{color:#E8C766;margin-bottom:8px}.popupBox p{color:#ccc;font-size:14px;white-space:pre-line;line-height:1.6}
-.popupBtns{display:flex;gap:10px;margin-top:16px}.popupBtns button{flex:1;padding:14px;border-radius:12px;border:none;font-weight:900;cursor:pointer}
-.btnEmas{background:linear-gradient(180deg,#FFE9A8,#D4AF37);color:#000}.btnGelap{background:#222;color:#fff;border:1px solid #444!important}
-.tabPage{display:none}.tabPage.active{display:block}
+.nav button{flex:1;background:none;border:none;color:#777;cursor:pointer;font-size:12px}
+.nav button.active{color:#D4AF37}.nav button span{font-size:22px;display:block}
+.page{display:none}.page.active{display:block}
+.item{border:1px solid #333;border-radius:14px;padding:14px;margin-bottom:10px;background:#111}
+.item b{color:#E8C766}.item p{font-size:13px;color:#aaa;margin-top:4px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;padding:20px;z-index:99}
+.modal.show{display:flex}.modalBox{background:#111;border:1px solid #C9A227;border-radius:20px;padding:24px;width:100%;max-width:380px;text-align:center}
+.spinner{width:48px;height:48px;border:4px solid #333;border-top:4px solid #D4AF37;border-radius:50%;margin:14px auto;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.chatFab{position:fixed;right:16px;bottom:92px;width:58px;height:58px;border-radius:50%;background:linear-gradient(180deg,#FFE9A8,#D4AF37);border:2px solid #fff;color:#000;font-size:26px;cursor:pointer;z-index:60;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(212,175,55,.5)}
+.chatBadge{position:absolute;top:-4px;right:-4px;background:#ff4d4d;color:#fff;font-size:11px;font-weight:900;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #000}
+.chatModal{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;flex-direction:column;z-index:100}
+.chatModal.show{display:flex}
+.chatHeader{background:#111;border-bottom:1px solid #C9A227;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.chatHeader .driverFoto{width:44px;height:44px;font-size:20px}
+.chatBody{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:85%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.4}
+.msg.driver{background:#1a1a1a;border:1px solid #333;align-self:flex-start;border-bottom-left-radius:4px}
+.msg.me{background:linear-gradient(180deg,#FFE9A8,#D4AF37);color:#000;align-self:flex-end;border-bottom-right-radius:4px;font-weight:600}
+.msg small{display:block;font-size:10px;opacity:.6;margin-top:4px}
+.msg.bot{background:linear-gradient(135deg,#1a1a1a,#0a0a0a);border:1px solid #D4AF37;align-self:flex-start;border-bottom-left-radius:4px}
+.msg.bot b{color:#E8C766}
+.chatInput{display:flex;gap:8px;padding:12px;background:#111;border-top:1px solid #333}
+.chatInput input{flex:1;background:#1a1a1a;border:1px solid #333;border-radius:20px;padding:12px 16px;color:#fff;outline:none}
+.chatInput button{width:48px;height:48px;border-radius:50%;border:none;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-size:20px;cursor:pointer}
+.quickChat{display:flex;gap:8px;padding:0 12px 10px;background:#111;overflow-x:auto;white-space:nowrap}
+.quickChat button{background:#1a1a1a;border:1px solid #333;color:#E8C766;padding:8px 12px;border-radius:20px;font-size:12px;cursor:pointer;flex-shrink:0}
+.chatModeBar{background:#1a1a1a;border-bottom:1px solid #333;padding:8px 16px;font-size:11px;color:#aaa;text-align:center}
+.chatModeBar b{color:#E8C766}
+.pinLock{position:fixed;inset:0;background:#000;display:none;align-items:center;justify-content:center;z-index:200;padding:20px;background-image:radial-gradient(circle at 10% 10%,rgba(212,175,55,.12) 0%,transparent 40%),radial-gradient(circle at 90% 90%,rgba(212,175,55,.12) 0%,transparent 40%)}
+.pinLock.show{display:flex}
+.pinBox{width:100%;max-width:340px;background:#0a0a0a;border:1.5px solid #D4AF37;border-radius:20px;padding:22px 18px 18px;position:relative;box-shadow:0 0 40px rgba(212,175,55,.25),0 20px 50px rgba(0,0,0,.8)}
+.pinClose{position:absolute;top:10px;right:12px;background:none;border:none;color:#888;font-size:22px;cursor:pointer;line-height:1;padding:4px}
+.pinClose:active{color:#FFD700}
+.pinLion{width:68px;height:68px;margin:2px auto 10px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#FFF8DC,#D4AF37 45%,#8B6914 100%);display:flex;align-items:center;justify-content:center;font-size:36px;border:2px solid #FFD700;box-shadow:0 0 22px rgba(212,175,55,.6)}
+.pinDots{display:flex;justify-content:center;gap:12px;margin:14px 0 18px}
+.pinDot{width:14px;height:14px;border-radius:50%;border:1.5px solid #D4AF37;background:transparent;transition:.15s}
+.pinDot.filled{background:radial-gradient(circle at 30% 30%,#FFF8DC,#FFD700 60%,#B8860B);box-shadow:0 0 10px rgba(255,215,0,.8);border-color:#FFD700}
+.pinDot.wrong{border-color:#ff4d4d;background:#ff4d4d;animation:shake .3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.pinKeypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%}
+.pinKey{aspect-ratio:1.35/1;border-radius:10px;border:1px solid #FFD700;background:linear-gradient(135deg,#FFF8DC 0%,#FFD700 25%,#D4AF37 55%,#B8860B 85%,#8B6914 100%);color:#000;font-size:22px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 0 #6B4F00,0 4px 12px rgba(0,0,0,.5);user-select:none}
+.pinKey:active{transform:translateY(2px);box-shadow:0 1px 0 #6B4F00;filter:brightness(.95)}
+.pinCode{display:none}
+.callModal{position:fixed;inset:0;background:linear-gradient(180deg,#0a0a0a,#1a1a1a);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:300;padding:20px;text-align:center}
+.callModal.show{display:flex}
+.callAvatar{width:110px;height:110px;border-radius:50%;background:linear-gradient(180deg,#FFE9A8,#D4AF37);display:flex;align-items:center;justify-content:center;font-size:56px;border:3px solid #fff;box-shadow:0 0 30px rgba(212,175,55,.6);animation:pulseCall 1.5s infinite}
+@keyframes pulseCall{0%{box-shadow:0 0 0 0 rgba(212,175,55,.5)}100%{box-shadow:0 0 0 20px rgba(212,175,55,0)}}
+.callBtns{display:flex;gap:18px;margin-top:30px}
+.callBtn{width:66px;height:66px;border-radius:50%;border:none;font-size:26px;cursor:pointer}
+.callBtn.mute{background:#222;color:#fff;border:1px solid #444}
+.callBtn.mute.on{background:#D4AF37;color:#000}
+.callBtn.end{background:#ff3b30;color:#fff}
+.callBtn.answer{background:#34c759;color:#fff}
 </style>
 </head>
 <body>
 <div class="app">
+<div id="p-beranda" class="page active">
 <div class="logo">AMMO TRAVEL</div>
-
-<div id="pageBeranda" class="tabPage active">
 <h1>Mau pergi kemana?</h1>
 <div class="card">
   <div class="field">
     <label>📍 Dari</label>
-    <div class="inputRow"><input id="dari" value="📍 Mendeteksi lokasi kamu..." placeholder="Dari mana?" autocomplete="off"><button class="btnMapsSide" id="btnMapDari" onclick="toggleMap('dari')">MAPS</button></div>
-    <div class="sug" id="sugDari"></div><div id="mapDari" class="miniMap"></div>
+    <div class="inputRow">
+      <input id="dari" value="📍 Mendeteksi lokasi kamu..." placeholder="Dari mana?" autocomplete="off">
+      <button class="btnMapsSide" id="btnMapDari" onclick="toggleMap('dari')">MAPS</button>
+    </div>
+    <div class="sug" id="sugDari"></div>
+    <div id="mapDari" class="miniMap"></div>
     <div class="mapHint" id="hintDari"><span>Geser pin A / Klik peta</span><button onclick="pusatKeDari()">Ke Lokasi Saya</button></div>
   </div>
   <div class="swap"><button onclick="tukar()">↑↓</button></div>
   <div class="field">
     <label>📍 Tujuan</label>
-    <div class="inputRow"><input id="tujuan" placeholder="Mau ke mana?" autocomplete="off"><button class="btnMapsSide" id="btnMapTujuan" onclick="toggleMap('tujuan')">MAPS</button></div>
-    <div class="sug" id="sugTujuan"></div><div id="mapTujuan" class="miniMap"></div>
+    <div class="inputRow">
+      <input id="tujuan" value="" placeholder="Mau ke mana?" autocomplete="off">
+      <button class="btnMapsSide" id="btnMapTujuan" onclick="toggleMap('tujuan')">MAPS</button>
+    </div>
+    <div class="sug" id="sugTujuan"></div>
+    <div id="mapTujuan" class="miniMap"></div>
     <div class="mapHint" id="hintTujuan"><span>Geser pin B / Klik peta</span><button onclick="pusatKeTujuan()">Ke Tujuan</button></div>
   </div>
   <div class="divider"></div>
@@ -71,157 +150,606 @@ input:focus,select:focus{border-color:#D4AF37}
     <div class="field"><label>📅 Tanggal</label><input type="date" id="tgl"></div>
     <div class="field"><label>🕐 Jam</label><input type="time" id="jam"></div>
   </div>
-  <div class="field"><label>👥 Jumlah Orang</label><select id="orang"><option value="1">1 Orang</option><option value="2">2 Orang</option><option value="3">3 Orang</option><option value="4">4 Orang</option><option value="5" selected>5 Orang</option><option value="6">6 Orang</option><option value="7">7 Orang</option></select></div>
+  <div class="field">
+    <label>👥 Jumlah Orang</label>
+    <select id="orang">
+      <option value="1">1 Orang</option>
+      <option value="2">2 Orang</option>
+      <option value="3">3 Orang</option>
+      <option value="4">4 Orang</option>
+      <option value="5" selected>5 Orang</option>
+      <option value="6">6 Orang</option>
+      <option value="7">7 Orang</option>
+    </select>
+  </div>
   <div class="field"><label>📏 Jarak (Real dari Maps)</label><input id="km" placeholder="-" readonly></div>
 </div>
-<div class="priceBox" id="boxEmpty"><div class="priceTop"><b>Total Harga</b><span class="priceVal">-</span></div><p class="note">Pilih Dari & Tujuan dari Maps, harga real langsung muncul.</p></div>
-<div class="priceBox" id="box" style="display:none"><div class="priceTop"><b>Total Harga</b><span class="priceVal" id="total">-</span></div><div class="detail"><div><span>Jarak Real</span><b id="d-km">-</b></div><div><span>Estimasi</span><b id="d-est">-</b></div></div><p class="note">Harga sudah termasuk semua biaya. Tol / Parkir / Penyeberangan dibebankan ke Penumpang.</p></div>
+<div class="priceBox" id="boxEmpty"><div class="priceTop"><b>Total Harga</b><span class="priceVal">-</span></div><p class="note">Pilih Dari & Tujuan dari Maps, harga real langsung muncul. Tol / Parkir / Penyeberangan dibebankan ke Penumpang.</p></div>
+<div class="priceBox" id="box" style="display:none">
+  <div class="priceTop"><b>Total Harga</b><span class="priceVal" id="total">-</span></div>
+  <div class="detail">
+    <div><span>Jarak Real</span><b id="d-km">-</b></div>
+    <div><span>Estimasi</span><b id="d-est">-</b></div>
+  </div>
+  <p class="note">Harga sudah termasuk semua biaya. Tol / Parkir / Penyeberangan dibebankan ke Penumpang.</p>
+</div>
 <button class="btn" id="btnPesan" onclick="pesan()">PESAN SEKARANG →</button>
 <div class="btnSearching" id="btnSearching"><div class="spinnerSmall"></div> MENCARI DRIVER...</div>
+<div class="driverCard" id="driverCard">
+  <div class="driverTop">
+    <div class="driverFoto" id="driverFoto">👨‍🦱</div>
+    <div class="driverInfo">
+      <b id="driverNama">-</b>
+      <span id="driverRating">-</span><br>
+      <span class="statusDriver" id="driverStatus">● OTW KE LOKASI KAMU • 5 menit lagi</span>
+    </div>
+  </div>
+  <div class="vehicleBox">
+    <div><b id="driverMobil">-</b><div style="font-size:12px;color:#aaa" id="driverWarna">-</div></div>
+    <div class="plate" id="driverPlat">-</div>
+  </div>
+  <div class="driverBtns">
+    <button class="btnChat" onclick="bukaChat()">💬 CHAT DRIVER</button>
+    <button class="btnCall" onclick="telpDriver()">📞 TELP</button>
+  </div>
+  <p style="font-size:11px;color:#888;margin-top:10px;text-align:center" id="driverRute">Rute: -</p>
 </div>
-
-<div id="pagePerjalanan" class="tabPage">
-<h1>🧳 Perjalanan</h1>
-<div class="card" id="riwayatBox"><p style="color:#888;font-size:14px">Belum ada riwayat.</p></div>
+<button class="btn2" id="btnBatal" onclick="batalOrder()">BATALKAN PESANAN</button>
+<p style="text-align:center;font-size:11px;color:#666;margin-top:8px" id="txtKonfirmasi">Driver akan konfirmasi di aplikasi</p>
 </div>
-
-<div id="pageProfil" class="tabPage">
-<h1>👤 Profil</h1>
-<div class="card"><p style="color:#888;font-size:14px">Profil penumpang.</p><p style="margin-top:10px">Voucher: <b id="txtVoucher" style="color:#E8C766">0</b></p></div>
+<div id="p-perjalanan" class="page">
+<div class="logo">AMMO TRAVEL</div><h1>Perjalanan Kamu</h1>
+<div id="listTrip"><div class="item"><b>Belum ada perjalanan</b><p>Pesan dulu, nanti muncul di sini.</p></div></div>
 </div>
-
 </div>
-
+<button class="chatFab" id="chatFab" onclick="bukaChat()">💬<span class="chatBadge" id="chatBadge">1</span></button>
 <div class="nav">
-<button id="navBeranda" class="active" onclick="pindahTab('beranda')"><span>🏠</span>Beranda</button>
-<button id="navPerjalanan" onclick="pindahTab('perjalanan')"><span>🧳</span>Perjalanan</button>
-<button id="navProfil" onclick="pindahTab('profil')"><span>👤</span>Profil</button>
+<button class="active" onclick="nav('beranda',this)"><span>🏠</span>Beranda</button>
+<button onclick="nav('perjalanan',this)"><span>🧳</span>Perjalanan</button>
+<button onclick="window.location.href='akun.html'"><span>👤</span>Profil</button>
 </div>
-
-<div class="popup" id="popup"><div class="popupBox"><h3 id="popupJudul">Info</h3><p id="popupIsi"></p><div class="popupBtns" id="popupBtns"></div></div></div>
-
+<div class="modal" id="modal"><div class="modalBox"><h2 id="modalTitle">Mencari Driver...</h2><div class="spinner" id="spin"></div><p id="modalText" style="color:#aaa;font-size:14px;line-height:1.5"></p></div></div>
+<div class="chatModal" id="chatModal">
+  <div class="chatHeader">
+    <button onclick="tutupChat()" style="background:none;border:none;color:#fff;font-size:22px;cursor:pointer">←</button>
+    <div class="driverFoto" id="chatFoto">💬</div>
+    <div style="flex:1"><b id="chatNama">CS Ammo Travel</b><div style="font-size:11px;color:#4ade80" id="chatStatus">● CS Ammo Travel • Online</div></div>
+    <button onclick="telpDriver()" style="background:#1a1a1a;border:1px solid #D4AF37;color:#E8C766;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer">📞</button>
+  </div>
+  <div class="chatModeBar" id="chatModeBar">Mode: <b>CS Ammo Travel</b> • Belum ada orderan</div>
+  <div class="chatBody" id="chatBody"></div>
+  <div class="quickChat" id="quickChat">
+    <button onclick="kirimCepat('Halo CS, mau tanya harga')">Halo CS, mau tanya harga</button>
+    <button onclick="kirimCepat('Titik jemput sesuai maps ya')">Titik jemput sesuai maps</button>
+  </div>
+  <div class="chatInput">
+    <input id="chatInput" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter') kirimChat()">
+    <button onclick="kirimChat()">➤</button>
+  </div>
+</div>
+<div class="pinLock" id="pinLock">
+  <div class="pinBox">
+    <button class="pinClose" onclick="tutupPin()">×</button>
+    <div class="pinLion">🦁</div>
+    <div class="pinDots" id="pinDots"><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div></div>
+    <div class="pinCode" id="pinCode"></div>
+    <div class="pinKeypad" id="pinKeypad"></div>
+  </div>
+</div>
+<div class="callModal" id="callModal">
+  <div class="callAvatar" id="callAvatar">🚗</div>
+  <h2 id="callNama" style="margin-top:18px;font-size:24px">Driver</h2>
+  <p id="callInfo" style="color:#E8C766;margin-top:6px">Toyota Calya • D 1621 UAE</p>
+  <p id="callStatus" style="color:#aaa;margin-top:12px;font-size:14px">Memanggil...</p>
+  <p id="callTimer" style="color:#fff;margin-top:6px;font-size:18px;font-weight:800">00:00</p>
+  <div class="callBtns" id="callBtnsOut">
+    <button class="callBtn mute" id="btnMute" onclick="toggleMute()">🔇</button>
+    <button class="callBtn end" onclick="akhiriTelp()">📞</button>
+    <button class="callBtn mute" onclick="toggleSpeaker()">🔊</button>
+  </div>
+  <div class="callBtns" id="callBtnsIn" style="display:none">
+    <button class="callBtn end" onclick="tolakTelp()">📞</button>
+    <button class="callBtn answer" onclick="terimaTelp()">📞</button>
+  </div>
+  <p style="font-size:11px;color:#666;margin-top:18px">Panggilan via AMMO TRAVEL • Gratis • Bukan WhatsApp</p>
+  <audio id="remoteAudio" autoplay playsinline style="display:none"></audio>
+</div>
 <script>
 const $=id=>document.getElementById(id);
 const fmt=n=>'Rp '+Math.round(n||0).toLocaleString('id-ID');
-const SUPABASE_URL='https://xxtgmohxdztesiubfxap.supabase.co';
-const SUPABASE_KEY='sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv';
-let pickCoord=null, destCoord=null, totalHarga=0, voucherDapat=0;
-let DB_DRIVER=[];
-
-function pindahTab(nama){
-  document.querySelectorAll('.tabPage').forEach(e=>e.classList.remove('active'));
-  document.querySelectorAll('.nav button').forEach(e=>e.classList.remove('active'));
-  if(nama==='beranda'){ $('pageBeranda').classList.add('active'); $('navBeranda').classList.add('active'); }
-  if(nama==='perjalanan'){ $('pagePerjalanan').classList.add('active'); $('navPerjalanan').classList.add('active'); tampilkanRiwayat(); }
-  if(nama==='profil'){ $('pageProfil').classList.add('active'); $('navProfil').classList.add('active'); $('txtVoucher').textContent = localStorage.getItem('ammo_voucher')||'0'; }
+let pickCoord=null, destCoord=null, totalHarga=0, voucherDapat=0, orderAktif=false, driverAktif=null, pinInput='', pinBenar='', codeBenar='', pinTarget=null;
+let chatMode='CS';
+let callTimerInt=null, callDetik=0, isMuted=false;
+const SUPABASE_URL = 'https://xxtgmohxdztesiubfxap.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv';
+// ===== TELP GRATIS - WebRTC + Supabase Realtime - FINAL, kirim ke 2 ruangan =====
+let sbClient=null, callChannel=null, peerConn=null, localStream=null, currentCallId=null, incomingOffer=null, callTimeout=null;
+try{ if(window.supabase) sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); }catch(e){}
+const STUN_SERVERS = { iceServers: [ {urls:'stun:stun.l.google.com:19302'}, {urls:'stun:stun1.l.google.com:19302'}, {urls:'stun:stun2.l.google.com:19302'} ] };
+function buatPeer(){
+  peerConn = new RTCPeerConnection(STUN_SERVERS);
+  peerConn.onicecandidate = e=>{ if(e.candidate && callChannel) callChannel.send({type:'broadcast', event:'ice', payload:{candidate:e.candidate, callId:currentCallId}}); };
+  peerConn.ontrack = e=>{ let a=$('remoteAudio'); if(a){ a.srcObject=e.streams[0]; a.play().catch(()=>{}); } };
+  peerConn.onconnectionstatechange = ()=>{ if(peerConn.connectionState==='connected') $('callStatus').textContent='Terhubung • Via AMMO TRAVEL • Gratis'; };
+  return peerConn;
 }
-function tampilkanRiwayat(){
+async function gabungChannelCall(callId){
+  if(!sbClient) return null;
+  if(callChannel) { try{ await callChannel.unsubscribe(); }catch(e){} }
+  currentCallId = callId;
+  callChannel = sbClient.channel('ammo-call-'+callId, {config:{broadcast:{self:true}}});
+  callChannel.on('broadcast',{event:'offer'}, async ({payload})=>{ if(payload.callId!==callId) return; if(payload.to==='driver'){ incomingOffer=payload.offer; tampilkanPanggilanMasuk(payload.fromName||'Penumpang'); } });
+  callChannel.on('broadcast',{event:'answer'}, async ({payload})=>{ if(payload.callId!==callId) return; if(peerConn && payload.answer){ await peerConn.setRemoteDescription(new RTCSessionDescription(payload.answer)); $('callStatus').textContent='Terhubung • Via AMMO TRAVEL • Gratis'; clearTimeout(callTimeout); } });
+  callChannel.on('broadcast',{event:'ice'}, async ({payload})=>{ if(payload.callId!==callId) return; if(peerConn && payload.candidate){ try{ await peerConn.addIceCandidate(new RTCIceCandidate(payload.candidate)); }catch(e){} } });
+  callChannel.on('broadcast',{event:'end'}, ()=>{ akhiriTelpDiam(); });
+  callChannel.on('broadcast',{event:'reject'}, ()=>{ $('callStatus').textContent='Driver menolak panggilan'; setTimeout(akhiriTelpDiam,1500); });
+  await callChannel.subscribe();
+  return callChannel;
+}
+function tampilkanPanggilanMasuk(nama){
+  $('callNama').textContent = nama || 'Penumpang';
+  $('callInfo').textContent = 'Panggilan Masuk • AMMO TRAVEL';
+  $('callStatus').textContent = 'Panggilan masuk...';
+  $('callBtnsOut').style.display='none';
+  $('callBtnsIn').style.display='flex';
+  $('callModal').classList.add('show');
+}
+async function terimaTelp(){
   try{
-    let o = JSON.parse(localStorage.getItem('masphus_order')||'null');
-    if(o && o.asal && o.tujuan){
-      $('riwayatBox').innerHTML = '<b>'+o.asal.nama+' → '+o.tujuan.nama+'</b><br><span style="color:#E8C766">'+fmt(o.total_harga)+'</span>';
+    localStream = await navigator.mediaDevices.getUserMedia({audio:true, video:false});
+    buatPeer();
+    localStream.getTracks().forEach(t=>peerConn.addTrack(t, localStream));
+    await peerConn.setRemoteDescription(new RTCSessionDescription(incomingOffer));
+    let answer = await peerConn.createAnswer();
+    await peerConn.setLocalDescription(answer);
+    callChannel.send({type:'broadcast', event:'answer', payload:{answer, callId:currentCallId}});
+    $('callBtnsIn').style.display='none'; $('callBtnsOut').style.display='flex';
+    $('callStatus').textContent='Terhubung • Via AMMO TRAVEL • Gratis';
+    mulaiTimerTelp();
+  }catch(e){ alert('Mic tidak bisa dibuka, cek izin mikrofon di HP.'); }
+}
+function tolakTelp(){ if(callChannel) callChannel.send({type:'broadcast', event:'reject', payload:{callId:currentCallId}}); akhiriTelpDiam(); }
+function mulaiTimerTelp(){ clearInterval(callTimerInt); callDetik=0; callTimerInt=setInterval(()=>{ callDetik++; let m=String(Math.floor(callDetik/60)).padStart(2,'0'); let s=String(callDetik%60).padStart(2,'0'); $('callTimer').textContent=m+':'+s; },1000); }
+let DB_DRIVER = [];
+let DB_ADMIN = [];
+let DB_FAQ = [];
+async function supabaseFetch(table){
+  try{
+    let r = await fetch(SUPABASE_URL + '/rest/v1/' + table + '?select=*&limit=1000', {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' }
+    });
+    if(!r.ok) return {ok:false, data:[]};
+    let j = await r.json();
+    return {ok:true, data: Array.isArray(j) ? j : []};
+  }catch(e){ return {ok:false, data:[]}; }
+}
+async function loadDatabase(){
+  let d1 = await supabaseFetch('drivers');
+  if(!d1.ok || d1.data.length===0){ let x = await supabaseFetch('driver'); if(x.ok && x.data.length>0) d1 = x; }
+  DB_DRIVER = d1.data || [];
+  let a1 = await supabaseFetch('admin');
+  if(!a1.ok || a1.data.length===0){ let x = await supabaseFetch('admins'); if(x.ok && x.data.length>0) a1 = x; }
+  DB_ADMIN = a1.data || [];
+  let f1 = await supabaseFetch('bot');
+  if(!f1.ok || f1.data.length===0){ let x = await supabaseFetch('faq'); if(x.ok && x.data.length>0) f1 = x; }
+  DB_FAQ = f1.data || [];
+  return true;
+}
+async function cariDiDatabase(keyword){
+  await loadDatabase();
+  let k = keyword.toLowerCase().trim();
+  function cocokAdmin(row){
+    let code = String(row.code || '').toLowerCase().trim();
+    return code === k;
+  }
+  let dariAdmin = DB_ADMIN.filter(cocokAdmin);
+  return {dariDriver: [], dariAdmin};
+}
+function cariJawabanBiasa(teks){
+  let t = teks.toLowerCase();
+  for(let row of DB_FAQ){
+    let kunci = String(row.kunci || row.keyword || row.key || '').toLowerCase();
+    if(kunci && t.includes(kunci)){
+      return row.jawaban || row.answer || null;
     }
-  }catch(e){}
+  }
+  return null;
 }
-function bukaPopup(judul,isi,ikon,btns){
-  $('popupJudul').textContent=(ikon||'')+' '+judul;
-  $('popupIsi').textContent=isi;
-  let box=$('popupBtns'); box.innerHTML='';
-  (btns||[]).forEach(b=>{
-    let btn=document.createElement('button');
-    btn.textContent=b.label;
-    btn.className=b.type==='emas'?'btnEmas':'btnGelap';
-    btn.onclick=()=>popupAksi(b.aksi);
-    box.appendChild(btn);
-  });
-  $('popup').classList.add('show');
+function hitungOngkos(km,orang){
+  let o=orang||5; let rate=o>=5?6500:5000;
+  let kmTagih=Math.max(Math.round(km),10);
+  let dasar=kmTagih*rate; let total=Math.round(dasar*1.05);
+  let feeAdmin=Math.round(total*0.05); let voucher=Math.round(total*0.03);
+  return {kmTagih,ongkos:total,dasar,feeAdmin,voucher,driverTerima:total-feeAdmin-voucher,rate,orang:o};
 }
-function tutupPopup(){ $('popup').classList.remove('show'); }
-function popupAksi(aksi){
-  tutupPopup();
-  if(aksi==='ke-penumpang'){ window.location.href='penumpang.html'; return; }
-  if(aksi==='ke-perjalanan'){ pindahTab('perjalanan'); return; }
-  if(aksi==='ke-profil'){ pindahTab('profil'); return; }
+function fmtEstimasi(detik){
+  let m=Math.round(detik/60*1.6); let h=Math.floor(m/60), hari=Math.floor(h/24); h=h%24; let sisa=m%60;
+  if(hari>0) return hari+' hari '+(h>0?h+' jam ':'')+sisa+' menit';
+  if(h>0) return h+' jam '+(sisa>0?sisa+' menit':'');
+  return m+' menit';
 }
-function popupSukses(judul,isi){ bukaPopup(judul,isi,'✅',[{label:'Ke Halaman Penumpang →',type:'emas',aksi:'ke-penumpang'},{label:'Lihat Riwayat',type:'gelap',aksi:'ke-perjalanan'}]); }
-
-async function supabaseFetch(table){ try{ let r=await fetch(SUPABASE_URL+'/rest/v1/'+table+'?select=*&limit=1000',{headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}}); if(!r.ok) return []; let j=await r.json(); return Array.isArray(j)?j:[]; }catch(e){ return []; } }
-async function loadDatabase(){ let d=await supabaseFetch('drivers'); if(!d.length) d=await supabaseFetch('driver'); DB_DRIVER=d||[]; }
-function hitungOngkos(km,orang){ let o=orang||5; let rate=o>=5?6500:5000; let kmTagih=Math.max(Math.round(km),10); let dasar=kmTagih*rate; let total=Math.round(dasar*1.05); let feeAdmin=Math.round(total*0.05); let voucher=Math.round(total*0.03); return {kmTagih,ongkos:total,dasar,feeAdmin,voucher,driverTerima:total-feeAdmin-voucher,rate,orang:o}; }
-function fmtEstimasi(detik){ let m=Math.round(detik/60*1.6); let h=Math.floor(m/60), hari=Math.floor(h/24); h=h%24; let sisa=m%60; if(hari>0) return hari+' hari '+(h>0?h+' jam ':'')+sisa+' menit'; if(h>0) return h+' jam '+(sisa>0?sisa+' menit':''); return m+' menit'; }
 function jarakKe(lat1,lon1,lat2,lon2){ let dLat=(lat2-lat1)*111, dLon=(lon2-lon1)*111*Math.cos(lat1*Math.PI/180); return Math.sqrt(dLat*dLat+dLon*dLon); }
 function fmtJarak(km){ if(km<1) return Math.round(km*1000)+' m dari kamu'; return km.toFixed(1)+' km dari kamu'; }
-function setTanggalJamDefault(){ let now=new Date(); $('tgl').value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0'); $('jam').value=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0'); }
-
-// === ANTI-DISCO: Index TIDAK PERNAH auto-lempar ke penumpang ===
-// Dulu di sini ada: if(mauLanjutOrder()) lanjutJikaMauOrder() -> itu yang bikin disco.
-// Sekarang dimatiin total. Pindah ke penumpang CUMA kalau user pencet PESAN / popup.
-function setMauOrder(v){ try{ localStorage.setItem('ammo_mau_order', v?'1':'0'); }catch(e){} }
-function mauLanjutOrder(){ return false; }
-function pulihkanPendingOrder(){ try{ localStorage.removeItem('ammo_pending_order'); }catch(e){} }
-function lanjutJikaMauOrder(){ /* dimatiin biar gak disco */ }
-
-let mapDari=L.map('mapDari').setView([-6.9175,107.6191],13); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(mapDari);
-let mapTujuan=L.map('mapTujuan').setView([-6.9175,107.6191],13); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(mapTujuan);
+function setTanggalJamDefault(){
+  let now=new Date();
+  let tgl = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  let jam = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  $('tgl').value=tgl; $('jam').value=jam;
+}
+let mapDari=L.map('mapDari').setView([-6.9175,107.6191],13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(mapDari);
+let mapTujuan=L.map('mapTujuan').setView([-6.9175,107.6191],13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(mapTujuan);
 let markerDari=null, markerTujuan=null;
-function toggleMap(which){ let isDari=which==='dari'; let mapEl=isDari?$('mapDari'):$('mapTujuan'); let hintEl=isDari?$('hintDari'):$('hintTujuan'); let btnEl=isDari?$('btnMapDari'):$('btnMapTujuan'); let isOpen=mapEl.classList.contains('show'); if(isOpen){ mapEl.classList.remove('show'); hintEl.classList.remove('show'); btnEl.classList.remove('active'); } else { mapEl.classList.add('show'); hintEl.classList.add('show'); btnEl.classList.add('active'); setTimeout(()=>{ if(isDari){ mapDari.invalidateSize(); if(pickCoord) mapDari.setView([pickCoord[1],pickCoord[0]],14); } else { mapTujuan.invalidateSize(); if(destCoord) mapTujuan.setView([destCoord[1],destCoord[0]],14); else if(pickCoord) mapTujuan.setView([pickCoord[1],pickCoord[0]],13); } },100); } }
-function setMarkerDari(lat,lon){ let icon=L.divIcon({html:`<div style="background:#D4AF37;color:#000;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;border:2px solid #fff">A</div>`,iconSize:[28,28]}); if(markerDari) mapDari.removeLayer(markerDari); markerDari=L.marker([lat,lon],{icon,draggable:true}).addTo(mapDari); markerDari.on('dragend',()=>{ let p=markerDari.getLatLng(); pickCoord=[p.lng,p.lat]; reverseGeocode(p.lat,p.lng,true); hitungJarakReal(); }); if($('mapDari').classList.contains('show')) mapDari.setView([lat,lon],14); }
-function setMarkerTujuan(lat,lon){ let icon=L.divIcon({html:`<div style="background:#ff4d4d;color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;border:2px solid #fff">B</div>`,iconSize:[28,28]}); if(markerTujuan) mapTujuan.removeLayer(markerTujuan); markerTujuan=L.marker([lat,lon],{icon,draggable:true}).addTo(mapTujuan); markerTujuan.on('dragend',()=>{ let p=markerTujuan.getLatLng(); destCoord=[p.lng,p.lat]; reverseGeocode(p.lat,p.lng,false); hitungJarakReal(); }); if($('mapTujuan').classList.contains('show')) mapTujuan.setView([lat,lon],14); }
-mapDari.on('click',async e=>{ pickCoord=[e.latlng.lng,e.latlng.lat]; setMarkerDari(e.latlng.lat,e.latlng.lng); await reverseGeocode(e.latlng.lat,e.latlng.lng,true); hitungJarakReal(); });
-mapTujuan.on('click',async e=>{ destCoord=[e.latlng.lng,e.latlng.lat]; setMarkerTujuan(e.latlng.lat,e.latlng.lng); await reverseGeocode(e.latlng.lat,e.latlng.lng,false); hitungJarakReal(); });
-async function reverseGeocode(lat,lon,isDari){ try{ let r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18`).then(r=>r.json()); let nama=(r.display_name||'').split(',').slice(0,4).join(','); if(isDari) $('dari').value=nama; else $('tujuan').value=nama; }catch(e){} }
+function toggleMap(which){
+  let isDari = which==='dari';
+  let mapEl = isDari ? $('mapDari') : $('mapTujuan');
+  let hintEl = isDari ? $('hintDari') : $('hintTujuan');
+  let btnEl = isDari ? $('btnMapDari') : $('btnMapTujuan');
+  let isOpen = mapEl.classList.contains('show');
+  if(isOpen){ mapEl.classList.remove('show'); hintEl.classList.remove('show'); btnEl.classList.remove('active'); }
+  else{
+    mapEl.classList.add('show'); hintEl.classList.add('show'); btnEl.classList.add('active');
+    setTimeout(()=>{ if(isDari){ mapDari.invalidateSize(); if(pickCoord) mapDari.setView([pickCoord[1],pickCoord[0]],14); } else { mapTujuan.invalidateSize(); if(destCoord) mapTujuan.setView([destCoord[1],destCoord[0]],14); else if(pickCoord) mapTujuan.setView([pickCoord[1],pickCoord[0]],13); } },100);
+  }
+}
+function setMarkerDari(lat,lon){
+  let icon=L.divIcon({html:`<div style="background:#D4AF37;color:#000;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;border:2px solid #fff">A</div>`,iconSize:[28,28]});
+  if(markerDari) mapDari.removeLayer(markerDari);
+  markerDari=L.marker([lat,lon],{icon,draggable:true}).addTo(mapDari);
+  markerDari.on('dragend',()=>{ let p=markerDari.getLatLng(); pickCoord=[p.lng,p.lat]; reverseGeocode(p.lat,p.lng,true); hitungJarakReal(); });
+  if($('mapDari').classList.contains('show')) mapDari.setView([lat,lon],14);
+}
+function setMarkerTujuan(lat,lon){
+  let icon=L.divIcon({html:`<div style="background:#ff4d4d;color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;border:2px solid #fff">B</div>`,iconSize:[28,28]});
+  if(markerTujuan) mapTujuan.removeLayer(markerTujuan);
+  markerTujuan=L.marker([lat,lon],{icon,draggable:true}).addTo(mapTujuan);
+  markerTujuan.on('dragend',()=>{ let p=markerTujuan.getLatLng(); destCoord=[p.lng,p.lat]; reverseGeocode(p.lat,p.lng,false); hitungJarakReal(); });
+  if($('mapTujuan').classList.contains('show')) mapTujuan.setView([lat,lon],14);
+}
+mapDari.on('click',async e=>{ let lat=e.latlng.lat, lon=e.latlng.lng; pickCoord=[lon,lat]; setMarkerDari(lat,lon); await reverseGeocode(lat,lon,true); hitungJarakReal(); });
+mapTujuan.on('click',async e=>{ let lat=e.latlng.lat, lon=e.latlng.lng; destCoord=[lon,lat]; setMarkerTujuan(lat,lon); await reverseGeocode(lat,lon,false); hitungJarakReal(); });
+async function reverseGeocode(lat,lon,isDari){
+  try{
+    let r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18`).then(r=>r.json());
+    let nama=(r.display_name||'').split(',').slice(0,4).join(',');
+    if(isDari) $('dari').value=nama; else $('tujuan').value=nama;
+  }catch(e){}
+}
 function pusatKeDari(){ if(pickCoord) mapDari.setView([pickCoord[1],pickCoord[0]],15); }
 function pusatKeTujuan(){ if(destCoord) mapTujuan.setView([destCoord[1],destCoord[0]],15); }
-function ambilGPS(){ if(!navigator.geolocation){ $('dari').value='Jalan Muara Raya, Pelindung'; return; } navigator.geolocation.getCurrentPosition(async pos=>{ pickCoord=[pos.coords.longitude,pos.coords.latitude]; setMarkerDari(pos.coords.latitude,pos.coords.longitude); await reverseGeocode(pos.coords.latitude,pos.coords.longitude,true); if(destCoord) hitungJarakReal(); },()=>{ $('dari').value='Jalan Muara Raya, Pelindung'; },{enableHighAccuracy:true,timeout:10000}); }
-function cekModeEdit(){ let params=new URLSearchParams(location.search); if(params.get('edit')==='1'){ try{ let o=JSON.parse(localStorage.getItem('masphus_order')||'null'); if(o && o.asal){ $('dari').value=o.asal.nama||''; $('tujuan').value=o.tujuan?o.tujuan.nama:''; $('tgl').value=o.tanggal||''; $('jam').value=o.jam||''; $('orang').value=o.jumlah_orang||5; if(o.asal.lat) pickCoord=[o.asal.lon,o.asal.lat]; if(o.tujuan && o.tujuan.lat) destCoord=[o.tujuan.lon,o.tujuan.lat]; if(pickCoord) setMarkerDari(pickCoord[1],pickCoord[0]); if(destCoord) setMarkerTujuan(destCoord[1],destCoord[0]); if(o.jarak_km) tampilkanHarga(o.jarak_km,0,'edit'); } }catch(e){} } }
-
-window.addEventListener('load',()=>{
-  if(location.search.includes('reset=1') || location.search.includes('cancelled=1') || sessionStorage.getItem('ammo_clear')==='1'){
-    try{ localStorage.removeItem('masphus_order'); localStorage.removeItem('ammo_pending_order'); localStorage.removeItem('ammo_mau_order'); localStorage.removeItem('ammo_current_order'); localStorage.removeItem('ammo_booking_id'); sessionStorage.removeItem('ammo_clear'); }catch(e){}
-  }
-  // ANTI-DISCO: bersihin pending, jangan pernah auto-lanjut
-  pulihkanPendingOrder(); setMauOrder(false);
-  setTanggalJamDefault();
-  cekModeEdit();
-  setTimeout(()=>ambilGPS(),500);
-  loadDatabase();
-  // Kalau balik dari penumpang habis cancel, pastikan diem di Beranda
-  if(location.search.includes('reset=1')) pindahTab('beranda');
-});
+function ambilGPS(){
+  if(!navigator.geolocation){ $('dari').value='Jalan Muara Raya, Pelindung'; return; }
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    let lat=pos.coords.latitude, lon=pos.coords.longitude;
+    pickCoord=[lon,lat]; setMarkerDari(lat,lon); await reverseGeocode(lat,lon,true);
+    if(destCoord) hitungJarakReal();
+  },()=>{ $('dari').value='Jalan Muara Raya, Pelindung'; },{enableHighAccuracy:true,timeout:10000, maximumAge:60000});
+}
+window.addEventListener('load',()=>{ setTanggalJamDefault(); setTimeout(()=>ambilGPS(), 500); buatKeypad(); setChatModeCS(); loadDatabase(); });
 let timerCari=null;
-async function cariGabungan(query,box,isDari){ if(query.length<3){ box.style.display='none'; return; } box.innerHTML='<div style="padding:12px;color:#D4AF37">🔍 Mencari...</div>'; box.style.display='block'; try{ let acuan=pickCoord?{lat:pickCoord[1],lon:pickCoord[0]}:{lat:-6.9175,lon:107.6191}; let p1=fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=8&q=${encodeURIComponent(query+', Indonesia')}`).then(r=>r.json()).catch(()=>[]); let p2=fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=8&lang=id&lat=${acuan.lat}&lon=${acuan.lon}`).then(r=>r.json()).then(j=>j.features||[]).catch(()=>[]); let [nom,pho]=await Promise.all([p1,p2]); let hasil=[]; nom.forEach(p=>hasil.push({nama:p.display_name.split(',').slice(0,3).join(','),lat:parseFloat(p.lat),lon:parseFloat(p.lon)})); pho.forEach(f=>{ let nama=((f.properties.name||'')+' '+(f.properties.city||f.properties.state||'')).trim(); let lat=f.geometry.coordinates[1],lon=f.geometry.coordinates[0]; if(!hasil.some(h=>Math.abs(h.lat-lat)<0.002&&Math.abs(h.lon-lon)<0.002)) hasil.push({nama,lat,lon}); }); if(!hasil.length){ box.innerHTML='<div style="padding:12px">Gak ketemu</div>'; return; } hasil.forEach(h=>h.jarak=jarakKe(acuan.lat,acuan.lon,h.lat,h.lon)); hasil.sort((a,b)=>a.jarak-b.jarak); hasil=hasil.slice(0,6); box._data=hasil; box.innerHTML=hasil.map((h,i)=>`<div onclick="pilihTempat(${i},${isDari})">${h.nama}<small>📍 ${fmtJarak(h.jarak)}</small></div>`).join(''); }catch(e){ box.style.display='none'; } }
-function pilihTempat(i,isDari){ let box=isDari?$('sugDari'):$('sugTujuan'); let h=box._data[i]; if(isDari){ $('dari').value=h.nama; pickCoord=[h.lon,h.lat]; setMarkerDari(h.lat,h.lon); $('sugDari').style.display='none'; } else { $('tujuan').value=h.nama; destCoord=[h.lon,h.lat]; setMarkerTujuan(h.lat,h.lon); $('sugTujuan').style.display='none'; } hitungJarakReal(); }
+async function cariGabungan(query, box, isDari){
+  if(query.length<3){box.style.display='none';return;}
+  box.innerHTML='<div style="padding:12px;color:#D4AF37">🔍 Mencari dari yang terdekat...</div>'; box.style.display='block';
+  try{
+    let acuan = pickCoord ? {lat: pickCoord[1], lon: pickCoord[0]} : {lat:-6.9175, lon:107.6191};
+    let p1=fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=8&q=${encodeURIComponent(query+', Indonesia')}`).then(r=>r.json()).catch(()=>[]);
+    let p2=fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=8&lang=id&lat=${acuan.lat}&lon=${acuan.lon}`).then(r=>r.json()).then(j=>j.features||[]).catch(()=>[]);
+    let [nom, pho]=await Promise.all([p1,p2]);
+    let hasil=[];
+    nom.forEach(p=>hasil.push({nama:p.display_name.split(',').slice(0,3).join(','), lat:parseFloat(p.lat), lon:parseFloat(p.lon), sumber:'Nominatim'}));
+    pho.forEach(f=>{ let nama=((f.properties.name||'')+' '+(f.properties.city||f.properties.state||'')).trim(); let lat=f.geometry.coordinates[1], lon=f.geometry.coordinates[0]; if(!hasil.some(h=>Math.abs(h.lat-lat)<0.002&&Math.abs(h.lon-lon)<0.002)) hasil.push({nama,lat,lon,sumber:'Photon'}); });
+    if(!hasil.length){ box.innerHTML='<div style="padding:12px">Gak ketemu, coba ketik lebih lengkap</div>'; return; }
+    hasil.forEach(h=> h.jarak = jarakKe(acuan.lat, acuan.lon, h.lat, h.lon));
+    hasil.sort((a,b)=> a.jarak - b.jarak);
+    hasil = hasil.slice(0,6);
+    box._data=hasil;
+    box.innerHTML=hasil.map((h,i)=>`<div onclick="pilihTempat(${i},${isDari})">${h.nama}<small>📍 ${fmtJarak(h.jarak)} • ${h.sumber}</small></div>`).join('');
+  }catch(e){ box.style.display='none'; }
+}
+function pilihTempat(i,isDari){
+  let box=isDari?$('sugDari'):$('sugTujuan'); let h=box._data[i];
+  if(isDari){ $('dari').value=h.nama; pickCoord=[h.lon,h.lat]; setMarkerDari(h.lat,h.lon); $('sugDari').style.display='none'; }
+  else{ $('tujuan').value=h.nama; destCoord=[h.lon,h.lat]; setMarkerTujuan(h.lat,h.lon); $('sugTujuan').style.display='none'; }
+  hitungJarakReal();
+}
 $('dari').addEventListener('input',()=>{ clearTimeout(timerCari); timerCari=setTimeout(()=>cariGabungan($('dari').value,$('sugDari'),true),400); });
 $('tujuan').addEventListener('input',()=>{ clearTimeout(timerCari); timerCari=setTimeout(()=>cariGabungan($('tujuan').value,$('sugTujuan'),false),400); });
 document.addEventListener('click',e=>{ if(!e.target.closest('.field')) document.querySelectorAll('.sug').forEach(s=>s.style.display='none'); });
-async function hitungJarakReal(){ if(!pickCoord||!destCoord) return; $('total').textContent='Menghitung...'; let km=0,detik=0; try{ let r=await fetch(`https://router.project-osrm.org/route/v1/driving/${pickCoord[0]},${pickCoord[1]};${destCoord[0]},${destCoord[1]}?overview=false`).then(r=>r.json()); if(r.routes?.length){ km=r.routes[0].distance/1000; detik=r.routes[0].duration; } }catch(e){} if(!km){ let dLat=(destCoord[1]-pickCoord[1])*111, dLon=(destCoord[0]-pickCoord[0])*111*Math.cos(pickCoord[1]*Math.PI/180); km=Math.sqrt(dLat*dLat+dLon*dLon)*1.4; detik=km/40*3600; } tampilkanHarga(km,detik,'OSRM'); }
-function tampilkanHarga(km,detik,sumber){ let orang=parseInt($('orang').value)||5; let r=hitungOngkos(km,orang); totalHarga=r.ongkos; voucherDapat=r.voucher; $('km').value=km.toFixed(1)+' km'; $('box').style.display='block'; $('boxEmpty').style.display='none'; $('total').textContent=fmt(r.ongkos); $('d-km').textContent=km.toFixed(1)+' km (Real)'; $('d-est').textContent=fmtEstimasi(detik); }
-function tukar(){ let a=$('dari').value; $('dari').value=$('tujuan').value; $('tujuan').value=a; let c=pickCoord; pickCoord=destCoord; destCoord=c; if(pickCoord) setMarkerDari(pickCoord[1],pickCoord[0]); if(destCoord) setMarkerTujuan(destCoord[1],destCoord[0]); hitungJarakReal(); }
-$('orang').addEventListener('change',()=>{ let km=parseFloat($('km').value)||0; if(km) tampilkanHarga(km,0,'OSRM'); });
-
-async function pesan(){
-  if(!pickCoord||!destCoord){ alert('Pilih Dari & Tujuan dari Maps dulu!'); return; }
-  $('btnPesan').style.display='none'; $('btnSearching').style.display='flex';
-  await loadDatabase();
-  setTimeout(()=>{
-    let a=$('dari').value, b=$('tujuan').value;
-    let km=parseFloat($('km').value)||0;
-    let jumlahOrang=parseInt($('orang').value)||5;
-    let jarakMeter=km*1000;
-    // Simpan format yang dibaca penumpang.html - JANGAN auto-lempar, cuma simpan + popup
-    let order = {
-      asal:{ nama:a, lat:pickCoord[1], lon:pickCoord[0] },
-      tujuan:{ nama:b, lat:destCoord[1], lon:destCoord[0] },
-      total_harga:totalHarga, jarak_km:km, jarak_meter:jarakMeter,
-      jumlah_orang:jumlahOrang, tanggal:$('tgl').value, jam:$('jam').value,
-      estimasi: $('d-est').textContent || ''
-    };
-    localStorage.setItem('masphus_order', JSON.stringify(order));
-    let v=parseInt(localStorage.getItem('ammo_voucher')||'0')+voucherDapat; localStorage.setItem('ammo_voucher',v);
-    $('btnSearching').style.display='none'; $('btnPesan').style.display='block';
-    popupSukses('Pesanan Berhasil',a+' → '+b+'\n'+jumlahOrang+' Orang • '+fmtJarak(km)+'\nTotal: '+fmt(totalHarga));
-  },800);
+async function hitungJarakReal(){
+  if(!pickCoord||!destCoord) return;
+  $('total').textContent='Menghitung...';
+  let km=0, detik=0, sumber='-';
+  try{ let r=await fetch(`https://router.project-osrm.org/route/v1/driving/${pickCoord[0]},${pickCoord[1]};${destCoord[0]},${destCoord[1]}?overview=false`).then(r=>r.json()); if(r.routes?.length){ km=r.routes[0].distance/1000; detik=r.routes[0].duration; sumber='OSRM'; } }catch(e){}
+  if(!km){
+    try{ let r=await fetch(`https://valhalla1.openstreetmap.de/route?json={"locations":[{"lat":${pickCoord[1]},"lon":${pickCoord[0]}},{"lat":${destCoord[1]},"lon":${destCoord[0]}}],"costing":"auto"}`).then(r=>r.json()); if(r.trip){ km=r.trip.summary.length; detik=r.trip.summary.time; sumber='Valhalla (cadangan)'; } }catch(e){}
+  }
+  if(!km){ let dLat=(destCoord[1]-pickCoord[1])*111, dLon=(destCoord[0]-pickCoord[0])*111*Math.cos(pickCoord[1]*Math.PI/180); km=Math.sqrt(dLat*dLat+dLon*dLon)*1.4; detik=km/40*3600; sumber='Estimasi Darurat'; }
+  tampilkanHarga(km,detik,sumber);
 }
+function tampilkanHarga(km,detik,sumber){
+  let orang=parseInt($('orang').value)||5; let r=hitungOngkos(km,orang); totalHarga=r.ongkos; voucherDapat=r.voucher;
+  $('km').value=km.toFixed(1)+' km';
+  $('box').style.display='block'; $('boxEmpty').style.display='none';
+  $('total').textContent=fmt(r.ongkos); $('d-km').textContent=km.toFixed(1)+' km (Real)';
+  $('d-est').textContent=fmtEstimasi(detik);
+}
+function tukar(){
+  let a=$('dari').value; $('dari').value=$('tujuan').value; $('tujuan').value=a;
+  let c=pickCoord; pickCoord=destCoord; destCoord=c;
+  if(pickCoord) setMarkerDari(pickCoord[1],pickCoord[0]);
+  if(destCoord) setMarkerTujuan(destCoord[1],destCoord[0]);
+  hitungJarakReal();
+}
+$('orang').addEventListener('change',()=>{ let km=parseFloat($('km').value)||0; if(km) tampilkanHarga(km,0,'OSRM'); });
+function nav(p,btn){ if(p==='profil'){ window.location.href='akun.html'; return; } document.querySelectorAll('.page').forEach(x=>x.classList.remove('active')); $('p-'+p).classList.add('active'); document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); window.scrollTo(0,0); setTimeout(()=>{ mapDari.invalidateSize(); mapTujuan.invalidateSize(); },100); }
+async function pesan(){
+  if(orderAktif){ alert('Orderan kamu lagi jalan!'); return; }
+  if(!pickCoord||!destCoord){ alert('Pilih Dari & Tujuan dari Maps dulu!'); return; }
+  $('btnPesan').style.display='none';
+  $('btnSearching').style.display='flex';
+  $('btnBatal').style.display='block';
+  $('modal').classList.add('show'); $('modalTitle').textContent='Mencari Driver...'; $('spin').style.display='block';
+  $('modalText').textContent=$('dari').value+' → '+$('tujuan').value+'\nTotal: '+fmt(totalHarga)+'\n\nMencari driver terdekat dari database...';
+  await loadDatabase();
+  setTimeout(()=>{ if(!orderAktif && $('btnSearching').style.display==='flex'){ driverDitemukan(); } },1500);
+}
+function driverDitemukan(){
+  if(DB_DRIVER.length===0){
+    alert('Driver dari database belum ketemu.');
+    $('modal').classList.remove('show'); $('btnSearching').style.display='none'; $('btnPesan').style.display='block'; $('btnBatal').style.display='none';
+    return;
+  }
+  orderAktif=true;
+  driverAktif = DB_DRIVER[Math.floor(Math.random()*DB_DRIVER.length)];
+  let nama = driverAktif.nama || driverAktif.name || driverAktif.code || 'Driver';
+  let mobil = driverAktif.jenis_mobil || driverAktif.mobil || '-';
+  let plat = driverAktif.plat_mobil || driverAktif.plat || '-';
+  let foto = '🚗';
+  driverAktif._nama = nama; driverAktif._mobil = mobil; driverAktif._plat = plat; driverAktif._foto = foto;
+  driverAktif._callId = 'room-1';
+  $('modal').classList.remove('show');
+  $('btnSearching').style.display='none';
+  $('driverFoto').textContent=foto;
+  $('driverNama').textContent=nama;
+  $('driverRating').textContent='⭐ Driver AMMO';
+  $('driverStatus').textContent='● OTW KE LOKASI KAMU • 5 menit lagi';
+  $('driverMobil').textContent=mobil;
+  $('driverWarna').textContent='';
+  $('driverPlat').textContent=plat;
+  $('driverRute').textContent='Rute: '+$('dari').value+' → '+$('tujuan').value+' • '+fmt(totalHarga);
+  $('driverCard').style.display='block';
+  $('txtKonfirmasi').textContent='Driver OTW • Chat udah nyambung ke driver';
+  $('chatBadge').textContent='1'; $('chatBadge').style.display='flex';
+  setChatModeDriver();
+  $('chatBody').innerHTML='';
+  tambahPesanDriver(`Halo Kak! Saya <b>${nama}</b> 🙏 Saya yang terima orderan Kakak.`);
+  let v=parseInt(localStorage.getItem('ammo_voucher')||'0')+voucherDapat; localStorage.setItem('ammo_voucher',v); if($('voucherTotal')) $('voucherTotal').textContent=fmt(v);
+  $('listTrip').innerHTML=`<div class="item"><b>${nama} • ${mobil} • ${plat}</b><p>${$('dari').value} → ${$('tujuan').value}</p><p>${$('km').value} • ${$('orang').value} Orang • Driver OTW</p><p style="color:#E8C766;font-weight:800">${fmt(totalHarga)}</p><button onclick="bukaChat()" style="margin-top:8px;padding:8px 14px;border:1px solid #D4AF37;background:#1a1a1a;color:#E8C766;border-radius:10px;font-weight:800;cursor:pointer">💬 CHAT ${nama}</button></div>`+$('listTrip').innerHTML;
+}
+function batalOrder(){
+  if(!orderAktif && $('btnSearching').style.display!=='flex'){ $('modal').classList.remove('show'); return; }
+  let yakin = confirm('Batalkan pesanan ini? Chat balik lagi ke CS.');
+  if(!yakin) return;
+  orderAktif=false; driverAktif=null;
+  $('modal').classList.remove('show');
+  $('driverCard').style.display='none';
+  $('btnSearching').style.display='none';
+  $('btnPesan').style.display='block';
+  $('btnBatal').style.display='none';
+  $('txtKonfirmasi').textContent='Driver akan konfirmasi di aplikasi';
+  $('chatBody').innerHTML='';
+  setChatModeCS();
+  tambahPesanBot('Orderan dibatalkan ya Kak. Chat balik lagi ke <b>CS Ammo Travel</b>.');
+  alert('Pesanan dibatalkan.');
+}
+async function telpDriver(){
+  if(!orderAktif || !driverAktif){ alert('Belum ada driver. Chat kamu masih sama CS Ammo Travel.'); return; }
+  let nama = driverAktif._nama || 'Driver';
+  let mobil = driverAktif._mobil || '';
+  let plat = driverAktif._plat || '';
+  let callId = driverAktif._callId || 'room-1';
+  driverAktif._callId = callId;
+  $('callNama').textContent = nama;
+  $('callInfo').textContent = (mobil + ' • ' + plat).trim();
+  $('callStatus').textContent = 'Memanggil... (Gratis)';
+  $('callTimer').textContent = '00:00';
+  $('callBtnsIn').style.display='none'; $('callBtnsOut').style.display='flex';
+  callDetik=0; isMuted=false;
+  $('btnMute').classList.remove('on');
+  $('callModal').classList.add('show');
+  try{
+    if(!sbClient){ $('callStatus').textContent='Supabase belum nyambung, coba lagi'; return; }
+    await gabungChannelCall(callId);
+    localStream = await navigator.mediaDevices.getUserMedia({audio:true, video:false});
+    buatPeer();
+    localStream.getTracks().forEach(t=>peerConn.addTrack(t, localStream));
+    let offer = await peerConn.createOffer();
+    await peerConn.setLocalDescription(offer);
+    // Kirim ke 2 ruangan biar pasti nyambung ke driver.html
+    callChannel.send({type:'broadcast', event:'offer', payload:{offer, callId, to:'driver', fromName:'Penumpang AMMO'}});
+    try{
+      let driverCode = (driverAktif.code || driverAktif._nama || '').toString().toLowerCase().replace(/\s+/g,'-');
+      let ch2 = sbClient.channel('ammo-call-driver-'+driverCode, {config:{broadcast:{self:true}}});
+      await ch2.subscribe();
+      ch2.send({type:'broadcast', event:'offer', payload:{offer, callId, to:'driver-'+driverCode, fromName:'Penumpang AMMO'}});
+      let ch3 = sbClient.channel('ammo-call-room-1', {config:{broadcast:{self:true}}});
+      await ch3.subscribe();
+      ch3.send({type:'broadcast', event:'offer', payload:{offer, callId:'room-1', to:'driver', fromName:'Penumpang AMMO'}});
+    }catch(e){}
+    $('callStatus').textContent='Memanggil driver... (Gratis via Supabase)';
+    mulaiTimerTelp();
+    clearTimeout(callTimeout);
+    callTimeout = setTimeout(()=>{ if($('callStatus').textContent.includes('Memanggil')){ $('callStatus').textContent='Driver belum mengangkat (driver belum online di HP)'; } },15000);
+  }catch(e){
+    $('callStatus').textContent='Mic belum diizinkan. Klik izinkan mic di browser.';
+    console.log(e);
+  }
+}
+function toggleMute(){
+  isMuted = !isMuted;
+  if(localStream) localStream.getAudioTracks().forEach(t=>t.enabled=!isMuted);
+  $('btnMute').classList.toggle('on', isMuted);
+  $('callStatus').textContent = isMuted ? 'Suara dimatikan (Mute)' : 'Terhubung • Via AMMO TRAVEL • Gratis';
+}
+function toggleSpeaker(){ $('callStatus').textContent = 'Speaker aktif • Via AMMO TRAVEL • Gratis'; }
+function akhiriTelp(){
+  if(callChannel) callChannel.send({type:'broadcast', event:'end', payload:{callId:currentCallId}});
+  akhiriTelpDiam();
+  if(driverAktif) tambahPesanDriver('Panggilan selesai ya Kak 🙏 Saya OTW ke titik jemput.');
+}
+function akhiriTelpDiam(){
+  clearInterval(callTimerInt); clearTimeout(callTimeout);
+  if(localStream) localStream.getTracks().forEach(t=>t.stop());
+  if(peerConn) { try{ peerConn.close(); }catch(e){} peerConn=null; }
+  if(callChannel) { try{ callChannel.unsubscribe(); }catch(e){} callChannel=null; }
+  $('callModal').classList.remove('show');
+  let a=$('remoteAudio'); if(a) a.srcObject=null;
+}
+function setChatModeCS(){
+  chatMode='CS';
+  $('chatFoto').textContent='💬';
+  $('chatNama').textContent='CS Ammo Travel';
+  $('chatStatus').textContent='● CS Ammo Travel • Online';
+  $('chatModeBar').innerHTML='Mode: <b>CS Ammo Travel</b> • Belum ada orderan';
+  $('chatInput').placeholder='Ketik pesan ke CS Ammo Travel...';
+  $('quickChat').innerHTML=`<button onclick="kirimCepat('Halo CS, mau tanya harga')">Halo CS, mau tanya harga</button><button onclick="kirimCepat('Titik jemput sesuai maps ya')">Titik jemput sesuai maps</button>`;
+}
+function setChatModeDriver(){
+  if(!driverAktif) return;
+  chatMode='DRIVER';
+  let nama = driverAktif._nama || 'Driver';
+  $('chatFoto').textContent=driverAktif._foto || '🚗';
+  $('chatNama').textContent=nama;
+  $('chatStatus').textContent='● '+ (driverAktif._mobil||'') +' • '+ (driverAktif._plat||'') +' • OTW ke kamu';
+  $('chatModeBar').innerHTML='Mode: <b>Driver • '+nama+'</b> • Orderan diterima';
+  $('chatInput').placeholder='Ketik pesan ke '+nama+'...';
+  $('quickChat').innerHTML=`<button onclick="kirimCepat('Halo pak, saya sudah siap')">Halo pak, saya sudah siap</button><button onclick="kirimCepat('Titik jemput sesuai maps ya pak')">Titik jemput sesuai maps ya pak</button>`;
+}
+function bukaChat(){
+  $('chatModal').classList.add('show');
+  $('chatBadge').style.display='none';
+  if(orderAktif && driverAktif){
+    setChatModeDriver();
+    if($('chatBody').children.length===0){
+      let nama = driverAktif._nama || 'Driver';
+      tambahPesanDriver(`Halo Kak! Saya <b>${nama}</b> 🙏`);
+    }
+  } else {
+    setChatModeCS();
+    if($('chatBody').children.length===0){
+      tambahPesanBot('Halo Kak! 👋 Saya <b>CS Ammo Travel</b>.<br><br>Belum ada orderan ya, jadi chat sama saya dulu.');
+    }
+  }
+  setTimeout(()=>{ let b=$('chatBody'); b.scrollTop=b.scrollHeight; },100);
+}
+function tutupChat(){ $('chatModal').classList.remove('show'); }
+function tambahPesanBot(teks){
+  let d=document.createElement('div'); d.className='msg bot'; d.innerHTML=teks+'<small>'+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+' • CS Ammo Travel</small>';
+  $('chatBody').appendChild(d); $('chatBody').scrollTop=$('chatBody').scrollHeight;
+}
+function tambahPesanDriver(teks){
+  let nama = (driverAktif && (driverAktif._nama || driverAktif.nama)) || 'Driver';
+  let d=document.createElement('div'); d.className='msg driver'; d.innerHTML=teks+'<small>'+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+' • '+nama+'</small>';
+  $('chatBody').appendChild(d); $('chatBody').scrollTop=$('chatBody').scrollHeight;
+}
+function tambahPesanSaya(teks){
+  let d=document.createElement('div'); d.className='msg me'; d.innerHTML=teks.replace(/</g,'&lt;')+'<small>'+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+' • Kamu</small>';
+  $('chatBody').appendChild(d); $('chatBody').scrollTop=$('chatBody').scrollHeight;
+}
+function kirimChat(){
+  let inp=$('chatInput'); let teks=inp.value.trim(); if(!teks) return;
+  tambahPesanSaya(teks); inp.value='';
+  setTimeout(()=>{
+    if(chatMode==='DRIVER' && driverAktif){ balasDriver(teks); }
+    else { botBalas(teks); }
+  },700);
+}
+function kirimCepat(teks){ $('chatInput').value=teks; kirimChat(); }
+function balasDriver(teks){
+  let t = teks.toLowerCase();
+  if(t.includes('siap') || t.includes('sudah siap') || t.includes('halo')){
+    tambahPesanDriver('Siap Kak 🙏 Saya OTW ke titik jemput ya, 5 menit lagi sampai. Kakak tunggu di titik maps ya.');
+  } else if(t.includes('jemput') || t.includes('maps') || t.includes('titik')){
+    tambahPesanDriver('Oke Kak, saya ikutin titik di maps ya. Kalau udah sampai saya chat lagi.');
+  } else if(t.includes('berapa') || t.includes('lama') || t.includes('sampai')){
+    tambahPesanDriver('Sebentar lagi Kak, lagi di jalan, sekitar 5 menit lagi sampai.');
+  } else if(t.includes('batal')){
+    tambahPesanDriver('Waduh Kak, jangan dibatalin ya 🙏 Saya udah OTW nih.');
+  } else if(t.includes('makasih') || t.includes('terima kasih') || t.includes('thanks')){
+    tambahPesanDriver('Sama-sama Kak 🙏 Hati-hati di jalan ya.');
+  } else {
+    tambahPesanDriver('Oke Kak, noted ya. Saya OTW ke titik jemput sekarang.');
+  }
+}
+async function botBalas(teks){
+  let pola = /[@#\$&]([A-Za-z0-9_]+)/g;
+  let match, keywords=[];
+  while((match=pola.exec(teks))!==null){
+    let kata = match[1].toLowerCase();
+    if(!keywords.includes(kata)) keywords.push(kata);
+  }
+  if(keywords.length>0){
+    for(let kata of keywords){
+      let {dariAdmin} = await cariDiDatabase(kata);
+      if(dariAdmin.length===0){
+        tambahPesanBot('Pesan anda tidak kami mengerti nanti akan kami sampaikan kepada Admin');
+        continue;
+      }
+      let pertama = dariAdmin[0];
+      setTimeout(()=>{ bukaPin({data: pertama}); },300);
+      return;
+    }
+    return;
+  }
+  await loadDatabase();
+  let jawaban = cariJawabanBiasa(teks);
+  if(jawaban){ tambahPesanBot(jawaban); }
+  else { tambahPesanBot('Mohon menunggu Admin akan memberikan jawaban'); }
+}
+function bukaPin(item){
+  let d=item.data;
+  pinTarget=item;
+  pinBenar = String(d.pin || '');
+  codeBenar = String(d.code || '').toLowerCase().trim();
+  pinInput='';
+  updatePinTampil();
+  $('pinLock').classList.add('show');
+}
+function buatKeypad(){
+  let keys=['1','2','3','4','5','6','7','8','9','⌫','0','✓'];
+  $('pinKeypad').innerHTML=keys.map(k=>`<button class="pinKey" onclick="tekanPin('${k}')">${k==='⌫'?'⌫':k}</button>`).join('');
+}
+function tekanPin(k){
+  if(k==='⌫'){ pinInput=pinInput.slice(0,-1); }
+  else if(k==='✓'){ cekPin(); return; }
+  else { if(pinInput.length>=6) return; pinInput+=k; }
+  updatePinTampil();
+  if(pinInput.length===6){ setTimeout(cekPin,300); }
+}
+function updatePinTampil(){
+  let dots=document.querySelectorAll('.pinDot');
+  dots.forEach((dot,i)=>{ dot.classList.toggle('filled', i<pinInput.length); dot.classList.remove('wrong'); });
+}
+function cekPin(){
+  if(pinInput===pinBenar){
+    let expiry = Date.now() + 2*60*60*1000;
+    let karcis = codeBenar + '|' + pinBenar + '|' + expiry;
+    try{
+      sessionStorage.setItem('ammo_admin_token', karcis);
+      localStorage.setItem('ammo_admin_token', karcis);
+      sessionStorage.removeItem('ammo_admin_logout_time');
+      localStorage.removeItem('ammo_admin_logout_time');
+    }catch(e){}
+    setTimeout(()=>{ window.location.href = 'q9x.html'; }, 300);
+  } else {
+    let dots=document.querySelectorAll('.pinDot');
+    dots.forEach(d=>d.classList.add('wrong'));
+    setTimeout(()=>{ pinInput=''; updatePinTampil(); }, 400);
+  }
+}
+function tutupPin(){ $('pinLock').classList.remove('show'); pinInput=''; pinBenar=''; codeBenar=''; updatePinTampil(); }
+let kl=0; document.querySelector('.logo').addEventListener('click',()=>{ kl++; if(kl>=2){ $('tujuan').value=''; $('km').value=''; $('orang').value=5; $('box').style.display='none'; $('boxEmpty').style.display='block'; destCoord=null; if(markerTujuan) mapTujuan.removeLayer(markerTujuan); markerTujuan=null; alert('Direset ke NOL lagi!'); kl=0; } setTimeout(()=>kl=0,800); });
 </script>
 </body>
 </html>
