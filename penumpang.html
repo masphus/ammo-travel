@@ -56,6 +56,10 @@ body{background:#000;display:flex;justify-content:center}
 .chat-close{display:block;width:100%;margin-top:10px;padding:12px;border:none;border-radius:10px;background:#111;color:#fff;font-weight:bold;cursor:pointer;border:1px solid #333}
 .notif-box{width:100%;max-width:430px;background:#1a1a1a;border:1px solid #d4af37;border-radius:16px 16px 0 0;padding:20px 16px 16px;text-align:center}
 .notif-box .ikon{font-size:48px}
+.editInput{width:100%;background:#1a1a1a;border:1px solid #333;border-radius:10px;color:#fff;padding:12px;font-size:14px;outline:none;margin:6px 0 10px}
+.editInput:focus{border-color:#d4af37}
+.btn-edit{width:100%;margin-top:14px;padding:12px;border:1px solid #d4af37;background:#1a1a1a;color:#e8c96a;border-radius:10px;font-weight:900;cursor:pointer}
+.btn-edit.on{background:#d4af37;color:#000}
 .notif-box h3{font-size:20px;color:#e8c96a;margin-bottom:8px}
 .notif-box p{font-size:15px;color:#ccc;margin-bottom:16px}
 .notif-btns{display:flex;gap:10px}
@@ -92,11 +96,20 @@ body{background:#000;display:flex;justify-content:center}
 </div>
 </div>
 <div class="route">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:11px;color:#888">RUTE TERKUNCI</span><span style="font-size:10px;background:#1a1a1a;border:1px solid #d4af37;color:#e8c96a;padding:3px 8px;border-radius:20px;font-weight:800">LOCKED - CUMA KETERANGAN</span></div>
 <small>Dari</small>
 <b id="wDari">Memuat...</b>
 <br><br>
 <small>Tujuan</small>
 <b id="wTujuan">Memuat...</b>
+<button id="btnEditTujuan" onclick="toggleEditTujuan()" class="btn-edit">EDIT TUJUAN</button>
+<div id="boxEditTujuan" style="display:none;margin-top:12px;border-top:1px dashed #d4af37;padding-top:12px">
+<small>Dari (baru)</small><input id="editDari" class="editInput" placeholder="Dari mana?">
+<small>Tujuan (baru)</small><input id="editTujuan" class="editInput" placeholder="Mau ke mana?">
+<p style="font-size:11px;color:#888;margin-bottom:10px">Kalau mau akurat dari Maps, pencet EDIT LEWAT MAPS.</p>
+<div style="display:flex;gap:10px"><button onclick="toggleEditTujuan()" style="flex:1;padding:12px;border-radius:10px;background:#222;color:#fff;border:1px solid #444;font-weight:800;cursor:pointer">Batal</button><button onclick="simpanEditTujuan()" style="flex:1;padding:12px;border-radius:10px;background:#d4af37;color:#000;border:none;font-weight:900;cursor:pointer">SIMPAN</button></div>
+<button onclick="editLewatMaps()" style="width:100%;margin-top:10px;padding:12px;border:1px solid #d4af37;background:#1a1a1a;color:#e8c96a;border-radius:10px;font-weight:900;cursor:pointer">EDIT LEWAT MAPS</button>
+</div>
 </div>
 <div class="meta">
 <div>🅰️ Jarak<b id="wJarak">Menghitung...</b></div>
@@ -152,7 +165,7 @@ body{background:#000;display:flex;justify-content:center}
 <div class="ikon">✅</div>
 <h3>Perjalanan Dibatalkan</h3>
 <p>Driver sudah diberitahu bahwa kamu membatalkan perjalanan.</p>
-<button class="btn-ok-notif" onclick="selesaiBatalKeIndex()">OK, Kembali ke Beranda</button>
+<button class="btn-ok-notif" onclick="selesaiBatalKeIndex()">OK, Kembali ke Beranda Sekarang</button>
 </div>
 </div>
 
@@ -460,6 +473,7 @@ async function jalankanPembatalan(){
   setTimeout(() => {
     document.getElementById('modalBatal').classList.remove('show');
     document.getElementById('modalBatalSukses').classList.add('show');
+    setTimeout(()=>{ bersihkanDanKembali(); }, 1800);
   }, 1500);
 }
 
@@ -477,7 +491,11 @@ function bersihkanDanKembali(){
   window.location.href = 'index.html';
 }
 
+function toggleEditTujuan(){ let box=document.getElementById('boxEditTujuan'); let btn=document.getElementById('btnEditTujuan'); let isOpen=box.style.display==='block'; if(isOpen){ box.style.display='none'; btn.textContent='EDIT TUJUAN'; btn.classList.remove('on'); } else { box.style.display='block'; btn.textContent='TUTUP EDIT'; btn.classList.add('on'); document.getElementById('editDari').value=document.getElementById('wDari').textContent; document.getElementById('editTujuan').value=document.getElementById('wTujuan').textContent; } }
+function simpanEditTujuan(){ let d=document.getElementById('editDari').value.trim(); let tj=document.getElementById('editTujuan').value.trim(); if(!d||!tj){ alert('Dari & Tujuan gak boleh kosong'); return; } document.getElementById('wDari').textContent=d; document.getElementById('wTujuan').textContent=tj; try{ let s=JSON.parse(localStorage.getItem('masphus_order')||'null'); if(s){ if(s.asal) s.asal.nama=d; else s.asal={nama:d}; if(s.tujuan) s.tujuan.nama=tj; else s.tujuan={nama:tj}; localStorage.setItem('masphus_order', JSON.stringify(s)); } }catch(e){} toggleEditTujuan(); alert('Tujuan diupdate!'); }
+function editLewatMaps(){ try{ let s=JSON.parse(localStorage.getItem('masphus_order')||'null')||{}; s.asal={nama:document.getElementById('editDari').value.trim()||document.getElementById('wDari').textContent}; s.tujuan={nama:document.getElementById('editTujuan').value.trim()||document.getElementById('wTujuan').textContent}; s.edit_mode=true; localStorage.setItem('masphus_order', JSON.stringify(s)); }catch(e){} bolehKeluar=true; window.location.href='index.html?edit=1'; }
 async function init(){
+
   if(!tampilkanTarifDariIndex()){
     document.getElementById('wJarak').textContent = '-';
     document.getElementById('wEstimasi').textContent = '-';
