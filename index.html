@@ -95,9 +95,6 @@ input:focus,select:focus{border-color:#D4AF37}
 .pinCrown{font-size:48px;margin-bottom:8px}
 .pinTitle{font-size:22px;font-weight:900;background:linear-gradient(180deg,#FFE9A8,#D4AF37);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
 .pinSub{font-size:12px;color:#aaa;margin-top:6px;line-height:1.5}
-.pinUser{margin-top:16px;border:1px solid #C9A227;background:#111;border-radius:16px;padding:12px 16px;width:100%;max-width:320px;text-align:left}
-.pinUser b{color:#E8C766;font-size:15px}
-.pinUser p{font-size:12px;color:#aaa;margin-top:2px}
 .pinDots{display:flex;gap:12px;margin:22px 0 14px}
 .pinDot{width:16px;height:16px;border-radius:50%;border:2px solid #D4AF37;background:transparent}
 .pinDot.filled{background:linear-gradient(180deg,#FFE9A8,#D4AF37)}
@@ -108,23 +105,10 @@ input:focus,select:focus{border-color:#D4AF37}
 .pinKey:active{background:linear-gradient(180deg,#FFE9A8,#D4AF37);color:#000}
 .pinBtnGold{margin-top:18px;width:100%;max-width:320px;padding:14px;border:none;border-radius:14px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-weight:900;font-size:15px;cursor:pointer}
 .pinBtnGhost{margin-top:10px;background:none;border:none;color:#888;font-size:12px;cursor:pointer}
-.karcisBox{margin-top:14px;border:1px dashed #D4AF37;background:#1a1a1a;border-radius:14px;padding:14px;width:100%;max-width:320px}
-.karcisBox input{margin-top:8px;text-align:center;letter-spacing:3px;font-weight:900;text-transform:uppercase}
-.adminPage{position:fixed;inset:0;background:#000;display:none;flex-direction:column;z-index:300;overflow-y:auto}
-.adminPage.show{display:flex}
-.adminHeader{background:linear-gradient(180deg,#1a1a1a,#000);border-bottom:1px solid #C9A227;padding:16px;display:flex;gap:12px;align-items:center}
-.adminCard{margin:12px 16px;border:1px solid #C9A227;border-radius:16px;padding:14px;background:#111}
-.adminStat{display:flex;gap:10px;margin:12px 16px}
-.adminStat div{flex:1;border:1px solid #333;border-radius:14px;padding:12px;text-align:center;background:#111}
-.adminStat b{color:#E8C766;font-size:18px;display:block}
-.adminStat span{font-size:11px;color:#aaa}
-.debugBox{background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:10px;font-size:11px;color:#aaa;margin-bottom:10px;display:none}
-.debugBox b{color:#E8C766}
 </style>
 </head>
 <body>
 <div class="app">
-<div id="debugBox" class="debugBox"></div>
 <div id="p-beranda" class="page active">
 <div class="logo">AMMO TRAVEL</div>
 <h1>Mau pergi kemana?</h1>
@@ -210,7 +194,6 @@ input:focus,select:focus{border-color:#D4AF37}
 <div style="text-align:center;padding:30px 0"><div style="width:90px;height:90px;border-radius:50%;background:linear-gradient(180deg,#FFE9A8,#D4AF37);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:40px;color:#000">👤</div><h2>Ko Cheng</h2><p style="color:#D4AF37;margin-top:6px">Member Gold • AMMO TRAVEL</p></div>
 <div class="item"><b>📍 Alamat</b><p>Jalan Muara Raya, Pelindung</p></div>
 <div class="item"><b>🎟️ Voucher Terkumpul</b><p id="voucherTotal">Rp 0</p></div>
-<div class="item"><b>🔧 Tes Supabase</b><p id="supabaseStatus">Belum dites. Klik tombol di bawah.</p><button onclick="tesSupabase()" style="width:100%;margin-top:8px;padding:12px;border:none;border-radius:10px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-weight:900;cursor:pointer">🔌 TES KONEKSI SUPABASE</button></div>
 </div>
 </div>
 <button class="chatFab" id="chatFab" onclick="bukaChat()">💬<span class="chatBadge" id="chatBadge">1</span></button>
@@ -242,182 +225,71 @@ input:focus,select:focus{border-color:#D4AF37}
   <div class="pinCrown">👑</div>
   <div class="pinTitle">AMMO TRAVEL</div>
   <div class="pinSub" id="pinSub">Masukkan PIN untuk membuka</div>
-  <div class="pinUser" id="pinUser">
-    <b id="pinNama">-</b>
-    <p id="pinDetail">-</p>
-    <p id="pinAsal" style="color:#D4AF37;font-weight:700">-</p>
-  </div>
   <div id="pinArea">
     <div class="pinDots" id="pinDots"><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div></div>
     <div class="pinCode" id="pinCode">• • • • • •</div>
-    <p style="font-size:11px;color:#888">PIN tidak ditampilkan di mana pun. Ketik di keypad.</p>
+    <p style="font-size:11px;color:#888">PIN tidak ditampilkan di mana pun.</p>
     <div class="pinKeypad" id="pinKeypad"></div>
-  </div>
-  <div class="karcisBox" id="karcisBox" style="display:none">
-    <b style="color:#E8C766">✅ PIN BENAR!</b>
-    <p style="font-size:12px;color:#fff;margin-top:6px">Tinggal 1 langkah lagi buat masuk <b>Halaman Admin</b>:</p>
-    <p style="font-size:12px;color:#D4AF37;font-weight:700;margin-top:4px">🎟️ WAJIB BAWA KARCIS DARI BOT!</p>
-    <p style="font-size:11px;color:#aaa;margin-top:4px" id="karcisInfo">Karcis kamu: -</p>
-    <input id="inputKarcis" placeholder="MASUKKAN KARCIS: AMMO-XXXX">
-    <button class="pinBtnGold" onclick="tukarKarcisMasukAdmin()" style="margin-top:10px">🎟️ PAKAI KARCIS → MASUK HALAMAN ADMIN</button>
-    <p id="karcisError" style="font-size:12px;color:#ff6b6b;margin-top:6px;display:none">Karcis salah / sudah dipakai / bukan buat admin ini!</p>
+    <p id="pinLoading" style="font-size:12px;color:#E8C766;margin-top:12px;display:none">⏳ PIN benar, membuat karcis...</p>
   </div>
   <button class="pinBtnGold" id="btnKembaliChat" onclick="tutupPin()">🔓 KEMBALI KE CHAT</button>
   <button class="pinBtnGhost" onclick="tutupPin()">Tutup tanpa buka</button>
 </div>
-<div class="adminPage" id="adminPage">
-  <div class="adminHeader">
-    <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(180deg,#FFE9A8,#D4AF37);display:flex;align-items:center;justify-content:center;font-size:26px" id="adminFoto">👑</div>
-    <div style="flex:1"><b id="adminNama" style="font-size:17px">Admin</b><div style="font-size:12px;color:#4ade80">● Login Admin • Karcis Terverifikasi ✅</div><div style="font-size:11px;color:#aaa" id="adminKarcisTampil">Karcis: -</div></div>
-    <button onclick="keluarAdmin()" style="background:#1a1a1a;border:1px solid #ff4d4d;color:#ff6b6b;padding:10px 14px;border-radius:10px;font-weight:800;cursor:pointer">KELUAR</button>
-  </div>
-  <div class="adminStat">
-    <div><b id="statOrder">-</b><span>Order Hari Ini</span></div>
-    <div><b id="statDriver">-</b><span>Driver Online</span></div>
-    <div><b id="statOmzet">-</b><span>Omzet Hari Ini</span></div>
-  </div>
-  <div class="adminCard"><b>🧾 Order Masuk</b><p style="font-size:13px;color:#aaa;margin-top:6px" id="adminOrderList">Memuat dari Supabase...</p></div>
-  <div class="adminCard"><b>👨‍🦱 Kelola Driver</b><p style="font-size:13px;color:#aaa;margin-top:6px" id="adminDriverList">Memuat dari Supabase...</p></div>
-  <div class="adminCard"><b>🎟️ Karcis Terpakai</b><p style="font-size:13px;color:#aaa;margin-top:6px" id="adminKarcisList">Belum ada karcis dipakai di sesi ini.</p></div>
-</div>
 <script>
 const $=id=>document.getElementById(id);
 const fmt=n=>'Rp '+Math.round(n||0).toLocaleString('id-ID');
-let pickCoord=null, destCoord=null, totalHarga=0, voucherDapat=0, orderAktif=false, driverAktif=null, pinInput='', pinBenar='', pinTarget=null, pinSudahBenar=false;
+let pickCoord=null, destCoord=null, totalHarga=0, voucherDapat=0, orderAktif=false, driverAktif=null, pinInput='', pinBenar='', codeBenar='', pinTarget=null;
 let chatMode='CS';
-
-// ===== SUPABASE LU - UDAH DITEMPEL, TINGGAL PAKAI =====
 const SUPABASE_URL = 'https://xxtgmohxdztesiubfxap.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv';
-// Ini key publishable baru Supabase, bukan anon lama. Header-nya sama: apikey + Authorization Bearer
-
 let DB_DRIVER = [];
 let DB_ADMIN = [];
 let DB_FAQ = [];
-let DB_ALL = [];
-let karcisDB = {}; let karcisTerpakai = [];
-
-function showDebug(msg){
-  let el=$('debugBox');
-  if(el){ el.style.display='block'; el.innerHTML=msg; }
-}
-
-// Ambil 1 tabel dari Supabase. Coba nama jamak + tunggal biar gak gagal cuma gara-gara nama tabel beda s.
 async function supabaseFetch(table){
   try{
-    let url = SUPABASE_URL + '/rest/v1/' + table + '?select=*&limit=1000';
-    let r = await fetch(url, {
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
-      }
+    let r = await fetch(SUPABASE_URL + '/rest/v1/' + table + '?select=*&limit=1000', {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' }
     });
-    if(!r.ok){
-      let txt = await r.text().catch(()=> '');
-      console.log('Supabase gagal tabel', table, r.status, txt);
-      return {ok:false, status:r.status, data:[], error:txt};
-    }
+    if(!r.ok) return {ok:false, data:[]};
     let j = await r.json();
-    return {ok:true, status:200, data: Array.isArray(j) ? j : []};
-  }catch(e){
-    console.log('Supabase fetch error', table, e.message);
-    return {ok:false, status:0, data:[], error:e.message};
-  }
+    return {ok:true, data: Array.isArray(j) ? j : []};
+  }catch(e){ return {ok:false, data:[]}; }
 }
-
-// Coba banyak kemungkinan nama tabel, karena gua gak tau nama tabel persis di Supabase lu
 async function loadDatabase(){
-  // 1. Coba drivers / driver
   let d1 = await supabaseFetch('drivers');
-  if(!d1.ok || d1.data.length===0){ let d1b = await supabaseFetch('driver'); if(d1b.ok && d1b.data.length>0) d1 = d1b; }
+  if(!d1.ok || d1.data.length===0){ let x = await supabaseFetch('driver'); if(x.ok && x.data.length>0) d1 = x; }
   DB_DRIVER = d1.data || [];
-
-  // 2. Coba admins / admin / users
-  let a1 = await supabaseFetch('admins');
-  if(!a1.ok || a1.data.length===0){ let a1b = await supabaseFetch('admin'); if(a1b.ok && a1b.data.length>0) a1 = a1b; }
-  if(!a1.ok || a1.data.length===0){ let a1c = await supabaseFetch('users'); if(a1c.ok && a1c.data.length>0) a1 = a1c; }
+  let a1 = await supabaseFetch('admin');
+  if(!a1.ok || a1.data.length===0){ let x = await supabaseFetch('admins'); if(x.ok && x.data.length>0) a1 = x; }
   DB_ADMIN = a1.data || [];
-
-  // 3. Coba faq / jawaban / harga / chats / pesan / harga_travel
-  let f1 = await supabaseFetch('faq');
-  if(!f1.ok || f1.data.length===0){ let f1b = await supabaseFetch('jawaban'); if(f1b.ok && f1b.data.length>0) f1 = f1b; }
-  if(!f1.ok || f1.data.length===0){ let f1c = await supabaseFetch('harga'); if(f1c.ok && f1c.data.length>0) f1 = f1c; }
-  if(!f1.ok || f1.data.length===0){ let f1d = await supabaseFetch('chatbot'); if(f1d.ok && f1d.data.length>0) f1 = f1d; }
+  let f1 = await supabaseFetch('bot');
+  if(!f1.ok || f1.data.length===0){ let x = await supabaseFetch('faq'); if(x.ok && x.data.length>0) f1 = x; }
   DB_FAQ = f1.data || [];
-
-  // 4. Gabung semua buat pencarian umum
-  DB_ALL = [...DB_DRIVER.map(x=>({...x, _tabel:'DRIVER'})), ...DB_ADMIN.map(x=>({...x, _tabel:'ADMIN'})), ...DB_FAQ.map(x=>({...x, _tabel:'FAQ'}))];
-
-  console.log('SUPABASE:', 'drivers=', DB_DRIVER.length, 'admins=', DB_ADMIN.length, 'faq=', DB_FAQ.length, 'total=', DB_ALL.length);
-  console.log('Contoh driver pertama:', DB_DRIVER[0]);
-  console.log('Contoh admin pertama:', DB_ADMIN[0]);
-  console.log('Contoh faq pertama:', DB_FAQ[0]);
-  return {drivers: DB_DRIVER.length, admins: DB_ADMIN.length, faq: DB_FAQ.length, driverErr: d1, adminErr: a1, faqErr: f1};
+  return true;
 }
-
-async function tesSupabase(){
-  $('supabaseStatus').textContent = 'Mengecek Supabase... tunggu 3 detik...';
-  let hasil = await loadDatabase();
-  let msg = 'Drivers: ' + hasil.drivers + ' | Admins: ' + hasil.admins + ' | FAQ: ' + hasil.faq;
-  if(hasil.drivers===0 && hasil.admins===0 && hasil.faq===0){
-    msg += '<br><br>❌ SEMUA 0! Kemungkinan: 1) Nama tabel di Supabase beda, 2) RLS / Policy belum di-enable buat public read, 3) Tabel kosong.<br>Error driver: ' + (hasil.driverErr.status||'') + ' ' + (hasil.driverErr.error||'').slice(0,200);
-    $('supabaseStatus').innerHTML = msg;
-    showDebug('<b>SUPABASE 0:</b> ' + msg);
-  } else {
-    msg += '<br>✅ NYAMBUNG! Contoh data pertama driver: ' + JSON.stringify(DB_DRIVER[0]||DB_ADMIN[0]||DB_FAQ[0]||{}).slice(0,300);
-    $('supabaseStatus').innerHTML = msg;
-    showDebug('<b>SUPABASE NYAMBUNG:</b> ' + msg);
-  }
-  // Update admin page juga
-  if(DB_DRIVER.length>0) $('adminDriverList').textContent = DB_DRIVER.map(d=> (d.nama||d.kode||d.name||'Driver') + ' • ' + (d.mobil||d.plat||'')).join(', ');
-  if(DB_FAQ.length>0) $('adminOrderList').textContent = DB_FAQ.map(f=> JSON.stringify(f).slice(0,120)).join(' | ');
-}
-
 async function cariDiDatabase(keyword){
   await loadDatabase();
   let k = keyword.toLowerCase().trim();
-  // Cari di SEMUA kolom yang mungkin: kode, nama, keyword, kata, key, dll
-  function cocok(row){
-    let fields = [row.kode, row.code, row.nama, row.name, row.keyword, row.kata, row.key, row.username, row.title, row.tujuan, row.kota, row.pertanyaan];
-    for(let f of fields){
-      if(f && String(f).toLowerCase()===k) return true;
-      if(f && String(f).toLowerCase().includes(k)) return true;
-    }
-    // Kalau keyword-nya "ammo", dan row punya kolom apapun yang isinya "ammo", anggap cocok
-    for(let key in row){
-      let v = row[key];
-      if(typeof v === 'string' && v.toLowerCase()===k) return true;
-    }
-    return false;
+  // SESUAI q9x: yang dicek cuma tabel admin, kolom code. Bukan nama, bukan kode lain.
+  // Driver gak bisa masuk q9x karena di q9x dicek role === 'admin'
+  function cocokAdmin(row){
+    let code = String(row.code || '').toLowerCase().trim();
+    return code === k;
   }
-  let dariDriver = DB_DRIVER.filter(cocok);
-  let dariAdmin = DB_ADMIN.filter(cocok);
-  // Kalau di driver/admin gak ketemu, cek juga di FAQ - siapa tau kata itu ada di FAQ
-  let dariFAQ = DB_FAQ.filter(cocok);
-  return {dariDriver, dariAdmin, dariFAQ};
+  let dariAdmin = DB_ADMIN.filter(cocokAdmin);
+  return {dariDriver: [], dariAdmin};
 }
-
 function cariJawabanBiasa(teks){
   let t = teks.toLowerCase();
-  // Cari di FAQ Supabase: keyword / pertanyaan / kota / tujuan
+  // Di q9x, tabel bot: kunci -> jawaban. Jadi di index juga pakai itu.
   for(let row of DB_FAQ){
-    let kunciList = [row.keyword, row.pertanyaan, row.question, row.kota, row.tujuan, row.key, row.kode, row.title];
-    for(let kunci of kunciList){
-      if(kunci && t.includes(String(kunci).toLowerCase())){
-        // Kembalikan jawaban apapun kolomnya
-        return row.jawaban || row.answer || row.jawab || row.harga || row.response || row.isi || row.deskripsi || null;
-      }
-    }
-    // Kalau teks-nya "ke jakarta berapa", dan row punya kota jakarta + harga
-    if(row.kota && t.includes(String(row.kota).toLowerCase()) && row.harga){
-      return 'Ke ' + row.kota + ' ' + fmt(row.harga);
+    let kunci = String(row.kunci || row.keyword || row.key || '').toLowerCase();
+    if(kunci && t.includes(kunci)){
+      return row.jawaban || row.answer || null;
     }
   }
   return null;
 }
-
 function hitungOngkos(km,orang){
   let o=orang||5; let rate=o>=5?6500:5000;
   let kmTagih=Math.max(Math.round(km),10);
@@ -553,32 +425,31 @@ async function pesan(){
   $('btnSearching').style.display='flex';
   $('btnBatal').style.display='block';
   $('modal').classList.add('show'); $('modalTitle').textContent='Mencari Driver...'; $('spin').style.display='block';
-  $('modalText').textContent=$('dari').value+' → '+$('tujuan').value+'\nTotal: '+fmt(totalHarga)+'\n\nMencari driver terdekat dari Supabase...';
+  $('modalText').textContent=$('dari').value+' → '+$('tujuan').value+'\nTotal: '+fmt(totalHarga)+'\n\nMencari driver terdekat dari database...';
   await loadDatabase();
   setTimeout(()=>{ if(!orderAktif && $('btnSearching').style.display==='flex'){ driverDitemukan(); } },1500);
 }
 function driverDitemukan(){
   if(DB_DRIVER.length===0){
-    alert('Driver dari Supabase belum ketemu. Klik TES KONEKSI SUPABASE di Profil, liat error-nya apa. Biasanya RLS / Policy belum di-enable.');
+    alert('Driver dari database belum ketemu.');
     $('modal').classList.remove('show'); $('btnSearching').style.display='none'; $('btnPesan').style.display='block'; $('btnBatal').style.display='none';
     return;
   }
   orderAktif=true;
   driverAktif = DB_DRIVER[Math.floor(Math.random()*DB_DRIVER.length)];
-  // Normalisasi nama kolom Supabase: nama/name, mobil/vehicle, plat/plate, dll
-  let nama = driverAktif.nama || driverAktif.name || driverAktif.kode || 'Driver';
-  let mobil = driverAktif.mobil || driverAktif.vehicle || driverAktif.kendaraan || '-';
-  let plat = driverAktif.plat || driverAktif.plate || driverAktif.nopol || '-';
-  let foto = driverAktif.foto || driverAktif.avatar || '🚗';
+  let nama = driverAktif.nama || driverAktif.name || driverAktif.code || 'Driver';
+  let mobil = driverAktif.jenis_mobil || driverAktif.mobil || '-';
+  let plat = driverAktif.plat_mobil || driverAktif.plat || '-';
+  let foto = '🚗';
   driverAktif._nama = nama; driverAktif._mobil = mobil; driverAktif._plat = plat; driverAktif._foto = foto;
   $('modal').classList.remove('show');
   $('btnSearching').style.display='none';
   $('driverFoto').textContent=foto;
   $('driverNama').textContent=nama;
-  $('driverRating').textContent=driverAktif.rating || '⭐ Driver AMMO';
+  $('driverRating').textContent='⭐ Driver AMMO';
   $('driverStatus').textContent='● OTW KE LOKASI KAMU • 5 menit lagi';
   $('driverMobil').textContent=mobil;
-  $('driverWarna').textContent=driverAktif.warna || driverAktif.warna_mobil || '';
+  $('driverWarna').textContent='';
   $('driverPlat').textContent=plat;
   $('driverRute').textContent='Rute: '+$('dari').value+' → '+$('tujuan').value+' • '+fmt(totalHarga);
   $('driverCard').style.display='block';
@@ -608,8 +479,8 @@ function batalOrder(){
 }
 function telpDriver(){
   if(!orderAktif || !driverAktif){ alert('Belum ada driver. Chat kamu masih sama CS Ammo Travel.'); return; }
-  let nama = driverAktif._nama || driverAktif.nama || 'Driver';
-  alert('Menghubungi '+nama+'\n'+(driverAktif._mobil||'')+' • '+(driverAktif._plat||''));
+  let nama = driverAktif._nama || 'Driver';
+  alert('Menghubungi '+nama);
   window.open('https://wa.me/6281234567890?text=Halo '+encodeURIComponent(nama)+', saya penumpang AMMO TRAVEL','_blank');
 }
 function setChatModeCS(){
@@ -624,11 +495,11 @@ function setChatModeCS(){
 function setChatModeDriver(){
   if(!driverAktif) return;
   chatMode='DRIVER';
-  let nama = driverAktif._nama || driverAktif.nama || 'Driver';
+  let nama = driverAktif._nama || 'Driver';
   $('chatFoto').textContent=driverAktif._foto || '🚗';
   $('chatNama').textContent=nama;
   $('chatStatus').textContent='● '+ (driverAktif._mobil||'') +' • '+ (driverAktif._plat||'') +' • OTW ke kamu';
-  $('chatModeBar').innerHTML='Mode: <b>Driver • '+nama+'</b> • Orderan diterima • Dari Supabase';
+  $('chatModeBar').innerHTML='Mode: <b>Driver • '+nama+'</b> • Orderan diterima';
   $('chatInput').placeholder='Ketik pesan ke '+nama+'...';
   $('quickChat').innerHTML=`<button onclick="kirimCepat('Halo pak, saya sudah siap')">Halo pak, saya sudah siap</button><button onclick="kirimCepat('Titik jemput sesuai maps ya pak')">Titik jemput sesuai maps ya pak</button>`;
 }
@@ -638,7 +509,7 @@ function bukaChat(){
   if(orderAktif && driverAktif){
     setChatModeDriver();
     if($('chatBody').children.length===0){
-      let nama = driverAktif._nama || driverAktif.nama || 'Driver';
+      let nama = driverAktif._nama || 'Driver';
       tambahPesanDriver(`Halo Kak! Saya <b>${nama}</b> 🙏`);
     }
   } else {
@@ -676,78 +547,39 @@ function balasDriver(teks){
   if(/[@#\$&]/.test(teks)){ botBalas(teks); return; }
   tambahPesanDriver('Mohon menunggu Admin akan memberikan jawaban');
 }
-function buatKarcis(nama){
-  let kode = 'AMMO-' + Math.random().toString(36).substring(2,6).toUpperCase();
-  karcisDB[kode] = nama;
-  return kode;
-}
-// ===== BOT FINAL - SESUAI ATURAN LU =====
 async function botBalas(teks){
-  if(/^AMMO-[A-Z0-9]+/i.test(teks.trim())){ return; }
-  // @ # $ & cuma pemicu. Yang dicari cuma kata-nya saja, tanpa simbol.
   let pola = /[@#\$&]([A-Za-z0-9_]+)/g;
   let match, keywords=[];
   while((match=pola.exec(teks))!==null){
     let kata = match[1].toLowerCase();
     if(!keywords.includes(kata)) keywords.push(kata);
   }
-
-  // ADA PEMICU -> CEK SUPABASE
   if(keywords.length>0){
     for(let kata of keywords){
-      let {dariDriver, dariAdmin, dariFAQ} = await cariDiDatabase(kata);
-      let ketemu = [];
-      dariDriver.forEach(h=> ketemu.push({kata, data:h, sumber:'DRIVER'}));
-      dariAdmin.forEach(h=> ketemu.push({kata, data:h, sumber:'ADMIN'}));
-      // Kalau kata itu ada di FAQ tapi bukan PIN, jangan buka PIN, anggap chat biasa
-      if(ketemu.length===0){
+      let {dariAdmin} = await cariDiDatabase(kata);
+      if(dariAdmin.length===0){
         tambahPesanBot('Pesan anda tidak kami mengerti nanti akan kami sampaikan kepada Admin');
         continue;
       }
-      // NEMU -> GAK USAH KIRIM PESAN APAPUN, LANGSUNG KELUAR PIN
-      let pertama = ketemu[0];
-      // Normalisasi PIN: pin / password / kode_pin
-      let pinData = pertama.data;
-      pinData._pin = pinData.pin || pinData.password || pinData.kode_pin || pinData.PIN || '';
-      pinData._nama = pinData.nama || pinData.name || pinData.kode || kata;
-      if(pertama.sumber==='ADMIN'){
-        let karcis = buatKarcis(pinData._nama);
-        pertama.karcis = karcis;
-      }
-      setTimeout(()=>{ bukaPin(pertama); },300);
+      let pertama = dariAdmin[0];
+      setTimeout(()=>{ bukaPin({data: pertama}); },300);
       return;
     }
     return;
   }
-
-  // CHAT BIASA - CEK DULU KE SUPABASE (FAQ)
   await loadDatabase();
   let jawaban = cariJawabanBiasa(teks);
-  if(jawaban){
-    tambahPesanBot(jawaban);
-  } else {
-    tambahPesanBot('Mohon menunggu Admin akan memberikan jawaban');
-  }
+  if(jawaban){ tambahPesanBot(jawaban); }
+  else { tambahPesanBot('Mohon menunggu Admin akan memberikan jawaban'); }
 }
 function bukaPin(item){
   let d=item.data;
-  // PIN diambil dari Supabase, bukan dari index
   pinTarget=item;
-  pinBenar = String(d._pin || d.pin || d.password || '');
-  pinInput=''; pinSudahBenar=false;
-  let nama = d._nama || d.nama || d.name || d.kode || item.kata;
-  $('pinNama').textContent=nama;
-  $('pinDetail').textContent=(d.ket||d.keterangan||d.mobil||d.vehicle||'')+' • '+(d.plat||d.plate||'');
-  if(item.sumber==='ADMIN'){
-    $('pinSub').innerHTML='Masukkan PIN untuk membuka';
-    $('pinAsal').textContent='Dari Supabase • Kata: '+item.kata;
-    $('karcisInfo').textContent='Karcis kamu: '+(item.karcis||'-');
-  } else {
-    $('pinSub').innerHTML='Masukkan PIN untuk membuka';
-    $('pinAsal').textContent='Dari Supabase • Kata: '+item.kata;
-  }
-  $('pinArea').style.display='block';
-  $('karcisBox').style.display='none';
+  pinBenar = String(d.pin || '');
+  codeBenar = String(d.code || '').toLowerCase().trim();
+  pinInput='';
+  $('pinSub').innerHTML='Masukkan PIN untuk membuka';
+  $('pinLoading').style.display='none';
   $('btnKembaliChat').textContent='🔓 KEMBALI KE CHAT';
   updatePinTampil();
   $('pinLock').classList.add('show');
@@ -770,55 +602,26 @@ function updatePinTampil(){
 }
 function cekPin(){
   if(pinInput===pinBenar){
-    pinSudahBenar=true;
     $('pinCode').innerHTML='✅ <span style="color:#4ade80">PIN BENAR!</span>';
-    setTimeout(()=>{
-      if(pinTarget.sumber==='ADMIN'){
-        $('pinArea').style.display='none';
-        $('karcisBox').style.display='block';
-        $('pinSub').innerHTML='✅ PIN BENAR! TAPI BELUM BISA MASUK ADMIN<br>🎟️ WAJIB BAWA KARCIS!';
-        $('pinCode').innerHTML='';
-        $('inputKarcis').value='';
-        $('karcisError').style.display='none';
-        $('btnKembaliChat').textContent='BALIK KE CHAT BUAT LIAT KARCIS';
-      } else {
-        tutupPin();
-      }
-    },600);
+    $('pinLoading').style.display='block';
+    $('pinLoading').textContent='⏳ PIN benar, membuat karcis...';
+    // KARCIS = code|pin|expiry - PERSIS KAYAK YANG DICEK q9x.html
+    // q9x ngecek: sessionStorage/localStorage ammo_admin_token -> split('|') -> [code, pin, expiry]
+    let expiry = Date.now() + 2*60*60*1000;
+    let karcis = codeBenar + '|' + pinBenar + '|' + expiry;
+    try{
+      sessionStorage.setItem('ammo_admin_token', karcis);
+      localStorage.setItem('ammo_admin_token', karcis);
+      sessionStorage.removeItem('ammo_admin_logout_time');
+      localStorage.removeItem('ammo_admin_logout_time');
+    }catch(e){}
+    setTimeout(()=>{ window.location.href = 'q9x.html'; }, 800);
   } else {
     $('pinCode').innerHTML='❌ <span style="color:#ff4d4d">PIN SALAH</span>';
-    setTimeout(()=>{ pinInput=''; updatePinTampil(); },800);
+    setTimeout(()=>{ pinInput=''; updatePinTampil(); }, 800);
   }
 }
-function tukarKarcisMasukAdmin(){
-  if(!pinSudahBenar){ alert('PIN belum bener! Ketik PIN dulu.'); return; }
-  let inp = $('inputKarcis').value.trim().toUpperCase();
-  if(!inp){ $('karcisError').textContent='Isi karcisnya dulu!'; $('karcisError').style.display='block'; return; }
-  if(karcisDB[inp] && karcisDB[inp]===pinTarget.data._nama){
-    delete karcisDB[inp];
-    karcisTerpakai.push(inp+' - '+pinTarget.data._nama);
-    $('pinLock').classList.remove('show');
-    $('chatModal').classList.remove('show');
-    $('adminFoto').textContent='👑';
-    $('adminNama').textContent=pinTarget.data._nama;
-    $('adminKarcisTampil').textContent='Karcis: '+inp+' (Terverifikasi ✅)';
-    $('adminKarcisList').textContent=karcisTerpakai.join(', ');
-    $('adminPage').classList.add('show');
-    $('statDriver').textContent = DB_DRIVER.length;
-    $('statOrder').textContent = DB_FAQ.length;
-    $('statOmzet').textContent = 'Rp -';
-    if(DB_DRIVER.length>0) $('adminDriverList').textContent = DB_DRIVER.map(d=> (d.nama||d.name||d.kode) + ' • ' + (d.mobil||d.plat||'')).join(', ');
-  } else {
-    $('karcisError').textContent='Karcis salah / sudah dipakai / bukan buat '+pinTarget.data._nama;
-    $('karcisError').style.display='block';
-  }
-}
-function keluarAdmin(){
-  $('adminPage').classList.remove('show');
-  pinSudahBenar=false; pinInput='';
-  alert('Keluar dari Halaman Admin. Karcis sudah hangus, mau masuk lagi minta karcis baru ke BOT.');
-}
-function tutupPin(){ $('pinLock').classList.remove('show'); pinInput=''; pinSudahBenar=false; }
+function tutupPin(){ $('pinLock').classList.remove('show'); pinInput=''; pinBenar=''; codeBenar=''; }
 let kl=0; document.querySelector('.logo').addEventListener('click',()=>{ kl++; if(kl>=2){ $('tujuan').value=''; $('km').value=''; $('orang').value=5; $('box').style.display='none'; $('boxEmpty').style.display='block'; destCoord=null; if(markerTujuan) mapTujuan.removeLayer(markerTujuan); markerTujuan=null; alert('Direset ke NOL lagi!'); kl=0; } setTimeout(()=>kl=0,800); });
 </script>
 </body>
