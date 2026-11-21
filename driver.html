@@ -126,24 +126,21 @@ h2{font-size:18px;margin:14px 4px 10px}
 
 <div class="card">
   <b style="font-size:16px">👤 Data Diri Sopir</b>
-  <p style="font-size:12px;color:#888;margin:6px 0 14px">Bisa diedit, kecuali Kendaraan. Jangan lupa pencet SIMPAN.</p>
+  <p style="font-size:12px;color:#888;margin:6px 0 14px"></p>
 
   <div class="field">
     <label>Nama</label>
-    <input id="editNama" placeholder="Nama driver, misal: Ahmad">
-    <small>Bisa diedit</small>
+    <input id="editNama" placeholder="Nama driver">
   </div>
 
   <div class="field">
     <label>Nomor Telp</label>
     <input id="editTelp" type="tel" placeholder="08xxxxxxxxxx" inputmode="tel">
-    <small>Bisa diedit</small>
   </div>
 
   <div class="field">
     <label>Code</label>
     <input id="editCode" placeholder="sopir">
-    <small>Bisa diedit - ini yang diketik penumpang pake @, misal @sopir. Kalau diganti, login berikutnya pake code baru.</small>
   </div>
 
   <div class="field">
@@ -151,14 +148,11 @@ h2{font-size:18px;margin:14px 4px 10px}
     <div class="vehicleBox">
       <div><b id="editMobil">-</b><div style="font-size:12px;color:#aaa">Hanya tampil, tidak bisa diedit</div></div>
       <div class="plate" id="editPlat">-</div>
-    </div>
-    <small>Hanya tampil - kalau mau ganti mobil, hubungi Admin</small>
   </div>
 
   <div class="field">
     <label>Email</label>
     <input id="editEmail" type="email" placeholder="nama@email.com">
-    <small>Bisa diedit</small>
   </div>
 
   <button class="btn" onclick="simpanDataDiri()">💾 SIMPAN DATA DIRI</button>
