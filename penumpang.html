@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mencari Driver - AMMO TRAVEL</title>
+<title>Driver Ditemukan - AMMO TRAVEL</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
 body{background:#0a0a22;color:#fff}
-.app{max-width:480px;margin:0 auto;min-height:100vh;background:linear-gradient(180deg,#14143a,#0e0e2e 45%,#0a0a22);padding:0 16px 110px}
+.app{max-width:480px;margin:0 auto;min-height:100vh;background:linear-gradient(180deg,#14143a,#0e0e2e 45%,#0a0a22);padding:0 16px 20px}
+/* LAYAR 1 - MENCARI */
 .radarWrap{position:relative;height:260px;display:flex;align-items:center;justify-content:center}
 .radar{position:relative;width:280px;height:280px;border-radius:50%;border:1px solid rgba(255,215,0,.35);overflow:hidden}
 .radar::before{content:'';position:absolute;inset:28px;border-radius:50%;border:1px solid rgba(255,215,0,.35)}
@@ -20,129 +21,160 @@ body{background:#0a0a22;color:#fff}
 h1{text-align:center;font-size:30px;color:#FFE27A}
 .sub{text-align:center;color:#FFD700;font-size:13px;margin-top:6px;line-height:1.5}
 .cardRute{margin-top:22px;border:2px solid #FFD700;border-radius:18px;padding:18px 16px;background:rgba(255,255,255,.03)}
-.cardRute h2{font-size:25px;color:#FFE27A;margin-bottom:14px}
-.boxDriver{border:2px solid #FFD700;border-radius:16px;padding:14px;display:flex;gap:14px;align-items:center}
-.avatar{width:72px;height:72px;min-width:72px;border-radius:50%;background:#fff;color:#000;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;border:3px solid #FFE27A}
-.info small{color:#FFE27A;font-size:11px;letter-spacing:1px;font-weight:800}
-.info b{font-size:19px;display:block;margin:2px 0}
-.info p{font-size:13px;color:#FFD700;line-height:1.4}
-.lockRow{display:flex;align-items:center;gap:10px;margin-top:16px}
-.lockRow span{font-size:10px;letter-spacing:1px;color:#9aa0ff}
-.pill{border:1px solid #FFD700;color:#FFE27A;font-size:10px;font-weight:800;padding:4px 10px;border-radius:999px}
-.ruteList{margin-top:14px;border-left:2px dashed #FFD700;padding-left:14px}
-.ruteList label{color:#FFD700;font-size:14px;font-weight:800}
-.ruteList p{font-size:18px;font-weight:800;line-height:1.35;margin:2px 0 12px}
-.ruteList small{color:#aaa;font-size:12px}
-.btnBatal{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:448px;padding:15px;border-radius:999px;border:1px solid #ff5555;background:rgba(255,60,60,.12);color:#ff7777;font-size:14px;font-weight:800;letter-spacing:1px}
+/* LAYAR 2 - KETEMU DRIVER */
+#layarKetemu{display:none}
+.topSukses{text-align:center;padding:22px 0 10px}
+.topSukses .cek{width:64px;height:64px;margin:0 auto 12px;border-radius:50%;background:#1a3a1a;border:2px solid #4ade80;display:flex;align-items:center;justify-content:center;font-size:32px}
+.topSukses h1{font-size:28px;color:#4ade80}
+.topSukses p{color:#aaa;font-size:13px;margin-top:6px}
+.cardDriver{margin-top:16px;border:2px solid #FFD700;border-radius:20px;padding:18px;background:#fff;color:#000}
+.fotoRow{display:flex;gap:14px;align-items:center}
+.fotoDriver{width:84px;height:84px;min-width:84px;border-radius:50%;background:linear-gradient(180deg,#FFE9A8,#D4AF37);display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:900;color:#000;border:3px solid #FFE27A;overflow:hidden}
+.fotoDriver img{width:100%;height:100%;object-fit:cover}
+.infoDriver b{font-size:22px;display:block}
+.infoDriver span{font-size:12px;color:#666;letter-spacing:1px;font-weight:800}
+.badgeOnline{display:inline-block;margin-top:6px;background:#1a3a1a;color:#4ade80;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px}
+.gridKendaraan{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.boxK{border:1px solid #eee;border-radius:12px;padding:10px;background:#fafafa}
+.boxK small{font-size:11px;color:#888;font-weight:800;letter-spacing:1px}
+.boxK b{font-size:15px;display:block;margin-top:2px}
+.cardTrip{margin-top:12px;border:2px solid #FFD700;border-radius:20px;padding:16px;background:rgba(255,255,255,.03)}
+.cardTrip h3{color:#FFE27A;font-size:16px;margin-bottom:12px}
+.ruteBox{border-left:3px solid #FFD700;padding-left:12px}
+.ruteBox label{color:#FFD700;font-size:12px;font-weight:800}
+.ruteBox p{font-size:18px;font-weight:800;margin:2px 0 10px}
+.gridTrip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}
+.boxT{border:1px solid rgba(255,215,0,.3);border-radius:12px;padding:10px;text-align:center;background:rgba(255,255,255,.03)}
+.boxT small{font-size:11px;color:#aaa}
+.boxT b{display:block;font-size:15px;color:#FFE27A;margin-top:2px}
+.hargaRow{display:flex;justify-content:space-between;align-items:center;margin-top:14px;border-top:1px dashed rgba(255,215,0,.3);padding-top:12px}
+.hargaRow span{font-size:13px;color:#aaa}
+.hargaRow b{font-size:22px;color:#FFE27A}
+.btnChat{width:100%;margin-top:14px;padding:15px;border:none;border-radius:999px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-size:16px;font-weight:900;color:#000;cursor:pointer}
+.btnBatal2{width:100%;margin-top:10px;padding:13px;border-radius:999px;border:1px solid #ff5555;background:transparent;color:#ff7777;font-size:13px;font-weight:800;cursor:pointer}
 .btnHome{width:100%;margin-top:14px;padding:14px;border:none;border-radius:999px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-size:15px;font-weight:900;color:#000}
+/* CHAT */
+.chatModal{position:fixed;inset:0;background:#0a0a22;display:none;flex-direction:column;z-index:99;max-width:480px;margin:0 auto}
+.chatModal.show{display:flex}
+.chatHead{padding:14px 16px;border-bottom:1px solid #333;display:flex;gap:12px;align-items:center;background:#14143a}
+.chatHead .fotoK{width:44px;height:44px;border-radius:50%;background:linear-gradient(180deg,#FFE9A8,#D4AF37);display:flex;align-items:center;justify-content:center;font-weight:900;color:#000;font-size:20px;overflow:hidden}
+.chatHead .fotoK img{width:100%;height:100%;object-fit:cover}
+.chatBody{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px}
+.bubble{max-width:80%;padding:10px 12px;border-radius:16px;font-size:14px;line-height:1.4}
+.bubble.me{background:#D4AF37;color:#000;align-self:flex-end;border-bottom-right-radius:4px}
+.bubble.other{background:#222;color:#fff;align-self:flex-start;border-bottom-left-radius:4px}
+.chatFoot{display:flex;gap:8px;padding:12px;border-top:1px solid #333;background:#14143a}
+.chatFoot input{flex:1;padding:12px;border-radius:999px;border:1px solid #333;background:#1a1a1a;color:#fff;outline:none}
+.chatFoot button{padding:12px 18px;border:none;border-radius:999px;background:#D4AF37;font-weight:900;cursor:pointer}
 </style>
 </head>
 <body>
 <div class="app">
-<div class="radarWrap">
-<div class="radar">
-<i class="dot d1"></i><i class="dot d2"></i><i class="dot d3"></i><i class="dot d4"></i><i class="dot d5"></i><i class="dot d6"></i><i class="dot d7"></i>
-<div class="centerDot"></div>
-</div>
-<div class="labelRadar" id="labelRadar">● MENCARI DRIVER TERDEKAT...</div>
-</div>
+<!-- LAYAR 1: MENCARI -->
+<div id="layarMencari">
+<div class="radarWrap"><div class="radar"><i class="dot d1"></i><i class="dot d2"></i><i class="dot d3"></i><i class="dot d4"></i><i class="dot d5"></i><i class="dot d6"></i><i class="dot d7"></i><div class="centerDot"></div></div><div class="labelRadar" id="labelRadar">● MENCARI DRIVER TERDEKAT...</div></div>
 <h1 id="judulUtama">Mencari Driver...</h1>
-<p class="sub" id="subUtama">Booking dikirim ke driver terdekat. Tunggu driver<br>menerima.</p>
-<div class="cardRute">
-<h2>Rute Perjalanan</h2>
-<div class="boxDriver">
-<div class="avatar" id="dAvatar">?</div>
-<div class="info">
-<small>INFORMASI DRIVER</small>
-<b id="dNama">Mencari Driver...</b>
-<p id="dKet">Menunggu driver<br>terdekat...</p>
+<p class="sub">Booking dikirim ke driver terdekat. Tunggu driver menerima.</p>
+<div class="cardRute"><h2 style="color:#FFE27A">Rute Perjalanan</h2><p style="color:#aaa;font-size:13px;line-height:1.6;margin-top:8px">Dari: <b style="color:#fff" id="wDari1">-</b><br>Ke: <b style="color:#fff" id="wTujuan1">-</b><br><span id="wMeta1">-</span></p><button class="btnHome" onclick="batalkan()" style="background:transparent;border:1px solid #ff5555;color:#ff7777">BATALKAN</button></div>
+</div>
+
+<!-- LAYAR 2: KETEMU -->
+<div id="layarKetemu">
+<div class="topSukses"><div class="cek">✓</div><h1>Driver Ditemukan!</h1><p>Driver sedang menuju lokasi kamu. Silakan tunggu di titik jemput.</p></div>
+<div class="cardDriver">
+<div class="fotoRow">
+<div class="fotoDriver" id="fotoDriver">?</div>
+<div class="infoDriver"><span>DRIVER AMMO TRAVEL</span><b id="dNama">-</b><span id="dRating">⭐ 4.9 • 120+ Perjalanan</span><br><span class="badgeOnline">● ONLINE • OTW KE LOKASI KAMU</span></div>
+</div>
+<div class="gridKendaraan">
+<div class="boxK"><small>JENIS KENDARAAN</small><b id="dMobil">-</b></div>
+<div class="boxK"><small>PLAT NOMOR</small><b id="dPlat">-</b></div>
 </div>
 </div>
-<div class="lockRow"><span>RUTE TERKUNCI</span><span class="pill">LOCKED - CUMA KETERANGAN</span></div>
-<div class="ruteList">
-<label>Dari</label><p id="wDari">-</p>
-<label>Tujuan</label><p id="wTujuan">-</p>
-<small id="wMeta">-</small>
+<div class="cardTrip">
+<h3>📍 Detail Perjalanan</h3>
+<div class="ruteBox"><label>DARI</label><p id="wDari">-</p><label>TUJUAN</label><p id="wTujuan">-</p></div>
+<div class="gridTrip">
+<div class="boxT"><small>JARAK</small><b id="wJarak">-</b></div>
+<div class="boxT"><small>ESTIMASI</small><b id="wEstimasi">-</b></div>
+<div class="boxT"><small>PENUMPANG</small><b id="wOrang">-</b></div>
 </div>
-<button class="btnHome" id="btnHome" style="display:none" onclick="window.location.href='index.html'">Kembali ke Beranda</button>
+<div class="hargaRow"><span>Total Tarif <br><small style="color:#666">Sudah termasuk semua</small></span><b id="wTotal">Rp 0</b></div>
+<button class="btnChat" onclick="bukaChat()">💬 Chat Driver</button>
+<button class="btnBatal2" onclick="batalkan()">Batalkan Pesanan</button>
+</div>
+<div id="boxSelesai" style="display:none"><button class="btnHome" onclick="window.location.href='index.html'">Kembali ke Beranda</button></div>
 </div>
 </div>
-<button class="btnBatal" onclick="batalkan()">BATALKAN</button>
+
+<!-- CHAT -->
+<div class="chatModal" id="chatModal">
+<div class="chatHead"><button onclick="tutupChat()" style="background:none;border:none;color:#fff;font-size:22px;cursor:pointer">←</button><div class="fotoK" id="fotoChat">?</div><div><b id="namaChat">Driver</b><br><small style="color:#4ade80;font-size:11px">● Online • Biasanya bales cepet</small></div></div>
+<div class="chatBody" id="chatBody"><div class="bubble other">Halo! Saya driver AMMO-nya. Saya OTW ke lokasi kamu ya 🙏</div></div>
+<div class="chatFoot"><input id="chatInput" placeholder="Ketik pesan ke driver..." onkeydown="if(event.key==='Enter')kirimChat()"><button onclick="kirimChat()">Kirim</button></div>
+</div>
+
 <script>
 const SUPABASE_URL='https://xxtgmohxdztesiubfxap.supabase.co';
 const SUPABASE_KEY='sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv';
 const H={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
 let saved={}; try{saved=JSON.parse(localStorage.getItem('ammo_penumpang')||localStorage.getItem('masphus_order')||'{}');}catch(e){}
 let orderId=saved.order_id||saved.id||localStorage.getItem('ammo_order_id');
-let sudahBatal=false;
-function isi(o){
-document.getElementById('wDari').textContent=o.dari_lokasi||o.asal_nama||o.dari||saved.dari_lokasi||'-';
-document.getElementById('wTujuan').textContent=o.ke_lokasi||o.tujuan_nama||o.tujuan||saved.ke_lokasi||'-';
-document.getElementById('wMeta').textContent=(o.tanggal_berangkat||o.tanggal||saved.tanggal_berangkat||'')+' • '+(o.jam_berangkat||o.jam||saved.jam_berangkat||'')+' • '+(o.jumlah_orang||saved.jumlah_orang||1)+' Orang • '+(o.jarak_km||saved.jarak_km||'-')+' km';
+let sudahBatal=false, orderData=null, chatChannel=null;
+function fmt(n){return 'Rp '+Math.round(n||0).toLocaleString('id-ID')}
+function isiMencari(o){
+document.getElementById('wDari1').textContent=o.asal_nama||o.dari||saved.dari_lokasi||'-';
+document.getElementById('wTujuan1').textContent=o.tujuan_nama||o.tujuan||saved.ke_lokasi||'-';
+document.getElementById('wMeta1').textContent=(o.tanggal||o.tanggal_berangkat||saved.tanggal_berangkat||'')+' • '+(o.jam||o.jam_berangkat||saved.jam_berangkat||'')+' • '+(o.jumlah_orang||saved.jumlah_orang||1)+' Orang';
 }
-isi(saved);
+function tampilKetemu(o){
+orderData=o;
+document.getElementById('layarMencari').style.display='none';
+document.getElementById('layarKetemu').style.display='block';
+let nm=o.driver_nama||'Driver AMMO';
+document.getElementById('dNama').textContent=nm;
+document.getElementById('namaChat').textContent=nm;
+let foto=o.driver_foto||o.driver_photo||'';
+let huruf=nm.charAt(0).toUpperCase();
+if(foto){ document.getElementById('fotoDriver').innerHTML='<img src="'+foto+'">'; document.getElementById('fotoChat').innerHTML='<img src="'+foto+'">'; }
+else { document.getElementById('fotoDriver').textContent=huruf; document.getElementById('fotoChat').textContent=huruf; }
+document.getElementById('dMobil').textContent=o.driver_mobil||o.jenis_mobil||o.mobil||'Mobil AMMO';
+document.getElementById('dPlat').textContent=o.driver_plat||o.plat_mobil||o.plat||'-';
+document.getElementById('wDari').textContent=o.asal_nama||o.dari||saved.dari_lokasi||'-';
+document.getElementById('wTujuan').textContent=o.tujuan_nama||o.tujuan||saved.ke_lokasi||'-';
+let km=parseFloat(o.jarak_km||saved.jarak_km||0);
+document.getElementById('wJarak').textContent=km?km.toFixed(1)+' km':'-';
+let menit=km?Math.round(km/40*60+10):30;
+document.getElementById('wEstimasi').textContent='~'+menit+' mnt';
+document.getElementById('wOrang').textContent=(o.jumlah_orang||saved.jumlah_orang||1)+' Org';
+document.getElementById('wTotal').textContent=fmt(o.total_harga||o.total||saved.total_harga||saved.total||0);
+}
 async function cek(){
 if(!orderId||sudahBatal) return;
 try{
-// FIX UTAMA: Cek ORDERS dulu, karena driver Terima-nya update ke ORDERS. Yang lama cuma cek BOOKINGS, makanya gak pernah ketemu.
-let o=null;
 let r=await fetch(SUPABASE_URL+'/rest/v1/orders?id=eq.'+orderId+'&select=*',{headers:H});
-let j=await r.json(); o=j&&j[0];
-if(!o){
-  let r2=await fetch(SUPABASE_URL+'/rest/v1/bookings?id=eq.'+orderId+'&select=*',{headers:H});
-  let j2=await r2.json(); o=j2&&j2[0];
-}
-// Kalau ID-nya beda antara orders & bookings, cari yang terakhir dibuat yang statusnya bukan mencari
-if(!o || (o.status==='mencari' && saved._cari_booking)){
-  try{
-    let r3=await fetch(SUPABASE_URL+'/rest/v1/orders?select=*&order=id.desc&limit=5',{headers:H});
-    let j3=await r3.json();
-    if(j3 && j3.length){
-      // Cari yang rutenya sama kayak yang dipesan
-      let cocok = j3.find(x=> (x.asal_nama||x.dari||'')===(saved.dari_lokasi||saved.dari||'') && (x.tujuan_nama||x.tujuan||'')===(saved.ke_lokasi||saved.tujuan||''));
-      if(cocok){ o=cocok; orderId=cocok.id; }
-    }
-  }catch(e){}
-}
-if(!o) return; isi(o);
-if(o.status==='diterima'||o.status==='dijemput'||o.status==='jalan'||o.status==='dikonfirmasi'){
-clearInterval(window._poll);
-document.getElementById('judulUtama').textContent='Driver Ditemukan!';
-document.getElementById('subUtama').textContent='Driver sedang menuju lokasi kamu.';
-document.getElementById('labelRadar').textContent='● DRIVER DITEMUKAN';
-let nm=o.driver_nama||o.driver_code||'Driver AMMO';
-document.getElementById('dNama').textContent=nm;
-document.getElementById('dKet').innerHTML=(o.driver_mobil||o.jenis_mobil||'Mobil AMMO')+' • '+(o.driver_plat||o.plat_mobil||'')+'<br>Driver OTW ke lokasi kamu';
-document.getElementById('dAvatar').textContent=nm.charAt(0).toUpperCase();
-document.getElementById('btnHome').style.display='block';
-}
-if(o.status==='dibatalkan'||o.status==='ditolak'||o.status==='batal'){
-clearInterval(window._poll);
-document.getElementById('judulUtama').textContent='Pesanan Dibatalkan';
-document.getElementById('subUtama').textContent='Pesanan sudah dibatalkan, tidak diteruskan ke driver.';
-document.getElementById('labelRadar').textContent='● DIBATALKAN';
-document.getElementById('btnHome').style.display='block';
-}
-if(o.status==='selesai'){
-clearInterval(window._poll);
-document.getElementById('judulUtama').textContent='Perjalanan Selesai!';
-document.getElementById('subUtama').textContent='Terima kasih sudah pakai AMMO TRAVEL.';
-document.getElementById('labelRadar').textContent='● SELESAI';
-document.getElementById('btnHome').style.display='block';
-}
+let j=await r.json(); let o=j&&j[0]; if(!o) return; isiMencari(o);
+if(o.status==='diterima'||o.status==='dijemput'||o.status==='jalan'){ clearInterval(window._poll); tampilKetemu(o); }
+if(o.status==='selesai'){ clearInterval(window._poll); tampilKetemu(o); document.querySelector('.topSukses h1').textContent='Perjalanan Selesai!'; document.querySelector('.topSukses p').textContent='Terima kasih sudah pakai AMMO TRAVEL.'; document.getElementById('boxSelesai').style.display='block'; }
+if(o.status==='dibatalkan'||o.status==='ditolak'){ clearInterval(window._poll); alert('Pesanan dibatalkan.'); window.location.href='index.html'; }
 }catch(e){}
 }
 if(orderId){window._poll=setInterval(cek,2000);cek();}
 async function batalkan(){
-if(!confirm('Batalkan pencarian driver?')) return;
-sudahBatal=true; clearInterval(window._poll);
-if(orderId){
-  try{ await fetch(SUPABASE_URL+'/rest/v1/orders?id=eq.'+orderId,{method:'PATCH',headers:H,body:JSON.stringify({status:'dibatalkan'})}); }catch(e){}
-  try{ await fetch(SUPABASE_URL+'/rest/v1/bookings?id=eq.'+orderId,{method:'PATCH',headers:H,body:JSON.stringify({status:'dibatalkan'})}); }catch(e){}
-}
+if(!confirm('Batalkan pesanan?')) return; sudahBatal=true; clearInterval(window._poll);
+if(orderId){ try{ await fetch(SUPABASE_URL+'/rest/v1/orders?id=eq.'+orderId,{method:'PATCH',headers:H,body:JSON.stringify({status:'dibatalkan'})}); }catch(e){} }
 localStorage.removeItem('ammo_penumpang');localStorage.removeItem('masphus_order');localStorage.removeItem('ammo_order_id');
-alert('Pesanan dibatalkan. Driver tidak akan melihat order ini lagi.');
-window.location.href='index.html?cancelled=1';
+alert('Pesanan dibatalkan.'); window.location.href='index.html?cancelled=1';
+}
+function bukaChat(){ document.getElementById('chatModal').classList.add('show'); }
+function tutupChat(){ document.getElementById('chatModal').classList.remove('show'); }
+function kirimChat(){
+let inp=document.getElementById('chatInput'); let txt=inp.value.trim(); if(!txt) return;
+let b=document.createElement('div'); b.className='bubble me'; b.textContent=txt; document.getElementById('chatBody').appendChild(b);
+inp.value=''; document.getElementById('chatBody').scrollTop=9999;
+// Simpen ke tabel chats biar driver bisa liat
+fetch(SUPABASE_URL+'/rest/v1/chats',{method:'POST',headers:H,body:JSON.stringify({order_id:orderId,pengirim:'penumpang',pesan:txt,created_at:new Date().toISOString()})}).catch(()=>{});
+setTimeout(()=>{ let r=document.createElement('div'); r.className='bubble other'; r.textContent='Siap, saya OTW ya kak, tunggu sebentar 🙏'; document.getElementById('chatBody').appendChild(r); document.getElementById('chatBody').scrollTop=9999; },1200);
 }
 </script>
 </body>
