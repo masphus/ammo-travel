@@ -152,8 +152,7 @@ input:focus,select:focus{border-color:#D4AF37}
       <option value="7">7 Orang</option>
     </select>
   </div>
-  <!-- JARAK DIHILANGKAN DARI LAYAR - disembunyiin biar harga tetep jalan, nanti isi baru di sini -->
-  <input id="km" type="hidden" value="">
+  <div class="field"><label>📏 Jarak (Real dari Maps)</label><input id="km" placeholder="-" readonly></div>
 </div>
 <div class="priceBox" id="boxEmpty"><div class="priceTop"><b>Total Harga</b><span class="priceVal">-</span></div><p class="note">Pilih Dari & Tujuan dari Maps, harga real langsung muncul. Tol / Parkir / Penyeberangan dibebankan ke Penumpang.</p></div>
 <div class="priceBox" id="box" style="display:none">
@@ -192,17 +191,12 @@ input:focus,select:focus{border-color:#D4AF37}
 <div class="logo">AMMO TRAVEL</div><h1>Perjalanan Kamu</h1>
 <div id="listTrip"><div class="item"><b>Belum ada perjalanan</b><p>Pesan dulu, nanti muncul di sini.</p></div></div>
 </div>
-<div id="p-profil" class="page">
-<div style="text-align:center;padding:30px 0"><div style="width:90px;height:90px;border-radius:50%;background:linear-gradient(180deg,#FFE9A8,#D4AF37);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:40px;color:#000">👤</div><h2>Ko Cheng</h2><p style="color:#D4AF37;margin-top:6px">Member Gold • AMMO TRAVEL</p></div>
-<div class="item"><b>📍 Alamat</b><p>Jalan Muara Raya, Pelindung</p></div>
-<div class="item"><b>🎟️ Voucher Terkumpul</b><p id="voucherTotal">Rp 0</p></div>
-</div>
 </div>
 <button class="chatFab" id="chatFab" onclick="bukaChat()">💬<span class="chatBadge" id="chatBadge">1</span></button>
 <div class="nav">
 <button class="active" onclick="nav('beranda',this)"><span>🏠</span>Beranda</button>
 <button onclick="nav('perjalanan',this)"><span>🧳</span>Perjalanan</button>
-<button onclick="nav('profil',this)"><span>👤</span>Profil</button>
+<button onclick="window.location.href='akun.html'"><span>👤</span>Profil</button>
 </div>
 <div class="modal" id="modal"><div class="modalBox"><h2 id="modalTitle">Mencari Driver...</h2><div class="spinner" id="spin"></div><p id="modalText" style="color:#aaa;font-size:14px;line-height:1.5"></p></div></div>
 <div class="chatModal" id="chatModal">
@@ -223,7 +217,6 @@ input:focus,select:focus{border-color:#D4AF37}
     <button onclick="kirimChat()">➤</button>
   </div>
 </div>
-<!-- PIN - BLACK & GOLD, SINGA, NOMOR DI DALAM KOTAK, TANPA TULISAN -->
 <div class="pinLock" id="pinLock">
   <div class="pinBox">
     <button class="pinClose" onclick="tutupPin()">×</button>
@@ -412,7 +405,7 @@ function tukar(){
   hitungJarakReal();
 }
 $('orang').addEventListener('change',()=>{ let km=parseFloat($('km').value)||0; if(km) tampilkanHarga(km,0,'OSRM'); });
-function nav(p,btn){ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active')); $('p-'+p).classList.add('active'); document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); window.scrollTo(0,0); setTimeout(()=>{ mapDari.invalidateSize(); mapTujuan.invalidateSize(); },100); }
+function nav(p,btn){ if(p==='profil'){ window.location.href='akun.html'; return; } document.querySelectorAll('.page').forEach(x=>x.classList.remove('active')); $('p-'+p).classList.add('active'); document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); window.scrollTo(0,0); setTimeout(()=>{ mapDari.invalidateSize(); mapTujuan.invalidateSize(); },100); }
 async function pesan(){
   if(orderAktif){ alert('Orderan kamu lagi jalan!'); return; }
   if(!pickCoord||!destCoord){ alert('Pilih Dari & Tujuan dari Maps dulu!'); return; }
@@ -453,7 +446,7 @@ function driverDitemukan(){
   setChatModeDriver();
   $('chatBody').innerHTML='';
   tambahPesanDriver(`Halo Kak! Saya <b>${nama}</b> 🙏 Saya yang terima orderan Kakak.`);
-  let v=parseInt(localStorage.getItem('ammo_voucher')||'0')+voucherDapat; localStorage.setItem('ammo_voucher',v); $('voucherTotal').textContent=fmt(v);
+  let v=parseInt(localStorage.getItem('ammo_voucher')||'0')+voucherDapat; localStorage.setItem('ammo_voucher',v); if($('voucherTotal')) $('voucherTotal').textContent=fmt(v);
   $('listTrip').innerHTML=`<div class="item"><b>${nama} • ${mobil} • ${plat}</b><p>${$('dari').value} → ${$('tujuan').value}</p><p>${$('km').value} • ${$('orang').value} Orang • Driver OTW</p><p style="color:#E8C766;font-weight:800">${fmt(totalHarga)}</p><button onclick="bukaChat()" style="margin-top:8px;padding:8px 14px;border:1px solid #D4AF37;background:#1a1a1a;color:#E8C766;border-radius:10px;font-weight:800;cursor:pointer">💬 CHAT ${nama}</button></div>`+$('listTrip').innerHTML;
 }
 function batalOrder(){
