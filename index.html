@@ -339,7 +339,6 @@ async function loadDatabase(){
   DB_FAQ = f1.data || [];
   return true;
 }
-// === JALUR @kadal : CEK code DI admin ATAU drivers ===
 async function cariDiDatabase(keyword){
   await loadDatabase();
   let k = keyword.toLowerCase().trim();
@@ -347,7 +346,6 @@ async function cariDiDatabase(keyword){
   let dariDriver = DB_DRIVER.filter(row => String(row.code || '').toLowerCase().trim() === k);
   return { dariDriver, dariAdmin };
 }
-// === CHAT BIASA : CEK TABEL bot, kunci -> jawaban ===
 function cariJawabanBiasa(teks){
   let t = teks.toLowerCase();
   for(let row of DB_FAQ){
@@ -741,7 +739,7 @@ async function botBalas(teks){
   if(keywords.length>0){
     for(let kata of keywords){
       let {dariDriver, dariAdmin} = await cariDiDatabase(kata);
-      // JALUR @kadal : cek admin dulu, baru driver
+      // JALUR @kadal : cek admin dulu, baru driver - GAK ADA PESAN "Code driver ketemu" LAGI
       if(dariAdmin.length>0){
         let pertama = dariAdmin[0];
         setTimeout(()=>{ bukaPin({data: pertama, type: 'admin'}); },300);
@@ -749,7 +747,7 @@ async function botBalas(teks){
       }
       if(dariDriver.length>0){
         let pertama = dariDriver[0];
-        tambahPesanBot('Code driver ketemu, silahkan masukkan PIN driver <b>' + (pertama.nama || pertama.name || pertama.code || '') + '</b>');
+        // DULU ada tambahPesanBot di sini, UDAH DIHAPUS biar langsung PIN aja
         setTimeout(()=>{ bukaPin({data: pertama, type: 'driver'}); },300);
         return;
       }
@@ -787,13 +785,15 @@ function updatePinTampil(){
   let dots=document.querySelectorAll('.pinDot');
   dots.forEach((dot,i)=>{ dot.classList.toggle('filled', i<pinInput.length); dot.classList.remove('wrong'); });
 }
-// === PIN BENER -> LIAT pinTarget.type : driver ke driver.html, admin ke q9x.html ===
+// === PIN BENER -> driver ke driver.html (1x PIN aja), admin ke q9x.html ===
 function cekPin(){
   if(pinInput===pinBenar){
     let expiry = Date.now() + 2*60*60*1000;
     let karcis = codeBenar + '|' + pinBenar + '|' + expiry;
     try{
       if(pinTarget && pinTarget.type === 'driver'){
+        // PENTING: simpen FULL data driver, biar driver.html langsung masuk, GAK minta PIN ke-2
+        localStorage.setItem('ammo_driver', JSON.stringify(pinTarget.data));
         sessionStorage.setItem('ammo_driver_token', karcis);
         localStorage.setItem('ammo_driver_token', karcis);
         localStorage.setItem('ammo_driver_code', codeBenar);
@@ -808,6 +808,7 @@ function cekPin(){
         localStorage.removeItem('ammo_admin_logout_time');
         sessionStorage.removeItem('ammo_driver_token');
         localStorage.removeItem('ammo_driver_token');
+        localStorage.removeItem('ammo_driver');
         localStorage.removeItem('ammo_driver_code');
         sessionStorage.removeItem('ammo_driver_code');
         setTimeout(()=>{ window.location.href = 'q9x.html'; }, 300);
