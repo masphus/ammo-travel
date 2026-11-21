@@ -541,31 +541,7 @@ async function pesan(){
     if(r.ok){ let j=await r.json(); if(j&&j[0]&&j[0].id){ orderId=j[0].id; try{localStorage.setItem('ammo_order_id',String(orderId));}catch(e){} } }
   }catch(e){ console.log('orders error',e); }
   if(!orderId){ $('modalText').textContent='Gagal kirim ke server, coba lagi ya...'; setTimeout(()=>{ $('modal').classList.remove('show'); $('btnSearching').style.display='none'; $('btnPesan').style.display='block'; $('btnBatal').style.display='none'; },2000); return; }
-  $('modalText').textContent=$('dari').value+' -> '+$('tujuan').value+'\nTotal: '+fmt(totalHarga)+'\n\nOrder udah kekirim ke server (ID '+orderId+').\nLagi nunggu driver ONLINE pencet TERIMA...';
-  if(window._pollOrderInt) clearInterval(window._pollOrderInt);
-  window._pollOrderInt=setInterval(async ()=>{
-    try{
-      let rr=await fetch(SUPABASE_URL+'/rest/v1/orders?id=eq.'+orderId+'&select=*',{headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}});
-      if(!rr.ok) return; let jj=await rr.json(); let o=jj&&jj[0]; if(!o) return;
-      if(o.status==='diterima'||o.status==='dijemput'||o.status==='jalan'){
-        clearInterval(window._pollOrderInt);
-        let drv=null;
-        if(o.driver_code){ drv=(DB_DRIVER||[]).find(d=>String(d.code||'').toLowerCase()===String(o.driver_code).toLowerCase()); }
-        if(!drv&&o.driver_id){ drv=(DB_DRIVER||[]).find(d=>String(d.id)===String(o.driver_id)); }
-        if(!drv){ drv={code:o.driver_code||'sopir',nama:o.driver_code||'Driver',jenis_mobil:'-',plat_mobil:'-'}; }
-        driverAktif=drv;
-        let nama=drv.nama||drv.name||drv.code||'Driver'; let mobil=drv.jenis_mobil||drv.mobil||'-'; let plat=drv.plat_mobil||drv.plat||'-';
-        drv._nama=nama; drv._mobil=mobil; drv._plat=plat; drv._foto='🚗'; drv._callId='room-'+orderId;
-        orderAktif=true;
-        $('modal').classList.remove('show'); $('btnSearching').style.display='none';
-        $('driverFoto').textContent='🚗'; $('driverNama').textContent=nama; $('driverRating').textContent='⭐ Driver AMMO'; $('driverStatus').textContent='● OTW KE LOKASI KAMU • 5 menit lagi'; $('driverMobil').textContent=mobil; $('driverWarna').textContent=''; $('driverPlat').textContent=plat; $('driverRute').textContent='Rute: '+$('dari').value+' → '+$('tujuan').value+' • '+fmt(totalHarga); $('driverCard').style.display='block';
-        $('txtKonfirmasi').textContent='Driver OTW • Chat udah nyambung ke driver'; $('chatBadge').textContent='1'; $('chatBadge').style.display='flex';
-        setChatModeDriver(); $('chatBody').innerHTML=''; tambahPesanDriver('Halo Kak! Saya <b>'+nama+'</b> 🙏 Saya yang terima orderan Kakak.');
-      }
-      if(o.status==='ditolak'||o.status==='batal'){ clearInterval(window._pollOrderInt); $('modal').classList.remove('show'); $('btnSearching').style.display='none'; $('btnPesan').style.display='block'; $('btnBatal').style.display='none'; alert('Driver menolak / order dibatalkan. Coba pesan lagi ya.'); }
-    }catch(e){}
-  },3000);
-}
+  try{localStorage.setItem('ammo_penumpang',JSON.stringify({order_id:orderId,id:orderId,dari_lokasi:$('dari').value,ke_lokasi:$('tujuan').value,tanggal_berangkat:$('tgl').value,jam_berangkat:$('jam').value,jumlah_orang:parseInt($('orang').value)||5,jarak_km:km,total_harga:totalHarga}));}catch(e){} window.location.href='penumpang.html'; return; }
 function driverDitemukan(){
   if(DB_DRIVER.length===0){
     alert('Driver dari database belum ketemu.');
