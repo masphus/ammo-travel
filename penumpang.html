@@ -124,7 +124,6 @@ body{background:#000;display:flex;justify-content:center}
 <button class="btn-chat" id="btnChat" onclick="bukaChat()">💬 Chat Driver</button>
 <button class="btn-batal" onclick="batalkanPesanan()">Batalkan Pesanan</button>
 </div>
-
 <div id="chatModal" class="chat-modal">
 <div class="chat-box">
 <div class="chat-head">
@@ -139,7 +138,6 @@ body{background:#000;display:flex;justify-content:center}
 <button class="chat-close" onclick="tutupChat()">Tutup Chat</button>
 </div>
 </div>
-
 <div id="modalKembali" class="notif-modal">
 <div class="notif-box">
 <div class="ikon">⚠️</div>
@@ -151,7 +149,6 @@ body{background:#000;display:flex;justify-content:center}
 </div>
 </div>
 </div>
-
 <div id="modalBatal" class="notif-modal">
 <div class="notif-box">
 <div class="spinner"></div>
@@ -159,7 +156,6 @@ body{background:#000;display:flex;justify-content:center}
 <p>Mengirim pemberitahuan pembatalan ke driver...</p>
 </div>
 </div>
-
 <div id="modalBatalSukses" class="notif-modal">
 <div class="notif-box">
 <div class="ikon">✅</div>
@@ -169,7 +165,6 @@ body{background:#000;display:flex;justify-content:center}
 <button class="btn-ok-notif" onclick="selesaiBatalKeIndex()">OK, Kembali ke Beranda Sekarang</button>
 </div>
 </div>
-
 <div id="modalNaik" class="notif-modal">
 <div class="notif-box">
 <div class="ikon">🚗</div>
@@ -181,7 +176,6 @@ body{background:#000;display:flex;justify-content:center}
 </div>
 </div>
 </div>
-
 <div id="modalSelesai" class="notif-modal">
 <div class="notif-box">
 <div class="ikon">📍</div>
@@ -193,17 +187,14 @@ body{background:#000;display:flex;justify-content:center}
 </div>
 </div>
 </div>
-
 <script>
 try{
   window.supabaseClient = supabase.createClient("https://xxtgmohxdztesiubfxap.supabase.co", "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv");
 }catch(e){ window.supabaseClient = null; }
-
 const saved = JSON.parse(localStorage.getItem('masphus_order') || 'null');
 const ASAL_NAMA = (saved && saved.asal && saved.asal.nama) ? saved.asal.nama : '-';
 const TUJUAN_NAMA = (saved && saved.tujuan && saved.tujuan.nama) ? saved.tujuan.nama : '-';
 let bookingId = (saved && saved.booking_id) ? saved.booking_id : localStorage.getItem('ammo_booking_id') || null;
-
 let driverDitemukan = false;
 let bolehKeluar = false;
 let lagiTampilNotif = false;
@@ -213,14 +204,11 @@ let sudahTampilNaik = false;
 let sudahTampilSelesai = false;
 let lastChatIds = new Set();
 let namaDriverAktif = '';
-
 document.getElementById('wDari').textContent = ASAL_NAMA;
 document.getElementById('wTujuan').textContent = TUJUAN_NAMA;
-
 function fmtRp(n){ return 'Rp. ' + Math.round(n).toLocaleString('id-ID'); }
 function fmtJarak(m){ let km = m/1000; return km >= 100 ? Math.round(km) + ' km' : km.toFixed(1).replace('.',',') + ' km'; }
 function fmtEstimasi(d){ let m = Math.round(d/60), h = Math.floor(m/60), hari = Math.floor(h/24); h = h % 24; let s = m % 60; if(hari > 0) return hari + ' hari ' + (h > 0 ? h + ' jam' : ''); if(h > 0) return h + ' jam ' + (s > 0 ? s + ' menit' : ''); return m + ' menit'; }
-
 function buatTitikRadar(){
   let w = document.getElementById('titikWrap');
   if(!w) return;
@@ -235,7 +223,6 @@ function buatTitikRadar(){
 }
 buatTitikRadar();
 setInterval(buatTitikRadar, 6000);
-
 function tampilkanTarifDariIndex(){
   if(saved && saved.total_harga){
     if(saved.jarak_meter) document.getElementById('wJarak').textContent = '~ ' + fmtJarak(saved.jarak_meter);
@@ -247,7 +234,6 @@ function tampilkanTarifDariIndex(){
   }
   return false;
 }
-
 async function buatBookingJikaBelum(){
   if(bookingId || !saved || !window.supabaseClient) return;
   try{
@@ -278,14 +264,12 @@ async function buatBookingJikaBelum(){
     }
   }catch(e){}
 }
-
 function updateDriverTop(nama, foto, kendaraan, plat){
   if(foto) document.getElementById('wDriverFoto').src = foto;
   if(nama) document.getElementById('wDriverNama').textContent = nama;
   if(kendaraan) document.getElementById('wDriverKendaraan').textContent = kendaraan;
   if(plat) document.getElementById('wDriverPlat').textContent = plat;
 }
-
 async function cekBooking(){
   if(!bookingId || !window.supabaseClient) return;
   try{
@@ -344,7 +328,6 @@ async function cekBooking(){
     }
   }catch(e){}
 }
-
 async function jawabNaik(ya){
   document.getElementById('modalNaik').classList.remove('show');
   if(!window.supabaseClient || !bookingId) return;
@@ -359,7 +342,6 @@ async function jawabNaik(ya){
     }
   }catch(e){}
 }
-
 async function jawabSelesai(ya){
   document.getElementById('modalSelesai').classList.remove('show');
   if(!window.supabaseClient || !bookingId) return;
@@ -373,7 +355,6 @@ async function jawabSelesai(ya){
     }
   }catch(e){}
 }
-
 function renderChatItem(c){
   let isi = document.getElementById('chatIsi');
   let div = document.createElement('div');
@@ -383,7 +364,6 @@ function renderChatItem(c){
   isi.appendChild(div);
   isi.scrollTop = isi.scrollHeight;
 }
-
 async function muatChat(pertama){
   if(!bookingId || !window.supabaseClient) return;
   try{
@@ -397,10 +377,8 @@ async function muatChat(pertama){
     }
   }catch(e){}
 }
-
 function bukaChat(){ document.getElementById('chatModal').classList.add('show'); muatChat(false); }
 function tutupChat(){ document.getElementById('chatModal').classList.remove('show'); }
-
 async function kirimChat(){
   let inp = document.getElementById('chatInput');
   let teks = inp.value.trim();
@@ -415,9 +393,7 @@ async function kirimChat(){
     setTimeout(() => muatChat(false), 500);
   }catch(e){ renderChatItem({ sender: 'penumpang', message: teks }); }
 }
-
 document.getElementById('chatInput').addEventListener('keypress', function(e){ if(e.key === 'Enter') kirimChat(); });
-
 function tampilkanNotifKembali(){
   if(driverDitemukan){
     document.getElementById('teksKembali').innerHTML = 'Driver <b>' + namaDriverAktif + '</b> sudah OTW ke titik jemputmu.<br>Yakin ingin membatalkan perjalanan ini?';
@@ -426,14 +402,12 @@ function tampilkanNotifKembali(){
   }
   document.getElementById('modalKembali').classList.add('show');
 }
-
 function kunciBack(){
   history.pushState({ page: 'penumpang-lock' }, '', location.href);
   history.pushState({ page: 'penumpang-lock' }, '', location.href);
   history.pushState({ page: 'penumpang-lock' }, '', location.href);
 }
 kunciBack();
-
 window.addEventListener('popstate', function(){
   if(bolehKeluar) return;
   kunciBack();
@@ -441,26 +415,21 @@ window.addEventListener('popstate', function(){
   lagiTampilNotif = true;
   tampilkanNotifKembali();
 });
-
 function kembaliKeIndex(){
   if(!saved && !driverDitemukan){ bersihkanDanKembali(); return; }
   tampilkanNotifKembali();
 }
-
 function konfirmasiKembaliLanjut(){
   document.getElementById('modalKembali').classList.remove('show');
   lagiTampilNotif = false;
   setTimeout(kunciBack, 50);
 }
-
 function konfirmasiKembaliYa(){
   document.getElementById('modalKembali').classList.remove('show');
   lagiTampilNotif = false;
   jalankanPembatalan();
 }
-
 function batalkanPesanan(){ jalankanPembatalan(); }
-
 async function jalankanPembatalan(){
   document.getElementById('modalBatal').classList.add('show');
   try{
@@ -472,12 +441,10 @@ async function jalankanPembatalan(){
     setTimeout(()=>{ bersihkanDanKembali(); }, 1800);
   }, 1500);
 }
-
 function selesaiBatalKeIndex(){
   document.getElementById('modalBatalSukses').classList.remove('show');
   bersihkanDanKembali();
 }
-
 function bersihkanDanKembali(){
   bolehKeluar = true;
   try{ localStorage.removeItem('masphus_order'); localStorage.removeItem('ammo_booking_id'); localStorage.removeItem('ammo_pending_order'); localStorage.removeItem('ammo_mau_order'); localStorage.removeItem('ammo_current_order'); }catch(e){}
@@ -486,11 +453,9 @@ function bersihkanDanKembali(){
   sessionStorage.removeItem('ammo_from_index');
   window.location.href = 'index.html?reset=1';
 }
-
 function toggleEditTujuan(){ let box=document.getElementById('boxEditTujuan'); let btn=document.getElementById('btnEditTujuan'); let isOpen=box.style.display==='block'; if(isOpen){ box.style.display='none'; btn.textContent='EDIT TUJUAN'; btn.classList.remove('on'); } else { box.style.display='block'; btn.textContent='TUTUP EDIT'; btn.classList.add('on'); document.getElementById('editDari').value=document.getElementById('wDari').textContent; document.getElementById('editTujuan').value=document.getElementById('wTujuan').textContent; } }
 function simpanEditTujuan(){ let d=document.getElementById('editDari').value.trim(); let tj=document.getElementById('editTujuan').value.trim(); if(!d||!tj){ alert('Dari & Tujuan gak boleh kosong'); return; } document.getElementById('wDari').textContent=d; document.getElementById('wTujuan').textContent=tj; try{ let s=JSON.parse(localStorage.getItem('masphus_order')||'null'); if(s){ if(s.asal) s.asal.nama=d; else s.asal={nama:d}; if(s.tujuan) s.tujuan.nama=tj; else s.tujuan={nama:tj}; localStorage.setItem('masphus_order', JSON.stringify(s)); } }catch(e){} toggleEditTujuan(); alert('Tujuan diupdate!'); }
 function editLewatMaps(){ try{ let s=JSON.parse(localStorage.getItem('masphus_order')||'null')||{}; s.asal={nama:document.getElementById('editDari').value.trim()||document.getElementById('wDari').textContent}; s.tujuan={nama:document.getElementById('editTujuan').value.trim()||document.getElementById('wTujuan').textContent}; s.edit_mode=true; localStorage.setItem('masphus_order', JSON.stringify(s)); }catch(e){} bolehKeluar=true; window.location.href='index.html?edit=1'; }
-
 function cekAdaBooking(){
   try{
     let s = JSON.parse(localStorage.getItem('masphus_order') || 'null');
@@ -499,10 +464,17 @@ function cekAdaBooking(){
   }catch(e){ return false; }
 }
 async function init(){
+  // ANTI-DISCO: Jangan auto-lempar ke index. Kalau gak ada booking, diem di sini + kasih tombol manual.
   if(!cekAdaBooking()){
     document.getElementById('waitTitle').textContent = 'Belum Ada Booking...';
-    document.getElementById('waitSub').textContent = 'Balik ke Beranda ya, pilih dulu mau kemana...';
-    setTimeout(()=>{ window.location.href = 'index.html?reset=1'; }, 1200);
+    document.getElementById('waitSub').textContent = 'Kamu belum pesan apa-apa. Pencet tombol di bawah buat balik ke Beranda.';
+    document.getElementById('wDari').textContent = '-';
+    document.getElementById('wTujuan').textContent = '-';
+    document.getElementById('wJarak').textContent = '-';
+    document.getElementById('wEstimasi').textContent = '-';
+    document.getElementById('wOngkos').textContent = '-';
+    document.querySelector('.btn-batal').textContent = 'Kembali ke Beranda';
+    document.querySelector('.btn-batal').onclick = function(){ bolehKeluar=true; window.location.href='index.html?reset=1'; };
     return;
   }
   if(!tampilkanTarifDariIndex()){
