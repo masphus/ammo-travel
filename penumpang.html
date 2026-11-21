@@ -2,627 +2,103 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Penumpang - Menunggu Driver</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Penumpang - AMMO TRAVEL</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
-body{background:#000;display:flex;justify-content:center}
-.phone{width:100%;max-width:430px;background:#0f0f0f;min-height:100vh;padding-bottom:20px;position:relative;color:#fff;overflow:hidden}
-.bintang{position:absolute;inset:0;pointer-events:none;z-index:0;background-image:radial-gradient(2px 2px at 20px 30px,#fff8dc 50%,transparent 51%),radial-gradient(1.5px 1.5px at 80px 120px,#FFD700 50%,transparent 51%)}
-.radar{width:100%;height:220px;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 50%,#1a1a1a 0%,#000 70%)}
-.radar:before,.radar:after{content:"";position:absolute;border:1px solid rgba(255,215,0,.35);border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}
-.radar:before{width:300px;height:300px}
-.radar:after{width:180px;height:180px}
-.sapu{position:absolute;left:50%;top:50%;width:50%;height:2px;background:linear-gradient(90deg,transparent,#FFD700);transform-origin:left center;animation:spin 2.5s linear infinite}
-.sapu-bayang{position:absolute;left:50%;top:50%;width:50%;height:110px;background:conic-gradient(from 0deg,rgba(255,215,0,.25),transparent 60deg);transform-origin:left top;animation:spin 2.5s linear infinite}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
+body{background:#000;color:#fff}
+.app{max-width:480px;margin:0 auto;min-height:100vh;background:#0a0a0a;padding:18px 16px 110px}
+.logo{text-align:center;font-size:30px;font-weight:900;letter-spacing:2px;background:linear-gradient(180deg,#FFE9A8,#D4AF37,#9A7B1A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;padding:6px 0 2px}
+h1{font-size:24px;margin:10px 4px 14px}
+.card{border:1px solid #C9A227;border-radius:22px;padding:16px;background:#111}
+.row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #222;font-size:14px}
+.row:last-child{border:none}
+.row span{color:#aaa}
+.row b{text-align:right;color:#fff}
+.status{margin-top:14px;border:1px solid #C9A227;border-radius:18px;padding:16px;background:#111;text-align:center}
+.spinner{width:40px;height:40px;border:4px solid #333;border-top:4px solid #D4AF37;border-radius:50%;margin:12px auto;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.titik{position:absolute;width:7px;height:7px;background:#FFD700;border-radius:50%;box-shadow:0 0 10px #FFD700;animation:kedip 2.5s infinite;opacity:0}
-@keyframes kedip{0%,100%{opacity:0}20%{opacity:1}40%{opacity:.2}60%{opacity:1}}
-.radar-label{position:absolute;bottom:10px;left:0;right:0;text-align:center;color:#FFD700;font-size:12px;letter-spacing:3px;font-weight:bold}
-.title{text-align:center;font-size:30px;color:#e8c96a;margin-top:8px}
-.sub{text-align:center;font-size:14px;padding:6px 20px 14px;color:#f5d76e}
-.card{margin:22px 16px 14px;border:2px solid #d4af37;border-radius:18px;padding:18px 16px;background:#131313;display:flex;flex-wrap:wrap;gap:12px}
-.card h2{color:#e8c96a;font-size:26px;width:100%}
-.driver-top{width:100%;border:1.5px solid #d4af37;border-radius:16px;padding:14px;background:#0f0f0f;order:1;display:flex;gap:14px;align-items:center}
-.driver-top img{width:72px;height:72px;border-radius:50%;border:3px solid #d4af37;object-fit:cover;background:#222;flex-shrink:0}
-.driver-top .info{flex:1;min-width:0}
-.driver-top small{color:#e8c96a;font-size:15px;font-weight:900}
-.driver-top b{display:block;font-size:21px;color:#fff;margin-top:4px}
-.driver-top span{display:block;font-size:15px;color:#f5d76e;margin-top:2px}
-.driver-top .plat{font-size:17px;color:#fff;font-weight:900}
-.route{margin:6px 0 0 4px;border-left:2px dashed #d4af37;padding-left:22px;width:100%;order:2}
-.route b{font-size:19px;display:block;color:#fff}
-.route small{color:#e8c96a;font-size:16px;font-weight:900}
-.meta{flex:1;display:flex;flex-direction:column;gap:8px;border:1.5px solid #d4af37;border-radius:16px;padding:14px;background:#0f0f0f;order:3;min-width:0}
-.meta div{font-size:15px;color:#f5d76e}
-.meta b{display:block;font-size:18px;color:#e8c96a;margin-top:2px}
-.ongkos{flex:1;background:#0f0f0f;border:1.5px solid #d4af37;border-radius:16px;padding:14px;font-weight:900;font-size:24px;color:#e8c96a;order:4;min-width:0}
-.ongkos small{display:block;font-size:14px;color:#f5d76e;margin-bottom:8px}
-.note{font-size:15px;color:#fff;text-align:center;width:100%;order:5;border:1.5px solid #d4af37;border-radius:16px;padding:12px 14px;background:#0f0f0f}
-.note:before{content:"PENTING!";display:block;color:#ff2b2b;font-size:26px;font-weight:900}
-.btn-batal{margin:22px 16px 0;background:linear-gradient(180deg,#4a1212,#2a0707);color:#fff;border:2px solid #ff2b2b;width:calc(100% - 32px);padding:16px;border-radius:14px;font-weight:900;font-size:22px;cursor:pointer}
-.btn-chat{margin:12px 16px 0;background:#d4af37;color:#000;border:none;width:calc(100% - 32px);padding:14px;border-radius:14px;font-weight:900;font-size:18px;cursor:pointer;display:none}
-.btn-row{display:flex;gap:10px;margin:12px 16px 0}
-.btn-row .btn-chat{margin:0;flex:1}
-.btn-call{flex:1;background:#1a1a1a;color:#e8c96a;border:2px solid #d4af37;padding:14px;border-radius:14px;font-weight:900;font-size:18px;cursor:pointer;display:none}
-.chat-modal,.notif-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;align-items:flex-end;justify-content:center}
-.chat-modal.show,.notif-modal.show{display:flex}
-.chat-box{width:100%;max-width:430px;background:#1a1a1a;border-radius:16px 16px 0 0;padding:14px;max-height:85vh;overflow-y:auto;color:#fff}
-.chat-head{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid #333}
-.chat-bubble{background:#222;border-radius:12px;padding:10px 12px;margin:8px 0;font-size:15px;max-width:85%;color:#fff}
-.chat-bubble.driver{background:#2a2410;border:1px solid #d4af37}
-.chat-bubble.me{background:#d4af37;color:#000;margin-left:auto}
-.chat-input{display:flex;gap:8px;margin-top:10px}
-.chat-input input{flex:1;padding:12px;border:1px solid #333;border-radius:20px;outline:none;background:#111;color:#fff}
-.chat-input button{background:#d4af37;color:#000;border:none;border-radius:50%;width:44px;height:44px;font-size:20px;cursor:pointer}
-.chat-close{display:block;width:100%;margin-top:10px;padding:12px;border:none;border-radius:10px;background:#111;color:#fff;font-weight:bold;cursor:pointer;border:1px solid #333}
-.notif-box{width:100%;max-width:430px;background:#1a1a1a;border:1px solid #d4af37;border-radius:16px 16px 0 0;padding:20px 16px 16px;text-align:center}
-.notif-box .ikon{font-size:48px}
-.editInput{width:100%;background:#1a1a1a;border:1px solid #333;border-radius:10px;color:#fff;padding:12px;font-size:14px;outline:none;margin:6px 0 10px}
-.editInput:focus{border-color:#d4af37}
-.btn-edit{width:100%;margin-top:14px;padding:12px;border:1px solid #d4af37;background:#1a1a1a;color:#e8c96a;border-radius:10px;font-weight:900;cursor:pointer}
-.btn-edit.on{background:#d4af37;color:#000}
-.notif-box h3{font-size:20px;color:#e8c96a;margin-bottom:8px}
-.notif-box p{font-size:15px;color:#ccc;margin-bottom:16px}
-.notif-btns{display:flex;gap:10px}
-.notif-btns button{flex:1;padding:14px;border-radius:10px;border:none;font-weight:bold;font-size:16px;cursor:pointer}
-.btn-ya-batal{background:#e60000;color:#fff}
-.btn-lanjutkan{background:#d4af37;color:#000}
-.btn-ok-notif{background:#d4af37;color:#000;width:100%;padding:14px;border-radius:10px;border:none;font-weight:bold;font-size:16px;cursor:pointer}
-.spinner{width:36px;height:36px;border:3px solid #333;border-top:3px solid #ff2b2b;border-radius:50%;margin:0 auto 10px;animation:spin .8s linear infinite}
-.callModal{position:fixed;inset:0;background:linear-gradient(180deg,#0a0a0a,#1a1a1a);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:300;padding:20px;text-align:center}
-.callModal.show{display:flex}
-.callAvatar{width:110px;height:110px;border-radius:50%;background:linear-gradient(180deg,#FFE9A8,#D4AF37);display:flex;align-items:center;justify-content:center;font-size:56px;border:3px solid #fff;box-shadow:0 0 30px rgba(212,175,55,.6);animation:pulseCall 1.5s infinite}
-@keyframes pulseCall{0%{box-shadow:0 0 0 0 rgba(212,175,55,.5)}100%{box-shadow:0 0 0 20px rgba(212,175,55,0)}}
-.callBtns{display:flex;gap:18px;margin-top:30px}
-.callBtn{width:66px;height:66px;border-radius:50%;border:none;font-size:26px;cursor:pointer}
-.callBtn.mute{background:#222;color:#fff;border:1px solid #444}
-.callBtn.mute.on{background:#D4AF37;color:#000}
-.callBtn.end{background:#ff3b30;color:#fff}
-.callBtn.answer{background:#34c759;color:#fff}
+.driverCard{margin-top:14px;border:1px solid #C9A227;border-radius:18px;padding:16px;background:#111;display:none}
+.btn{width:100%;margin-top:14px;padding:16px;border:none;border-radius:14px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-size:17px;font-weight:900;cursor:pointer}
+.btn2{width:100%;margin-top:10px;padding:12px;border:1px solid #ff4d4d;background:transparent;color:#ff6b6b;border-radius:12px;font-weight:800;cursor:pointer}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-<div class="phone">
-<div class="bintang"></div>
-<div class="radar-wrap" id="radarWrap">
-<div class="radar">
-<div class="sapu-bayang"></div>
-<div class="sapu"></div>
-<div id="titikWrap"></div>
-<div class="radar-label">● MENCARI DRIVER TERDEKAT...</div>
-</div>
-</div>
-<div class="title" id="waitTitle">Mencari Driver...</div>
-<p class="sub" id="waitSub">Booking dikirim ke driver terdekat. Tunggu driver menerima.</p>
+<div class="app">
+<div class="logo">AMMO TRAVEL</div>
+<h1>Mencari Driver...</h1>
 <div class="card">
-<h2>Rute Perjalanan</h2>
-<div class="driver-top">
-<img id="wDriverFoto" src="https://via.placeholder.com/72" alt="Driver">
-<div class="info">
-<small>INFORMASI DRIVER</small>
-<b id="wDriverNama">Mencari Driver...</b>
-<span id="wDriverKendaraan">Menunggu driver terdekat...</span>
-<span class="plat" id="wDriverPlat">-</span>
+<div class="row"><span>Dari</span><b id="wDari">-</b></div>
+<div class="row"><span>Tujuan</span><b id="wTujuan">-</b></div>
+<div class="row"><span>Tanggal</span><b id="wTanggal">-</b></div>
+<div class="row"><span>Jam Berangkat</span><b id="wJam">-</b></div>
+<div class="row"><span>Jumlah Orang</span><b id="wOrang">-</b></div>
+<div class="row"><span>Jarak</span><b id="wJarak">-</b></div>
+<div class="row"><span>Estimasi</span><b id="wEstimasi">-</b></div>
+<div class="row"><span>Total Harga</span><b id="wHarga" style="color:#E8C766">-</b></div>
 </div>
-</div>
-<div class="route">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:11px;color:#888">RUTE TERKUNCI</span><span style="font-size:10px;background:#1a1a1a;border:1px solid #d4af37;color:#e8c96a;padding:3px 8px;border-radius:20px;font-weight:800">LOCKED - CUMA KETERANGAN</span></div>
-<small>Dari</small>
-<b id="wDari">Memuat...</b>
-<br><br>
-<small>Tujuan</small>
-<b id="wTujuan">Memuat...</b>
-<button id="btnEditTujuan" onclick="toggleEditTujuan()" class="btn-edit">EDIT TUJUAN</button>
-<div id="boxEditTujuan" style="display:none;margin-top:12px;border-top:1px dashed #d4af37;padding-top:12px">
-<small>Dari (baru)</small><input id="editDari" class="editInput" placeholder="Dari mana?">
-<small>Tujuan (baru)</small><input id="editTujuan" class="editInput" placeholder="Mau ke mana?">
-<p style="font-size:11px;color:#888;margin-bottom:10px">EDIT LEWAT MAPS.</p>
-<div style="display:flex;gap:10px"><button onclick="toggleEditTujuan()" style="flex:1;padding:12px;border-radius:10px;background:#222;color:#fff;border:1px solid #444;font-weight:800;cursor:pointer">Batal</button><button onclick="simpanEditTujuan()" style="flex:1;padding:12px;border-radius:10px;background:#d4af37;color:#000;border:none;font-weight:900;cursor:pointer">SIMPAN</button></div>
-<button onclick="editLewatMaps()" style="width:100%;margin-top:10px;padding:12px;border:1px solid #d4af37;background:#1a1a1a;color:#e8c96a;border-radius:10px;font-weight:900;cursor:pointer">EDIT LEWAT MAPS</button>
-</div>
-</div>
-<div class="meta">
-<div>🅰️ Jarak<b id="wJarak">Menghitung...</b></div>
-<div>🕒 Estimasi<b id="wEstimasi">Menghitung...</b></div>
-</div>
-<div class="ongkos">
-<small>ONGKOS</small>
-<span id="wOngkos">Menghitung...</span>
-</div>
-<p class="note">ⓘ Biaya Parkir, Tol, dan Penyeberangan akan dibebankan kepada Penumpang bilamana ada</p>
-</div>
-<div class="btn-row">
-<button class="btn-chat" id="btnChat" onclick="bukaChat()">💬 Chat Driver</button>
-<button class="btn-call" id="btnCall" onclick="telpDriver()">📞 Telp Driver</button>
-</div>
-<button class="btn-batal" onclick="batalkanPesanan()">Batalkan Pesanan</button>
-</div>
-
-<div id="chatModal" class="chat-modal">
-<div class="chat-box">
-<div class="chat-head">
-<img id="chatFoto" src="https://via.placeholder.com/44" style="width:44px;height:44px;border-radius:50%;object-fit:cover">
-<div><b id="chatNama">Driver</b><br><small style="color:#00a651">● Online</small></div>
-</div>
-<div id="chatIsi"></div>
-<div class="chat-input">
-<input id="chatInput" placeholder="Ketik pesan ke driver...">
-<button onclick="kirimChat()">➤</button>
-</div>
-<button class="chat-close" onclick="tutupChat()">Tutup Chat</button>
-</div>
-</div>
-
-<div id="modalKembali" class="notif-modal">
-<div class="notif-box">
-<div class="ikon">⚠️</div>
-<h3>Anda Masih Mempunyai Perjalanan</h3>
-<p id="teksKembali">Driver sudah OTW ke titik jemputmu.<br>Yakin ingin membatalkan perjalanan ini?</p>
-<div class="notif-btns">
-<button class="btn-ya-batal" onclick="konfirmasiKembaliYa()">Ya, Batalkan</button>
-<button class="btn-lanjutkan" onclick="konfirmasiKembaliLanjut()">Lanjutkan Perjalanan</button>
-</div>
-</div>
-</div>
-
-<div id="modalBatal" class="notif-modal">
-<div class="notif-box">
+<div class="status" id="boxCari">
 <div class="spinner"></div>
-<h3>Membatalkan Perjalanan...</h3>
-<p>Mengirim pemberitahuan pembatalan ke driver...</p>
+<b id="txtStatus">MENCARI DRIVER...</b>
+<p style="color:#aaa;font-size:13px;margin-top:6px">Driver terdekat lagi dicari, tunggu ya Kak</p>
 </div>
+<div class="driverCard" id="driverCard">
+<b id="dNama" style="color:#E8C766;font-size:18px">-</b>
+<p id="dMobil" style="color:#aaa;margin-top:6px">-</p>
+<p id="dPlat" style="font-weight:900;margin-top:4px">-</p>
+<p style="color:#4ade80;margin-top:8px;font-weight:800">● Driver OTW ke lokasi kamu</p>
 </div>
-
-<div id="modalBatalSukses" class="notif-modal">
-<div class="notif-box">
-<div class="ikon">✅</div>
-<h3>Perjalanan Dibatalkan</h3>
-<p>Driver sudah diberitahu bahwa kamu membatalkan perjalanan.</p>
-<p style="font-size:12px;color:#888">Otomatis kembali ke Beranda...</p>
-<button class="btn-ok-notif" onclick="selesaiBatalKeIndex()">OK, Kembali ke Beranda Sekarang</button>
+<button class="btn" onclick="window.location.href='index.html'">KEMBALI KE BERANDA</button>
+<button class="btn2" onclick="batal()">BATALKAN PESANAN</button>
 </div>
-</div>
-
-<div id="modalNaik" class="notif-modal">
-<div class="notif-box">
-<div class="ikon">🚗</div>
-<h3>Konfirmasi Sudah Naik?</h3>
-<p id="teksNaik">Driver bilang kamu sudah naik kendaraan. Apakah benar kamu sudah di dalam kendaraan?</p>
-<div class="notif-btns">
-<button class="btn-lanjutkan" onclick="jawabNaik(true)">Ya, Sudah Naik</button>
-<button class="btn-ya-batal" onclick="jawabNaik(false)">Belum Naik!</button>
-</div>
-</div>
-</div>
-
-<div id="modalSelesai" class="notif-modal">
-<div class="notif-box">
-<div class="ikon">📍</div>
-<h3>Driver Klaim Sudah Sampai</h3>
-<p id="teksSelesai">Driver mengklaim sudah sampai tujuan, tapi GPS driver masih jauh. Apakah benar kamu sudah sampai tujuan?</p>
-<div class="notif-btns">
-<button class="btn-lanjutkan" onclick="jawabSelesai(true)">Ya, Sudah Sampai</button>
-<button class="btn-ya-batal" onclick="jawabSelesai(false)">Belum Sampai!</button>
-</div>
-</div>
-</div>
-
-<div class="callModal" id="callModal">
-  <div class="callAvatar" id="callAvatar">🚗</div>
-  <h2 id="callNama" style="margin-top:18px;font-size:24px">Driver</h2>
-  <p id="callInfo" style="color:#E8C766;margin-top:6px">-</p>
-  <p id="callStatus" style="color:#aaa;margin-top:12px;font-size:14px">Memanggil...</p>
-  <p id="callTimer" style="color:#fff;margin-top:6px;font-size:18px;font-weight:800">00:00</p>
-  <div class="callBtns" id="callBtnsOut">
-    <button class="callBtn mute" id="btnMute" onclick="toggleMute()">🔇</button>
-    <button class="callBtn end" onclick="akhiriTelp()">📞</button>
-    <button class="callBtn mute" onclick="toggleSpeaker()">🔊</button>
-  </div>
-  <div class="callBtns" id="callBtnsIn" style="display:none">
-    <button class="callBtn end" onclick="tolakTelp()">📞</button>
-    <button class="callBtn answer" onclick="terimaTelp()">📞</button>
-  </div>
-  <p style="font-size:11px;color:#666;margin-top:18px">Panggilan via AMMO TRAVEL • Gratis • Bukan WhatsApp</p>
-  <audio id="remoteAudio" autoplay playsinline style="display:none"></audio>
-</div>
-
 <script>
-try{
-  window.supabaseClient = supabase.createClient("https://xxtgmohxdztesiubfxap.supabase.co", "sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv");
-}catch(e){ window.supabaseClient = null; }
-const saved = JSON.parse(localStorage.getItem('masphus_order') || 'null');
-const ASAL_NAMA = (saved && saved.asal && saved.asal.nama) ? saved.asal.nama : '-';
-const TUJUAN_NAMA = (saved && saved.tujuan && saved.tujuan.nama) ? saved.tujuan.nama : '-';
-let bookingId = (saved && saved.booking_id) ? saved.booking_id : localStorage.getItem('ammo_booking_id') || null;
-let driverDitemukan = false;
-let bolehKeluar = false;
-let lagiTampilNotif = false;
-let chatSudahAutoBuka = false;
-let sudahRedirectSelesai = false;
-let sudahTampilNaik = false;
-let sudahTampilSelesai = false;
-let lastChatIds = new Set();
-let namaDriverAktif = '';
-let kendaraanDriverAktif = '';
-let platDriverAktif = '';
-let callTimerInt=null, callDetik=0, isMuted=false;
-let sbClient = window.supabaseClient, callChannel=null, peerConn=null, localStream=null, currentCallId=null, incomingOffer=null, callTimeout=null;
-const STUN_SERVERS = { iceServers: [ {urls:'stun:stun.l.google.com:19302'}, {urls:'stun:stun1.l.google.com:19302'} ] };
-
-document.getElementById('wDari').textContent = ASAL_NAMA;
-document.getElementById('wTujuan').textContent = TUJUAN_NAMA;
-function fmtRp(n){ return 'Rp. ' + Math.round(n).toLocaleString('id-ID'); }
-function fmtJarak(m){ let km = m/1000; return km >= 100 ? Math.round(km) + ' km' : km.toFixed(1).replace('.',',') + ' km'; }
-function fmtEstimasi(d){ let m = Math.round(d/60), h = Math.floor(m/60), hari = Math.floor(h/24); h = h % 24; let s = m % 60; if(hari > 0) return hari + ' hari ' + (h > 0 ? h + ' jam' : ''); if(h > 0) return h + ' jam ' + (s > 0 ? s + ' menit' : ''); return m + ' menit'; }
-function buatTitikRadar(){
-  let w = document.getElementById('titikWrap');
-  if(!w) return;
-  w.innerHTML = '';
-  for(let i = 0; i < 8; i++){
-    let d = document.createElement('div');
-    d.className = 'titik';
-    d.style.left = (12 + Math.random()*76) + '%';
-    d.style.top = (12 + Math.random()*68) + '%';
-    w.appendChild(d);
-  }
+const saved = JSON.parse(localStorage.getItem('ammo_penumpang') || localStorage.getItem('masphus_order') || '{}');
+const fmt = n => 'Rp ' + Math.round(n||0).toLocaleString('id-ID');
+function tampil(o){
+  document.getElementById('wDari').textContent = o.asal_nama || o.dari || '-';
+  document.getElementById('wTujuan').textContent = o.tujuan_nama || o.tujuan || '-';
+  document.getElementById('wTanggal').textContent = o.tanggal || o.tanggal_berangkat || '-';
+  document.getElementById('wJam').textContent = o.jam || o.jam_berangkat || '-';
+  document.getElementById('wOrang').textContent = (o.jumlah_orang || o.orang || '-') + ' Orang';
+  document.getElementById('wJarak').textContent = o.jarak_km ? Number(o.jarak_km).toFixed(1)+' km' : '-';
+  document.getElementById('wEstimasi').textContent = o.estimasi || '-';
+  document.getElementById('wHarga').textContent = fmt(o.total_harga || o.total || o.harga || 0);
 }
-buatTitikRadar();
-setInterval(buatTitikRadar, 6000);
-function tampilkanTarifDariIndex(){
-  if(saved && saved.total_harga){
-    if(saved.jarak_meter) document.getElementById('wJarak').textContent = '~ ' + fmtJarak(saved.jarak_meter);
-    else if(saved.jarak_km) document.getElementById('wJarak').textContent = '~ ' + saved.jarak_km + ' km';
-    if(saved.estimasi) document.getElementById('wEstimasi').textContent = '± ' + saved.estimasi;
-    else if(saved.durasi_detik) document.getElementById('wEstimasi').textContent = '± ' + fmtEstimasi(saved.durasi_detik);
-    document.getElementById('wOngkos').textContent = fmtRp(saved.total_harga);
-    return true;
-  }
-  return false;
-}
-async function buatBookingJikaBelum(){
-  if(bookingId || !saved || !window.supabaseClient) return;
+tampil(saved);
+const SUPABASE_URL = 'https://xxtgmohxdztesiubfxap.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv';
+const orderId = saved.order_id || saved.id || localStorage.getItem('ammo_order_id');
+async function cekDriver(){
+  if(!orderId) return;
   try{
-    let sesi = JSON.parse(localStorage.getItem('ammo_sesi') || 'null');
-    let payload = {
-      penumpang_id: localStorage.getItem('ammo_supabase_penumpang_id') || saved.penumpang_id || null,
-      asal_nama: ASAL_NAMA,
-      tujuan_nama: TUJUAN_NAMA,
-      asal_lat: saved.asal ? saved.asal.lat : null,
-      asal_lon: saved.asal ? saved.asal.lon : null,
-      tujuan_lat: saved.tujuan ? saved.tujuan.lat : null,
-      tujuan_lon: saved.tujuan ? saved.tujuan.lon : null,
-      total_harga: saved.total_harga || null,
-      jarak_km: saved.jarak_km || null,
-      estimasi: saved.estimasi || null,
-      jumlah_orang: saved.jumlah_orang || null,
-      nama_penumpang: (saved.nama_penumpang || (sesi ? sesi.nama : null)),
-      no_wa: (saved.no_wa || (sesi ? sesi.hp : null)),
-      status: 'mencari',
-      payment_method: saved.payment_method || saved.metode_bayar || 'tunai'
-    };
-    let r = await supabaseClient.from('bookings').insert([payload]).select('id').single();
-    if(r && r.data){
-      bookingId = r.data.id;
-      localStorage.setItem('ammo_booking_id', bookingId);
-      saved.booking_id = bookingId;
-      localStorage.setItem('masphus_order', JSON.stringify(saved));
+    let r = await fetch(SUPABASE_URL + '/rest/v1/orders?id=eq.' + orderId + '&select=*', {headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}});
+    let j = await r.json();
+    let o = j && j[0];
+    if(!o) return;
+    tampil(o);
+    if(o.status==='diterima' || o.status==='dijemput' || o.status==='jalan'){
+      document.getElementById('boxCari').style.display='none';
+      document.getElementById('driverCard').style.display='block';
+      document.querySelector('h1').textContent = 'Driver Ditemukan!';
+      document.getElementById('dNama').textContent = o.driver_code || 'Driver AMMO';
+      document.getElementById('dMobil').textContent = 'Driver AMMO • OTW';
+      document.getElementById('dPlat').textContent = o.driver_id ? 'ID Driver: '+o.driver_id : '';
+      clearInterval(window._poll);
+    }
+    if(o.status==='ditolak' || o.status==='batal'){
+      document.getElementById('txtStatus').textContent = 'Order ditolak / dibatalkan';
+      clearInterval(window._poll);
     }
   }catch(e){}
 }
-function updateDriverTop(nama, foto, kendaraan, plat){
-  if(foto) document.getElementById('wDriverFoto').src = foto;
-  if(nama) document.getElementById('wDriverNama').textContent = nama;
-  if(kendaraan) document.getElementById('wDriverKendaraan').textContent = kendaraan;
-  if(plat) document.getElementById('wDriverPlat').textContent = plat;
-  namaDriverAktif=nama||namaDriverAktif; kendaraanDriverAktif=kendaraan||kendaraanDriverAktif; platDriverAktif=plat||platDriverAktif;
-}
-async function cekBooking(){
-  if(!bookingId || !window.supabaseClient) return;
-  try{
-    let r = await supabaseClient.from('bookings').select('*').eq('id', bookingId).single();
-    if(!r || !r.data) return;
-    let b = r.data;
-    let status = String(b.status || '').toLowerCase();
-    if((status === 'selesai' || status === 'completed' || status === 'done') && !sudahRedirectSelesai){
-      sudahRedirectSelesai = true;
-      document.getElementById('waitTitle').textContent = 'Perjalanan Selesai!';
-      document.getElementById('waitSub').textContent = 'Terima kasih sudah pakai Ammo Travel. Balik ke beranda ya...';
-      setTimeout(() => {
-        try{ localStorage.removeItem('masphus_order'); localStorage.removeItem('ammo_booking_id'); localStorage.removeItem('ammo_pending_order'); localStorage.removeItem('ammo_mau_order'); localStorage.removeItem('ammo_current_order'); }catch(e){}
-        window.location.href = 'index.html';
-      }, 3000);
-      return;
-    }
-    if(b.driver_id || b.driver_nama || b.nama_driver || status === 'diterima' || status === 'accepted' || status === 'otw' || status === 'jalan' || status === 'minta_jemput' || status === 'minta_selesai' || status === 'dijemput'){
-      let nama = b.driver_nama || b.nama_driver || b.driver_name || namaDriverAktif || 'Driver';
-      let foto = b.driver_foto || b.foto_driver || b.driver_photo || 'https://via.placeholder.com/72';
-      let kendaraan = b.driver_kendaraan || b.kendaraan || b.vehicle || b.type_kendaraan || 'Kendaraan Driver';
-      let plat = b.driver_plat || b.plat || b.plat_nomor || '-';
-      if(!driverDitemukan){
-        driverDitemukan = true;
-        namaDriverAktif = nama;
-        document.getElementById('radarWrap').style.display = 'none';
-        document.getElementById('waitTitle').textContent = 'Driver Ditemukan!';
-        document.getElementById('waitSub').textContent = 'Driver sedang OTW ke titik jemputmu';
-        document.getElementById('btnChat').style.display = 'block';
-        document.getElementById('btnCall').style.display = 'block';
-        updateDriverTop(nama, foto, kendaraan, plat);
-        document.getElementById('chatFoto').src = foto;
-        document.getElementById('chatNama').textContent = nama;
-      }
-      if(!chatSudahAutoBuka){
-        chatSudahAutoBuka = true;
-        setTimeout(() => {
-          document.getElementById('chatModal').classList.add('show');
-          muatChat(true);
-        }, 800);
-      }
-    }
-    if(status === 'minta_jemput' && !sudahTampilNaik){
-      let bayar = String(b.payment_method || b.metode_bayar || saved.payment_method || 'tunai').toLowerCase();
-      if(bayar !== 'tunai' && bayar !== 'cash'){
-        sudahTampilNaik = true;
-        document.getElementById('modalNaik').classList.add('show');
-      } else { jawabNaik(true); }
-    }
-    if(status === 'minta_selesai' && !sudahTampilSelesai){
-      sudahTampilSelesai = true;
-      let jarakTxt = b.jarak_driver_ke_tujuan_m || b.driver_distance_m || b.jarak_selesai_m || '';
-      document.getElementById('teksSelesai').innerHTML = 'Driver mengklaim sudah sampai tujuan, tapi GPS driver masih <b>' + (jarakTxt ? Math.round(jarakTxt) + ' meter' : 'jauh dari tujuan (lebih dari 500m)') + '</b>. Apakah benar kamu sudah sampai tujuan?';
-      document.getElementById('modalSelesai').classList.add('show');
-    }
-  }catch(e){}
-}
-async function jawabNaik(ya){
-  document.getElementById('modalNaik').classList.remove('show');
-  if(!window.supabaseClient || !bookingId) return;
-  try{
-    if(ya){ await supabaseClient.from('bookings').update({ status: 'jalan' }).eq('id', bookingId); document.getElementById('waitSub').textContent = 'Kamu sudah di dalam kendaraan. Perjalanan dimulai.'; }
-    else { await supabaseClient.from('bookings').update({ status: 'diterima' }).eq('id', bookingId); sudahTampilNaik = false; document.getElementById('waitSub').textContent = 'Driver diberitahu kamu belum naik. Menunggu konfirmasi driver.'; }
-  }catch(e){}
-}
-async function jawabSelesai(ya){
-  document.getElementById('modalSelesai').classList.remove('show');
-  if(!window.supabaseClient || !bookingId) return;
-  try{
-    if(ya){ await supabaseClient.from('bookings').update({ status: 'selesai' }).eq('id', bookingId); }
-    else { await supabaseClient.from('bookings').update({ status: 'jalan' }).eq('id', bookingId); sudahTampilSelesai = false; document.getElementById('waitSub').textContent = 'Kamu bilang belum sampai. Driver diminta lanjut ke tujuan.'; }
-  }catch(e){}
-}
-function renderChatItem(c){
-  let isi = document.getElementById('chatIsi');
-  let div = document.createElement('div');
-  let dariDriver = (c.sender === 'driver' || c.pengirim === 'driver' || c.role === 'driver');
-  div.className = 'chat-bubble ' + (dariDriver ? 'driver' : 'me');
-  div.textContent = c.message || c.pesan || c.text || '';
-  isi.appendChild(div);
-  isi.scrollTop = isi.scrollHeight;
-}
-async function muatChat(pertama){
-  if(!bookingId || !window.supabaseClient) return;
-  try{
-    let r = await supabaseClient.from('chats').select('*').eq('booking_id', bookingId).order('created_at', { ascending: true });
-    if(r && r.data){
-      if(pertama){ document.getElementById('chatIsi').innerHTML = ''; lastChatIds.clear(); }
-      r.data.forEach(c => {
-        let id = c.id || c.created_at + '-' + (c.message || '');
-        if(!lastChatIds.has(id)){ lastChatIds.add(id); renderChatItem(c); }
-      });
-    }
-  }catch(e){}
-}
-function bukaChat(){ document.getElementById('chatModal').classList.add('show'); muatChat(false); }
-function tutupChat(){ document.getElementById('chatModal').classList.remove('show'); }
-async function kirimChat(){
-  let inp = document.getElementById('chatInput');
-  let teks = inp.value.trim();
-  if(!teks || !bookingId) return;
-  inp.value = '';
-  try{
-    if(window.supabaseClient){ await supabaseClient.from('chats').insert([{ booking_id: bookingId, sender: 'penumpang', message: teks }]); }
-    else { renderChatItem({ sender: 'penumpang', message: teks }); }
-    setTimeout(() => muatChat(false), 500);
-  }catch(e){ renderChatItem({ sender: 'penumpang', message: teks }); }
-}
-document.getElementById('chatInput').addEventListener('keypress', function(e){ if(e.key === 'Enter') kirimChat(); });
-
-// ===== TELP GRATIS - SAMA KAYAK DI INDEX.HTML =====
-function buatPeer(){
-  peerConn = new RTCPeerConnection(STUN_SERVERS);
-  peerConn.onicecandidate = e=>{ if(e.candidate && callChannel) callChannel.send({type:'broadcast', event:'ice', payload:{candidate:e.candidate, callId:currentCallId}}); };
-  peerConn.ontrack = e=>{ let a=document.getElementById('remoteAudio'); if(a){ a.srcObject=e.streams[0]; a.play().catch(()=>{}); } };
-  peerConn.onconnectionstatechange = ()=>{ if(peerConn.connectionState==='connected') document.getElementById('callStatus').textContent='Terhubung • Via AMMO TRAVEL • Gratis'; };
-  return peerConn;
-}
-async function gabungChannelCall(callId){
-  if(!sbClient) return null;
-  if(callChannel) { try{ await callChannel.unsubscribe(); }catch(e){} }
-  currentCallId = callId;
-  callChannel = sbClient.channel('ammo-call-'+callId, {config:{broadcast:{self:true}}});
-  callChannel.on('broadcast',{event:'offer'}, async ({payload})=>{ if(payload.callId!==callId) return; if(payload.to==='penumpang'){ incomingOffer=payload.offer; tampilkanPanggilanMasuk(payload.fromName||'Driver'); } });
-  callChannel.on('broadcast',{event:'answer'}, async ({payload})=>{ if(payload.callId!==callId) return; if(peerConn && payload.answer){ await peerConn.setRemoteDescription(new RTCSessionDescription(payload.answer)); document.getElementById('callStatus').textContent='Terhubung • Via AMMO TRAVEL • Gratis'; clearTimeout(callTimeout); } });
-  callChannel.on('broadcast',{event:'ice'}, async ({payload})=>{ if(payload.callId!==callId) return; if(peerConn && payload.candidate){ try{ await peerConn.addIceCandidate(new RTCIceCandidate(payload.candidate)); }catch(e){} } });
-  callChannel.on('broadcast',{event:'end'}, ()=>{ akhiriTelpDiam(); });
-  callChannel.on('broadcast',{event:'reject'}, ()=>{ document.getElementById('callStatus').textContent='Driver menolak panggilan'; setTimeout(akhiriTelpDiam,1500); });
-  await callChannel.subscribe();
-  return callChannel;
-}
-function tampilkanPanggilanMasuk(nama){
-  document.getElementById('callNama').textContent = nama || 'Driver';
-  document.getElementById('callInfo').textContent = 'Panggilan Masuk • AMMO TRAVEL';
-  document.getElementById('callStatus').textContent = 'Panggilan masuk...';
-  document.getElementById('callBtnsOut').style.display='none';
-  document.getElementById('callBtnsIn').style.display='flex';
-  document.getElementById('callModal').classList.add('show');
-}
-async function terimaTelp(){
-  try{
-    localStream = await navigator.mediaDevices.getUserMedia({audio:true, video:false});
-    buatPeer();
-    localStream.getTracks().forEach(t=>peerConn.addTrack(t, localStream));
-    await peerConn.setRemoteDescription(new RTCSessionDescription(incomingOffer));
-    let answer = await peerConn.createAnswer();
-    await peerConn.setLocalDescription(answer);
-    callChannel.send({type:'broadcast', event:'answer', payload:{answer, callId:currentCallId}});
-    document.getElementById('callBtnsIn').style.display='none'; document.getElementById('callBtnsOut').style.display='flex';
-    document.getElementById('callStatus').textContent='Terhubung • Via AMMO TRAVEL • Gratis';
-    mulaiTimerTelp();
-  }catch(e){ alert('Mic tidak bisa dibuka, cek izin mikrofon di HP.'); }
-}
-function tolakTelp(){ if(callChannel) callChannel.send({type:'broadcast', event:'reject', payload:{callId:currentCallId}}); akhiriTelpDiam(); }
-function mulaiTimerTelp(){ clearInterval(callTimerInt); callDetik=0; callTimerInt=setInterval(()=>{ callDetik++; let m=String(Math.floor(callDetik/60)).padStart(2,'0'); let s=String(callDetik%60).padStart(2,'0'); document.getElementById('callTimer').textContent=m+':'+s; },1000); }
-async function telpDriver(){
-  if(!driverDitemukan){ alert('Belum ada driver. Tunggu driver menerima dulu.'); return; }
-  let nama = namaDriverAktif || 'Driver';
-  let callId = bookingId || 'room-1';
-  document.getElementById('callNama').textContent = nama;
-  document.getElementById('callInfo').textContent = (kendaraanDriverAktif + ' • ' + platDriverAktif).trim();
-  document.getElementById('callStatus').textContent = 'Memanggil... (Gratis)';
-  document.getElementById('callTimer').textContent = '00:00';
-  document.getElementById('callBtnsIn').style.display='none'; document.getElementById('callBtnsOut').style.display='flex';
-  callDetik=0; isMuted=false;
-  document.getElementById('btnMute').classList.remove('on');
-  document.getElementById('callModal').classList.add('show');
-  try{
-    if(!sbClient){ document.getElementById('callStatus').textContent='Supabase belum nyambung, coba lagi'; return; }
-    await gabungChannelCall(callId);
-    localStream = await navigator.mediaDevices.getUserMedia({audio:true, video:false});
-    buatPeer();
-    localStream.getTracks().forEach(t=>peerConn.addTrack(t, localStream));
-    let offer = await peerConn.createOffer();
-    await peerConn.setLocalDescription(offer);
-    callChannel.send({type:'broadcast', event:'offer', payload:{offer, callId, to:'driver', fromName:'Penumpang AMMO'}});
-    try{
-      let ch2 = sbClient.channel('ammo-call-driver-'+String(nama).toLowerCase().replace(/\s+/g,'-'), {config:{broadcast:{self:true}}});
-      await ch2.subscribe();
-      ch2.send({type:'broadcast', event:'offer', payload:{offer, callId, to:'driver', fromName:'Penumpang AMMO'}});
-      let ch3 = sbClient.channel('ammo-call-room-1', {config:{broadcast:{self:true}}});
-      await ch3.subscribe();
-      ch3.send({type:'broadcast', event:'offer', payload:{offer, callId:'room-1', to:'driver', fromName:'Penumpang AMMO'}});
-    }catch(e){}
-    document.getElementById('callStatus').textContent='Memanggil driver... (Gratis via Supabase)';
-    mulaiTimerTelp();
-    clearTimeout(callTimeout);
-    callTimeout = setTimeout(()=>{ if(document.getElementById('callStatus').textContent.includes('Memanggil')){ document.getElementById('callStatus').textContent='Driver belum mengangkat (driver belum online di HP)'; } },15000);
-  }catch(e){
-    document.getElementById('callStatus').textContent='Mic belum diizinkan. Klik izinkan mic di browser.';
+if(orderId){ window._poll = setInterval(cekDriver, 3000); cekDriver(); }
+function batal(){
+  if(confirm('Batalkan pesanan ini?')){
+    localStorage.removeItem('ammo_penumpang');
+    localStorage.removeItem('masphus_order');
+    window.location.href='index.html?cancelled=1';
   }
 }
-function toggleMute(){
-  isMuted = !isMuted;
-  if(localStream) localStream.getAudioTracks().forEach(t=>t.enabled=!isMuted);
-  document.getElementById('btnMute').classList.toggle('on', isMuted);
-  document.getElementById('callStatus').textContent = isMuted ? 'Suara dimatikan (Mute)' : 'Terhubung • Via AMMO TRAVEL • Gratis';
-}
-function toggleSpeaker(){ document.getElementById('callStatus').textContent = 'Speaker aktif • Via AMMO TRAVEL • Gratis'; }
-function akhiriTelp(){
-  if(callChannel) callChannel.send({type:'broadcast', event:'end', payload:{callId:currentCallId}});
-  akhiriTelpDiam();
-}
-function akhiriTelpDiam(){
-  clearInterval(callTimerInt); clearTimeout(callTimeout);
-  if(localStream) localStream.getTracks().forEach(t=>t.stop());
-  if(peerConn) { try{ peerConn.close(); }catch(e){} peerConn=null; }
-  if(callChannel) { try{ callChannel.unsubscribe(); }catch(e){} callChannel=null; }
-  document.getElementById('callModal').classList.remove('show');
-  let a=document.getElementById('remoteAudio'); if(a) a.srcObject=null;
-}
-
-function tampilkanNotifKembali(){
-  if(driverDitemukan){
-    document.getElementById('teksKembali').innerHTML = 'Driver <b>' + namaDriverAktif + '</b> sudah OTW ke titik jemputmu.<br>Yakin ingin membatalkan perjalanan ini?';
-  } else {
-    document.getElementById('teksKembali').innerHTML = 'Kami masih mencari driver untukmu.<br>Yakin ingin membatalkan perjalanan ini?';
-  }
-  document.getElementById('modalKembali').classList.add('show');
-}
-function kunciBack(){
-  history.pushState({ page: 'penumpang-lock' }, '', location.href);
-  history.pushState({ page: 'penumpang-lock' }, '', location.href);
-  history.pushState({ page: 'penumpang-lock' }, '', location.href);
-}
-kunciBack();
-window.addEventListener('popstate', function(){
-  if(bolehKeluar) return;
-  kunciBack();
-  if(lagiTampilNotif) return;
-  lagiTampilNotif = true;
-  tampilkanNotifKembali();
-});
-function kembaliKeIndex(){
-  if(!saved && !driverDitemukan){ bersihkanDanKembali(); return; }
-  tampilkanNotifKembali();
-}
-function konfirmasiKembaliLanjut(){
-  document.getElementById('modalKembali').classList.remove('show');
-  lagiTampilNotif = false;
-  setTimeout(kunciBack, 50);
-}
-function konfirmasiKembaliYa(){
-  document.getElementById('modalKembali').classList.remove('show');
-  lagiTampilNotif = false;
-  jalankanPembatalan();
-}
-function batalkanPesanan(){ jalankanPembatalan(); }
-async function jalankanPembatalan(){
-  document.getElementById('modalBatal').classList.add('show');
-  try{
-    if(window.supabaseClient && bookingId) await supabaseClient.from('bookings').update({ status: 'dibatalkan' }).eq('id', bookingId);
-  }catch(e){}
-  setTimeout(() => {
-    document.getElementById('modalBatal').classList.remove('show');
-    document.getElementById('modalBatalSukses').classList.add('show');
-    setTimeout(()=>{ bersihkanDanKembali(); }, 1800);
-  }, 1500);
-}
-function selesaiBatalKeIndex(){
-  document.getElementById('modalBatalSukses').classList.remove('show');
-  bersihkanDanKembali();
-}
-function bersihkanDanKembali(){
-  bolehKeluar = true;
-  try{ localStorage.removeItem('masphus_order'); localStorage.removeItem('ammo_booking_id'); localStorage.removeItem('ammo_pending_order'); localStorage.removeItem('ammo_mau_order'); localStorage.removeItem('ammo_current_order'); }catch(e){}
-  sessionStorage.setItem('ammo_clear', '1');
-  sessionStorage.setItem('ammo_must_clear_dest', '1');
-  sessionStorage.removeItem('ammo_from_index');
-  window.location.href = 'index.html?reset=1';
-}
-function toggleEditTujuan(){ let box=document.getElementById('boxEditTujuan'); let btn=document.getElementById('btnEditTujuan'); let isOpen=box.style.display==='block'; if(isOpen){ box.style.display='none'; btn.textContent='EDIT TUJUAN'; btn.classList.remove('on'); } else { box.style.display='block'; btn.textContent='TUTUP EDIT'; btn.classList.add('on'); document.getElementById('editDari').value=document.getElementById('wDari').textContent; document.getElementById('editTujuan').value=document.getElementById('wTujuan').textContent; } }
-function simpanEditTujuan(){ let d=document.getElementById('editDari').value.trim(); let tj=document.getElementById('editTujuan').value.trim(); if(!d||!tj){ alert('Dari & Tujuan gak boleh kosong'); return; } document.getElementById('wDari').textContent=d; document.getElementById('wTujuan').textContent=tj; try{ let s=JSON.parse(localStorage.getItem('masphus_order')||'null'); if(s){ if(s.asal) s.asal.nama=d; else s.asal={nama:d}; if(s.tujuan) s.tujuan.nama=tj; else s.tujuan={nama:tj}; localStorage.setItem('masphus_order', JSON.stringify(s)); } }catch(e){} toggleEditTujuan(); alert('Tujuan diupdate!'); }
-function editLewatMaps(){ try{ let s=JSON.parse(localStorage.getItem('masphus_order')||'null')||{}; s.asal={nama:document.getElementById('editDari').value.trim()||document.getElementById('wDari').textContent}; s.tujuan={nama:document.getElementById('editTujuan').value.trim()||document.getElementById('wTujuan').textContent}; s.edit_mode=true; localStorage.setItem('masphus_order', JSON.stringify(s)); }catch(e){} bolehKeluar=true; window.location.href='index.html?edit=1'; }
-function cekAdaBooking(){
-  try{
-    let s = JSON.parse(localStorage.getItem('masphus_order') || 'null');
-    if(!s || !s.asal || !s.asal.nama || !s.tujuan || !s.tujuan.nama || !s.total_harga) return false;
-    return true;
-  }catch(e){ return false; }
-}
-async function init(){
-  if(!cekAdaBooking()){
-    document.getElementById('waitTitle').textContent = 'Belum Ada Booking...';
-    document.getElementById('waitSub').textContent = 'Kamu belum pesan apa-apa. Pencet tombol di bawah buat balik ke Beranda.';
-    document.getElementById('wDari').textContent = '-';
-    document.getElementById('wTujuan').textContent = '-';
-    document.getElementById('wJarak').textContent = '-';
-    document.getElementById('wEstimasi').textContent = '-';
-    document.getElementById('wOngkos').textContent = '-';
-    document.querySelector('.btn-batal').textContent = 'Kembali ke Beranda';
-    document.querySelector('.btn-batal').onclick = function(){ bolehKeluar=true; window.location.href='index.html?reset=1'; };
-    return;
-  }
-  if(!tampilkanTarifDariIndex()){
-    document.getElementById('wJarak').textContent = '-';
-    document.getElementById('wEstimasi').textContent = '-';
-    document.getElementById('wOngkos').textContent = '-';
-  }
-  await buatBookingJikaBelum();
-  cekBooking();
-  setInterval(cekBooking, 5000);
-  setInterval(() => { if(driverDitemukan) muatChat(false); }, 3000);
-}
-init();
 </script>
 </body>
 </html>
