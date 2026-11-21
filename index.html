@@ -90,7 +90,7 @@ input:focus,select:focus{border-color:#D4AF37}
 .quickChat button{background:#1a1a1a;border:1px solid #333;color:#E8C766;padding:8px 12px;border-radius:20px;font-size:12px;cursor:pointer;flex-shrink:0}
 .chatModeBar{background:#1a1a1a;border-bottom:1px solid #333;padding:8px 16px;font-size:11px;color:#aaa;text-align:center}
 .chatModeBar b{color:#E8C766}
-/* ===== PIN - DIUBAH: BLACK & GOLD LOCKSCREEN - NOMOR DI DALAM KOTAK ===== */
+/* ===== PIN - BLACK & GOLD LOCKSCREEN - NOMOR DI DALAM KOTAK ===== */
 .pinLock{position:fixed;inset:0;background:#000;display:none;align-items:center;justify-content:center;z-index:200;padding:20px;background-image:radial-gradient(circle at 10% 10%,rgba(212,175,55,.12) 0%,transparent 40%),radial-gradient(circle at 90% 90%,rgba(212,175,55,.12) 0%,transparent 40%)}
 .pinLock.show{display:flex}
 .pinBox{width:100%;max-width:340px;background:#0a0a0a;border:1.5px solid #D4AF37;border-radius:20px;padding:22px 18px 18px;position:relative;box-shadow:0 0 40px rgba(212,175,55,.25),0 20px 50px rgba(0,0,0,.8)}
@@ -152,7 +152,8 @@ input:focus,select:focus{border-color:#D4AF37}
       <option value="7">7 Orang</option>
     </select>
   </div>
-  <div class="field"><label>📏 Jarak (Real dari Maps)</label><input id="km" placeholder="-" readonly></div>
+  <!-- Jarak disembunyikan - biar gak ada jarak di bawah Jumlah Orang. Nanti isi baru di sini. -->
+  <input id="km" type="hidden" value="">
 </div>
 <div class="priceBox" id="boxEmpty"><div class="priceTop"><b>Total Harga</b><span class="priceVal">-</span></div><p class="note">Pilih Dari & Tujuan dari Maps, harga real langsung muncul. Tol / Parkir / Penyeberangan dibebankan ke Penumpang.</p></div>
 <div class="priceBox" id="box" style="display:none">
@@ -222,7 +223,7 @@ input:focus,select:focus{border-color:#D4AF37}
     <button onclick="kirimChat()">➤</button>
   </div>
 </div>
-<!-- PIN - DIUBAH: BLACK & GOLD, SINGA, NOMOR DI DALAM KOTAK, TANPA TULISAN -->
+<!-- PIN - BLACK & GOLD, SINGA, NOMOR DI DALAM KOTAK, TANPA TULISAN -->
 <div class="pinLock" id="pinLock">
   <div class="pinBox">
     <button class="pinClose" onclick="tutupPin()">×</button>
