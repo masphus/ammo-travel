@@ -118,20 +118,26 @@ input:focus,select:focus{border-color:#D4AF37}
 .adminStat span{font-size:11px;color:#aaa}
 .chatModeBar{background:#1a1a1a;border-bottom:1px solid #333;padding:8px 16px;font-size:11px;color:#aaa;text-align:center}
 .chatModeBar b{color:#E8C766}
+.debugBar{background:#3a0000;border:1px solid #ff4d4d;color:#fff;padding:10px;border-radius:10px;font-size:12px;margin-bottom:10px;display:none}
+.debugBar b{color:#ff9a9a}
+.gpsBtn{margin-top:8px;padding:10px 14px;border:1px solid #D4AF37;background:#1a1a1a;color:#E8C766;border-radius:10px;font-weight:800;cursor:pointer;font-size:12px}
 </style>
 </head>
 <body>
 <div class="app">
+<div id="debugBar" class="debugBar"></div>
 <div id="p-beranda" class="page active">
 <div class="logo">AMMO TRAVEL</div>
 <h1>Mau pergi kemana?</h1>
 <div class="card">
   <div class="field">
-    <label>📍 Dari</label>
+    <label>📍 Dari <span id="gpsStatus" style="color:#aaa;font-weight:400">• Mencari GPS...</span></label>
     <div class="inputRow">
-      <input id="dari" value="📍 Mendeteksi lokasi kamu..." placeholder="Dari mana?" autocomplete="off">
+      <input id="dari" value="📍 Mencari lokasi kamu..." placeholder="Dari mana?" autocomplete="off">
       <button class="btnMapsSide" id="btnMapDari" onclick="toggleMap('dari')">MAPS</button>
     </div>
+    <button class="gpsBtn" onclick="cobaGPSLagi()">📍 COBA GPS LAGI</button>
+    <button class="gpsBtn" onclick="pakaiLokasiDefault()">🏠 PAKAI PELINDUNG (DEFAULT)</button>
     <div class="sug" id="sugDari"></div>
     <div id="mapDari" class="miniMap"></div>
     <div class="mapHint" id="hintDari"><span>Geser pin A / Klik peta</span><button onclick="pusatKeDari()">Ke Lokasi Saya</button></div>
@@ -140,7 +146,7 @@ input:focus,select:focus{border-color:#D4AF37}
   <div class="field">
     <label>📍 Tujuan</label>
     <div class="inputRow">
-      <input id="tujuan" value="" placeholder="Mau ke mana?" autocomplete="off">
+      <input id="tujuan" value="" placeholder="Mau ke mana? ketik Summarecon dll" autocomplete="off">
       <button class="btnMapsSide" id="btnMapTujuan" onclick="toggleMap('tujuan')">MAPS</button>
     </div>
     <div class="sug" id="sugTujuan"></div>
@@ -207,6 +213,7 @@ input:focus,select:focus{border-color:#D4AF37}
 <div style="text-align:center;padding:30px 0"><div style="width:90px;height:90px;border-radius:50%;background:linear-gradient(180deg,#FFE9A8,#D4AF37);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:40px;color:#000">👤</div><h2>Ko Cheng</h2><p style="color:#D4AF37;margin-top:6px">Member Gold • AMMO TRAVEL</p></div>
 <div class="item"><b>📍 Alamat</b><p>Jalan Muara Raya, Pelindung</p></div>
 <div class="item"><b>🎟️ Voucher Terkumpul</b><p id="voucherTotal">Rp 0</p></div>
+<div class="item"><b>🧪 Test Chat</b><p>Kalau chat gak jalan, klik ini. Harusnya langsung kebuka CS.</p><button onclick="testChat()" style="width:100%;margin-top:8px;padding:12px;border:none;border-radius:10px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-weight:900;cursor:pointer">💬 TEST BUKA CHAT</button></div>
 </div>
 </div>
 <button class="chatFab" id="chatFab" onclick="bukaChat()">💬<span class="chatBadge" id="chatBadge">1</span></button>
@@ -216,7 +223,6 @@ input:focus,select:focus{border-color:#D4AF37}
 <button onclick="nav('profil',this)"><span>👤</span>Profil</button>
 </div>
 <div class="modal" id="modal"><div class="modalBox"><h2 id="modalTitle">Mencari Driver...</h2><div class="spinner" id="spin"></div><p id="modalText" style="color:#aaa;font-size:14px;line-height:1.5"></p></div></div>
-<!-- CHAT - 2 MODE: CS SEBELUM ORDER, DRIVER SESUDAH ORDER -->
 <div class="chatModal" id="chatModal">
   <div class="chatHeader">
     <button onclick="tutupChat()" style="background:none;border:none;color:#fff;font-size:22px;cursor:pointer">←</button>
@@ -231,8 +237,8 @@ input:focus,select:focus{border-color:#D4AF37}
     <button onclick="kirimCepat('Halo CS, mau tanya harga')">Halo CS, mau tanya harga</button>
   </div>
   <div class="chatInput">
-    <input id="chatInput" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter') kirimChat()">
-    <button onclick="kirimChat()">➤</button>
+    <input id="chatInput" placeholder="Ketik pesan ke CS Ammo Travel..." autocomplete="off">
+    <button id="btnKirimChat" onclick="kirimChat()">➤</button>
   </div>
 </div>
 <div class="pinLock" id="pinLock">
@@ -279,13 +285,16 @@ input:focus,select:focus{border-color:#D4AF37}
   <div class="adminCard"><b>⚙️ Pengaturan</b><p style="font-size:13px;color:#aaa;margin-top:6px">Rate, Fee Admin, Voucher, Harga per KM - semua di sini (rahasia, gak ditampilin ke penumpang)</p></div>
 </div>
 <script>
+// ============ ANTI MATI: KALAU ERROR, TAMPILIN DI ATAS, JANGAN DIEM-DIEM ============
+window.addEventListener('error', function(e){
+  var bar=document.getElementById('debugBar');
+  if(bar){ bar.style.display='block'; bar.innerHTML='<b>⚠️ ERROR JS:</b> '+ (e.message||'error') + '<br><span style="font-size:11px;color:#ccc">Screenshot ini kirim ke gua, biar gua tau baris mana yang error.</span>'; }
+});
 const $=id=>document.getElementById(id);
 const fmt=n=>'Rp '+Math.round(n||0).toLocaleString('id-ID');
-let pickCoord=null, destCoord=null, totalHarga=0, voucherDapat=0, orderAktif=false, driverAktif=null, chatSudahDibuka=false, pinInput='', pinBenar='', pinTarget=null, pinSudahBenar=false;
-let chatMode='CS'; // CS atau DRIVER
-// ⚠️ DATA MASIH PALSU - NANTI GANTI KE URL + API ASLI DARI LU
+let pickCoord=null, destCoord=null, totalHarga=0, voucherDapat=0, orderAktif=false, driverAktif=null, pinInput='', pinBenar='', pinTarget=null, pinSudahBenar=false;
+let chatMode='CS';
 const API_URL = ''; const API_KEY = '';
-// DATABASE - INI YANG DIPAKE BUAT AMBIL DRIVER YANG TERIMA ORDERAN
 const DB_DRIVER=[
   {kode:'kadal', nama:'Kadal Sakti', foto:'🦎', role:'DRIVER', mobil:'Toyota Innova Reborn', warna:'Hitam • 7 Kursi', plat:'D 1111 KDL', pin:'112233', ket:'Driver Senior • Bandung', rating:'⭐ 4.9 • 1.100 trip'},
   {nama:'Budi Santoso', kode:'budi', foto:'👨‍🦱', role:'DRIVER', mobil:'Toyota Innova Reborn', warna:'Hitam • 7 Kursi', plat:'D 1234 ABC', pin:'123456', ket:'Driver • 1.240 trip', rating:'⭐ 4.9 • 1.240 perjalanan'},
@@ -318,44 +327,57 @@ function fmtEstimasi(detik){
 function jarakKe(lat1,lon1,lat2,lon2){ let dLat=(lat2-lat1)*111, dLon=(lon2-lon1)*111*Math.cos(lat1*Math.PI/180); return Math.sqrt(dLat*dLat+dLon*dLon); }
 function fmtJarak(km){ if(km<1) return Math.round(km*1000)+' m dari kamu'; return km.toFixed(1)+' km dari kamu'; }
 function setTanggalJamDefault(){
-  let now=new Date();
-  let tgl = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
-  let jam = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-  $('tgl').value=tgl; $('jam').value=jam;
+  try{
+    let now=new Date();
+    let tgl = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+    let jam = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+    if($('tgl')) $('tgl').value=tgl; if($('jam')) $('jam').value=jam;
+  }catch(e){}
 }
-let mapDari=L.map('mapDari').setView([-6.9175,107.6191],13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(mapDari);
-let mapTujuan=L.map('mapTujuan').setView([-6.9175,107.6191],13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(mapTujuan);
-let markerDari=null, markerTujuan=null;
+// ============ MAPS DIBUNGKUS TRY, BIAR KALAU MAPS GAGAL, CHAT TETEP JALAN ============
+let mapDari=null, mapTujuan=null, markerDari=null, markerTujuan=null;
+try{
+  mapDari=L.map('mapDari').setView([-6.9175,107.6191],13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(mapDari);
+  mapTujuan=L.map('mapTujuan').setView([-6.9175,107.6191],13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(mapTujuan);
+  mapDari.on('click',async e=>{ let lat=e.latlng.lat, lon=e.latlng.lng; pickCoord=[lon,lat]; setMarkerDari(lat,lon); await reverseGeocode(lat,lon,true); hitungJarakReal(); });
+  mapTujuan.on('click',async e=>{ let lat=e.latlng.lat, lon=e.latlng.lng; destCoord=[lon,lat]; setMarkerTujuan(lat,lon); await reverseGeocode(lat,lon,false); hitungJarakReal(); });
+}catch(e){ console.log('Maps gagal load, tapi chat tetep jalan', e); }
 function toggleMap(which){
-  let isDari = which==='dari';
-  let mapEl = isDari ? $('mapDari') : $('mapTujuan');
-  let hintEl = isDari ? $('hintDari') : $('hintTujuan');
-  let btnEl = isDari ? $('btnMapDari') : $('btnMapTujuan');
-  let isOpen = mapEl.classList.contains('show');
-  if(isOpen){ mapEl.classList.remove('show'); hintEl.classList.remove('show'); btnEl.classList.remove('active'); }
-  else{
-    mapEl.classList.add('show'); hintEl.classList.add('show'); btnEl.classList.add('active');
-    setTimeout(()=>{ if(isDari){ mapDari.invalidateSize(); if(pickCoord) mapDari.setView([pickCoord[1],pickCoord[0]],14); } else { mapTujuan.invalidateSize(); if(destCoord) mapTujuan.setView([destCoord[1],destCoord[0]],14); else if(pickCoord) mapTujuan.setView([pickCoord[1],pickCoord[0]],13); } },100);
-  }
+  try{
+    let isDari = which==='dari';
+    let mapEl = isDari ? $('mapDari') : $('mapTujuan');
+    let hintEl = isDari ? $('hintDari') : $('hintTujuan');
+    let btnEl = isDari ? $('btnMapDari') : $('btnMapTujuan');
+    let isOpen = mapEl.classList.contains('show');
+    if(isOpen){ mapEl.classList.remove('show'); hintEl.classList.remove('show'); btnEl.classList.remove('active'); }
+    else{
+      mapEl.classList.add('show'); hintEl.classList.add('show'); btnEl.classList.add('active');
+      setTimeout(()=>{ if(isDari){ if(mapDari){ mapDari.invalidateSize(); if(pickCoord) mapDari.setView([pickCoord[1],pickCoord[0]],14); } } else { if(mapTujuan){ mapTujuan.invalidateSize(); if(destCoord) mapTujuan.setView([destCoord[1],destCoord[0]],14); else if(pickCoord) mapTujuan.setView([pickCoord[1],pickCoord[0]],13); } } },100);
+    }
+  }catch(e){ alert('Maps belum ke-load, coba refresh. Chat tetep bisa kok.'); }
 }
 function setMarkerDari(lat,lon){
-  let icon=L.divIcon({html:`<div style="background:#D4AF37;color:#000;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;border:2px solid #fff">A</div>`,iconSize:[28,28]});
-  if(markerDari) mapDari.removeLayer(markerDari);
-  markerDari=L.marker([lat,lon],{icon,draggable:true}).addTo(mapDari);
-  markerDari.on('dragend',()=>{ let p=markerDari.getLatLng(); pickCoord=[p.lng,p.lat]; reverseGeocode(p.lat,p.lng,true); hitungJarakReal(); });
-  if($('mapDari').classList.contains('show')) mapDari.setView([lat,lon],14);
+  try{
+    if(!mapDari) return;
+    let icon=L.divIcon({html:`<div style="background:#D4AF37;color:#000;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;border:2px solid #fff">A</div>`,iconSize:[28,28]});
+    if(markerDari) mapDari.removeLayer(markerDari);
+    markerDari=L.marker([lat,lon],{icon,draggable:true}).addTo(mapDari);
+    markerDari.on('dragend',()=>{ let p=markerDari.getLatLng(); pickCoord=[p.lng,p.lat]; reverseGeocode(p.lat,p.lng,true); hitungJarakReal(); });
+    if($('mapDari').classList.contains('show')) mapDari.setView([lat,lon],14);
+  }catch(e){}
 }
 function setMarkerTujuan(lat,lon){
-  let icon=L.divIcon({html:`<div style="background:#ff4d4d;color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;border:2px solid #fff">B</div>`,iconSize:[28,28]});
-  if(markerTujuan) mapTujuan.removeLayer(markerTujuan);
-  markerTujuan=L.marker([lat,lon],{icon,draggable:true}).addTo(mapTujuan);
-  markerTujuan.on('dragend',()=>{ let p=markerTujuan.getLatLng(); destCoord=[p.lng,p.lat]; reverseGeocode(p.lat,p.lng,false); hitungJarakReal(); });
-  if($('mapTujuan').classList.contains('show')) mapTujuan.setView([lat,lon],14);
+  try{
+    if(!mapTujuan) return;
+    let icon=L.divIcon({html:`<div style="background:#ff4d4d;color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;border:2px solid #fff">B</div>`,iconSize:[28,28]});
+    if(markerTujuan) mapTujuan.removeLayer(markerTujuan);
+    markerTujuan=L.marker([lat,lon],{icon,draggable:true}).addTo(mapTujuan);
+    markerTujuan.on('dragend',()=>{ let p=markerTujuan.getLatLng(); destCoord=[p.lng,p.lat]; reverseGeocode(p.lat,p.lng,false); hitungJarakReal(); });
+    if($('mapTujuan').classList.contains('show')) mapTujuan.setView([lat,lon],14);
+  }catch(e){}
 }
-mapDari.on('click',async e=>{ let lat=e.latlng.lat, lon=e.latlng.lng; pickCoord=[lon,lat]; setMarkerDari(lat,lon); await reverseGeocode(lat,lon,true); hitungJarakReal(); });
-mapTujuan.on('click',async e=>{ let lat=e.latlng.lat, lon=e.latlng.lng; destCoord=[lon,lat]; setMarkerTujuan(lat,lon); await reverseGeocode(lat,lon,false); hitungJarakReal(); });
 async function reverseGeocode(lat,lon,isDari){
   try{
     let r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18`).then(r=>r.json());
@@ -363,17 +385,91 @@ async function reverseGeocode(lat,lon,isDari){
     if(isDari) $('dari').value=nama; else $('tujuan').value=nama;
   }catch(e){}
 }
-function pusatKeDari(){ if(pickCoord) mapDari.setView([pickCoord[1],pickCoord[0]],15); }
-function pusatKeTujuan(){ if(destCoord) mapTujuan.setView([destCoord[1],destCoord[0]],15); }
-function ambilGPS(){
-  if(!navigator.geolocation){ $('dari').value='Jalan Muara Raya, Pelindung'; return; }
-  navigator.geolocation.getCurrentPosition(async pos=>{
-    let lat=pos.coords.latitude, lon=pos.coords.longitude;
-    pickCoord=[lon,lat]; setMarkerDari(lat,lon); await reverseGeocode(lat,lon,true);
-    if(destCoord) hitungJarakReal();
-  },()=>{ $('dari').value='Jalan Muara Raya, Pelindung'; },{enableHighAccuracy:true,timeout:10000, maximumAge:60000});
+function pusatKeDari(){ try{ if(pickCoord && mapDari) mapDari.setView([pickCoord[1],pickCoord[0]],15); }catch(e){} }
+function pusatKeTujuan(){ try{ if(destCoord && mapTujuan) mapTujuan.setView([destCoord[1],destCoord[0]],15); }catch(e){} }
+// ============ GPS 3 LAPIS - BARU ============
+function setGPSStatus(txt, ok){
+  let el=$('gpsStatus'); if(el){ el.textContent=txt; el.style.color= ok ? '#4ade80' : '#ff9a9a'; }
 }
-window.addEventListener('load',()=>{ setTanggalJamDefault(); setTimeout(()=>ambilGPS(), 500); buatKeypad(); setChatModeCS(); });
+function pakaiLokasiDefault(){
+  // Pelindung, Bandung - default lu
+  pickCoord=[107.6191, -6.9175];
+  $('dari').value='Jalan Muara Raya, Pelindung, Bandung';
+  setMarkerDari(-6.9175,107.6191);
+  setGPSStatus('• Pakai Pelindung (Default)', true);
+}
+function cobaGPSLagi(){ ambilGPS(true); }
+async function ambilGPS(manual){
+  setGPSStatus('• Mencari GPS...', false);
+  if(manual) $('dari').value='📍 Mencari GPS...';
+  // Lapis 1: GPS HP
+  if(navigator.geolocation){
+    try{
+      await new Promise((resolve)=>{
+        navigator.geolocation.getCurrentPosition(async pos=>{
+          let lat=pos.coords.latitude, lon=pos.coords.longitude;
+          pickCoord=[lon,lat]; setMarkerDari(lat,lon);
+          setGPSStatus('• GPS ketemu ✅', true);
+          await reverseGeocode(lat,lon,true);
+          if(destCoord) hitungJarakReal();
+          resolve(true);
+        }, async (err)=>{
+          console.log('GPS HP gagal:', err && err.message);
+          // Lapis 2: IP Location
+          let ok = await cobaGPSDariIP();
+          if(!ok){
+            // Lapis 3: Default
+            if(manual) alert('GPS ditolak / gak ada sinyal. Pakai lokasi default Pelindung dulu ya. Cek: 1. Izinkan Lokasi di browser, 2. Nyalain GPS HP, 3. Buka via HTTPS (bukan file://)');
+            pakaiLokasiDefault();
+          }
+          resolve(false);
+        }, {enableHighAccuracy:true, timeout:8000, maximumAge:0});
+        // Kalau 8 detik gak bales, paksa ke IP
+        setTimeout(async ()=>{
+          if(!pickCoord){
+            let ok = await cobaGPSDariIP();
+            if(!ok && !$('dari').value.includes('Pelindung')) pakaiLokasiDefault();
+          }
+        }, 8500);
+      });
+      return;
+    }catch(e){}
+  }
+  // Kalau browser gak support geolocation sama sekali
+  let ok = await cobaGPSDariIP();
+  if(!ok) pakaiLokasiDefault();
+}
+async function cobaGPSDariIP(){
+  try{
+    setGPSStatus('• Coba dari IP...', false);
+    let r = await fetch('https://ipapi.co/json/').then(r=>r.json()).catch(()=>null);
+    if(r && r.latitude && r.longitude){
+      pickCoord=[r.longitude, r.latitude];
+      setMarkerDari(r.latitude, r.longitude);
+      $('dari').value = (r.city ? r.city+', ' : '') + (r.region||'') + ', Indonesia (dari IP)';
+      setGPSStatus('• Lokasi dari IP (kurang akurat)', true);
+      await reverseGeocode(r.latitude, r.longitude, true);
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+// ============ INIT - JANGAN LANGSUNG GPS, KASIH JEDA ============
+document.addEventListener('DOMContentLoaded', ()=>{
+  setTanggalJamDefault();
+  try{ buatKeypad(); }catch(e){}
+  try{ setChatModeCS(); }catch(e){}
+  // Chat input Enter - dipasang di sini, pasti jalan
+  let ci=$('chatInput');
+  if(ci){
+    ci.addEventListener('keydown', function(e){
+      if(e.key==='Enter'){ e.preventDefault(); kirimChat(); }
+    });
+    ci.addEventListener('click', function(){ this.focus(); });
+  }
+  // GPS jalan 1 detik setelah load, biar chat duluan ke-load
+  setTimeout(()=>{ ambilGPS(false); }, 1000);
+});
 let timerCari=null;
 async function cariGabungan(query, box, isDari){
   if(query.length<3){box.style.display='none';return;}
@@ -400,21 +496,23 @@ function pilihTempat(i,isDari){
   else{ $('tujuan').value=h.nama; destCoord=[h.lon,h.lat]; setMarkerTujuan(h.lat,h.lon); $('sugTujuan').style.display='none'; }
   hitungJarakReal();
 }
-$('dari').addEventListener('input',()=>{ clearTimeout(timerCari); timerCari=setTimeout(()=>cariGabungan($('dari').value,$('sugDari'),true),400); });
-$('tujuan').addEventListener('input',()=>{ clearTimeout(timerCari); timerCari=setTimeout(()=>cariGabungan($('tujuan').value,$('sugTujuan'),false),400); });
+try{
+  $('dari').addEventListener('input',()=>{ clearTimeout(timerCari); timerCari=setTimeout(()=>cariGabungan($('dari').value,$('sugDari'),true),400); });
+  $('tujuan').addEventListener('input',()=>{ clearTimeout(timerCari); timerCari=setTimeout(()=>cariGabungan($('tujuan').value,$('sugTujuan'),false),400); });
+}catch(e){}
 document.addEventListener('click',e=>{ if(!e.target.closest('.field')) document.querySelectorAll('.sug').forEach(s=>s.style.display='none'); });
 async function hitungJarakReal(){
   if(!pickCoord||!destCoord) return;
-  $('total').textContent='Menghitung...';
-  let km=0, detik=0, sumber='-';
-  try{ let r=await fetch(`https://router.project-osrm.org/route/v1/driving/${pickCoord[0]},${pickCoord[1]};${destCoord[0]},${destCoord[1]}?overview=false`).then(r=>r.json()); if(r.routes?.length){ km=r.routes[0].distance/1000; detik=r.routes[0].duration; sumber='OSRM'; } }catch(e){}
+  try{ $('total').textContent='Menghitung...'; }catch(e){}
+  let km=0, detik=0;
+  try{ let r=await fetch(`https://router.project-osrm.org/route/v1/driving/${pickCoord[0]},${pickCoord[1]};${destCoord[0]},${destCoord[1]}?overview=false`).then(r=>r.json()); if(r.routes?.length){ km=r.routes[0].distance/1000; detik=r.routes[0].duration; } }catch(e){}
   if(!km){
-    try{ let r=await fetch(`https://valhalla1.openstreetmap.de/route?json={"locations":[{"lat":${pickCoord[1]},"lon":${pickCoord[0]}},{"lat":${destCoord[1]},"lon":${destCoord[0]}}],"costing":"auto"}`).then(r=>r.json()); if(r.trip){ km=r.trip.summary.length; detik=r.trip.summary.time; sumber='Valhalla (cadangan)'; } }catch(e){}
+    try{ let r=await fetch(`https://valhalla1.openstreetmap.de/route?json={"locations":[{"lat":${pickCoord[1]},"lon":${pickCoord[0]}},{"lat":${destCoord[1]},"lon":${destCoord[0]}}],"costing":"auto"}`).then(r=>r.json()); if(r.trip){ km=r.trip.summary.length; detik=r.trip.summary.time; } }catch(e){}
   }
-  if(!km){ let dLat=(destCoord[1]-pickCoord[1])*111, dLon=(destCoord[0]-pickCoord[0])*111*Math.cos(pickCoord[1]*Math.PI/180); km=Math.sqrt(dLat*dLat+dLon*dLon)*1.4; detik=km/40*3600; sumber='Estimasi Darurat'; }
-  tampilkanHarga(km,detik,sumber);
+  if(!km){ let dLat=(destCoord[1]-pickCoord[1])*111, dLon=(destCoord[0]-pickCoord[0])*111*Math.cos(pickCoord[1]*Math.PI/180); km=Math.sqrt(dLat*dLat+dLon*dLon)*1.4; detik=km/40*3600; }
+  tampilkanHarga(km,detik);
 }
-function tampilkanHarga(km,detik,sumber){
+function tampilkanHarga(km,detik){
   let orang=parseInt($('orang').value)||5; let r=hitungOngkos(km,orang); totalHarga=r.ongkos; voucherDapat=r.voucher;
   $('km').value=km.toFixed(1)+' km';
   $('box').style.display='block'; $('boxEmpty').style.display='none';
@@ -428,11 +526,11 @@ function tukar(){
   if(destCoord) setMarkerTujuan(destCoord[1],destCoord[0]);
   hitungJarakReal();
 }
-$('orang').addEventListener('change',()=>{ let km=parseFloat($('km').value)||0; if(km) tampilkanHarga(km,0,'OSRM'); });
-function nav(p,btn){ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active')); $('p-'+p).classList.add('active'); document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); window.scrollTo(0,0); setTimeout(()=>{ mapDari.invalidateSize(); mapTujuan.invalidateSize(); },100); }
+try{ $('orang').addEventListener('change',()=>{ let km=parseFloat($('km').value)||0; if(km) tampilkanHarga(km,0); }); }catch(e){}
+function nav(p,btn){ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active')); $('p-'+p).classList.add('active'); document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); window.scrollTo(0,0); setTimeout(()=>{ try{ if(mapDari) mapDari.invalidateSize(); if(mapTujuan) mapTujuan.invalidateSize(); }catch(e){} },100); }
 function pesan(){
   if(orderAktif){ alert('Orderan kamu lagi jalan! Cek kartu driver di bawah, chat udah nyambung ke driver.'); return; }
-  if(!pickCoord||!destCoord){ alert('Pilih Dari & Tujuan dari Maps dulu!'); return; }
+  if(!pickCoord||!destCoord){ alert('Pilih Dari & Tujuan dari Maps dulu! Ketik Tujuan misal Summarecon, pilih dari list yang muncul.'); return; }
   $('btnPesan').style.display='none';
   $('btnSearching').style.display='flex';
   $('btnBatal').style.display='block';
@@ -442,11 +540,9 @@ function pesan(){
 }
 function driverDitemukan(){
   orderAktif=true;
-  // ✅ AMBIL DRIVER LANGSUNG DARI DATABASE - YANG TERIMA ORDERAN
   driverAktif = DB_DRIVER[Math.floor(Math.random()*DB_DRIVER.length)];
   $('modal').classList.remove('show');
   $('btnSearching').style.display='none';
-  // KARTU DRIVER DI BERANDA - DARI DATABASE
   $('driverFoto').textContent=driverAktif.foto;
   $('driverNama').textContent=driverAktif.nama;
   $('driverRating').textContent=driverAktif.rating;
@@ -458,10 +554,9 @@ function driverDitemukan(){
   $('driverCard').style.display='block';
   $('txtKonfirmasi').textContent='Driver OTW • Chat udah nyambung ke driver';
   $('chatBadge').textContent='1'; $('chatBadge').style.display='flex';
-  // ✅ CHAT OTOMATIS PINDAH KE DRIVER YANG TERIMA ORDERAN
   setChatModeDriver();
   $('chatBody').innerHTML='';
-  tambahPesanDriver(`Halo Kak! Saya <b>${driverAktif.nama}</b> 🙏 Saya yang terima orderan Kakak. Saya bawa <b>${driverAktif.mobil} ${driverAktif.warna}</b>, plat <b>${driverAktif.plat}</b>. Saya OTW ke titik jemput ya, sekitar 5 menit lagi sampai. Ditunggu di depan ya Kak.`);
+  tambahPesanDriver(`Halo Kak! Saya <b>${driverAktif.nama}</b> 🙏 Saya yang terima orderan Kakak. Saya bawa <b>${driverAktif.mobil} ${driverAktif.warna}</b>, plat <b>${driverAktif.plat}</b>. Saya OTW ke titik jemput ya, sekitar 5 menit lagi sampai.`);
   let v=parseInt(localStorage.getItem('ammo_voucher')||'0')+voucherDapat; localStorage.setItem('ammo_voucher',v); $('voucherTotal').textContent=fmt(v);
   $('listTrip').innerHTML=`<div class="item"><b>${driverAktif.nama} • ${driverAktif.mobil} • ${driverAktif.plat}</b><p>${$('dari').value} → ${$('tujuan').value}</p><p>${$('km').value} • ${$('orang').value} Orang • Driver OTW</p><p style="color:#E8C766;font-weight:800">${fmt(totalHarga)}</p><button onclick="bukaChat()" style="margin-top:8px;padding:8px 14px;border:1px solid #D4AF37;background:#1a1a1a;color:#E8C766;border-radius:10px;font-weight:800;cursor:pointer">💬 CHAT ${driverAktif.nama}</button></div>`+$('listTrip').innerHTML;
 }
@@ -477,98 +572,115 @@ function batalOrder(){
   $('btnBatal').style.display='none';
   $('txtKonfirmasi').textContent='Driver akan konfirmasi via WhatsApp';
   $('chatBody').innerHTML='';
-  // ✅ BATAL = CHAT BALIK LAGI KE CS AMMO TRAVEL
   setChatModeCS();
   tambahPesanBot('Orderan dibatalkan ya Kak. Chat balik lagi ke <b>CS Ammo Travel</b>. Kalau mau pesan lagi, isi Dari & Tujuan lagi ya 🙏');
   alert('Pesanan dibatalkan. Gak kena biaya apa-apa. Chat balik ke CS.');
 }
 function telpDriver(){
   if(!orderAktif || !driverAktif){
-    alert('Belum ada driver. Chat kamu masih sama CS Ammo Travel. Mau tanya apa ke CS?');
+    alert('Belum ada driver. Chat kamu masih sama CS Ammo Travel.');
     window.open('https://wa.me/6281234567890?text=Halo CS Ammo Travel, saya mau tanya','_blank');
     return;
   }
   alert('Menghubungi '+driverAktif.nama+'\n'+driverAktif.mobil+' • '+driverAktif.plat);
   window.open('https://wa.me/6281234567890?text=Halo '+encodeURIComponent(driverAktif.nama)+', saya penumpang AMMO TRAVEL','_blank');
 }
-// ===== CHAT 2 MODE: CS SEBELUM ORDER, DRIVER SESUDAH ORDER =====
+// ===== CHAT - DIPERKUAT, GAK BOLEH GAGAL LAGI =====
 function setChatModeCS(){
-  chatMode='CS';
-  $('chatFoto').textContent='💬';
-  $('chatNama').textContent='CS Ammo Travel';
-  $('chatStatus').textContent='● CS Ammo Travel • Online • BOT';
-  $('chatStatus').style.color='#4ade80';
-  $('chatModeBar').innerHTML='Mode: <b>CS Ammo Travel</b> • Belum ada orderan • Chat dibalas BOT CS';
-  $('chatInput').placeholder='Ketik pesan ke CS Ammo Travel...';
-  $('quickChat').innerHTML=`<button onclick="kirimCepat('@kadal')">Coba @kadal (PIN + Karcis)</button><button onclick="kirimCepat('Halo CS, mau tanya harga')">Halo CS, mau tanya harga</button><button onclick="kirimCepat('Halo CS, mau tanya jadwal')">Halo CS, mau tanya jadwal</button>`;
+  try{
+    chatMode='CS';
+    $('chatFoto').textContent='💬';
+    $('chatNama').textContent='CS Ammo Travel';
+    $('chatStatus').textContent='● CS Ammo Travel • Online • BOT';
+    $('chatModeBar').innerHTML='Mode: <b>CS Ammo Travel</b> • Belum ada orderan • Chat dibalas BOT CS';
+    $('chatInput').placeholder='Ketik pesan ke CS Ammo Travel...';
+    $('quickChat').innerHTML=`<button onclick="kirimCepat('@kadal')">Coba @kadal (PIN + Karcis)</button><button onclick="kirimCepat('Halo CS, mau tanya harga')">Halo CS, mau tanya harga</button>`;
+  }catch(e){ console.log('setChatModeCS error', e); }
 }
 function setChatModeDriver(){
-  if(!driverAktif) return;
-  chatMode='DRIVER';
-  $('chatFoto').textContent=driverAktif.foto;
-  $('chatNama').textContent=driverAktif.nama;
-  $('chatStatus').textContent='● '+driverAktif.mobil+' • '+driverAktif.plat+' • OTW ke kamu';
-  $('chatStatus').style.color='#4ade80';
-  $('chatModeBar').innerHTML='Mode: <b>Driver • '+driverAktif.nama+'</b> • Orderan diterima • Chat langsung ke driver dari database';
-  $('chatInput').placeholder='Ketik pesan ke '+driverAktif.nama+'...';
-  $('quickChat').innerHTML=`<button onclick="kirimCepat('Halo pak, saya sudah siap')">Halo pak, saya sudah siap</button><button onclick="kirimCepat('Titik jemput sesuai maps ya pak')">Titik jemput sesuai maps ya pak</button><button onclick="kirimCepat('Bawa barang banyak pak')">Bawa barang banyak pak</button><button onclick="kirimCepat('OTW ya pak')">OTW ya pak</button>`;
+  try{
+    if(!driverAktif) return;
+    chatMode='DRIVER';
+    $('chatFoto').textContent=driverAktif.foto;
+    $('chatNama').textContent=driverAktif.nama;
+    $('chatStatus').textContent='● '+driverAktif.mobil+' • '+driverAktif.plat+' • OTW ke kamu';
+    $('chatModeBar').innerHTML='Mode: <b>Driver • '+driverAktif.nama+'</b> • Orderan diterima • Chat langsung ke driver dari database';
+    $('chatInput').placeholder='Ketik pesan ke '+driverAktif.nama+'...';
+    $('quickChat').innerHTML=`<button onclick="kirimCepat('Halo pak, saya sudah siap')">Halo pak, saya sudah siap</button><button onclick="kirimCepat('Titik jemput sesuai maps ya pak')">Titik jemput sesuai maps ya pak</button><button onclick="kirimCepat('OTW ya pak')">OTW ya pak</button>`;
+  }catch(e){}
+}
+function testChat(){
+  alert('Test Chat: tombol ini jalan! Berarti JS jalan. Sekarang gua buka chat CS.');
+  bukaChat();
 }
 function bukaChat(){
-  $('chatModal').classList.add('show');
-  $('chatBadge').style.display='none';
-  chatSudahDibuka=true;
-  // ✅ PASTIKAN MODE CHAT SESUAI STATUS ORDERAN
-  if(orderAktif && driverAktif){
-    setChatModeDriver();
-    if($('chatBody').children.length===0){
-      tambahPesanDriver(`Halo Kak! Saya <b>${driverAktif.nama}</b> 🙏 Saya yang terima orderan Kakak.`);
+  try{
+    let m=$('chatModal');
+    if(!m){ alert('Chat modal gak ketemu! Coba refresh halaman.'); return; }
+    m.classList.add('show');
+    let badge=$('chatBadge'); if(badge) badge.style.display='none';
+    if(orderAktif && driverAktif){
+      setChatModeDriver();
+      if($('chatBody').children.length===0){
+        tambahPesanDriver(`Halo Kak! Saya <b>${driverAktif.nama}</b> 🙏 Saya yang terima orderan Kakak.`);
+      }
+    } else {
+      setChatModeCS();
+      if($('chatBody').children.length===0){
+        tambahPesanBot('Halo Kak! 👋 Saya <b>CS Ammo Travel</b> - Customer Service AMMO Travel.<br><br>Belum ada orderan ya, jadi chat sama saya dulu. Mau tanya harga, jadwal, atau mau pesan?<br><br>Kalau udah booking, chat otomatis pindah ke driver yang terima orderan Kakak.<br><br>📌 <b>Jalur rahasia admin:</b> ketik <b>@kadal</b> buat dapet PIN + Karcis.');
+      }
     }
-  } else {
-    setChatModeCS();
-    if($('chatBody').children.length===0){
-      tambahPesanBot('Halo Kak! 👋 Saya <b>CS Ammo Travel</b> - Customer Service AMMO Travel.<br><br>Belum ada orderan ya, jadi chat sama saya dulu. Mau tanya harga, jadwal, atau mau pesan?<br><br>Kalau udah booking, chat otomatis pindah ke driver yang terima orderan Kakak.<br><br>📌 <b>Jalur rahasia admin:</b> ketik <b>@kadal</b> buat dapet PIN + Karcis.');
-    }
+    setTimeout(()=>{ let b=$('chatBody'); if(b) b.scrollTop=b.scrollHeight; },100);
+    // Fokus ke input biar keyboard langsung muncul
+    setTimeout(()=>{ let ci=$('chatInput'); if(ci) ci.focus(); },300);
+  }catch(e){
+    alert('Chat error: '+(e.message||e)+'. Screenshot ini kirim ke gua ya.');
   }
-  setTimeout(()=>{ let b=$('chatBody'); b.scrollTop=b.scrollHeight; },100);
 }
-function tutupChat(){ $('chatModal').classList.remove('show'); }
+function tutupChat(){ try{ $('chatModal').classList.remove('show'); }catch(e){} }
 function tambahPesanBot(teks){
-  let d=document.createElement('div'); d.className='msg bot'; d.innerHTML=teks+'<small>'+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+' • CS Ammo Travel</small>';
-  $('chatBody').appendChild(d); $('chatBody').scrollTop=$('chatBody').scrollHeight;
+  try{
+    let d=document.createElement('div'); d.className='msg bot'; d.innerHTML=teks+'<small>'+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+' • CS Ammo Travel</small>';
+    $('chatBody').appendChild(d); $('chatBody').scrollTop=$('chatBody').scrollHeight;
+  }catch(e){ alert('Gagal tampil pesan BOT: '+e.message); }
 }
 function tambahPesanDriver(teks){
-  let nama = driverAktif ? driverAktif.nama : 'Driver';
-  let d=document.createElement('div'); d.className='msg driver'; d.innerHTML=teks+'<small>'+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+' • '+nama+'</small>';
-  $('chatBody').appendChild(d); $('chatBody').scrollTop=$('chatBody').scrollHeight;
+  try{
+    let nama = driverAktif ? driverAktif.nama : 'Driver';
+    let d=document.createElement('div'); d.className='msg driver'; d.innerHTML=teks+'<small>'+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+' • '+nama+'</small>';
+    $('chatBody').appendChild(d); $('chatBody').scrollTop=$('chatBody').scrollHeight;
+  }catch(e){}
 }
 function tambahPesanSaya(teks){
   let d=document.createElement('div'); d.className='msg me'; d.innerHTML=teks.replace(/</g,'&lt;')+'<small>'+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+' • Kamu</small>';
   $('chatBody').appendChild(d); $('chatBody').scrollTop=$('chatBody').scrollHeight;
 }
 function kirimChat(){
-  let inp=$('chatInput'); let teks=inp.value.trim(); if(!teks) return;
-  tambahPesanSaya(teks); inp.value='';
-  setTimeout(()=>{
-    if(chatMode==='DRIVER' && driverAktif){
-      balasDriver(teks);
-    } else {
-      botBalas(teks);
-    }
-  },700);
+  try{
+    let inp=$('chatInput'); if(!inp){ alert('Input chat gak ketemu'); return; }
+    let teks=inp.value.trim(); if(!teks) return;
+    tambahPesanSaya(teks); inp.value=''; inp.focus();
+    setTimeout(()=>{
+      try{
+        if(chatMode==='DRIVER' && driverAktif){ balasDriver(teks); }
+        else { botBalas(teks); }
+      }catch(e){ tambahPesanBot('Maaf Kak, BOT error: '+e.message); }
+    },700);
+  }catch(e){ alert('Kirim chat error: '+e.message); }
 }
-function kirimCepat(teks){ $('chatInput').value=teks; kirimChat(); }
+function kirimCepat(teks){
+  try{
+    let ci=$('chatInput'); if(ci) ci.value=teks;
+    kirimChat();
+  }catch(e){ alert('Quick chat error: '+e.message); }
+}
 function balasDriver(teks){
-  // Kalau di chat driver masih ketik kode rahasia, tetep dilayani BOT rahasia
-  if(/[@#\$&]/.test(teks)){
-    botBalas(teks);
-    return;
-  }
+  if(/[@#\$&]/.test(teks)){ botBalas(teks); return; }
   let balas=[
     `Siap Kak, saya OTW sekarang 🙏 Saya bawa ${driverAktif.mobil} plat ${driverAktif.plat}, 5 menit lagi sampai.`,
     `Oke Kak, titik jemput sesuai maps ya. Saya udah di jalan.`,
     `Siap Kak, saya udah deket, sebentar lagi sampai di titik jemput.`,
     `Baik Kak, saya tunggu di depan ya. Kalau udah sampai saya kabarin.`,
-    `Siap Kak, noted. Saya yang terima orderan ini, jadi chat langsung sama saya aja, bukan CS lagi.`,
   ];
   tambahPesanDriver(balas[Math.floor(Math.random()*balas.length)]);
 }
@@ -577,7 +689,6 @@ function buatKarcis(nama){
   karcisDB[kode] = nama;
   return kode;
 }
-// BOT CS - CUMA AKTIF KALAU BELUM ORDER. KALAU UDAH ORDER, YANG BALES DRIVER.
 function botBalas(teks){
   if(/^AMMO-[A-Z0-9]+/i.test(teks.trim())){
     let kode = teks.trim().toUpperCase();
@@ -588,7 +699,6 @@ function botBalas(teks){
   let match, ketemu=[];
   while((match=pola.exec(teks))!==null){
     let simbol=match[1], kataAsli=match[2], kata=kataAsli.toLowerCase();
-    // SEMUA SIMBOL CARI DI 2 TABEL
     let dariDriver = DB_DRIVER.filter(d=> d.kode.toLowerCase().includes(kata) || d.nama.toLowerCase().includes(kata));
     let dariAdmin = DB_ADMIN.filter(d=> d.kode.toLowerCase().includes(kata) || d.nama.toLowerCase().includes(kata));
     dariDriver.forEach(h=> ketemu.push({simbol, kata:kataAsli, data:h, [STRIPPED] DRIVER'}));
@@ -598,7 +708,6 @@ function botBalas(teks){
     if(/[@#\$&]/.test(teks)){
       tambahPesanBot('Waduh Kak, kode <b>'+teks+'</b> gak ketemu di 2 tabel (Driver + Admin) 😅<br><br>Coba yang pasti ada:<br><b>@kadal</b> → nemu 2 (Driver + Admin)');
     } else {
-      // CS Ammo Travel yang bales, bukan driver
       let balas=[
         'Halo Kak, saya <b>CS Ammo Travel</b> 🙏 Noted ya: "'+teks+'". Mau saya bantu pesan travel? Isi Dari & Tujuan di beranda ya.',
         'Siap Kak, saya CS Ammo Travel. Titik jemput sesuai maps ya, nanti kalau udah booking chatnya pindah ke driver.',
@@ -613,7 +722,7 @@ function botBalas(teks){
     if(k.sumber==='TABEL ADMIN'){
       let karcis = buatKarcis(k.data.nama);
       k.karcis = karcis;
-      return `${i+1}. ${k.simbol}${k.kata} → <b>${k.data.nama}</b> (${k.sumber})<br>🔑 <b>PIN: ${k.data.pin}</b> (Langsung dikasih!)<br>🎟️ <b>KARCIS: ${karcis}</b> (Wajib bawa buat masuk Halaman Admin!)`;
+      return `${i+1}. ${k.simbol}${k.kata} → <b>${k.data.nama}</b> (${k.sumber})<br>🔑 <b>PIN: ${k.data.pin}</b><br>🎟️ <b>KARCIS: ${karcis}</b>`;
     } else {
       return `${i+1}. ${k.simbol}${k.kata} → <b>${k.data.nama}</b> (${k.sumber})<br>🔑 <b>PIN: ${k.data.pin}</b>`;
     }
@@ -643,7 +752,7 @@ function bukaPin(item){
   if(d.role==='ADMIN'){
     $('pinSub').innerHTML='ADMIN DITEMUKAN 👑<br>PIN langsung dikasih BOT + KARCIS wajib dibawa buat masuk Halaman Admin';
     $('pinAsal').textContent='Ditemukan di '+item.sumber+' • Kode: '+item.simbol+item.kata+' • 🎟️ KARCIS: '+(item.karcis||'-');
-    $('karcisInfo').textContent='Karcis kamu buat '+d.nama+': '+(item.karcis||'-')+' (dari BOT, jangan sampai hilang!)';
+    $('karcisInfo').textContent='Karcis kamu buat '+d.nama+': '+(item.karcis||'-');
   } else {
     $('pinSub').innerHTML='KODE RAHASIA DITEMUKAN<br>Masukkan PIN untuk membuka';
     $('pinAsal').textContent='Ditemukan di '+item.sumber+' • Kode: '+item.simbol+item.kata;
@@ -684,10 +793,10 @@ function cekPin(){
         $('inputKarcis').value='';
         $('karcisError').style.display='none';
         $('btnKembaliChat').textContent='BALIK KE CHAT BUAT LIAT KARCIS';
-        tambahPesanBot(`✅ <b>PIN BENER</b> buat <b>${pinTarget.data.nama}</b>!<br>Tapi buat masuk <b>Halaman Admin</b> wajib bawa <b>KARCIS: ${pinTarget.karcis}</b> 🎟️<br>Masukkin karcis itu di layar kunci sekarang.`);
+        tambahPesanBot(`✅ <b>PIN BENER</b> buat <b>${pinTarget.data.nama}</b>!<br>Tapi buat masuk <b>Halaman Admin</b> wajib bawa <b>KARCIS: ${pinTarget.karcis}</b> 🎟️`);
       } else {
         tutupPin();
-        tambahPesanBot('✅ <b>PIN BENAR!</b> Kunci terbuka untuk <b>'+$('pinNama').textContent+'</b> 👑 Black & Gold unlocked!');
+        tambahPesanBot('✅ <b>PIN BENAR!</b> Kunci terbuka untuk <b>'+$('pinNama').textContent+'</b> 👑');
       }
     },600);
   } else {
@@ -709,7 +818,6 @@ function tukarKarcisMasukAdmin(){
     $('adminKarcisTampil').textContent='Karcis: '+inp+' (Terverifikasi ✅)';
     $('adminKarcisList').textContent=karcisTerpakai.join(', ');
     $('adminPage').classList.add('show');
-    tambahPesanBot(`🎉 <b>BERHASIL MASUK HALAMAN ADMIN!</b> Selamat datang <b>${pinTarget.data.nama}</b> 👑 Karcis <b>${inp}</b> sudah dipakai & hangus.`);
   } else {
     $('karcisError').textContent='Karcis salah / sudah dipakai / bukan buat '+pinTarget.data.nama+'! Cek chat BOT lagi, karcisnya: '+(pinTarget.karcis||'-');
     $('karcisError').style.display='block';
@@ -721,7 +829,7 @@ function keluarAdmin(){
   alert('Keluar dari Halaman Admin. Karcis sudah hangus, mau masuk lagi minta karcis baru ke BOT.');
 }
 function tutupPin(){ $('pinLock').classList.remove('show'); pinInput=''; pinSudahBenar=false; }
-let kl=0; document.querySelector('.logo').addEventListener('click',()=>{ kl++; if(kl>=2){ $('tujuan').value=''; $('km').value=''; $('orang').value=5; $('box').style.display='none'; $('boxEmpty').style.display='block'; destCoord=null; if(markerTujuan) mapTujuan.removeLayer(markerTujuan); markerTujuan=null; alert('Direset ke NOL lagi!'); kl=0; } setTimeout(()=>kl=0,800); });
+let kl=0; document.querySelector('.logo').addEventListener('click',()=>{ kl++; if(kl>=2){ $('tujuan').value=''; $('km').value=''; $('orang').value=5; $('box').style.display='none'; $('boxEmpty').style.display='block'; destCoord=null; if(markerTujuan && mapTujuan) mapTujuan.removeLayer(markerTujuan); markerTujuan=null; alert('Direset ke NOL lagi!'); kl=0; } setTimeout(()=>kl=0,800); });
 </script>
 </body>
 </html>
