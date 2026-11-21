@@ -19,16 +19,18 @@ input,select{width:100%;background:#1a1a1a;border:1px solid #333;border-radius:1
 select{cursor:pointer}
 select option{background:#1a1a1a;color:#fff}
 input:focus,select:focus{border-color:#D4AF37}
+/* INPUT + TOMBOL MAPS DI SAMPING */
+.inputRow{display:flex;gap:8px;align-items:stretch}
+.inputRow input{flex:1;min-width:0}
+.btnMapsSide{flex-shrink:0;padding:0 14px;border:1px solid #D4AF37;background:#1a1a1a;color:#E8C766;border-radius:12px;font-weight:900;font-size:12px;cursor:pointer;letter-spacing:1px}
+.btnMapsSide.active{background:linear-gradient(180deg,#FFE9A8,#D4AF37);color:#000}
 .swap{display:flex;justify-content:center;margin:2px 0}
 .swap button{width:44px;height:44px;border-radius:50%;border:1px solid #D4AF37;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-size:20px;font-weight:900;cursor:pointer}
 .divider{height:1px;background:#C9A227;margin:8px 4px;opacity:.6}
 .row{display:flex;gap:10px}.row .field{flex:1}
-.sug{position:absolute;left:0;right:0;top:100%;background:#1c1c1c;border:1px solid #C9A227;border-radius:12px;z-index:30;display:none;overflow:hidden;max-height:240px;overflow-y:auto}
+.sug{position:absolute;left:0;right:0;top:100%;background:#1c1c1c;border:1px solid #C9A227;border-radius:12px;z-index:30;display:none;overflow:hidden;max-height:280px;overflow-y:auto}
 .sug div{padding:12px;border-bottom:1px solid #333;cursor:pointer;font-size:14px;line-height:1.3}
 .sug div small{color:#D4AF37;display:block;font-size:11px;margin-top:2px}
-/* TOMBOL MAPS - KAYAK TOMBOL REFRESH GPS TADI */
-.btnMaps{width:100%;margin-top:8px;padding:12px;border:1px solid #D4AF37;background:#1a1a1a;color:#E8C766;border-radius:12px;font-weight:800;font-size:13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
-.btnMaps.active{background:linear-gradient(180deg,#FFE9A8,#D4AF37);color:#000}
 .miniMap{height:200px;border-radius:14px;border:1px solid #C9A227;margin-top:8px;z-index:1;display:none}
 .miniMap.show{display:block}
 .mapHint{display:none;justify-content:space-between;font-size:11px;color:#888;margin-top:6px}
@@ -61,22 +63,26 @@ input:focus,select:focus{border-color:#D4AF37}
 <div class="logo">AMMO TRAVEL</div>
 <h1>Mau pergi kemana?</h1>
 <div class="card">
-  <!-- DARI - GPS OTOMATIS, TOMBOL REFRESH GPS UDAH DIHILANGIN -->
+  <!-- DARI - MAPS DI SAMPING KOLOM -->
   <div class="field">
     <label>📍 Dari</label>
-    <input id="dari" value="📍 Mendeteksi lokasi kamu..." placeholder="Dari mana?" autocomplete="off">
+    <div class="inputRow">
+      <input id="dari" value="📍 Mendeteksi lokasi kamu..." placeholder="Dari mana?" autocomplete="off">
+      <button class="btnMapsSide" id="btnMapDari" onclick="toggleMap('dari')">MAPS</button>
+    </div>
     <div class="sug" id="sugDari"></div>
-    <button class="btnMaps" id="btnMapDari" onclick="toggleMap('dari')">🗺️ LIHAT MAPS DARI <span>▼</span></button>
     <div id="mapDari" class="miniMap"></div>
     <div class="mapHint" id="hintDari"><span>Geser pin A / Klik peta</span><button onclick="pusatKeDari()">Ke Lokasi Saya</button></div>
   </div>
   <div class="swap"><button onclick="tukar()">↑↓</button></div>
-  <!-- TUJUAN - BIARIN KOSONG, MAPS CUMA TOMBOL -->
+  <!-- TUJUAN - MAPS DI SAMPING KOLOM -->
   <div class="field">
     <label>📍 Tujuan</label>
-    <input id="tujuan" value="" placeholder="Mau ke mana? Ketik / buka maps bawah" autocomplete="off">
+    <div class="inputRow">
+      <input id="tujuan" value="" placeholder="Mau ke mana?" autocomplete="off">
+      <button class="btnMapsSide" id="btnMapTujuan" onclick="toggleMap('tujuan')">MAPS</button>
+    </div>
     <div class="sug" id="sugTujuan"></div>
-    <button class="btnMaps" id="btnMapTujuan" onclick="toggleMap('tujuan')">🗺️ LIHAT MAPS TUJUAN <span>▼</span></button>
     <div id="mapTujuan" class="miniMap"></div>
     <div class="mapHint" id="hintTujuan"><span>Geser pin B / Klik peta</span><button onclick="pusatKeTujuan()">Ke Tujuan</button></div>
   </div>
@@ -152,41 +158,37 @@ function fmtEstimasi(detik){
   if(h>0) return h+' jam '+(sisa>0?sisa+' menit':'');
   return m+' menit';
 }
-
-// ===== 2 MAPS PISAH - TAPI DISEMBUNYIIN JADI TOMBOL =====
+// Hitung jarak lurus buat urutkan dari terdekat
+function jarakKe(lat1,lon1,lat2,lon2){
+  let dLat=(lat2-lat1)*111, dLon=(lon2-lon1)*111*Math.cos(lat1*Math.PI/180);
+  return Math.sqrt(dLat*dLat+dLon*dLon);
+}
+function fmtJarak(km){
+  if(km<1) return Math.round(km*1000)+' m dari kamu';
+  return km.toFixed(1)+' km dari kamu';
+}
 let mapDari=L.map('mapDari').setView([-6.9175,107.6191],13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(mapDari);
 let mapTujuan=L.map('mapTujuan').setView([-6.9175,107.6191],13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(mapTujuan);
-
 let markerDari=null, markerTujuan=null;
-
-// TOMBOL BUKA / TUTUP MAPS
 function toggleMap(which){
   let isDari = which==='dari';
   let mapEl = isDari ? $('mapDari') : $('mapTujuan');
   let hintEl = isDari ? $('hintDari') : $('hintTujuan');
   let btnEl = isDari ? $('btnMapDari') : $('btnMapTujuan');
   let isOpen = mapEl.classList.contains('show');
-  if(isOpen){
-    mapEl.classList.remove('show'); hintEl.classList.remove('show'); btnEl.classList.remove('active');
-    btnEl.innerHTML = isDari ? '🗺️ LIHAT MAPS DARI <span>▼</span>' : '🗺️ LIHAT MAPS TUJUAN <span>▼</span>';
-  } else {
+  if(isOpen){ mapEl.classList.remove('show'); hintEl.classList.remove('show'); btnEl.classList.remove('active'); }
+  else{
     mapEl.classList.add('show'); hintEl.classList.add('show'); btnEl.classList.add('active');
-    btnEl.innerHTML = isDari ? '🗺️ SEMBUNYIKAN MAPS DARI <span>▲</span>' : '🗺️ SEMBUNYIKAN MAPS TUJUAN <span>▲</span>';
-    setTimeout(()=>{
-      if(isDari){ mapDari.invalidateSize(); if(pickCoord) mapDari.setView([pickCoord[1],pickCoord[0]],14); }
-      else { mapTujuan.invalidateSize(); if(destCoord) mapTujuan.setView([destCoord[1],destCoord[0]],14); }
-    },100);
+    setTimeout(()=>{ if(isDari){ mapDari.invalidateSize(); if(pickCoord) mapDari.setView([pickCoord[1],pickCoord[0]],14); } else { mapTujuan.invalidateSize(); if(destCoord) mapTujuan.setView([destCoord[1],destCoord[0]],14); else if(pickCoord) mapTujuan.setView([pickCoord[1],pickCoord[0]],13); } },100);
   }
 }
-
 function setMarkerDari(lat,lon){
   let icon=L.divIcon({html:`<div style="background:#D4AF37;color:#000;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;border:2px solid #fff">A</div>`,iconSize:[28,28]});
   if(markerDari) mapDari.removeLayer(markerDari);
   markerDari=L.marker([lat,lon],{icon,draggable:true}).addTo(mapDari);
   markerDari.on('dragend',()=>{ let p=markerDari.getLatLng(); pickCoord=[p.lng,p.lat]; reverseGeocode(p.lat,p.lng,true); hitungJarakReal(); });
-  // Jangan paksa pindah view kalau maps lagi ketutup, biar gak error
   if($('mapDari').classList.contains('show')) mapDari.setView([lat,lon],14);
 }
 function setMarkerTujuan(lat,lon){
@@ -207,8 +209,6 @@ async function reverseGeocode(lat,lon,isDari){
 }
 function pusatKeDari(){ if(pickCoord) mapDari.setView([pickCoord[1],pickCoord[0]],15); }
 function pusatKeTujuan(){ if(destCoord) mapTujuan.setView([destCoord[1],destCoord[0]],15); }
-
-// GPS OTOMATIS CUMA BUAT DARI - TANPA TOMBOL REFRESH, JALAN SENDIRI
 function ambilGPS(){
   if(!navigator.geolocation){ $('dari').value='Jalan Muara Raya, Pelindung'; return; }
   navigator.geolocation.getCurrentPosition(async pos=>{
@@ -218,21 +218,26 @@ function ambilGPS(){
   },()=>{ $('dari').value='Jalan Muara Raya, Pelindung'; },{enableHighAccuracy:true,timeout:10000, maximumAge:60000});
 }
 window.addEventListener('load',()=>{ setTimeout(()=>ambilGPS(), 500); });
-
 let timerCari=null;
 async function cariGabungan(query, box, isDari){
   if(query.length<3){box.style.display='none';return;}
-  box.innerHTML='<div style="padding:12px;color:#D4AF37">🔍 Mencari di 2 Maps...</div>'; box.style.display='block';
+  box.innerHTML='<div style="padding:12px;color:#D4AF37">🔍 Mencari dari yang terdekat...</div>'; box.style.display='block';
   try{
-    let p1=fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=4&q=${encodeURIComponent(query+', Indonesia')}`).then(r=>r.json()).catch(()=>[]);
-    let p2=fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=4&lang=id`).then(r=>r.json()).then(j=>j.features||[]).catch(()=>[]);
+    // Acuan titik terdekat = posisi GPS lu (Dari). Kalau belum ada, pake Bandung.
+    let acuan = pickCoord ? {lat: pickCoord[1], lon: pickCoord[0]} : {lat:-6.9175, lon:107.6191};
+    let p1=fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=8&q=${encodeURIComponent(query+', Indonesia')}`).then(r=>r.json()).catch(()=>[]);
+    let p2=fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=8&lang=id&lat=${acuan.lat}&lon=${acuan.lon}`).then(r=>r.json()).then(j=>j.features||[]).catch(()=>[]);
     let [nom, pho]=await Promise.all([p1,p2]);
     let hasil=[];
     nom.forEach(p=>hasil.push({nama:p.display_name.split(',').slice(0,3).join(','), lat:parseFloat(p.lat), lon:parseFloat(p.lon), sumber:'Nominatim'}));
     pho.forEach(f=>{ let nama=((f.properties.name||'')+' '+(f.properties.city||f.properties.state||'')).trim(); let lat=f.geometry.coordinates[1], lon=f.geometry.coordinates[0]; if(!hasil.some(h=>Math.abs(h.lat-lat)<0.002&&Math.abs(h.lon-lon)<0.002)) hasil.push({nama,lat,lon,sumber:'Photon'}); });
     if(!hasil.length){ box.innerHTML='<div style="padding:12px">Gak ketemu, coba ketik lebih lengkap</div>'; return; }
+    // === URUTKAN DARI YANG TERDEKAT ===
+    hasil.forEach(h=> h.jarak = jarakKe(acuan.lat, acuan.lon, h.lat, h.lon));
+    hasil.sort((a,b)=> a.jarak - b.jarak);
+    hasil = hasil.slice(0,6);
     box._data=hasil;
-    box.innerHTML=hasil.map((h,i)=>`<div onclick="pilihTempat(${i},${isDari})">${h.nama}<small>📍 ${h.sumber} • ${h.lat.toFixed(4)}, ${h.lon.toFixed(4)}</small></div>`).join('');
+    box.innerHTML=hasil.map((h,i)=>`<div onclick="pilihTempat(${i},${isDari})">${h.nama}<small>📍 ${fmtJarak(h.jarak)} • ${h.sumber}</small></div>`).join('');
   }catch(e){ box.style.display='none'; }
 }
 function pilihTempat(i,isDari){
