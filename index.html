@@ -88,8 +88,8 @@ input:focus,select:focus{border-color:#D4AF37}
 .chatInput button{width:48px;height:48px;border-radius:50%;border:none;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-size:20px;cursor:pointer}
 .quickChat{display:flex;gap:8px;padding:0 12px 10px;background:#111;overflow-x:auto;white-space:nowrap}
 .quickChat button{background:#1a1a1a;border:1px solid #333;color:#E8C766;padding:8px 12px;border-radius:20px;font-size:12px;cursor:pointer;flex-shrink:0}
-/* KARCIS + PIN LOCK BLACK & GOLD */
-.pinLock{position:fixed;inset:0;background:radial-gradient(circle at 50% 0%, #2a2100 0%, #000 60%);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;padding:24px;text-align:center;overflow-y:auto}
+/* PIN LOCK SCREEN - BLACK & GOLD MEWAH */
+.pinLock{position:fixed;inset:0;background:radial-gradient(circle at 50% 0%, #2a2100 0%, #000 60%);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;padding:24px;text-align:center}
 .pinLock.show{display:flex}
 .pinCrown{font-size:48px;margin-bottom:8px}
 .pinTitle{font-size:22px;font-weight:900;background:linear-gradient(180deg,#FFE9A8,#D4AF37);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
@@ -100,15 +100,13 @@ input:focus,select:focus{border-color:#D4AF37}
 .pinDots{display:flex;gap:12px;margin:22px 0 14px}
 .pinDot{width:16px;height:16px;border-radius:50%;border:2px solid #D4AF37;background:transparent}
 .pinDot.filled{background:linear-gradient(180deg,#FFE9A8,#D4AF37)}
-.pinCode{font-size:30px;font-weight:900;letter-spacing:6px;color:#fff;margin:6px 0;word-break:break-all}
+.pinCode{font-size:38px;font-weight:900;letter-spacing:10px;color:#fff;margin:6px 0}
 .pinCode span{color:#D4AF37}
 .pinKeypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:280px;margin-top:10px}
 .pinKey{height:58px;border-radius:50%;border:1px solid #C9A227;background:#111;color:#fff;font-size:22px;font-weight:800;cursor:pointer}
 .pinKey:active{background:linear-gradient(180deg,#FFE9A8,#D4AF37);color:#000}
 .pinBtnGold{margin-top:18px;width:100%;max-width:320px;padding:14px;border:none;border-radius:14px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-weight:900;font-size:15px;cursor:pointer}
 .pinBtnGhost{margin-top:10px;background:none;border:none;color:#888;font-size:12px;cursor:pointer}
-.karcisBox{margin-top:14px;border:1px dashed #D4AF37;background:#1a1a1a;border-radius:14px;padding:12px;width:100%;max-width:320px}
-.karcisBox input{margin-top:8px;text-align:center;letter-spacing:3px;font-weight:900;text-transform:uppercase}
 </style>
 </head>
 <body>
@@ -211,55 +209,43 @@ input:focus,select:focus{border-color:#D4AF37}
   <div class="chatHeader">
     <button onclick="tutupChat()" style="background:none;border:none;color:#fff;font-size:22px;cursor:pointer">←</button>
     <div class="driverFoto" id="chatFoto">🤖</div>
-    <div style="flex:1"><b id="chatNama">AMMO BOT • Online</b><div style="font-size:11px;color:#4ade80">● BOT Aktif • Semua chat dibalas BOT • <span id="chatMobil">Cari di 2 tabel</span></div></div>
+    <div style="flex:1"><b id="chatNama">AMMO BOT • Online</b><div style="font-size:11px;color:#4ade80">● BOT Aktif • Balas Otomatis • <span id="chatMobil">Semua chat dibalas BOT</span></div></div>
     <button onclick="telpDriver()" style="background:#1a1a1a;border:1px solid #D4AF37;color:#E8C766;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer">📞</button>
   </div>
   <div class="chatBody" id="chatBody"></div>
   <div class="quickChat">
+    <button onclick="kirimCepat('Halo bot, saya sudah siap')">Halo bot, saya sudah siap</button>
     <button onclick="kirimCepat('@kadal #sapi $Kambing')">Coba @kadal #sapi $Kambing</button>
-    <button onclick="kirimCepat('&kadal')">Coba &kadal (2 tabel)</button>
-    <button onclick="kirimCepat('TUKAR KARCIS')">Tukar Karcis Admin</button>
+    <button onclick="kirimCepat('@Budi #Asep $Rudi &Ko')">Coba @Budi #Asep</button>
+    <button onclick="kirimCepat('Titik jemput sesuai maps ya')">Titik jemput sesuai maps</button>
   </div>
   <div class="chatInput">
-    <input id="chatInput" placeholder="Ketik @ # $ & → cari di DRIVER + ADMIN" onkeypress="if(event.key==='Enter') kirimChat()">
+    <input id="chatInput" placeholder="Ketik... @ # $ & untuk cari PIN rahasia" onkeypress="if(event.key==='Enter') kirimChat()">
     <button onclick="kirimChat()">➤</button>
   </div>
 </div>
-<!-- PIN LOCK + KARCIS -->
+<!-- PIN LOCK SCREEN BLACK & GOLD -->
 <div class="pinLock" id="pinLock">
   <div class="pinCrown">👑</div>
   <div class="pinTitle">AMMO TRAVEL</div>
-  <div class="pinSub" id="pinSub">KODE RAHASIA DITEMUKAN<br>Masukkan PIN untuk membuka</div>
+  <div class="pinSub">KODE RAHASIA DITEMUKAN<br>Masukkan PIN untuk membuka</div>
   <div class="pinUser" id="pinUser">
     <b id="pinNama">-</b>
     <p id="pinDetail">-</p>
     <p id="pinAsal" style="color:#D4AF37;font-weight:700">-</p>
   </div>
-  <!-- BAGIAN KARCIS - CUMA BUAT ADMIN -->
-  <div class="karcisBox" id="karcisBox" style="display:none">
-    <b style="color:#E8C766">🎟️ KARCIS ADMIN WAJIB!</b>
-    <p style="font-size:12px;color:#aaa;margin-top:4px">Admin gak bisa langsung buka PIN. Masukkan KARCIS dari BOT dulu.</p>
-    <input id="inputKarcis" placeholder="MASUKKAN KARCIS: AMMO-XXXX">
-    <button class="pinBtnGold" onclick="tukarKarcis()" style="margin-top:10px">🎟️ TUKAR KARCIS → BUKA PIN</button>
-    <p id="karcisError" style="font-size:12px;color:#ff6b6b;margin-top:6px;display:none">Karcis salah / sudah dipakai!</p>
-  </div>
-  <div id="pinArea">
-    <div class="pinDots" id="pinDots"><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div></div>
-    <div class="pinCode" id="pinCode">• • • • • •</div>
-    <p style="font-size:11px;color:#888">PIN asli (demo): <span id="pinAsli" style="color:#E8C766;font-weight:900">-</span></p>
-    <div class="pinKeypad" id="pinKeypad"></div>
-  </div>
-  <button class="pinBtnGold" onclick="tutupPin()">🔓 KEMBALI KE CHAT</button>
+  <div class="pinDots" id="pinDots"><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div></div>
+  <div class="pinCode" id="pinCode">• • • • • •</div>
+  <p style="font-size:11px;color:#888">PIN asli: <span id="pinAsli" style="color:#E8C766;font-weight:900">-</span> • Coba ketik di keypad</p>
+  <div class="pinKeypad" id="pinKeypad"></div>
+  <button class="pinBtnGold" onclick="tutupPin()">🔓 BUKA / KEMBALI KE CHAT</button>
   <button class="pinBtnGhost" onclick="tutupPin()">Tutup tanpa buka</button>
 </div>
 <script>
 const $=id=>document.getElementById(id);
 const fmt=n=>'Rp '+Math.round(n||0).toLocaleString('id-ID');
-let pickCoord=null, destCoord=null, totalHarga=0, voucherDapat=0, orderAktif=false, driverAktif=null, chatSudahDibuka=false, pinInput='', pinBenar='', pinTarget=null, karcisAktif='';
-// ⚠️ DATA INI MASIH PALSU - BUTUH URL + API + DATA ASLI DARI LU
-// TODO: GANTI KE URL API ASLI KALAU UDAH DIKASIH
-const API_URL = ''; // <-- ISI URL BACKEND LU DI SINI, MISAL https://api.ammotravel.com
-const API_KEY = ''; // <-- ISI API KEY LU DI SINI
+let pickCoord=null, destCoord=null, totalHarga=0, voucherDapat=0, orderAktif=false, driverAktif=null, chatSudahDibuka=false, pinInput='', pinBenar='';
+// ===== DATABASE PALSU - NANTI GANTI KE FIREBASE / BACKEND ASLI =====
 const DB_DRIVER=[
   {kode:'kadal', nama:'Kadal Sakti - Driver', foto:'🦎', role:'DRIVER', mobil:'Toyota Innova Reborn', plat:'D 1111 KDL', pin:'112233', ket:'Driver Senior • Bandung'},
   {nama:'Budi Santoso', kode:'budi', foto:'👨‍🦱', role:'DRIVER', mobil:'Toyota Innova Reborn', plat:'D 1234 ABC', pin:'123456', ket:'Driver • 1.240 trip'},
@@ -274,7 +260,6 @@ const DB_ADMIN=[
   {nama:'Sapi Admin', kode:'sapi', foto:'🐄', role:'ADMIN', mobil:'Admin Keuangan', plat:'AMMO-003', pin:'343434', ket:'Admin Keuangan'},
   {nama:'Kambing Admin', kode:'kambing', foto:'🐐', role:'ADMIN', mobil:'Admin Order', plat:'AMMO-004', pin:'565656', ket:'Admin Order'},
 ];
-let karcisDB = {}; // karcis -> data admin, dibuat BOT tiap kali ketemu admin
 const drivers=[
   {nama:'Budi Santoso', foto:'👨‍🦱', rating:'⭐ 4.9 • 1.240 perjalanan', mobil:'Toyota Innova Reborn', warna:'Hitam • 7 Kursi', plat:'D 1234 ABC', eta:'5 menit lagi'},
   {nama:'Asep Hidayat', foto:'👨🏻', rating:'⭐ 4.8 • 980 perjalanan', mobil:'Toyota Avanza Veloz', warna:'Putih • 7 Kursi', plat:'D 5678 XYZ', eta:'7 menit lagi'},
@@ -439,7 +424,7 @@ function driverDitemukan(){
   $('txtKonfirmasi').textContent='Driver OTW • Chat dibalas BOT AMMO';
   $('chatBadge').textContent='1'; $('chatBadge').style.display='flex';
   $('chatBody').innerHTML='';
-  tambahPesanBot('Halo kak! Saya <b>AMMO BOT 🤖</b> yang jagain chat ini. Driver <b>'+driverAktif.nama+'</b> lagi OTW, '+driverAktif.eta+'.<br><br>Coba ketik kode rahasia: <b>@kadal #sapi $Kambing</b> - semua simbol nyari di 2 TABEL (Driver + Admin) 👑');
+  tambahPesanBot('Halo kak! Saya <b>AMMO BOT 🤖</b> yang jagain chat ini. Driver <b>'+driverAktif.nama+'</b> lagi OTW, '+driverAktif.eta+'.<br><br>Coba ketik kode rahasia: <b>@kadal #sapi $Kambing</b> buat buka PIN Black & Gold 👑');
   let v=parseInt(localStorage.getItem('ammo_voucher')||'0')+voucherDapat; localStorage.setItem('ammo_voucher',v); $('voucherTotal').textContent=fmt(v);
   $('listTrip').innerHTML=`<div class="item"><b>${driverAktif.nama} • ${driverAktif.mobil} • ${driverAktif.plat}</b><p>${$('dari').value} → ${$('tujuan').value}</p><p>${$('km').value} • ${$('orang').value} Orang • Driver OTW</p><p style="color:#E8C766;font-weight:800">${fmt(totalHarga)}</p><button onclick="bukaChat()" style="margin-top:8px;padding:8px 14px;border:1px solid #D4AF37;background:#1a1a1a;color:#E8C766;border-radius:10px;font-weight:800;cursor:pointer">💬 CHAT BOT</button></div>`+$('listTrip').innerHTML;
 }
@@ -462,13 +447,13 @@ function telpDriver(){
   alert('Menghubungi '+driverAktif.nama+'\n'+driverAktif.mobil+' • '+driverAktif.plat);
   window.open('https://wa.me/6281234567890?text=Halo '+encodeURIComponent(driverAktif.nama)+', saya penumpang AMMO TRAVEL','_blank');
 }
-// ===== CHAT BOT - SEMUA SIMBOL CARI DI 2 TABEL =====
+// ===== CHAT BOT + PIN =====
 function bukaChat(){
   $('chatModal').classList.add('show');
   $('chatBadge').style.display='none';
   chatSudahDibuka=true;
   if($('chatBody').children.length===0){
-    tambahPesanBot('Halo kak! 👋 Saya <b>AMMO BOT 🤖</b> - semua chat di sini dibalas saya.<br><br>📌 <b>ATURAN BARU - BENERIN DARI YANG TADI SALAH:</b><br><b>@ # $ &</b> SEMUANYA nyari di <b>2 TABEL</b>: TABEL DRIVER + TABEL ADMIN. Gak ada lagi yang dibatesin!<br><br>📌 <b>ADMIN WAJIB PAKAI KARCIS:</b><br>Kalau ketemu ADMIN, BOT kasih <b>KARCIS 🎟️</b>. Tuker karcis dulu baru PIN kebuka. Driver langsung PIN.<br><br>Coba ketik:<br><b>@kadal</b> → harusnya nemu 2 (Driver + Admin)<br><b>#sapi $Kambing &Budi</b>');
+    tambahPesanBot('Halo kak! 👋 Saya <b>AMMO BOT 🤖</b> - semua chat di sini dibalas saya, bukan manusia.<br><br>📌 <b>Cara pakai kode rahasia:</b><br>@ = cari di DRIVER<br># = cari di DRIVER<br>$ = cari di ADMIN<br>& = cari di ADMIN + DRIVER<br><br>Contoh coba ketik:<br><b>@kadal #sapi $Kambing</b><br><b>@Budi #Asep $Ko &Kadal</b>');
   }
   setTimeout(()=>{ let b=$('chatBody'); b.scrollTop=b.scrollHeight; },100);
 }
@@ -487,141 +472,64 @@ function kirimChat(){
   setTimeout(()=>{ botBalas(teks); },700);
 }
 function kirimCepat(teks){ $('chatInput').value=teks; kirimChat(); }
-function buatKarcis(nama){
-  // Karcis unik: AMMO-XXXX, 1x pakai
-  let kode = 'AMMO-' + Math.random().toString(36).substring(2,6).toUpperCase();
-  karcisDB[kode] = nama;
-  return kode;
-}
+// BOT NYARI DI DATABASE KALAU ADA @ # $ &
 function botBalas(teks){
-  // Kalau user lagi tukar karcis via chat
-  if(/^TUKAR KARCIS/i.test(teks) || /^AMMO-[A-Z0-9]+/i.test(teks)){
-    let kode = teks.match(/AMMO-[A-Z0-9]+/i);
-    if(kode){
-      let atas = kode[0].toUpperCase();
-      if(karcisDB[atas]){
-        let namaAdmin = karcisDB[atas];
-        let admin = DB_ADMIN.find(a=> a.nama===namaAdmin);
-        if(admin){
-          delete karcisDB[atas];
-          tambahPesanBot(`✅ <b>KARCIS ${atas} VALID!</b><br>Buat <b>${admin.nama}</b> - Membuka PIN Lock Black & Gold 👑`);
-          setTimeout(()=>{ bukaPin({simbol:'🎟️', kata:'KARCIS', data:admin, [STRIPPED] ADMIN (via Karcis)', karcis:atas, sudahTukar:true}); },800);
-          return;
-        }
-      } else {
-        tambahPesanBot(`❌ Karcis <b>${atas}</b> salah / sudah dipakai / kadaluarsa. Minta karcis baru dengan ketik <b>@nama admin</b> lagi.`);
-        return;
-      }
-    } else {
-      tambahPesanBot(`🎟️ Mau tukar karcis? Ketik karcisnya, contoh: <b>AMMO-AB12</b><br>Atau ketik <b>@kadal</b> dulu buat dapet karcis baru.`);
-      return;
-    }
-  }
   let pola = /([@#\$&])([A-Za-z0-9_]+)/g;
   let match, ketemu=[];
   while((match=pola.exec(teks))!==null){
-    let simbol=match[1], kataAsli=match[2], kata=kataAsli.toLowerCase();
-    // ✅ BENERIN: SEMUA SIMBOL CARI DI 2 TABEL, GAK DIBATESIN LAGI
-    let dariDriver = DB_DRIVER.filter(d=> d.kode.toLowerCase().includes(kata) || d.nama.toLowerCase().includes(kata));
-    let dariAdmin = DB_ADMIN.filter(d=> d.kode.toLowerCase().includes(kata) || d.nama.toLowerCase().includes(kata));
-    dariDriver.forEach(h=> ketemu.push({simbol, kata:kataAsli, data:h, [STRIPPED] DRIVER'}));
-    dariAdmin.forEach(h=> ketemu.push({simbol, kata:kataAsli, data:h, [STRIPPED] ADMIN'}));
+    let simbol=match[1], kata=match[2].toLowerCase();
+    let hasilCari=[];
+    if(simbol==='@' || simbol==='#'){
+      hasilCari = DB_DRIVER.filter(d=> d.kode.toLowerCase().includes(kata) || d.nama.toLowerCase().includes(kata));
+      hasilCari.forEach(h=> ketemu.push({simbol, kata:match[2], data:h, sumber:'TABEL DRIVER'}));
+    }
+    if(simbol==='$'){
+      hasilCari = DB_ADMIN.filter(d=> d.kode.toLowerCase().includes(kata) || d.nama.toLowerCase().includes(kata));
+      hasilCari.forEach(h=> ketemu.push({simbol, kata:match[2], data:h, sumber:'TABEL ADMIN'}));
+    }
+    if(simbol==='&'){
+      let a = DB_DRIVER.filter(d=> d.kode.toLowerCase().includes(kata) || d.nama.toLowerCase().includes(kata)).map(h=>({simbol,kata:match[2],data:h,sumber:'TABEL DRIVER'}));
+      let b = DB_ADMIN.filter(d=> d.kode.toLowerCase().includes(kata) || d.nama.toLowerCase().includes(kata)).map(h=>({simbol,kata:match[2],data:h,sumber:'TABEL ADMIN'}));
+      ketemu = ketemu.concat(a,b);
+    }
   }
   if(ketemu.length===0){
     if(/[@#\$&]/.test(teks)){
-      tambahPesanBot('Waduh kak, kode <b>'+teks+'</b> gak ketemu di 2 tabel (Driver + Admin) 😅<br><br>Coba yang pasti ada:<br><b>@kadal</b> → nemu 2 (Driver + Admin)<br><b>#sapi</b> → nemu 2<br><b>$Kambing</b> → nemu 2');
+      tambahPesanBot('Waduh kak, kode <b>'+teks+'</b> gak ketemu di database 😅<br><br>Coba yang pasti ada:<br><b>@kadal</b> • <b>#sapi</b> • <b>$Kambing</b> • <b>@Budi</b> • <b>$Ko</b>');
     } else {
       let balas=[
         'Siap kak, noted ya: "'+teks+'" 🙏 Saya BOT, saya terusin ke driver. Driver lagi OTW.',
         'Oke kak, titik jemput sesuai maps ya. Saya udah catat.',
         'Siap kak, saya udah infoin ke driver. 5 menit lagi sampai.',
-        'Baik kak, kalau mau buka PIN rahasia, ketik <b>@kadal</b> - nanti nemu Driver + Admin sekaligus 👑',
+        'Baik kak, kalau mau buka PIN rahasia, ketik <b>@kadal #sapi $Kambing</b> 👑',
       ];
       tambahPesanBot(balas[Math.floor(Math.random()*balas.length)]);
     }
     return;
   }
-  // KETEMU - PISAH DRIVER vs ADMIN
-  let driverOnly = ketemu.filter(k=> k.sumber==='TABEL DRIVER');
-  let adminOnly = ketemu.filter(k=> k.sumber==='TABEL ADMIN');
-  let daftar = ketemu.map((k,i)=>{
-    if(k.sumber==='TABEL ADMIN'){
-      let karcis = buatKarcis(k.data.nama);
-      k.karcis = karcis;
-      return `${i+1}. ${k.simbol}${k.kata} → <b>${k.data.nama}</b> (${k.sumber}) • 🎟️ <b style="color:#E8C766">KARCIS: ${karcis}</b> <span style="color:#aaa">(Wajib tukar karcis dulu!)</span>`;
-    } else {
-      return `${i+1}. ${k.simbol}${k.kata} → <b>${k.data.nama}</b> (${k.sumber}) • PIN: <b style="color:#E8C766">${k.data.pin}</b> (Langsung buka)`;
-    }
-  }).join('<br>');
-  tambahPesanBot(`🔍 <b>BOT NEMU ${ketemu.length} DATA DI 2 TABEL!</b> (Simbol ${ketemu.map(k=>k.simbol).join(' ')} semua nyari di Driver + Admin)<br>${daftar}<br><br>${adminOnly.length? `🎟️ <b>ADA ${adminOnly.length} ADMIN!</b> Admin gak bisa langsung PIN. Salin karcis di atas, ketik <b>TUKAR KARCIS</b> / ketik karcisnya contoh <b>${adminOnly[0].karcis}</b> buat buka PIN.<br><br>`:''}👑 Membuka yang pertama dulu (Driver, langsung PIN)...`);
-  // Buka yang driver dulu, admin nunggu karcis
-  let pertamaDriver = ketemu.find(k=> k.sumber==='TABEL DRIVER');
-  if(pertamaDriver){
-    setTimeout(()=>{ bukaPin(pertamaDriver); },900);
-  } else {
-    // Kalau cuma admin doang, jangan langsung buka PIN, suruh tukar karcis
-    setTimeout(()=>{ tambahPesanBot(`⏳ Yang ketemu cuma ADMIN, jadi PIN-nya dikunci. Ketik karcisnya sekarang: <b>${ketemu[0].karcis}</b> atau klik tombol di bawah 👇<br><button onclick="kirimCepat('${ketemu[0].karcis}')" style="margin-top:6px;padding:8px 12px;border:none;border-radius:10px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-weight:900;cursor:pointer">🎟️ TUKAR ${ketemu[0].karcis}</button>`); },900);
+  // KETEMU - KASIH DAFTAR + BUKA PIN
+  let daftar = ketemu.map((k,i)=> `${i+1}. ${k.simbol}${k.kata} → <b>${k.data.nama}</b> (${k.sumber}) • PIN: <b style="color:#E8C766">${k.data.pin}</b>`).join('<br>');
+  tambahPesanBot(`🔍 <b>BOT NEMU ${ketemu.length} DATA!</b><br>${daftar}<br><br>👑 Membuka <b>PIN Lock Screen Black & Gold</b> untuk yang pertama: <b>${ketemu[0].data.nama}</b>...`);
+  setTimeout(()=>{ bukaPin(ketemu[0]); },900);
+  // Kalau lebih dari 1, kasih tombol buka satu-satu
+  if(ketemu.length>1){
+    ketemu.slice(1).forEach(k=>{
+      setTimeout(()=>{ tambahPesanBot(`Mau buka PIN <b>${k.data.nama}</b> juga? Ketik <b>${k.simbol}${k.kata}</b> lagi, atau klik di bawah 👇<br><button onclick="bukaPinDariChat('${k.data.pin}','${k.data.nama}','${k.data.role}','${k.data.mobil} • ${k.data.plat}','${k.sumber}')" style="margin-top:6px;padding:8px 12px;border:none;border-radius:10px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-weight:900;cursor:pointer">👑 BUKA PIN ${k.data.nama}</button>`); },1200);
+    });
   }
-  // Tombol buka untuk sisanya
-  ketemu.slice(1).forEach(k=>{
-    setTimeout(()=>{
-      if(k.sumber==='TABEL ADMIN'){
-        tambahPesanBot(`Mau buka <b>${k.data.nama} (ADMIN)</b>? Tukar karcisnya: <b>${k.karcis}</b><br><button onclick="kirimCepat('${k.karcis}')" style="margin-top:6px;padding:8px 12px;border:none;border-radius:10px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-weight:900;cursor:pointer">🎟️ TUKAR ${k.karcis}</button>`);
-      } else {
-        tambahPesanBot(`Mau buka PIN <b>${k.data.nama} (DRIVER)</b> juga? Klik 👇<br><button onclick="bukaPinDariChat('${k.data.pin}','${k.data.nama}','${k.data.role}','${k.data.mobil} • ${k.data.plat}','TABEL DRIVER')" style="margin-top:6px;padding:8px 12px;border:none;border-radius:10px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-weight:900;cursor:pointer">👑 BUKA PIN ${k.data.nama}</button>`);
-      }
-    },1400);
-  });
 }
 function bukaPinDariChat(pin,nama,role,mobil,sumber){
-  let d = DB_DRIVER.find(x=> x.pin===pin) || DB_ADMIN.find(x=> x.pin===pin);
-  if(d) bukaPin({simbol:'@', kata:nama, data:d, sumber, karcis:null, sudahTukar:true});
+  bukaPin({data:{pin,nama,role,mobil,plat:'',ket:mobil}, sumber});
 }
 function bukaPin(item){
   let d=item.data;
-  pinTarget=item; pinBenar=d.pin; pinInput='';
+  pinBenar=d.pin; pinInput='';
   $('pinNama').textContent=d.nama;
   $('pinDetail').textContent=d.ket+' • '+d.mobil+' • '+(d.plat||'');
-  // ADMIN WAJIB KARCIS - KALAU BELUM TUKAR, TAMPILIN FORM KARCIS, SEMBUNYIIN PIN
-  if(d.role==='ADMIN' && !item.sudahTukar){
-    $('pinSub').innerHTML='ADMIN TERDETEKSI 🎟️<br>Wajib pakai KARCIS dari BOT dulu!';
-    $('pinAsal').textContent='Ditemukan di '+item.sumber+' • Kode: '+item.simbol+item.kata+' • KARCIS: '+(item.karcis||' - minta di chat');
-    karcisAktif = item.karcis || '';
-    $('karcisBox').style.display='block';
-    $('pinArea').style.display='none';
-    $('inputKarcis').value = '';
-    $('karcisError').style.display='none';
-  } else {
-    $('pinSub').innerHTML = d.role==='ADMIN' ? 'KARCIS VALID ✅<br>Masukkan PIN Admin untuk membuka' : 'KODE RAHASIA DITEMUKAN<br>Masukkan PIN untuk membuka';
-    $('pinAsal').textContent='Ditemukan di '+item.sumber+' • Kode: '+item.simbol+item.kata + (item.karcis ? ' • Karcis: '+item.karcis+' (sudah ditukar ✅)' : '');
-    $('karcisBox').style.display='none';
-    $('pinArea').style.display='block';
-    $('pinAsli').textContent=d.pin;
-    updatePinTampil();
-  }
+  $('pinAsal').textContent='Ditemukan di '+item.sumber+' • Kode: '+item.simbol+item.kata;
+  $('pinAsli').textContent=d.pin;
+  updatePinTampil();
   $('pinLock').classList.add('show');
-}
-function tukarKarcis(){
-  let inp = $('inputKarcis').value.trim().toUpperCase();
-  if(!inp){ $('karcisError').textContent='Isi karcisnya dulu!'; $('karcisError').style.display='block'; return; }
-  // Cek karcis cocok dengan yang dibuat BOT untuk admin ini
-  if(karcisDB[inp] && karcisDB[inp]===pinTarget.data.nama){
-    delete karcisDB[inp];
-    pinTarget.sudahTukar=true;
-    pinTarget.karcis=inp;
-    $('karcisError').style.display='none';
-    // Buka PIN-nya
-    $('pinSub').innerHTML='KARCIS VALID ✅<br>Masukkan PIN Admin untuk membuka';
-    $('pinAsal').textContent='Ditemukan di '+pinTarget.sumber+' • Karcis: '+inp+' (sudah ditukar ✅)';
-    $('karcisBox').style.display='none';
-    $('pinArea').style.display='block';
-    $('pinAsli').textContent=pinTarget.data.pin;
-    updatePinTampil();
-    tambahPesanBot(`✅ <b>KARCIS ${inp} VALID!</b> PIN Admin <b>${pinTarget.data.nama}</b> sudah kebuka. Silakan masukkan PIN di layar.`);
-  } else {
-    $('karcisError').textContent='Karcis salah / sudah dipakai / bukan buat '+pinTarget.data.nama+'! Cek chat BOT lagi.';
-    $('karcisError').style.display='block';
-  }
 }
 function buatKeypad(){
   let keys=['1','2','3','4','5','6','7','8','9','⌫','0','✓'];
@@ -637,6 +545,7 @@ function tekanPin(k){
 function updatePinTampil(){
   let dots=document.querySelectorAll('.pinDot');
   dots.forEach((dot,i)=>{ dot.classList.toggle('filled', i<pinInput.length); });
+  let tampil = pinInput.split('').join(' ') + ' • '.repeat(Math.max(0,6-pinInput.length));
   $('pinCode').innerHTML = pinInput ? pinInput.split('').map(c=>`<span>${c}</span>`).join(' ') + ' ' + '• '.repeat(6-pinInput.length) : '• • • • • •';
 }
 function cekPin(){
