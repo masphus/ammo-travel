@@ -19,7 +19,6 @@ input,select{width:100%;background:#1a1a1a;border:1px solid #333;border-radius:1
 select{cursor:pointer}
 select option{background:#1a1a1a;color:#fff}
 input:focus,select:focus{border-color:#D4AF37}
-/* INPUT + TOMBOL MAPS DI SAMPING */
 .inputRow{display:flex;gap:8px;align-items:stretch}
 .inputRow input{flex:1;min-width:0}
 .btnMapsSide{flex-shrink:0;padding:0 14px;border:1px solid #D4AF37;background:#1a1a1a;color:#E8C766;border-radius:12px;font-weight:900;font-size:12px;cursor:pointer;letter-spacing:1px}
@@ -63,7 +62,6 @@ input:focus,select:focus{border-color:#D4AF37}
 <div class="logo">AMMO TRAVEL</div>
 <h1>Mau pergi kemana?</h1>
 <div class="card">
-  <!-- DARI - MAPS DI SAMPING KOLOM -->
   <div class="field">
     <label>📍 Dari</label>
     <div class="inputRow">
@@ -75,7 +73,6 @@ input:focus,select:focus{border-color:#D4AF37}
     <div class="mapHint" id="hintDari"><span>Geser pin A / Klik peta</span><button onclick="pusatKeDari()">Ke Lokasi Saya</button></div>
   </div>
   <div class="swap"><button onclick="tukar()">↑↓</button></div>
-  <!-- TUJUAN - MAPS DI SAMPING KOLOM -->
   <div class="field">
     <label>📍 Tujuan</label>
     <div class="inputRow">
@@ -89,7 +86,7 @@ input:focus,select:focus{border-color:#D4AF37}
   <div class="divider"></div>
   <div class="row">
     <div class="field"><label>📅 Tanggal</label><input type="date" id="tgl"></div>
-    <div class="field"><label>🕐 Jam</label><input type="time" id="jam" value="14:30"></div>
+    <div class="field"><label>🕐 Jam</label><input type="time" id="jam"></div>
   </div>
   <div class="field">
     <label>👥 Jumlah Orang</label>
@@ -106,20 +103,14 @@ input:focus,select:focus{border-color:#D4AF37}
   <div class="field"><label>📏 Jarak (Real dari Maps)</label><input id="km" placeholder="-" readonly></div>
 </div>
 <div class="priceBox" id="boxEmpty"><div class="priceTop"><b>Total Harga</b><span class="priceVal">-</span></div><p class="note">Pilih Dari & Tujuan dari Maps, harga real langsung muncul. Tol / Parkir / Penyeberangan dibebankan ke Penumpang.</p></div>
+<!-- HARGA BERSIH - RAHASIA UDAH DIHAPUS DARI TAMPILAN -->
 <div class="priceBox" id="box" style="display:none">
   <div class="priceTop"><b>Total Harga</b><span class="priceVal" id="total">-</span></div>
   <div class="detail">
     <div><span>Jarak Real</span><b id="d-km">-</b></div>
     <div><span>Estimasi</span><b id="d-est">-</b></div>
-    <div><span>Km Tagih (min 10 km)</span><b id="d-kmTagih">-</b></div>
-    <div><span>Rate /km</span><b id="d-rate">-</b></div>
-    <div><span>Dasar (Km x Rate)</span><b id="d-dasar">-</b></div>
-    <div><span>Total Bayar (Dasar x 1.05)</span><b id="d-total">-</b></div>
-    <div><span>Fee Admin 5%</span><b id="d-admin" style="color:#ff6b6b">-</b></div>
-    <div><span>Voucher 3% (buat penumpang)</span><b id="d-voucher" style="color:#4ade80">-</b></div>
-    <div style="border-top:1px solid #333;margin-top:4px;padding-top:6px"><span>Driver Terima</span><b id="d-driver" style="color:#E8C766">-</b></div>
   </div>
-  <p class="note" id="d-sumber">Sumber: -</p>
+  <p class="note">Harga sudah termasuk semua biaya. Tol / Parkir / Penyeberangan dibebankan ke Penumpang.</p>
 </div>
 <button class="btn" onclick="pesan()">PESAN SEKARANG →</button>
 <button class="btn2" id="btnBatal" onclick="batalOrder()">BATALKAN PESANAN</button>
@@ -145,6 +136,7 @@ input:focus,select:focus{border-color:#D4AF37}
 const $=id=>document.getElementById(id);
 const fmt=n=>'Rp '+Math.round(n||0).toLocaleString('id-ID');
 let pickCoord=null, destCoord=null, totalHarga=0, voucherDapat=0;
+// RUMUS TETEP JALAN DI BELAKANG, CUMA GAK DITAMPILIN KE PENUMPANG
 function hitungOngkos(km,orang){
   let o=orang||5; let rate=o>=5?6500:5000;
   let kmTagih=Math.max(Math.round(km),10);
@@ -158,14 +150,17 @@ function fmtEstimasi(detik){
   if(h>0) return h+' jam '+(sisa>0?sisa+' menit':'');
   return m+' menit';
 }
-// Hitung jarak lurus buat urutkan dari terdekat
 function jarakKe(lat1,lon1,lat2,lon2){
   let dLat=(lat2-lat1)*111, dLon=(lon2-lon1)*111*Math.cos(lat1*Math.PI/180);
   return Math.sqrt(dLat*dLat+dLon*dLon);
 }
-function fmtJarak(km){
-  if(km<1) return Math.round(km*1000)+' m dari kamu';
-  return km.toFixed(1)+' km dari kamu';
+function fmtJarak(km){ if(km<1) return Math.round(km*1000)+' m dari kamu'; return km.toFixed(1)+' km dari kamu'; }
+// TANGGAL = HARI INI, JAM = JAM SAAT INI - OTOMATIS
+function setTanggalJamDefault(){
+  let now=new Date();
+  let tgl = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  let jam = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  $('tgl').value=tgl; $('jam').value=jam;
 }
 let mapDari=L.map('mapDari').setView([-6.9175,107.6191],13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(mapDari);
@@ -217,13 +212,12 @@ function ambilGPS(){
     if(destCoord) hitungJarakReal();
   },()=>{ $('dari').value='Jalan Muara Raya, Pelindung'; },{enableHighAccuracy:true,timeout:10000, maximumAge:60000});
 }
-window.addEventListener('load',()=>{ setTimeout(()=>ambilGPS(), 500); });
+window.addEventListener('load',()=>{ setTanggalJamDefault(); setTimeout(()=>ambilGPS(), 500); });
 let timerCari=null;
 async function cariGabungan(query, box, isDari){
   if(query.length<3){box.style.display='none';return;}
   box.innerHTML='<div style="padding:12px;color:#D4AF37">🔍 Mencari dari yang terdekat...</div>'; box.style.display='block';
   try{
-    // Acuan titik terdekat = posisi GPS lu (Dari). Kalau belum ada, pake Bandung.
     let acuan = pickCoord ? {lat: pickCoord[1], lon: pickCoord[0]} : {lat:-6.9175, lon:107.6191};
     let p1=fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=8&q=${encodeURIComponent(query+', Indonesia')}`).then(r=>r.json()).catch(()=>[]);
     let p2=fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=8&lang=id&lat=${acuan.lat}&lon=${acuan.lon}`).then(r=>r.json()).then(j=>j.features||[]).catch(()=>[]);
@@ -232,7 +226,6 @@ async function cariGabungan(query, box, isDari){
     nom.forEach(p=>hasil.push({nama:p.display_name.split(',').slice(0,3).join(','), lat:parseFloat(p.lat), lon:parseFloat(p.lon), sumber:'Nominatim'}));
     pho.forEach(f=>{ let nama=((f.properties.name||'')+' '+(f.properties.city||f.properties.state||'')).trim(); let lat=f.geometry.coordinates[1], lon=f.geometry.coordinates[0]; if(!hasil.some(h=>Math.abs(h.lat-lat)<0.002&&Math.abs(h.lon-lon)<0.002)) hasil.push({nama,lat,lon,sumber:'Photon'}); });
     if(!hasil.length){ box.innerHTML='<div style="padding:12px">Gak ketemu, coba ketik lebih lengkap</div>'; return; }
-    // === URUTKAN DARI YANG TERDEKAT ===
     hasil.forEach(h=> h.jarak = jarakKe(acuan.lat, acuan.lon, h.lat, h.lon));
     hasil.sort((a,b)=> a.jarak - b.jarak);
     hasil = hasil.slice(0,6);
@@ -265,11 +258,9 @@ function tampilkanHarga(km,detik,sumber){
   $('km').value=km.toFixed(1)+' km';
   $('box').style.display='block'; $('boxEmpty').style.display='none';
   $('total').textContent=fmt(r.ongkos); $('d-km').textContent=km.toFixed(1)+' km (Real)';
-  $('d-est').textContent=fmtEstimasi(detik); $('d-kmTagih').textContent=r.kmTagih+' km';
-  $('d-rate').textContent=fmt(r.rate)+' /km ('+(orang>=5?'5+ orang':'<5 orang')+')';
-  $('d-dasar').textContent=fmt(r.dasar); $('d-total').textContent=fmt(r.ongkos);
-  $('d-admin').textContent='- '+fmt(r.feeAdmin); $('d-voucher').textContent='+ '+fmt(r.voucher);
-  $('d-driver').textContent=fmt(r.driverTerima); $('d-sumber').textContent='Sumber jarak: '+sumber+' • Estimasi x1.6';
+  $('d-est').textContent=fmtEstimasi(detik);
+  // RAHASIA - gak ditampilin lagi, tapi tetep kehitung buat lu
+  // console.log('RAHASIA:', r);
 }
 function tukar(){
   let a=$('dari').value; $('dari').value=$('tujuan').value; $('tujuan').value=a;
@@ -288,7 +279,7 @@ function pesan(){
   setTimeout(()=>{
     if(!$('modal').classList.contains('show')) return;
     $('modalTitle').textContent='Driver Ditemukan! ✅'; $('spin').style.display='none';
-    $('modalText').textContent='Driver AMMO OTW ke lokasi kamu. Voucher didapat: '+fmt(voucherDapat);
+    $('modalText').textContent='Driver AMMO OTW ke lokasi kamu.';
     let v=parseInt(localStorage.getItem('ammo_voucher')||'0')+voucherDapat; localStorage.setItem('ammo_voucher',v); $('voucherTotal').textContent=fmt(v);
     $('listTrip').innerHTML=`<div class="item"><b>${$('dari').value} → ${$('tujuan').value}</b><p>${$('km').value} • ${$('orang').value} Orang • Driver OTW</p><p style="color:#E8C766;font-weight:800">${fmt(totalHarga)}</p></div>`+$('listTrip').innerHTML;
     setTimeout(()=>{ $('modal').classList.remove('show'); },2000);
