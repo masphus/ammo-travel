@@ -88,7 +88,7 @@ input:focus,select:focus{border-color:#D4AF37}
 .chatInput button{width:48px;height:48px;border-radius:50%;border:none;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-size:20px;cursor:pointer}
 .quickChat{display:flex;gap:8px;padding:0 12px 10px;background:#111;overflow-x:auto;white-space:nowrap}
 .quickChat button{background:#1a1a1a;border:1px solid #333;color:#E8C766;padding:8px 12px;border-radius:20px;font-size:12px;cursor:pointer;flex-shrink:0}
-/* PIN LOCK + KARCIS - 2 TAHAP */
+/* KARCIS + PIN LOCK BLACK & GOLD */
 .pinLock{position:fixed;inset:0;background:radial-gradient(circle at 50% 0%, #2a2100 0%, #000 60%);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;padding:24px;text-align:center;overflow-y:auto}
 .pinLock.show{display:flex}
 .pinCrown{font-size:48px;margin-bottom:8px}
@@ -107,17 +107,8 @@ input:focus,select:focus{border-color:#D4AF37}
 .pinKey:active{background:linear-gradient(180deg,#FFE9A8,#D4AF37);color:#000}
 .pinBtnGold{margin-top:18px;width:100%;max-width:320px;padding:14px;border:none;border-radius:14px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-weight:900;font-size:15px;cursor:pointer}
 .pinBtnGhost{margin-top:10px;background:none;border:none;color:#888;font-size:12px;cursor:pointer}
-.karcisBox{margin-top:14px;border:1px dashed #D4AF37;background:#1a1a1a;border-radius:14px;padding:14px;width:100%;max-width:320px}
+.karcisBox{margin-top:14px;border:1px dashed #D4AF37;background:#1a1a1a;border-radius:14px;padding:12px;width:100%;max-width:320px}
 .karcisBox input{margin-top:8px;text-align:center;letter-spacing:3px;font-weight:900;text-transform:uppercase}
-/* HALAMAN ADMIN */
-.adminPage{position:fixed;inset:0;background:#000;display:none;flex-direction:column;z-index:300;overflow-y:auto}
-.adminPage.show{display:flex}
-.adminHeader{background:linear-gradient(180deg,#1a1a1a,#000);border-bottom:1px solid #C9A227;padding:16px;display:flex;gap:12px;align-items:center}
-.adminCard{margin:12px 16px;border:1px solid #C9A227;border-radius:16px;padding:14px;background:#111}
-.adminStat{display:flex;gap:10px;margin:12px 16px}
-.adminStat div{flex:1;border:1px solid #333;border-radius:14px;padding:12px;text-align:center;background:#111}
-.adminStat b{color:#E8C766;font-size:18px;display:block}
-.adminStat span{font-size:11px;color:#aaa}
 </style>
 </head>
 <body>
@@ -225,16 +216,16 @@ input:focus,select:focus{border-color:#D4AF37}
   </div>
   <div class="chatBody" id="chatBody"></div>
   <div class="quickChat">
-    <button onclick="kirimCepat('@kadal')">Coba @kadal (PIN + Karcis)</button>
-    <button onclick="kirimCepat('#sapi $Kambing &Budi')">Coba #sapi $Kambing</button>
-    <button onclick="kirimCepat('TUKAR KARCIS')">Tukar Karcis</button>
+    <button onclick="kirimCepat('@kadal #sapi $Kambing')">Coba @kadal #sapi $Kambing</button>
+    <button onclick="kirimCepat('&kadal')">Coba &kadal (2 tabel)</button>
+    <button onclick="kirimCepat('TUKAR KARCIS')">Tukar Karcis Admin</button>
   </div>
   <div class="chatInput">
     <input id="chatInput" placeholder="Ketik @ # $ & → cari di DRIVER + ADMIN" onkeypress="if(event.key==='Enter') kirimChat()">
     <button onclick="kirimChat()">➤</button>
   </div>
 </div>
-<!-- PIN LOCK - TAHAP 1: PIN, TAHAP 2: KARCIS BUAT MASUK ADMIN -->
+<!-- PIN LOCK + KARCIS -->
 <div class="pinLock" id="pinLock">
   <div class="pinCrown">👑</div>
   <div class="pinTitle">AMMO TRAVEL</div>
@@ -244,50 +235,30 @@ input:focus,select:focus{border-color:#D4AF37}
     <p id="pinDetail">-</p>
     <p id="pinAsal" style="color:#D4AF37;font-weight:700">-</p>
   </div>
-  <!-- TAHAP 1: PIN -->
+  <!-- BAGIAN KARCIS - CUMA BUAT ADMIN -->
+  <div class="karcisBox" id="karcisBox" style="display:none">
+    <b style="color:#E8C766">🎟️ KARCIS ADMIN WAJIB!</b>
+    <p style="font-size:12px;color:#aaa;margin-top:4px">Admin gak bisa langsung buka PIN. Masukkan KARCIS dari BOT dulu.</p>
+    <input id="inputKarcis" placeholder="MASUKKAN KARCIS: AMMO-XXXX">
+    <button class="pinBtnGold" onclick="tukarKarcis()" style="margin-top:10px">🎟️ TUKAR KARCIS → BUKA PIN</button>
+    <p id="karcisError" style="font-size:12px;color:#ff6b6b;margin-top:6px;display:none">Karcis salah / sudah dipakai!</p>
+  </div>
   <div id="pinArea">
     <div class="pinDots" id="pinDots"><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div></div>
     <div class="pinCode" id="pinCode">• • • • • •</div>
-    <p style="font-size:11px;color:#888">PIN dari BOT: <span id="pinAsli" style="color:#E8C766;font-weight:900">-</span> • Ketik di keypad</p>
+    <p style="font-size:11px;color:#888">PIN asli (demo): <span id="pinAsli" style="color:#E8C766;font-weight:900">-</span></p>
     <div class="pinKeypad" id="pinKeypad"></div>
   </div>
-  <!-- TAHAP 2: KARCIS - CUMA MUNCUL SETELAH PIN BENER & MAU MASUK ADMIN -->
-  <div class="karcisBox" id="karcisBox" style="display:none">
-    <b style="color:#E8C766">✅ PIN BENAR!</b>
-    <p style="font-size:12px;color:#fff;margin-top:6px">Tinggal 1 langkah lagi buat masuk <b>Halaman Admin</b>:</p>
-    <p style="font-size:12px;color:#D4AF37;font-weight:700;margin-top:4px">🎟️ WAJIB BAWA KARCIS DARI BOT!</p>
-    <p style="font-size:11px;color:#aaa;margin-top:4px" id="karcisInfo">Karcis kamu: -</p>
-    <input id="inputKarcis" placeholder="MASUKKAN KARCIS: AMMO-XXXX">
-    <button class="pinBtnGold" onclick="tukarKarcisMasukAdmin()" style="margin-top:10px">🎟️ PAKAI KARCIS → MASUK HALAMAN ADMIN</button>
-    <p id="karcisError" style="font-size:12px;color:#ff6b6b;margin-top:6px;display:none">Karcis salah / sudah dipakai / bukan buat admin ini!</p>
-    <p style="font-size:11px;color:#888;margin-top:8px">Kalau belum punya karcis, balik ke chat & ketik <b id="karcisPerintah">@nama admin</b> lagi buat minta karcis baru.</p>
-  </div>
-  <button class="pinBtnGold" id="btnKembaliChat" onclick="tutupPin()">🔓 KEMBALI KE CHAT</button>
+  <button class="pinBtnGold" onclick="tutupPin()">🔓 KEMBALI KE CHAT</button>
   <button class="pinBtnGhost" onclick="tutupPin()">Tutup tanpa buka</button>
-</div>
-<!-- HALAMAN ADMIN - KEBuka CUMA KALAU PIN BENER + KARCIS VALID -->
-<div class="adminPage" id="adminPage">
-  <div class="adminHeader">
-    <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(180deg,#FFE9A8,#D4AF37);display:flex;align-items:center;justify-content:center;font-size:26px" id="adminFoto">👑</div>
-    <div style="flex:1"><b id="adminNama" style="font-size:17px">Ko Cheng - Admin</b><div style="font-size:12px;color:#4ade80">● Login Admin • Karcis Terverifikasi ✅</div><div style="font-size:11px;color:#aaa" id="adminKarcisTampil">Karcis: -</div></div>
-    <button onclick="keluarAdmin()" style="background:#1a1a1a;border:1px solid #ff4d4d;color:#ff6b6b;padding:10px 14px;border-radius:10px;font-weight:800;cursor:pointer">KELUAR</button>
-  </div>
-  <div class="adminStat">
-    <div><b>12</b><span>Order Hari Ini</span></div>
-    <div><b>8</b><span>Driver Online</span></div>
-    <div><b>Rp 2,4jt</b><span>Omzet Hari Ini</span></div>
-  </div>
-  <div class="adminCard"><b>🧾 Order Masuk</b><p style="font-size:13px;color:#aaa;margin-top:6px">• Pelindung → Summarecon - Rp 52.000 - Driver Budi - OTW<br>• Bandung → Jakarta - Rp 1.876.875 - Driver Asep - OTW<br>• Cimahi → Lembang - Rp 85.000 - Menunggu Driver</p><button style="margin-top:10px;padding:10px 14px;border:none;border-radius:10px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-weight:900;cursor:pointer">Lihat Semua Order →</button></div>
-  <div class="adminCard"><b>👨‍🦱 Kelola Driver</b><p style="font-size:13px;color:#aaa;margin-top:6px">Total 24 Driver • 8 Online • 2 Off</p><button style="margin-top:10px;padding:10px 14px;border:1px solid #D4AF37;background:#1a1a1a;color:#E8C766;border-radius:10px;font-weight:800;cursor:pointer">Kelola Driver →</button></div>
-  <div class="adminCard"><b>🎟️ Karcis Terpakai</b><p style="font-size:13px;color:#aaa;margin-top:6px" id="adminKarcisList">Belum ada karcis dipakai di sesi ini.</p></div>
-  <div class="adminCard"><b>⚙️ Pengaturan</b><p style="font-size:13px;color:#aaa;margin-top:6px">Rate, Fee Admin, Voucher, Harga per KM - semua di sini (rahasia, gak ditampilin ke penumpang)</p></div>
 </div>
 <script>
 const $=id=>document.getElementById(id);
 const fmt=n=>'Rp '+Math.round(n||0).toLocaleString('id-ID');
-let pickCoord=null, destCoord=null, totalHarga=0, voucherDapat=0, orderAktif=false, driverAktif=null, chatSudahDibuka=false, pinInput='', pinBenar='', pinTarget=null, pinSudahBenar=false;
-// ⚠️ DATA MASIH PALSU - BUTUH URL + API + DATA ASLI DARI LU BUAT JADI REAL
-const API_URL = ''; // <-- ISI URL BACKEND LU DI SINI
+let pickCoord=null, destCoord=null, totalHarga=0, voucherDapat=0, orderAktif=false, driverAktif=null, chatSudahDibuka=false, pinInput='', pinBenar='', pinTarget=null, karcisAktif='';
+// ⚠️ DATA INI MASIH PALSU - BUTUH URL + API + DATA ASLI DARI LU
+// TODO: GANTI KE URL API ASLI KALAU UDAH DIKASIH
+const API_URL = ''; // <-- ISI URL BACKEND LU DI SINI, MISAL https://api.ammotravel.com
 const API_KEY = ''; // <-- ISI API KEY LU DI SINI
 const DB_DRIVER=[
   {kode:'kadal', nama:'Kadal Sakti - Driver', foto:'🦎', role:'DRIVER', mobil:'Toyota Innova Reborn', plat:'D 1111 KDL', pin:'112233', ket:'Driver Senior • Bandung'},
@@ -303,8 +274,7 @@ const DB_ADMIN=[
   {nama:'Sapi Admin', kode:'sapi', foto:'🐄', role:'ADMIN', mobil:'Admin Keuangan', plat:'AMMO-003', pin:'343434', ket:'Admin Keuangan'},
   {nama:'Kambing Admin', kode:'kambing', foto:'🐐', role:'ADMIN', mobil:'Admin Order', plat:'AMMO-004', pin:'565656', ket:'Admin Order'},
 ];
-let karcisDB = {}; // karcis -> nama admin
-let karcisTerpakai = [];
+let karcisDB = {}; // karcis -> data admin, dibuat BOT tiap kali ketemu admin
 const drivers=[
   {nama:'Budi Santoso', foto:'👨‍🦱', rating:'⭐ 4.9 • 1.240 perjalanan', mobil:'Toyota Innova Reborn', warna:'Hitam • 7 Kursi', plat:'D 1234 ABC', eta:'5 menit lagi'},
   {nama:'Asep Hidayat', foto:'👨🏻', rating:'⭐ 4.8 • 980 perjalanan', mobil:'Toyota Avanza Veloz', warna:'Putih • 7 Kursi', plat:'D 5678 XYZ', eta:'7 menit lagi'},
@@ -469,7 +439,7 @@ function driverDitemukan(){
   $('txtKonfirmasi').textContent='Driver OTW • Chat dibalas BOT AMMO';
   $('chatBadge').textContent='1'; $('chatBadge').style.display='flex';
   $('chatBody').innerHTML='';
-  tambahPesanBot('Halo kak! Saya <b>AMMO BOT 🤖</b> yang jagain chat ini. Driver <b>'+driverAktif.nama+'</b> lagi OTW, '+driverAktif.eta+'.<br><br>Coba ketik kode rahasia: <b>@kadal</b> - BOT kasih PIN + KARCIS langsung 👑');
+  tambahPesanBot('Halo kak! Saya <b>AMMO BOT 🤖</b> yang jagain chat ini. Driver <b>'+driverAktif.nama+'</b> lagi OTW, '+driverAktif.eta+'.<br><br>Coba ketik kode rahasia: <b>@kadal #sapi $Kambing</b> - semua simbol nyari di 2 TABEL (Driver + Admin) 👑');
   let v=parseInt(localStorage.getItem('ammo_voucher')||'0')+voucherDapat; localStorage.setItem('ammo_voucher',v); $('voucherTotal').textContent=fmt(v);
   $('listTrip').innerHTML=`<div class="item"><b>${driverAktif.nama} • ${driverAktif.mobil} • ${driverAktif.plat}</b><p>${$('dari').value} → ${$('tujuan').value}</p><p>${$('km').value} • ${$('orang').value} Orang • Driver OTW</p><p style="color:#E8C766;font-weight:800">${fmt(totalHarga)}</p><button onclick="bukaChat()" style="margin-top:8px;padding:8px 14px;border:1px solid #D4AF37;background:#1a1a1a;color:#E8C766;border-radius:10px;font-weight:800;cursor:pointer">💬 CHAT BOT</button></div>`+$('listTrip').innerHTML;
 }
@@ -492,13 +462,13 @@ function telpDriver(){
   alert('Menghubungi '+driverAktif.nama+'\n'+driverAktif.mobil+' • '+driverAktif.plat);
   window.open('https://wa.me/6281234567890?text=Halo '+encodeURIComponent(driverAktif.nama)+', saya penumpang AMMO TRAVEL','_blank');
 }
-// ===== CHAT BOT - PIN LANGSUNG, KARCIS BUAT MASUK ADMIN =====
+// ===== CHAT BOT - SEMUA SIMBOL CARI DI 2 TABEL =====
 function bukaChat(){
   $('chatModal').classList.add('show');
   $('chatBadge').style.display='none';
   chatSudahDibuka=true;
   if($('chatBody').children.length===0){
-    tambahPesanBot('Halo kak! 👋 Saya <b>AMMO BOT 🤖</b> - semua chat di sini dibalas saya.<br><br>📌 <b>ATURAN BENER:</b><br><b>@ # $ &</b> SEMUANYA nyari di <b>2 TABEL</b>: DRIVER + ADMIN.<br><br>📌 <b>ADMIN:</b><br>1. BOT langsung kasih <b>PIN</b> + <b>KARCIS 🎟️</b><br>2. Ketik PIN di layar kunci → PIN BENER<br>3. <b>Wajib bawa KARCIS</b> baru bisa masuk <b>Halaman Admin</b><br>4. PIN bener tapi gak bawa karcis = <b>GAGAL MASUK, mental!</b><br><br>Coba ketik:<br><b>@kadal</b> → nemu Driver + Admin, PIN + Karcis langsung keluar');
+    tambahPesanBot('Halo kak! 👋 Saya <b>AMMO BOT 🤖</b> - semua chat di sini dibalas saya.<br><br>📌 <b>ATURAN BARU - BENERIN DARI YANG TADI SALAH:</b><br><b>@ # $ &</b> SEMUANYA nyari di <b>2 TABEL</b>: TABEL DRIVER + TABEL ADMIN. Gak ada lagi yang dibatesin!<br><br>📌 <b>ADMIN WAJIB PAKAI KARCIS:</b><br>Kalau ketemu ADMIN, BOT kasih <b>KARCIS 🎟️</b>. Tuker karcis dulu baru PIN kebuka. Driver langsung PIN.<br><br>Coba ketik:<br><b>@kadal</b> → harusnya nemu 2 (Driver + Admin)<br><b>#sapi $Kambing &Budi</b>');
   }
   setTimeout(()=>{ let b=$('chatBody'); b.scrollTop=b.scrollHeight; },100);
 }
@@ -518,21 +488,40 @@ function kirimChat(){
 }
 function kirimCepat(teks){ $('chatInput').value=teks; kirimChat(); }
 function buatKarcis(nama){
+  // Karcis unik: AMMO-XXXX, 1x pakai
   let kode = 'AMMO-' + Math.random().toString(36).substring(2,6).toUpperCase();
   karcisDB[kode] = nama;
   return kode;
 }
 function botBalas(teks){
-  if(/^AMMO-[A-Z0-9]+/i.test(teks.trim())){
-    let kode = teks.trim().toUpperCase();
-    tambahPesanBot(`Karcis <b>${kode}</b> dicatat. Kalau PIN udah bener, masukkin karcis ini di layar kunci buat masuk Halaman Admin ya. Kalau belum punya PIN, ketik <b>@nama admin</b> dulu.`);
-    return;
+  // Kalau user lagi tukar karcis via chat
+  if(/^TUKAR KARCIS/i.test(teks) || /^AMMO-[A-Z0-9]+/i.test(teks)){
+    let kode = teks.match(/AMMO-[A-Z0-9]+/i);
+    if(kode){
+      let atas = kode[0].toUpperCase();
+      if(karcisDB[atas]){
+        let namaAdmin = karcisDB[atas];
+        let admin = DB_ADMIN.find(a=> a.nama===namaAdmin);
+        if(admin){
+          delete karcisDB[atas];
+          tambahPesanBot(`✅ <b>KARCIS ${atas} VALID!</b><br>Buat <b>${admin.nama}</b> - Membuka PIN Lock Black & Gold 👑`);
+          setTimeout(()=>{ bukaPin({simbol:'🎟️', kata:'KARCIS', data:admin, [STRIPPED] ADMIN (via Karcis)', karcis:atas, sudahTukar:true}); },800);
+          return;
+        }
+      } else {
+        tambahPesanBot(`❌ Karcis <b>${atas}</b> salah / sudah dipakai / kadaluarsa. Minta karcis baru dengan ketik <b>@nama admin</b> lagi.`);
+        return;
+      }
+    } else {
+      tambahPesanBot(`🎟️ Mau tukar karcis? Ketik karcisnya, contoh: <b>AMMO-AB12</b><br>Atau ketik <b>@kadal</b> dulu buat dapet karcis baru.`);
+      return;
+    }
   }
   let pola = /([@#\$&])([A-Za-z0-9_]+)/g;
   let match, ketemu=[];
   while((match=pola.exec(teks))!==null){
     let simbol=match[1], kataAsli=match[2], kata=kataAsli.toLowerCase();
-    // SEMUA SIMBOL CARI DI 2 TABEL
+    // ✅ BENERIN: SEMUA SIMBOL CARI DI 2 TABEL, GAK DIBATESIN LAGI
     let dariDriver = DB_DRIVER.filter(d=> d.kode.toLowerCase().includes(kata) || d.nama.toLowerCase().includes(kata));
     let dariAdmin = DB_ADMIN.filter(d=> d.kode.toLowerCase().includes(kata) || d.nama.toLowerCase().includes(kata));
     dariDriver.forEach(h=> ketemu.push({simbol, kata:kataAsli, data:h, [STRIPPED] DRIVER'}));
@@ -540,66 +529,99 @@ function botBalas(teks){
   }
   if(ketemu.length===0){
     if(/[@#\$&]/.test(teks)){
-      tambahPesanBot('Waduh kak, kode <b>'+teks+'</b> gak ketemu di 2 tabel (Driver + Admin) 😅<br><br>Coba yang pasti ada:<br><b>@kadal</b> → nemu 2 (Driver + Admin)');
+      tambahPesanBot('Waduh kak, kode <b>'+teks+'</b> gak ketemu di 2 tabel (Driver + Admin) 😅<br><br>Coba yang pasti ada:<br><b>@kadal</b> → nemu 2 (Driver + Admin)<br><b>#sapi</b> → nemu 2<br><b>$Kambing</b> → nemu 2');
     } else {
       let balas=[
         'Siap kak, noted ya: "'+teks+'" 🙏 Saya BOT, saya terusin ke driver. Driver lagi OTW.',
         'Oke kak, titik jemput sesuai maps ya. Saya udah catat.',
         'Siap kak, saya udah infoin ke driver. 5 menit lagi sampai.',
-        'Baik kak, kalau mau buka PIN rahasia, ketik <b>@kadal</b> - PIN + Karcis langsung keluar 👑',
+        'Baik kak, kalau mau buka PIN rahasia, ketik <b>@kadal</b> - nanti nemu Driver + Admin sekaligus 👑',
       ];
       tambahPesanBot(balas[Math.floor(Math.random()*balas.length)]);
     }
     return;
   }
-  // ADMIN LANGSUNG DIKASIH PIN + KARCIS
+  // KETEMU - PISAH DRIVER vs ADMIN
+  let driverOnly = ketemu.filter(k=> k.sumber==='TABEL DRIVER');
+  let adminOnly = ketemu.filter(k=> k.sumber==='TABEL ADMIN');
   let daftar = ketemu.map((k,i)=>{
     if(k.sumber==='TABEL ADMIN'){
       let karcis = buatKarcis(k.data.nama);
       k.karcis = karcis;
-      return `${i+1}. ${k.simbol}${k.kata} → <b>${k.data.nama}</b> (${k.sumber})<br>🔑 <b>PIN: ${k.data.pin}</b> (Langsung dikasih!)<br>🎟️ <b>KARCIS: ${karcis}</b> (Wajib bawa buat masuk Halaman Admin!)`;
+      return `${i+1}. ${k.simbol}${k.kata} → <b>${k.data.nama}</b> (${k.sumber}) • 🎟️ <b style="color:#E8C766">KARCIS: ${karcis}</b> <span style="color:#aaa">(Wajib tukar karcis dulu!)</span>`;
     } else {
-      return `${i+1}. ${k.simbol}${k.kata} → <b>${k.data.nama}</b> (${k.sumber})<br>🔑 <b>PIN: ${k.data.pin}</b>`;
+      return `${i+1}. ${k.simbol}${k.kata} → <b>${k.data.nama}</b> (${k.sumber}) • PIN: <b style="color:#E8C766">${k.data.pin}</b> (Langsung buka)`;
     }
-  }).join('<br><br>');
-  tambahPesanBot(`🔍 <b>BOT NEMU ${ketemu.length} DATA DI 2 TABEL!</b><br><br>${daftar}<br><br>👑 Membuka yang pertama dulu...`);
-  let pertama = ketemu[0];
-  setTimeout(()=>{ bukaPin(pertama); },900);
+  }).join('<br>');
+  tambahPesanBot(`🔍 <b>BOT NEMU ${ketemu.length} DATA DI 2 TABEL!</b> (Simbol ${ketemu.map(k=>k.simbol).join(' ')} semua nyari di Driver + Admin)<br>${daftar}<br><br>${adminOnly.length? `🎟️ <b>ADA ${adminOnly.length} ADMIN!</b> Admin gak bisa langsung PIN. Salin karcis di atas, ketik <b>TUKAR KARCIS</b> / ketik karcisnya contoh <b>${adminOnly[0].karcis}</b> buat buka PIN.<br><br>`:''}👑 Membuka yang pertama dulu (Driver, langsung PIN)...`);
+  // Buka yang driver dulu, admin nunggu karcis
+  let pertamaDriver = ketemu.find(k=> k.sumber==='TABEL DRIVER');
+  if(pertamaDriver){
+    setTimeout(()=>{ bukaPin(pertamaDriver); },900);
+  } else {
+    // Kalau cuma admin doang, jangan langsung buka PIN, suruh tukar karcis
+    setTimeout(()=>{ tambahPesanBot(`⏳ Yang ketemu cuma ADMIN, jadi PIN-nya dikunci. Ketik karcisnya sekarang: <b>${ketemu[0].karcis}</b> atau klik tombol di bawah 👇<br><button onclick="kirimCepat('${ketemu[0].karcis}')" style="margin-top:6px;padding:8px 12px;border:none;border-radius:10px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-weight:900;cursor:pointer">🎟️ TUKAR ${ketemu[0].karcis}</button>`); },900);
+  }
+  // Tombol buka untuk sisanya
   ketemu.slice(1).forEach(k=>{
     setTimeout(()=>{
       if(k.sumber==='TABEL ADMIN'){
-        tambahPesanBot(`Mau buka <b>${k.data.nama} (ADMIN)</b> juga? PIN-nya <b>${k.data.pin}</b>, Karcisnya <b>${k.karcis}</b><br><button onclick="bukaPinDariChat('${k.data.pin}','${k.data.nama}','${k.data.role}','${k.data.mobil} • ${k.data.plat}','TABEL ADMIN','${k.karcis}')" style="margin-top:6px;padding:8px 12px;border:none;border-radius:10px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-weight:900;cursor:pointer">👑 BUKA PIN ${k.data.nama} + KARCIS</button>`);
+        tambahPesanBot(`Mau buka <b>${k.data.nama} (ADMIN)</b>? Tukar karcisnya: <b>${k.karcis}</b><br><button onclick="kirimCepat('${k.karcis}')" style="margin-top:6px;padding:8px 12px;border:none;border-radius:10px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-weight:900;cursor:pointer">🎟️ TUKAR ${k.karcis}</button>`);
       } else {
-        tambahPesanBot(`Mau buka PIN <b>${k.data.nama} (DRIVER)</b> juga? Klik 👇<br><button onclick="bukaPinDariChat('${k.data.pin}','${k.data.nama}','${k.data.role}','${k.data.mobil} • ${k.data.plat}','TABEL DRIVER','')" style="margin-top:6px;padding:8px 12px;border:none;border-radius:10px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-weight:900;cursor:pointer">👑 BUKA PIN ${k.data.nama}</button>`);
+        tambahPesanBot(`Mau buka PIN <b>${k.data.nama} (DRIVER)</b> juga? Klik 👇<br><button onclick="bukaPinDariChat('${k.data.pin}','${k.data.nama}','${k.data.role}','${k.data.mobil} • ${k.data.plat}','TABEL DRIVER')" style="margin-top:6px;padding:8px 12px;border:none;border-radius:10px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-weight:900;cursor:pointer">👑 BUKA PIN ${k.data.nama}</button>`);
       }
     },1400);
   });
 }
-function bukaPinDariChat(pin,nama,role,mobil,sumber,karcis){
-  let d = (role==='ADMIN' ? DB_ADMIN : DB_DRIVER).find(x=> x.pin===pin);
-  if(d) bukaPin({simbol:'@', kata:nama, data:d, sumber, karcis:karcis||null});
+function bukaPinDariChat(pin,nama,role,mobil,sumber){
+  let d = DB_DRIVER.find(x=> x.pin===pin) || DB_ADMIN.find(x=> x.pin===pin);
+  if(d) bukaPin({simbol:'@', kata:nama, data:d, sumber, karcis:null, sudahTukar:true});
 }
 function bukaPin(item){
   let d=item.data;
-  pinTarget=item; pinBenar=d.pin; pinInput=''; pinSudahBenar=false;
+  pinTarget=item; pinBenar=d.pin; pinInput='';
   $('pinNama').textContent=d.nama;
   $('pinDetail').textContent=d.ket+' • '+d.mobil+' • '+(d.plat||'');
-  if(d.role==='ADMIN'){
-    $('pinSub').innerHTML='ADMIN DITEMUKAN 👑<br>PIN langsung dikasih BOT + KARCIS wajib dibawa buat masuk Halaman Admin';
-    $('pinAsal').textContent='Ditemukan di '+item.sumber+' • Kode: '+item.simbol+item.kata+' • 🎟️ KARCIS: '+(item.karcis||'-');
-    $('karcisInfo').textContent='Karcis kamu buat '+d.nama+': '+(item.karcis||'-')+' (dari BOT, jangan sampai hilang!)';
-    $('karcisPerintah').textContent=item.simbol+item.kata;
+  // ADMIN WAJIB KARCIS - KALAU BELUM TUKAR, TAMPILIN FORM KARCIS, SEMBUNYIIN PIN
+  if(d.role==='ADMIN' && !item.sudahTukar){
+    $('pinSub').innerHTML='ADMIN TERDETEKSI 🎟️<br>Wajib pakai KARCIS dari BOT dulu!';
+    $('pinAsal').textContent='Ditemukan di '+item.sumber+' • Kode: '+item.simbol+item.kata+' • KARCIS: '+(item.karcis||' - minta di chat');
+    karcisAktif = item.karcis || '';
+    $('karcisBox').style.display='block';
+    $('pinArea').style.display='none';
+    $('inputKarcis').value = '';
+    $('karcisError').style.display='none';
   } else {
-    $('pinSub').innerHTML='KODE RAHASIA DITEMUKAN<br>Masukkan PIN untuk membuka';
-    $('pinAsal').textContent='Ditemukan di '+item.sumber+' • Kode: '+item.simbol+item.kata;
+    $('pinSub').innerHTML = d.role==='ADMIN' ? 'KARCIS VALID ✅<br>Masukkan PIN Admin untuk membuka' : 'KODE RAHASIA DITEMUKAN<br>Masukkan PIN untuk membuka';
+    $('pinAsal').textContent='Ditemukan di '+item.sumber+' • Kode: '+item.simbol+item.kata + (item.karcis ? ' • Karcis: '+item.karcis+' (sudah ditukar ✅)' : '');
+    $('karcisBox').style.display='none';
+    $('pinArea').style.display='block';
+    $('pinAsli').textContent=d.pin;
+    updatePinTampil();
   }
-  // Selalu mulai dari TAHAP PIN dulu
-  $('pinArea').style.display='block';
-  $('karcisBox').style.display='none';
-  $('btnKembaliChat').textContent='🔓 KEMBALI KE CHAT';
-  $('pinAsli').textContent=d.pin;
-  updatePinTampil();
   $('pinLock').classList.add('show');
+}
+function tukarKarcis(){
+  let inp = $('inputKarcis').value.trim().toUpperCase();
+  if(!inp){ $('karcisError').textContent='Isi karcisnya dulu!'; $('karcisError').style.display='block'; return; }
+  // Cek karcis cocok dengan yang dibuat BOT untuk admin ini
+  if(karcisDB[inp] && karcisDB[inp]===pinTarget.data.nama){
+    delete karcisDB[inp];
+    pinTarget.sudahTukar=true;
+    pinTarget.karcis=inp;
+    $('karcisError').style.display='none';
+    // Buka PIN-nya
+    $('pinSub').innerHTML='KARCIS VALID ✅<br>Masukkan PIN Admin untuk membuka';
+    $('pinAsal').textContent='Ditemukan di '+pinTarget.sumber+' • Karcis: '+inp+' (sudah ditukar ✅)';
+    $('karcisBox').style.display='none';
+    $('pinArea').style.display='block';
+    $('pinAsli').textContent=pinTarget.data.pin;
+    updatePinTampil();
+    tambahPesanBot(`✅ <b>KARCIS ${inp} VALID!</b> PIN Admin <b>${pinTarget.data.nama}</b> sudah kebuka. Silakan masukkan PIN di layar.`);
+  } else {
+    $('karcisError').textContent='Karcis salah / sudah dipakai / bukan buat '+pinTarget.data.nama+'! Cek chat BOT lagi.';
+    $('karcisError').style.display='block';
+  }
 }
 function buatKeypad(){
   let keys=['1','2','3','4','5','6','7','8','9','⌫','0','✓'];
@@ -619,59 +641,14 @@ function updatePinTampil(){
 }
 function cekPin(){
   if(pinInput===pinBenar){
-    pinSudahBenar=true;
-    $('pinCode').innerHTML='✅ <span style="color:#4ade80">PIN BENAR!</span>';
-    setTimeout(()=>{
-      if(pinTarget.data.role==='ADMIN'){
-        // PIN BENER, TAPI BELUM BISA MASUK ADMIN - WAJIB BAWA KARCIS!
-        $('pinArea').style.display='none';
-        $('karcisBox').style.display='block';
-        $('pinSub').innerHTML='✅ PIN BENAR! TAPI BELUM BISA MASUK ADMIN<br>🎟️ WAJIB BAWA KARCIS DARI BOT!';
-        $('pinCode').innerHTML='';
-        $('inputKarcis').value='';
-        $('karcisError').style.display='none';
-        $('btnKembaliChat').textContent='BALIK KE CHAT BUAT LIAT KARCIS';
-        tambahPesanBot(`✅ <b>PIN BENER</b> buat <b>${pinTarget.data.nama}</b>!<br>Tapi jangan seneng dulu, buat masuk <b>Halaman Admin</b> wajib bawa <b>KARCIS: ${pinTarget.karcis}</b> 🎟️<br>Masukkin karcis itu di layar kunci sekarang.`);
-      } else {
-        // Driver: PIN bener langsung kebuka, gak perlu karcis
-        tutupPin();
-        tambahPesanBot('✅ <b>PIN BENAR!</b> Kunci terbuka untuk <b>'+$('pinNama').textContent+'</b> 👑 Black & Gold unlocked! (Driver gak perlu karcis)');
-      }
-    },600);
+    $('pinCode').innerHTML='✅ <span style="color:#4ade80">TERBUKA!</span>';
+    setTimeout(()=>{ tutupPin(); tambahPesanBot('✅ <b>PIN BENAR!</b> Kunci terbuka untuk <b>'+$('pinNama').textContent+'</b> 👑 Black & Gold unlocked!'); },600);
   } else {
     $('pinCode').innerHTML='❌ <span style="color:#ff4d4d">PIN SALAH</span>';
     setTimeout(()=>{ pinInput=''; updatePinTampil(); },800);
   }
 }
-function tukarKarcisMasukAdmin(){
-  if(!pinSudahBenar){ alert('PIN belum bener! Ketik PIN dulu.'); return; }
-  let inp = $('inputKarcis').value.trim().toUpperCase();
-  if(!inp){ $('karcisError').textContent='Isi karcisnya dulu! Karcis dari BOT.'; $('karcisError').style.display='block'; return; }
-  // Cek karcis cocok dengan yang dikasih BOT buat admin ini
-  if(karcisDB[inp] && karcisDB[inp]===pinTarget.data.nama){
-    delete karcisDB[inp];
-    karcisTerpakai.push(inp+' - '+pinTarget.data.nama);
-    // MASUK HALAMAN ADMIN!
-    $('pinLock').classList.remove('show');
-    $('chatModal').classList.remove('show');
-    $('adminFoto').textContent=pinTarget.data.foto;
-    $('adminNama').textContent=pinTarget.data.nama;
-    $('adminKarcisTampil').textContent='Karcis: '+inp+' (Terverifikasi ✅)';
-    $('adminKarcisList').textContent=karcisTerpakai.join(', ');
-    $('adminPage').classList.add('show');
-    tambahPesanBot(`🎉 <b>BERHASIL MASUK HALAMAN ADMIN!</b> Selamat datang <b>${pinTarget.data.nama}</b> 👑 Karcis <b>${inp}</b> sudah dipakai & hangus.`);
-  } else {
-    $('karcisError').textContent='Karcis salah / sudah dipakai / bukan buat '+pinTarget.data.nama+'! Cek chat BOT lagi, karcisnya: '+(pinTarget.karcis||'-');
-    $('karcisError').style.display='block';
-    tambahPesanBot(`❌ Karcis <b>${inp}</b> salah / bukan buat <b>${pinTarget.data.nama}</b>. Karcis yang bener: <b>${pinTarget.karcis}</b>. Coba lagi!`);
-  }
-}
-function keluarAdmin(){
-  $('adminPage').classList.remove('show');
-  pinSudahBenar=false; pinInput='';
-  alert('Keluar dari Halaman Admin. Karcis sudah hangus, mau masuk lagi minta karcis baru ke BOT.');
-}
-function tutupPin(){ $('pinLock').classList.remove('show'); pinInput=''; pinSudahBenar=false; }
+function tutupPin(){ $('pinLock').classList.remove('show'); pinInput=''; }
 let kl=0; document.querySelector('.logo').addEventListener('click',()=>{ kl++; if(kl>=2){ $('tujuan').value=''; $('km').value=''; $('orang').value=5; $('box').style.display='none'; $('boxEmpty').style.display='block'; destCoord=null; if(markerTujuan) mapTujuan.removeLayer(markerTujuan); markerTujuan=null; alert('Direset ke NOL lagi!'); kl=0; } setTimeout(()=>kl=0,800); });
 </script>
 </body>
