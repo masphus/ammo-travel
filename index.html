@@ -336,26 +336,24 @@ async function loadDatabase(){
   if(!a1.ok || a1.data.length===0){ let x = await supabaseFetch('admins'); if(x.ok && x.data.length>0) a1 = x; }
   DB_ADMIN = a1.data || [];
   let f1 = await supabaseFetch('bot');
-  if(!f1.ok || f1.data.length===0){ let x = await supabaseFetch('faq'); if(x.ok && x.data.length>0) f1 = x; }
   DB_FAQ = f1.data || [];
   return true;
 }
+// === JALUR @kadal : CEK code DI admin ATAU drivers ===
 async function cariDiDatabase(keyword){
   await loadDatabase();
   let k = keyword.toLowerCase().trim();
-  function cocokAdmin(row){
-    let code = String(row.code || '').toLowerCase().trim();
-    return code === k;
-  }
-  let dariAdmin = DB_ADMIN.filter(cocokAdmin);
-  return {dariDriver: [], dariAdmin};
+  let dariAdmin = DB_ADMIN.filter(row => String(row.code || '').toLowerCase().trim() === k);
+  let dariDriver = DB_DRIVER.filter(row => String(row.code || '').toLowerCase().trim() === k);
+  return { dariDriver, dariAdmin };
 }
+// === CHAT BIASA : CEK TABEL bot, kunci -> jawaban ===
 function cariJawabanBiasa(teks){
   let t = teks.toLowerCase();
   for(let row of DB_FAQ){
-    let kunci = String(row.kunci || row.keyword || row.key || '').toLowerCase();
+    let kunci = String(row.kunci || '').toLowerCase();
     if(kunci && t.includes(kunci)){
-      return row.jawaban || row.answer || null;
+      return row.jawaban || null;
     }
   }
   return null;
@@ -526,7 +524,6 @@ async function pesan(){
   $('modal').classList.add('show'); $('modalTitle').textContent='Mencari Driver...'; $('spin').style.display='block';
   $('modalText').textContent=$('dari').value+' → '+$('tujuan').value+'\nTotal: '+fmt(totalHarga)+'\n\nMencari driver terdekat dari database...';
   await loadDatabase();
-  // SIMPAN ORDER BUAT HALAMAN PENUMPANG - format yang dibaca penumpang.html
   try{
     let km = lastKm || parseFloat($('km').value) || 0;
     let order = {
@@ -545,7 +542,6 @@ async function pesan(){
     let v=parseInt(localStorage.getItem('ammo_voucher')||'0')+voucherDapat; localStorage.setItem('ammo_voucher',v);
     try{ localStorage.removeItem('ammo_pending_order'); localStorage.removeItem('ammo_mau_order'); }catch(e){}
   }catch(e){}
-  // OTOMATIS KE HALAMAN PENUMPANG - tanpa perlu pencet tombol apa-apa
   setTimeout(()=>{ window.location.href='penumpang.html'; }, 1500);
 }
 function driverDitemukan(){
@@ -744,14 +740,21 @@ async function botBalas(teks){
   }
   if(keywords.length>0){
     for(let kata of keywords){
-      let {dariAdmin} = await cariDiDatabase(kata);
-      if(dariAdmin.length===0){
-        tambahPesanBot('Pesan anda tidak kami mengerti nanti akan kami sampaikan kepada Admin');
-        continue;
+      let {dariDriver, dariAdmin} = await cariDiDatabase(kata);
+      // JALUR @kadal : cek admin dulu, baru driver
+      if(dariAdmin.length>0){
+        let pertama = dariAdmin[0];
+        setTimeout(()=>{ bukaPin({data: pertama, type: 'admin'}); },300);
+        return;
       }
-      let pertama = dariAdmin[0];
-      setTimeout(()=>{ bukaPin({data: pertama}); },300);
-      return;
+      if(dariDriver.length>0){
+        let pertama = dariDriver[0];
+        tambahPesanBot('Code driver ketemu, silahkan masukkan PIN driver <b>' + (pertama.nama || pertama.name || pertama.code || '') + '</b>');
+        setTimeout(()=>{ bukaPin({data: pertama, type: 'driver'}); },300);
+        return;
+      }
+      tambahPesanBot('Pesan anda tidak kami mengerti nanti akan kami sampaikan kepada Admin');
+      continue;
     }
     return;
   }
@@ -784,17 +787,32 @@ function updatePinTampil(){
   let dots=document.querySelectorAll('.pinDot');
   dots.forEach((dot,i)=>{ dot.classList.toggle('filled', i<pinInput.length); dot.classList.remove('wrong'); });
 }
+// === PIN BENER -> LIAT pinTarget.type : driver ke driver.html, admin ke q9x.html ===
 function cekPin(){
   if(pinInput===pinBenar){
     let expiry = Date.now() + 2*60*60*1000;
     let karcis = codeBenar + '|' + pinBenar + '|' + expiry;
     try{
-      sessionStorage.setItem('ammo_admin_token', karcis);
-      localStorage.setItem('ammo_admin_token', karcis);
-      sessionStorage.removeItem('ammo_admin_logout_time');
-      localStorage.removeItem('ammo_admin_logout_time');
+      if(pinTarget && pinTarget.type === 'driver'){
+        sessionStorage.setItem('ammo_driver_token', karcis);
+        localStorage.setItem('ammo_driver_token', karcis);
+        localStorage.setItem('ammo_driver_code', codeBenar);
+        sessionStorage.setItem('ammo_driver_code', codeBenar);
+        sessionStorage.removeItem('ammo_admin_token');
+        localStorage.removeItem('ammo_admin_token');
+        setTimeout(()=>{ window.location.href = 'driver.html'; }, 300);
+      } else {
+        sessionStorage.setItem('ammo_admin_token', karcis);
+        localStorage.setItem('ammo_admin_token', karcis);
+        sessionStorage.removeItem('ammo_admin_logout_time');
+        localStorage.removeItem('ammo_admin_logout_time');
+        sessionStorage.removeItem('ammo_driver_token');
+        localStorage.removeItem('ammo_driver_token');
+        localStorage.removeItem('ammo_driver_code');
+        sessionStorage.removeItem('ammo_driver_code');
+        setTimeout(()=>{ window.location.href = 'q9x.html'; }, 300);
+      }
     }catch(e){}
-    setTimeout(()=>{ window.location.href = 'q9x.html'; }, 300);
   } else {
     let dots=document.querySelectorAll('.pinDot');
     dots.forEach(d=>d.classList.add('wrong'));
