@@ -3,416 +3,498 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Driver - AMMO TRAVEL</title>
+<title>DRIVER - AMMO TRAVEL</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
-body{background:#000;color:#fff;min-height:100vh}
-.app{max-width:480px;margin:0 auto;padding:16px 16px 30px;background:#0a0a0a;min-height:100vh}
-h1{font-size:28px;margin:10px 4px 4px}
-h1 span{color:#D4AF37}
-p.sub{color:#aaa;font-size:13px;margin:0 4px 16px}
-.card{background:#111;border:1px solid #333;border-radius:16px;padding:14px;margin-bottom:12px}
-.card h3{color:#E8C766;font-size:15px;margin-bottom:8px}
-.card p{font-size:13px;color:#aaa;line-height:1.6}
-.card b{color:#fff}
-.tab{display:flex;gap:8px;margin:0 4px 14px}
-.tab button{flex:1;padding:12px;border-radius:12px;border:1px solid #333;background:#1a1a1a;color:#aaa;font-weight:800;cursor:pointer}
-.tab button.on{background:linear-gradient(180deg,#FFE9A8,#D4AF37);color:#000;border-color:#D4AF37}
-.btn{width:100%;padding:15px;border:none;border-radius:12px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-weight:900;font-size:16px;cursor:pointer;margin-top:10px}
-.btn.outline{background:#1a1a1a;color:#E8C766;border:1px solid #D4AF37}
-.btn.danger{background:#ff3b30;color:#fff}
-.btn:disabled{opacity:.5}
-.statusBar{display:flex;align-items:center;gap:10px;background:#111;border:1px solid #333;border-radius:14px;padding:12px 14px;margin:0 4px 14px}
-.dot{width:12px;height:12px;border-radius:50%;background:#4ade80;box-shadow:0 0 10px #4ade80}
-.dot.off{background:#ff3b30;box-shadow:0 0 10px #ff3b30}
-.switch{margin-left:auto;width:52px;height:28px;background:#333;border-radius:20px;position:relative;cursor:pointer;flex-shrink:0}
-.switch::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;background:#fff;border-radius:50%;transition:.2s}
-.switch.on{background:#4ade80}
-.switch.on::after{left:27px}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;padding:20px;z-index:99}
-.modal.show{display:flex}
-.modalBox{background:#111;border:1px solid #C9A227;border-radius:20px;padding:24px;width:100%;max-width:380px;text-align:center}
-.modalBox input{width:100%;padding:14px;border-radius:12px;border:1px solid #333;background:#1a1a1a;color:#fff;font-size:18px;text-align:center;letter-spacing:4px;outline:none;margin-top:12px}
-.modalBox input:focus{border-color:#D4AF37}
-.pinKeypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
-.pinKey{aspect-ratio:1.35/1;border-radius:10px;border:1px solid #FFD700;background:linear-gradient(135deg,#FFF8DC 0%,#FFD700 25%,#D4AF37 55%,#B8860B 85%,#8B6914 100%);color:#000;font-size:22px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 0 #6B4F00}
-.pinKey:active{transform:translateY(2px);box-shadow:0 1px 0 #6B4F00}
-.pinDots{display:flex;justify-content:center;gap:10px;margin:12px 0 4px}
-.pinDot{width:14px;height:14px;border-radius:50%;border:1.5px solid #D4AF37}
-.pinDot.filled{background:radial-gradient(circle at 30% 30%,#FFF8DC,#FFD700 60%,#B8860B);box-shadow:0 0 10px rgba(255,215,0,.8);border-color:#FFD700}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:#000;color:#fff}
+.app{max-width:480px;margin:0 auto;min-height:100vh;background:#0a0a0a;padding:18px 16px 110px}
+.logo{text-align:center;font-size:28px;font-weight:900;letter-spacing:2px;background:linear-gradient(180deg,#FFE9A8,#D4AF37,#9A7B1A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;padding:6px 0 2px}
+.sub{text-align:center;font-size:12px;color:#888;letter-spacing:2px;margin-bottom:14px}
+.card{border:1px solid #C9A227;border-radius:22px;padding:16px;background:#111;margin-bottom:12px}
+.driverTop{display:flex;gap:12px;align-items:center}
+.driverFoto{width:64px;height:64px;border-radius:50%;background:linear-gradient(180deg,#FFE9A8,#D4AF37);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;border:2px solid #fff}
+.driverInfo{flex:1;min-width:0}
+.driverInfo b{font-size:18px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.driverInfo span{font-size:12px;color:#E8C766}
+.statusDriver{font-size:11px;background:#1a3a1a;color:#4ade80;padding:4px 8px;border-radius:20px;font-weight:800;margin-top:4px;display:inline-block}
+.badgeOnline{font-size:11px;background:#1a3a1a;color:#4ade80;padding:6px 12px;border-radius:20px;font-weight:800}
+.badgeOffline{font-size:11px;background:#3a1a1a;color:#ff6b6b;padding:6px 12px;border-radius:20px;font-weight:800}
+h2{font-size:18px;margin:14px 4px 10px}
+.orderCard{border:1px solid #C9A227;border-radius:18px;padding:16px;background:#111;margin-bottom:12px}
+.orderCard b{color:#E8C766;font-size:16px}
+.orderCard p{font-size:13px;color:#aaa;margin-top:6px;line-height:1.5}
+.orderCard p b{color:#fff}
+.price{font-size:22px;font-weight:900;color:#E8C766;margin-top:8px}
+.btn{width:100%;padding:15px;border:none;border-radius:14px;background:linear-gradient(180deg,#FFE9A8,#D4AF37,#B8962E);font-size:16px;font-weight:900;cursor:pointer;margin-top:10px}
+.btn2{width:100%;padding:13px;border:1px solid #D4AF37;background:#1a1a1a;color:#E8C766;border-radius:12px;font-weight:800;cursor:pointer;margin-top:8px}
+.btnRed{width:100%;padding:13px;border:1px solid #ff4d4d;background:transparent;color:#ff6b6b;border-radius:12px;font-weight:800;cursor:pointer;margin-top:8px}
+.btnGreen{width:100%;padding:15px;border:none;border-radius:14px;background:#1a3a1a;color:#4ade80;font-size:16px;font-weight:900;cursor:pointer;margin-top:10px;border:1px solid #4ade80}
+.btnRow{display:flex;gap:10px;margin-top:10px}
+.btnRow button{flex:1;padding:13px;border-radius:12px;font-weight:900;cursor:pointer;font-size:14px;border:none}
+.btnChat{background:linear-gradient(180deg,#FFE9A8,#D4AF37);color:#000}
+.btnCall{background:#1a1a1a;border:1px solid #D4AF37!important;color:#E8C766}
+.item{border:1px solid #333;border-radius:14px;padding:14px;margin-bottom:10px;background:#111}
+.item b{color:#E8C766}.item p{font-size:13px;color:#aaa;margin-top:4px}
+.empty{text-align:center;color:#777;font-size:14px;padding:20px}
+.pinLock{position:fixed;inset:0;background:#000;display:none;align-items:center;justify-content:center;z-index:200;padding:20px}
+.pinLock.show{display:flex}
+.pinBox{width:100%;max-width:340px;background:#0a0a0a;border:1.5px solid #D4AF37;border-radius:20px;padding:22px 18px 18px;position:relative}
+.pinClose{position:absolute;top:10px;right:12px;background:none;border:none;color:#888;font-size:22px;cursor:pointer}
+.pinLion{width:68px;height:68px;margin:2px auto 10px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#FFF8DC,#D4AF37 45%,#8B6914 100%);display:flex;align-items:center;justify-content:center;font-size:36px;border:2px solid #FFD700}
+.pinDots{display:flex;justify-content:center;gap:12px;margin:14px 0 18px}
+.pinDot{width:14px;height:14px;border-radius:50%;border:1.5px solid #D4AF37;background:transparent}
+.pinDot.filled{background:radial-gradient(circle at 30% 30%,#FFF8DC,#FFD700 60%,#B8860B)}
 .pinDot.wrong{border-color:#ff4d4d;background:#ff4d4d}
-.loading{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:200;flex-direction:column;gap:12px}
-.spinner{width:40px;height:40px;border:4px solid #333;border-top:4px solid #D4AF37;border-radius:50%;animation:spin 1s linear infinite}
+.pinKeypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pinKey{aspect-ratio:1.35/1;border-radius:10px;border:1px solid #FFD700;background:linear-gradient(135deg,#FFF8DC 0%,#FFD700 25%,#D4AF37 55%,#B8860B 85%,#8B6914 100%);color:#000;font-size:22px;font-weight:800;cursor:pointer}
+.pinKey:active{transform:translateY(2px)}
+.loading{position:fixed;inset:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:300;gap:12px}
+.spinner{width:48px;height:48px;border:4px solid #333;border-top:4px solid #D4AF37;border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.badge{display:inline-block;font-size:11px;padding:4px 8px;border-radius:20px;font-weight:800;margin-left:6px}
-.badge.baru{background:#D4AF37;color:#000}
-.badge.selesai{background:#1a3a1a;color:#4ade80}
-.badge.batal{background:#3a1a1a;color:#ff6b6b}
-.kosong{text-align:center;color:#777;padding:20px;font-size:13px}
-hr{border:none;border-top:1px solid #222;margin:10px 0}
-.small{font-size:11px;color:#666}
-/* === TELP GRATIS - AMMO === */
-.callModal{position:fixed;inset:0;background:linear-gradient(180deg,#0a0a0a,#1a1a1a);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:500;padding:20px;text-align:center}
+.callModal{position:fixed;inset:0;background:linear-gradient(180deg,#0a0a0a,#1a1a1a);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:400;padding:20px;text-align:center}
 .callModal.show{display:flex}
-.callAvatar{width:110px;height:110px;border-radius:50%;background:linear-gradient(180deg,#FFE9A8,#D4AF37);display:flex;align-items:center;justify-content:center;font-size:56px;border:3px solid #fff;box-shadow:0 0 30px rgba(212,175,55,.6);animation:pulseCall 1.5s infinite}
-@keyframes pulseCall{0%{box-shadow:0 0 0 0 rgba(212,175,55,.5)}100%{box-shadow:0 0 0 20px rgba(212,175,55,0)}}
+.callAvatar{width:110px;height:110px;border-radius:50%;background:linear-gradient(180deg,#FFE9A8,#D4AF37);display:flex;align-items:center;justify-content:center;font-size:56px;border:3px solid #fff}
 .callBtns{display:flex;gap:18px;margin-top:30px}
 .callBtn{width:66px;height:66px;border-radius:50%;border:none;font-size:26px;cursor:pointer}
 .callBtn.mute{background:#222;color:#fff;border:1px solid #444}
 .callBtn.mute.on{background:#D4AF37;color:#000}
 .callBtn.end{background:#ff3b30;color:#fff}
 .callBtn.answer{background:#34c759;color:#fff}
-.callBadge{position:fixed;top:14px;right:14px;z-index:499;background:#1a3a1a;border:1px solid #4ade80;color:#4ade80;font-size:11px;font-weight:800;padding:6px 10px;border-radius:20px;display:none}
+.chatModal{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;flex-direction:column;z-index:350}
+.chatModal.show{display:flex}
+.chatHeader{background:#111;border-bottom:1px solid #C9A227;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.chatBody{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:85%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.4}
+.msg.driver{background:linear-gradient(180deg,#FFE9A8,#D4AF37);color:#000;align-self:flex-end;font-weight:600}
+.msg.me{background:#1a1a1a;border:1px solid #333;align-self:flex-start}
+.msg small{display:block;font-size:10px;opacity:.6;margin-top:4px}
+.chatInput{display:flex;gap:8px;padding:12px;background:#111;border-top:1px solid #333}
+.chatInput input{flex:1;background:#1a1a1a;border:1px solid #333;border-radius:20px;padding:12px 16px;color:#fff;outline:none}
+.chatInput button{width:48px;height:48px;border-radius:50%;border:none;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-size:20px;cursor:pointer}
 </style>
 </head>
 <body>
-<div class="loading" id="loading"><div class="spinner"></div><p style="color:#aaa;font-size:13px">Memuat...</p></div>
+<div class="loading" id="loading"><div class="spinner"></div><p style="color:#aaa;font-size:14px">Memuat data driver...</p></div>
 
-<div class="callBadge" id="callBadge">● SIAP TERIMA TELP</div>
-
-<div class="app">
-<h1>Halo, <span id="namaDriver">Driver</span> 👋</h1>
-<p class="sub" id="subDriver">AMMO TRAVEL • Driver</p>
-
-<div class="statusBar">
-  <div class="dot" id="dotOnline"></div>
-  <div><b id="txtOnline">ONLINE</b><div style="font-size:11px;color:#aaa" id="txtOnlineSub">Siap terima orderan</div></div>
-  <div class="switch on" id="switchOnline" onclick="toggleOnline()"></div>
-</div>
-
-<div class="tab">
-  <button id="tabBaru" class="on" onclick="setTab('baru')">📥 Order Baru <span id="countBaru"></span></button>
-  <button id="tabRiwayat" onclick="setTab('riwayat')">📜 Riwayat</button>
-</div>
-
-<div id="boxBaru"></div>
-<div id="boxRiwayat" style="display:none"></div>
+<div class="app" id="app" style="display:none">
+<div class="logo">AMMO TRAVEL</div>
+<div class="sub">MODE DRIVER</div>
 
 <div class="card">
-  <h3>💰 Ringkasan Hari Ini</h3>
-  <p>Order selesai: <b id="statSelesai">0</b><br>Estimasi pendapatan: <b id="statUang">Rp 0</b></p>
-  <button class="btn outline" onclick="window.location.href='akun.html'">👤 Akun Saya</button>
-  <button class="btn danger" onclick="logoutDriver()">🚪 Keluar</button>
-</div>
-<p class="small" style="text-align:center">AMMO TRAVEL • Driver App • v1.0</p>
-</div>
-
-<div class="modal" id="modalPin">
-  <div class="modalBox">
-    <div style="width:64px;height:64px;margin:0 auto 10px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#FFF8DC,#D4AF37 45%,#8B6914 100%);display:flex;align-items:center;justify-content:center;font-size:32px;border:2px solid #FFD700">🦁</div>
-    <h2 id="pinTitle">Masukkan PIN</h2>
-    <p style="color:#aaa;font-size:13px;margin-top:6px" id="pinSub">Masukkan 6 digit PIN driver kamu</p>
-    <div class="pinDots" id="pinDots"><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div></div>
-    <input type="password" id="pinInput" maxlength="6" inputmode="numeric" placeholder="••••••" style="display:none">
-    <div class="pinKeypad" id="pinKeypad"></div>
-    <button class="btn outline" onclick="tutupPin()" style="margin-top:12px">Batal</button>
+  <div class="driverTop">
+    <div class="driverFoto" id="driverFoto">🚗</div>
+    <div class="driverInfo">
+      <b id="driverNama">-</b>
+      <span id="driverCode">-</span><br>
+      <span class="statusDriver" id="driverStatus">● ONLINE</span>
+    </div>
+    <span class="badgeOnline" id="badgeOnline">ONLINE</span>
+  </div>
+  <div style="display:flex;justify-content:space-between;margin-top:14px;font-size:13px;color:#aaa">
+    <span>Mobil: <b style="color:#fff" id="driverMobil">-</b></span>
+    <span style="background:#fff;color:#000;font-weight:900;padding:4px 8px;border-radius:6px;font-size:12px" id="driverPlat">-</span>
+  </div>
+  <div class="btnRow">
+    <button class="btn2" id="btnToggleOnline" onclick="toggleOnline()">🔴 OFFLINE</button>
+    <button class="btnRed" onclick="logoutDriver()">KELUAR</button>
   </div>
 </div>
 
-<div class="modal" id="modalOrder">
-  <div class="modalBox" style="text-align:left;max-width:420px">
-    <h2 id="orderJudul">Detail Order</h2>
-    <div id="orderIsi" style="font-size:14px;color:#ccc;line-height:1.8;margin-top:12px"></div>
-    <div id="orderBtns" style="display:flex;gap:10px;margin-top:14px"></div>
-    <button class="btn outline" onclick="tutupOrder()">Tutup</button>
+<h2>📦 Order Baru Masuk</h2>
+<div id="listOrderBaru"><div class="empty">Belum ada order baru.<br>Tunggu orderan dari penumpang.</div></div>
+
+<h2>🚗 Orderan Kamu</h2>
+<div id="listOrderAktif"></div>
+
+<h2>📜 Riwayat</h2>
+<div id="listRiwayat"><div class="empty">Belum ada riwayat.</div></div>
+
+<button class="btnRed" onclick="logoutDriver()">KELUAR DARI DRIVER</button>
+<p style="text-align:center;font-size:11px;color:#666;margin-top:10px">Keluar akan balik ke halaman penumpang (index.html)</p>
+</div>
+
+<div class="pinLock" id="pinLock">
+  <div class="pinBox">
+    <button class="pinClose" onclick="tutupPinKeIndex()">×</button>
+    <div class="pinLion">🦁</div>
+    <p style="text-align:center;font-weight:800">Masuk Driver</p>
+    <p style="text-align:center;font-size:12px;color:#aaa;margin-top:4px" id="pinSub">Masukkan kode driver lalu PIN</p>
+    <input id="inputCode" placeholder="Kode driver, misal: sopir" style="width:100%;background:#1a1a1a;border:1px solid #333;border-radius:12px;color:#fff;padding:13px;font-size:15px;outline:none;margin-top:14px;text-align:center">
+    <div class="pinDots" id="pinDots"><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div></div>
+    <div class="pinKeypad" id="pinKeypad"></div>
+  </div>
+</div>
+
+<div class="chatModal" id="chatModal">
+  <div class="chatHeader">
+    <button onclick="tutupChat()" style="background:none;border:none;color:#fff;font-size:22px;cursor:pointer">←</button>
+    <div style="flex:1"><b id="chatNama">Penumpang</b><div style="font-size:11px;color:#4ade80">● Chat Orderan</div></div>
+    <button onclick="telpPenumpang()" style="background:#1a1a1a;border:1px solid #D4AF37;color:#E8C766;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer">📞</button>
+  </div>
+  <div class="chatBody" id="chatBody"></div>
+  <div class="chatInput">
+    <input id="chatInput" placeholder="Ketik pesan ke penumpang..." onkeypress="if(event.key==='Enter') kirimChat()">
+    <button onclick="kirimChat()">➤</button>
   </div>
 </div>
 
 <div class="callModal" id="callModal">
-  <div class="callAvatar">📞</div>
+  <div class="callAvatar" id="callAvatar">🧑</div>
   <h2 id="callNama" style="margin-top:18px;font-size:24px">Penumpang</h2>
   <p id="callInfo" style="color:#E8C766;margin-top:6px">Panggilan Masuk • AMMO TRAVEL</p>
-  <p id="callStatus" style="color:#aaa;margin-top:12px;font-size:14px">Panggilan masuk...</p>
+  <p id="callStatus" style="color:#aaa;margin-top:12px;font-size:14px">Memanggil...</p>
   <p id="callTimer" style="color:#fff;margin-top:6px;font-size:18px;font-weight:800">00:00</p>
-  <div class="callBtns" id="callBtnsIn">
+  <div class="callBtns" id="callBtnsOut">
+    <button class="callBtn mute" id="btnMute" onclick="toggleMute()">🔇</button>
+    <button class="callBtn end" onclick="akhiriTelp()">📞</button>
+    <button class="callBtn mute" onclick="toggleSpeaker()">🔊</button>
+  </div>
+  <div class="callBtns" id="callBtnsIn" style="display:none">
     <button class="callBtn end" onclick="tolakTelp()">📞</button>
     <button class="callBtn answer" onclick="terimaTelp()">📞</button>
   </div>
-  <div class="callBtns" id="callBtnsOut" style="display:none">
-    <button class="callBtn mute" id="btnMute" onclick="toggleMuteTelp()">🔇</button>
-    <button class="callBtn end" onclick="akhiriTelp()">📞</button>
-    <button class="callBtn mute" onclick="toggleSpeakerTelp()">🔊</button>
-  </div>
-  <p style="font-size:11px;color:#666;margin-top:18px">Panggilan via AMMO TRAVEL • Gratis • Bukan WhatsApp</p>
+  <p style="font-size:11px;color:#666;margin-top:18px">Panggilan via AMMO TRAVEL • Gratis</p>
   <audio id="remoteAudio" autoplay playsinline style="display:none"></audio>
 </div>
 
 <script>
 const $=id=>document.getElementById(id);
+const fmt=n=>'Rp '+Math.round(n||0).toLocaleString('id-ID');
 const SUPABASE_URL='https://xxtgmohxdztesiubfxap.supabase.co';
 const SUPABASE_KEY='sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-const fmt=n=>'Rp '+Math.round(n||0).toLocaleString('id-ID');
-let driver=null, tabAktif='baru', pinInput='', orderTerpilih=null, daftarOrder=[];
 
-function buatKeypad(){
-  let keys=['1','2','3','4','5','6','7','8','9','⌫','0','✓'];
-  $('pinKeypad').innerHTML=keys.map(k=>`<button class="pinKey" onclick="tekanPin('${k}')">${k==='⌫'?'⌫':k}</button>`).join('');
-}
-function updatePinTampil(){
-  document.querySelectorAll('.pinDot').forEach((d,i)=>{ d.classList.toggle('filled', i<pinInput.length); d.classList.remove('wrong'); });
-}
-function tekanPin(k){
-  if(k==='⌫') pinInput=pinInput.slice(0,-1);
-  else if(k==='✓'){ cekPin(); return; }
-  else { if(pinInput.length>=6) return; pinInput+=k; }
-  updatePinTampil();
-  if(pinInput.length===6) setTimeout(cekPin,300);
-}
-function bukaPin(){
-  pinInput=''; updatePinTampil();
-  $('pinTitle').textContent = driver ? 'Masukkan PIN' : 'Masukkan PIN Driver';
-  $('pinSub').textContent = driver ? ('Halo '+(driver.nama||driver.name||'Driver')+', masukkan 6 digit PIN kamu') : 'Masukkan 6 digit PIN driver kamu';
-  $('modalPin').classList.add('show');
-}
-function tutupPin(){ $('modalPin').classList.remove('show'); pinInput=''; updatePinTampil(); }
+let driver=null, pinInput='', pinBenar='', codeBenar='';
+let isOnline=true, orderAktif=null, chatOrderId=null;
+let callChannel=null, peerConn=null, localStream=null, currentCallId=null, incomingOffer=null, callTimerInt=null, callDetik=0, isMuted=false;
+const STUN_SERVERS={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
 
-async function cekPin(){
-  if(pinInput.length!==6) return;
-  if(!driver){
-    // Belum pilih driver, coba cari driver dari PIN-nya
-    try{
-      let {data,error}=await sb.from('drivers').select('*').eq('pin',pinInput).limit(1);
-      if(error) throw error;
-      if(data && data.length>0){
-        driver=data[0];
-        try{ localStorage.setItem('ammo_driver', JSON.stringify(driver)); }catch(e){}
-        tutupPin(); tampilDriver(); loadOrderBaru(); loadRiwayat(); gabungChannelTelpDriver();
-        return;
-      }
-      // Coba tabel driver (singular)
-      let r2=await sb.from('driver').select('*').eq('pin',pinInput).limit(1);
-      if(r2.data && r2.data.length>0){
-        driver=r2.data[0];
-        try{ localStorage.setItem('ammo_driver', JSON.stringify(driver)); }catch(e){}
-        tutupPin(); tampilDriver(); loadOrderBaru(); loadRiwayat(); gabungChannelTelpDriver();
-        return;
-      }
-      document.querySelectorAll('.pinDot').forEach(d=>d.classList.add('wrong'));
-      setTimeout(()=>{ pinInput=''; updatePinTampil(); },400);
-    }catch(e){
-      console.log(e);
-      alert('PIN tidak ditemukan. Cek PIN di database.');
-      pinInput=''; updatePinTampil();
-    }
-    return;
-  }
-  // Sudah ada driver, cek PIN-nya
-  let pinBenar = String(driver.pin||'');
-  if(pinInput===pinBenar){
-    tutupPin();
-    alert('PIN benar! Selamat datang, '+(driver.nama||driver.name));
-  } else {
-    document.querySelectorAll('.pinDot').forEach(d=>d.classList.add('wrong'));
-    setTimeout(()=>{ pinInput=''; updatePinTampil(); },400);
-  }
-}
-
-function tampilDriver(){
-  if(!driver) return;
-  let nama = driver.nama||driver.name||driver.code||'Driver';
-  $('namaDriver').textContent=nama;
-  $('subDriver').textContent=(driver.jenis_mobil||driver.mobil||'')+' • '+(driver.plat_mobil||driver.plat||'')+' • AMMO TRAVEL';
-  let isOnline = driver.status!=='OFFLINE';
-  $('dotOnline').className='dot'+(isOnline?'':' off');
-  $('txtOnline').textContent=isOnline?'ONLINE':'OFFLINE';
-  $('txtOnlineSub').textContent=isOnline?'Siap terima orderan':'Kamu offline, tidak terima orderan';
-  $('switchOnline').className='switch'+(isOnline?' on':'');
-}
-async function toggleOnline(){
-  if(!driver) return;
-  let baru = driver.status==='OFFLINE' ? 'ONLINE' : 'OFFLINE';
-  driver.status=baru; tampilDriver();
-  try{
-    await sb.from('drivers').update({status:baru}).eq('id',driver.id);
-  }catch(e){}
-  try{ localStorage.setItem('ammo_driver', JSON.stringify(driver)); }catch(e){}
-}
-
-function setTab(t){
-  tabAktif=t;
-  $('tabBaru').className=t==='baru'?'on':'';
-  $('tabRiwayat').className=t==='riwayat'?'on':'';
-  $('boxBaru').style.display=t==='baru'?'block':'none';
-  $('boxRiwayat').style.display=t==='riwayat'?'block':'none';
-}
-
-function loadOrderBaru(){
-  // Data dari localStorage / simulasi - di versi production ini dari tabel orders
-  let semua = [];
-  try{ semua = JSON.parse(localStorage.getItem('ammo_orders')||'[]'); }catch(e){ semua=[]; }
-  let baru = semua.filter(o=>o.status==='BARU' || o.status==='MENUNGGU');
-  $('countBaru').textContent = baru.length>0 ? '('+baru.length+')' : '';
-  if(baru.length===0){
-    $('boxBaru').innerHTML='<div class="card"><h3>📥 Order Baru</h3><div class="kosong">Belum ada order baru.<br>Tunggu penumpang pesan ya.</div></div>';
-  } else {
-    $('boxBaru').innerHTML=baru.map((o,i)=>`
-      <div class="card">
-        <h3>Order #${o.id||i+1} <span class="badge baru">BARU</span></h3>
-        <p>Dari: <b>${o.dari||'-'}</b><br>Ke: <b>${o.tujuan||'-'}</b><br>Tanggal: <b>${o.tanggal||'-'} ${o.jam||''}</b><br>Penumpang: <b>${o.orang||''} Orang</b><br>Jarak: <b>${o.km||'-'}</b></p>
-        <p style="margin-top:8px">Total: <b style="color:#E8C766;font-size:16px">${fmt(o.total||0)}</b></p>
-        <button class="btn" onclick="lihatOrder(${i})">Lihat Detail</button>
-      </div>`).join('');
-  }
-  daftarOrder = semua;
-}
-
-function loadRiwayat(){
-  let semua=[];
-  try{ semua = JSON.parse(localStorage.getItem('ammo_orders')||'[]'); }catch(e){ semua=[]; }
-  let riw = semua.filter(o=>o.status!=='BARU' && o.status!=='MENUNGGU');
-  if(riw.length===0){
-    $('boxRiwayat').innerHTML='<div class="card"><h3>📜 Riwayat</h3><div class="kosong">Belum ada riwayat order.</div></div>';
-  } else {
-    $('boxRiwayat').innerHTML=riw.map((o,i)=>`
-      <div class="card">
-        <h3>Order #${o.id||i+1} <span class="badge ${o.status==='SELESAI'?'selesai':'batal'}">${o.status||''}</span></h3>
-        <p>${o.dari||'-'} → ${o.tujuan||'-'}<br>${o.tanggal||''} ${o.jam||''} • ${fmt(o.total||0)}</p>
-      </div>`).join('');
-  }
-  let selesai = semua.filter(o=>o.status==='SELESAI');
-  let total = selesai.reduce((a,o)=>a+(o.total||0),0);
-  $('statSelesai').textContent=selesai.length;
-  $('statUang').textContent=fmt(total);
-}
-
-function lihatOrder(i){
-  let o = daftarOrder[i];
-  if(!o) return;
-  orderTerpilih=o;
-  $('orderJudul').textContent='Order #'+(o.id||i+1);
-  $('orderIsi').innerHTML=`Dari: <b>${o.dari||'-'}</b><br>Ke: <b>${o.tujuan||'-'}</b><br>Tanggal: <b>${o.tanggal||'-'} ${o.jam||''}</b><br>Penumpang: <b>${o.orang||''} Orang</b><br>Jarak: <b>${o.km||'-'}</b><hr>Total: <b style="color:#E8C766;font-size:18px">${fmt(o.total||0)}</b>`;
-  $('orderBtns').innerHTML=`<button class="btn" style="flex:1" onclick="terimaOrder()">✅ Terima</button><button class="btn danger" style="flex:1" onclick="tolakOrder()">❌ Tolak</button>`;
-  $('modalOrder').classList.add('show');
-}
-function tutupOrder(){ $('modalOrder').classList.remove('show'); orderTerpilih=null; }
-function terimaOrder(){
-  if(!orderTerpilih) return;
-  let semua=[];
-  try{ semua=JSON.parse(localStorage.getItem('ammo_orders')||'[]'); }catch(e){}
-  let idx = semua.findIndex(o=>o.id===orderTerpilih.id);
-  if(idx>=0){ semua[idx].status='DITERIMA'; localStorage.setItem('ammo_orders', JSON.stringify(semua)); }
-  tutupOrder(); loadOrderBaru(); loadRiwayat(); alert('Order diterima! Silahkan OTW ke titik jemput.');
-}
-function tolakOrder(){
-  if(!orderTerpilih) return;
-  let semua=[];
-  try{ semua=JSON.parse(localStorage.getItem('ammo_orders')||'[]'); }catch(e){}
-  let idx = semua.findIndex(o=>o.id===orderTerpilih.id);
-  if(idx>=0){ semua[idx].status='DITOLAK'; localStorage.setItem('ammo_orders', JSON.stringify(semua)); }
-  tutupOrder(); loadOrderBaru(); loadRiwayat(); alert('Order ditolak.');
-}
-function logoutDriver(){
-  if(confirm('Keluar dari akun driver?')){ localStorage.removeItem('ammo_driver'); driver=null; location.reload(); }
-}
-
-/* === TELP GRATIS DRIVER - WebRTC + Supabase yang sama, gak daftar baru === */
-let callChannels=[], peerConn=null, localStreamTelp=null, currentCallId=null, incomingOffer=null, callTimerInt=null, callDetik=0, isMutedTelp=false;
-const STUN_SERVERS = { iceServers: [{urls:'stun:stun.l.google.com:19302'}, {urls:'stun:stun1.l.google.com:19302'}] };
-function buatPeerTelp(){
-  peerConn = new RTCPeerConnection(STUN_SERVERS);
-  peerConn.onicecandidate = e=>{ if(e.candidate) callChannels.forEach(ch=>{ try{ ch.send({type:'broadcast', event:'ice', payload:{candidate:e.candidate, callId:currentCallId}}); }catch(err){} }); };
-  peerConn.ontrack = e=>{ let a=document.getElementById('remoteAudio'); if(a){ a.srcObject=e.streams[0]; a.play().catch(()=>{}); } };
-  peerConn.onconnectionstatechange = ()=>{ if(peerConn && peerConn.connectionState==='connected') document.getElementById('callStatus').textContent='Terhubung • Via AMMO TRAVEL • Gratis'; };
-  return peerConn;
-}
-function mulaiTimerTelp(){ clearInterval(callTimerInt); callDetik=0; callTimerInt=setInterval(()=>{ callDetik++; let m=String(Math.floor(callDetik/60)).padStart(2,'0'); let s=String(callDetik%60).padStart(2,'0'); document.getElementById('callTimer').textContent=m+':'+s; },1000); }
-async function gabungChannelTelpDriver(){
-  if(!driver) return;
-  let rooms = ['room-1'];
-  if(driver.code) rooms.push('driver-'+String(driver.code).toLowerCase());
-  if(driver.id) rooms.push('driver-'+String(driver.id));
-  if(driver.nama) rooms.push('driver-'+String(driver.nama).toLowerCase().replace(/\s+/g,'-'));
-  for(let ch of callChannels){ try{ await ch.unsubscribe(); }catch(e){} }
-  callChannels=[];
-  for(let room of rooms){
-    try{
-      let ch = sb.channel('ammo-call-'+room, {config:{broadcast:{self:true}}});
-      ch.on('broadcast',{event:'offer'}, ({payload})=>{
-        if(payload.to==='driver' || payload.callId===room || payload.to===room || (payload.to && String(payload.to).startsWith('driver-'))){
-          currentCallId = payload.callId || room;
-          incomingOffer = payload.offer;
-          document.getElementById('callNama').textContent = payload.fromName || 'Penumpang';
-          document.getElementById('callInfo').textContent = 'Panggilan Masuk • AMMO TRAVEL';
-          document.getElementById('callStatus').textContent = 'Panggilan masuk...';
-          document.getElementById('callBtnsIn').style.display='flex';
-          document.getElementById('callBtnsOut').style.display='none';
-          document.getElementById('callModal').classList.add('show');
-          if(!callChannels.includes(ch)) callChannels.push(ch);
-        }
-      });
-      ch.on('broadcast',{event:'answer'}, async ({payload})=>{
-        if(peerConn && payload.answer && payload.callId===currentCallId) await peerConn.setRemoteDescription(new RTCSessionDescription(payload.answer));
-      });
-      ch.on('broadcast',{event:'ice'}, async ({payload})=>{
-        if(peerConn && payload.candidate && payload.callId===currentCallId){ try{ await peerConn.addIceCandidate(new RTCIceCandidate(payload.candidate)); }catch(e){} }
-      });
-      ch.on('broadcast',{event:'end'}, ()=>{ akhiriTelpDiam(); });
-      ch.on('broadcast',{event:'reject'}, ()=>{ akhiriTelpDiam(); });
-      await ch.subscribe();
-      callChannels.push(ch);
-    }catch(e){ console.log('Gagal join telp room', room, e); }
-  }
-  let b=document.getElementById('callBadge');
-  if(b) b.style.display='block';
-  console.log('Driver siap terima telp di:', rooms);
-}
-async function terimaTelp(){
-  try{
-    localStreamTelp = await navigator.mediaDevices.getUserMedia({audio:true, video:false});
-    buatPeerTelp();
-    localStreamTelp.getTracks().forEach(t=>peerConn.addTrack(t, localStreamTelp));
-    await peerConn.setRemoteDescription(new RTCSessionDescription(incomingOffer));
-    let answer = await peerConn.createAnswer();
-    await peerConn.setLocalDescription(answer);
-    callChannels.forEach(ch=>{ try{ ch.send({type:'broadcast', event:'answer', payload:{answer, callId:currentCallId}}); }catch(e){} });
-    document.getElementById('callBtnsIn').style.display='none';
-    document.getElementById('callBtnsOut').style.display='flex';
-    document.getElementById('callStatus').textContent='Terhubung • Via AMMO TRAVEL • Gratis';
-    mulaiTimerTelp();
-  }catch(e){ alert('Mic belum diizinkan. Klik Izinkan saat muncul popup mic.'); }
-}
-function tolakTelp(){ callChannels.forEach(ch=>{ try{ ch.send({type:'broadcast', event:'reject', payload:{callId:currentCallId}}); }catch(e){} }); akhiriTelpDiam(); }
-function toggleMuteTelp(){
-  isMutedTelp = !isMutedTelp;
-  if(localStreamTelp) localStreamTelp.getAudioTracks().forEach(t=>t.enabled=!isMutedTelp);
-  document.getElementById('btnMute').classList.toggle('on', isMutedTelp);
-  document.getElementById('callStatus').textContent = isMutedTelp ? 'Suara dimatikan (Mute)' : 'Terhubung • Via AMMO TRAVEL • Gratis';
-}
-function toggleSpeakerTelp(){ document.getElementById('callStatus').textContent='Speaker aktif • Via AMMO TRAVEL • Gratis'; }
-function akhiriTelp(){
-  callChannels.forEach(ch=>{ try{ ch.send({type:'broadcast', event:'end', payload:{callId:currentCallId}}); }catch(e){} });
-  akhiriTelpDiam();
-}
-function akhiriTelpDiam(){
-  clearInterval(callTimerInt);
-  if(localStreamTelp) localStreamTelp.getTracks().forEach(t=>t.stop());
-  if(peerConn){ try{ peerConn.close(); }catch(e){} peerConn=null; }
-  document.getElementById('callModal').classList.remove('show');
-  let a=document.getElementById('remoteAudio'); if(a) a.srcObject=null;
-}
-
+// ===== CEK AKSES : INI YANG DIBENERIN =====
+// Jalur masuk driver ada 2:
+// 1. Dari index.html -> udah PIN di sana, token ada di ammo_driver_code -> langsung masuk, GAK minta PIN lagi
+// 2. Langsung buka driver.html -> cek ammo_driver di localStorage, kalau gak ada baru minta PIN di sini
 async function cekAkses(){
   buatKeypad();
   try{
     let saved = localStorage.getItem('ammo_driver');
     if(saved){ driver = JSON.parse(saved); }
   }catch(e){}
+
+  // Kalau driver belum ketemu, coba ambil dari token kiriman index.html
+  if(!driver){
+    let codeDariIndex = localStorage.getItem('ammo_driver_code') || sessionStorage.getItem('ammo_driver_code');
+    if(codeDariIndex){
+      try{
+        let r = await sb.from('drivers').select('*').eq('code', codeDariIndex).limit(1);
+        if(r.data && r.data.length>0){
+          driver = r.data[0];
+          localStorage.setItem('ammo_driver', JSON.stringify(driver));
+        }
+      }catch(e){}
+    }
+  }
+
   if(driver){
     $('loading').style.display='none';
-    tampilDriver(); loadOrderBaru(); loadRiwayat();
+    $('app').style.display='block';
+    tampilDriver();
+    loadOrderBaru();
+    loadRiwayat();
     gabungChannelTelpDriver();
-    // Minta PIN lagi buat keamanan
-    // bukaPin();
   } else {
     $('loading').style.display='none';
     bukaPin();
   }
-  // Auto refresh order tiap 10 detik
   setInterval(()=>{ if(driver){ loadOrderBaru(); loadRiwayat(); } }, 10000);
 }
-cekAkses();
+
+function tampilDriver(){
+  if(!driver) return;
+  $('driverNama').textContent = driver.nama || driver.name || driver.code || 'Driver';
+  $('driverCode').textContent = '@' + (driver.code || '-');
+  $('driverMobil').textContent = driver.jenis_mobil || driver.mobil || '-';
+  $('driverPlat').textContent = driver.plat_mobil || driver.plat || '-';
+  updateOnlineUI();
+}
+
+function updateOnlineUI(){
+  $('badgeOnline').textContent = isOnline ? 'ONLINE' : 'OFFLINE';
+  $('badgeOnline').className = isOnline ? 'badgeOnline' : 'badgeOffline';
+  $('driverStatus').textContent = isOnline ? '● ONLINE - Siap terima order' : '● OFFLINE';
+  $('btnToggleOnline').textContent = isOnline ? '🔴 OFFLINE' : '🟢 ONLINE';
+}
+
+function toggleOnline(){
+  isOnline = !isOnline;
+  updateOnlineUI();
+  alert(isOnline ? 'Kamu ONLINE, siap terima order.' : 'Kamu OFFLINE, order baru tidak masuk.');
+}
+
+// ===== LOGOUT : INI YANG DIBENERIN =====
+// Dulu: cuma hapus ammo_driver + location.reload() -> muter ke PIN lagi
+// Sekarang: hapus SEMUA token -> langsung ke index.html, gak muter
+function logoutDriver(){
+  if(!confirm('Keluar dari akun driver?')) return;
+  driver = null;
+  orderAktif = null;
+  localStorage.removeItem('ammo_driver');
+  localStorage.removeItem('ammo_driver_token');
+  localStorage.removeItem('ammo_driver_code');
+  localStorage.removeItem('ammo_admin_token');
+  sessionStorage.removeItem('ammo_driver_token');
+  sessionStorage.removeItem('ammo_driver_code');
+  sessionStorage.removeItem('ammo_admin_token');
+  // JANGAN reload, langsung ke index
+  window.location.href = 'index.html?reset=1';
+}
+
+// ===== PIN DI driver.html (HANYA kalau buka langsung, tanpa lewat index.html) =====
+function bukaPin(){
+  $('app').style.display='none';
+  $('pinLock').classList.add('show');
+  pinInput=''; updatePinTampil();
+  let codeLama = localStorage.getItem('ammo_driver_code') || '';
+  if(codeLama) $('inputCode').value = codeLama;
+}
+function tutupPinKeIndex(){
+  // Tombol X di PIN -> langsung ke index, JANGAN muter di PIN
+  window.location.href = 'index.html?reset=1';
+}
+function buatKeypad(){
+  let keys=['1','2','3','4','5','6','7','8','9','⌫','0','✓'];
+  $('pinKeypad').innerHTML=keys.map(k=>`<button class="pinKey" onclick="tekanPin('${k}')">${k==='⌫'?'⌫':k}</button>`).join('');
+}
+function tekanPin(k){
+  if(k==='⌫'){ pinInput=pinInput.slice(0,-1); }
+  else if(k==='✓'){ cekPinDriver(); return; }
+  else { if(pinInput.length>=6) return; pinInput+=k; }
+  updatePinTampil();
+  if(pinInput.length===6){ setTimeout(cekPinDriver,300); }
+}
+function updatePinTampil(){
+  let dots=document.querySelectorAll('.pinDot');
+  dots.forEach((dot,i)=>{ dot.classList.toggle('filled', i<pinInput.length); dot.classList.remove('wrong'); });
+}
+async function cekPinDriver(){
+  let codeInput = ($('inputCode').value||'').toLowerCase().trim();
+  if(!codeInput){ alert('Isi kode driver dulu, misal: sopir'); pinInput=''; updatePinTampil(); return; }
+  try{
+    let r = await sb.from('drivers').select('*').eq('code', codeInput).limit(1);
+    if(!r.data || r.data.length===0){ alert('Kode driver tidak ketemu.'); pinInput=''; updatePinTampil(); return; }
+    let row = r.data[0];
+    if(String(row.pin||'') !== pinInput){
+      let dots=document.querySelectorAll('.pinDot');
+      dots.forEach(d=>d.classList.add('wrong'));
+      setTimeout(()=>{ pinInput=''; updatePinTampil(); },400);
+      return;
+    }
+    // PIN BENER
+    driver = row;
+    localStorage.setItem('ammo_driver', JSON.stringify(driver));
+    localStorage.setItem('ammo_driver_code', row.code);
+    sessionStorage.setItem('ammo_driver_code', row.code);
+    let karcis = row.code + '|' + row.pin + '|' + (Date.now()+2*60*60*1000);
+    localStorage.setItem('ammo_driver_token', karcis);
+    sessionStorage.setItem('ammo_driver_token', karcis);
+    $('pinLock').classList.remove('show');
+    $('app').style.display='block';
+    tampilDriver(); loadOrderBaru(); loadRiwayat(); gabungChannelTelpDriver();
+  }catch(e){ alert('Gagal cek PIN, cek internet.'); pinInput=''; updatePinTampil(); }
+}
+
+// ===== ORDER =====
+function ambilOrderDariStorage(){
+  try{
+    let o = localStorage.getItem('masphus_order');
+    if(o) return JSON.parse(o);
+  }catch(e){}
+  return null;
+}
+function loadOrderBaru(){
+  let o = ambilOrderDariStorage();
+  let box = $('listOrderBaru');
+  if(!o || !isOnline || orderAktif){
+    if(!orderAktif) box.innerHTML = '<div class="empty">Belum ada order baru.<br>Tunggu orderan dari penumpang.</div>';
+    else box.innerHTML = '<div class="empty">Kamu lagi jalanin order, selesaikan dulu.</div>';
+    return;
+  }
+  box.innerHTML = `
+  <div class="orderCard">
+    <b>${o.asal?.nama||'-'} → ${o.tujuan?.nama||'-'}</b>
+    <p>Jarak: <b>${(o.jarak_km||0).toFixed(1)} km</b> • Estimasi: <b>${o.estimasi||'-'}</b><br>
+    Orang: <b>${o.jumlah_orang||5}</b> • Tanggal: <b>${o.tanggal||'-'} ${o.jam||''}</b></p>
+    <div class="price">${fmt(o.total_harga||0)}</div>
+    <button class="btnGreen" onclick="terimaOrder()">✅ TERIMA ORDER</button>
+    <button class="btnRed" onclick="tolakOrder()">TOLAK</button>
+  </div>`;
+}
+function terimaOrder(){
+  let o = ambilOrderDariStorage();
+  if(!o) return;
+  orderAktif = o;
+  localStorage.setItem('ammo_current_order', JSON.stringify(o));
+  alert('Order diterima! OTW ke titik jemput.');
+  tampilOrderAktif();
+  loadOrderBaru();
+}
+function tolakOrder(){
+  if(!confirm('Tolak order ini?')) return;
+  localStorage.removeItem('masphus_order');
+  loadOrderBaru();
+}
+function tampilOrderAktif(){
+  let box = $('listOrderAktif');
+  if(!orderAktif){ box.innerHTML = '<div class="empty">Belum ada order yang jalan.</div>'; return; }
+  let o = orderAktif;
+  box.innerHTML = `
+  <div class="orderCard">
+    <b>${o.asal?.nama||'-'} → ${o.tujuan?.nama||'-'}</b>
+    <p>Status: <b style="color:#4ade80">OTW / DALAM PERJALANAN</b><br>
+    Jarak: <b>${(o.jarak_km||0).toFixed(1)} km</b> • Total: <b>${fmt(o.total_harga||0)}</b></p>
+    <div class="btnRow">
+      <button class="btnChat" onclick="bukaChat()">💬 CHAT</button>
+      <button class="btnCall" onclick="telpPenumpang()">📞 TELP</button>
+    </div>
+    <button class="btn" onclick="selesaikanOrder()">SELESAI / SAMPAI TUJUAN ✅</button>
+  </div>`;
+}
+function selesaikanOrder(){
+  if(!orderAktif) return;
+  if(!confirm('Order sudah selesai / sampai tujuan?')) return;
+  let riwayat = [];
+  try{ riwayat = JSON.parse(localStorage.getItem('ammo_riwayat_driver')||'[]'); }catch(e){}
+  riwayat.unshift({...orderAktif, selesai_pada: new Date().toISOString(), driver: driver?.code});
+  localStorage.setItem('ammo_riwayat_driver', JSON.stringify(riwayat));
+  localStorage.removeItem('masphus_order');
+  localStorage.removeItem('ammo_current_order');
+  orderAktif = null;
+  tampilOrderAktif(); loadOrderBaru(); loadRiwayat();
+  alert('Order selesai. Mantap!');
+}
+function loadRiwayat(){
+  let box = $('listRiwayat');
+  let riwayat = [];
+  try{ riwayat = JSON.parse(localStorage.getItem('ammo_riwayat_driver')||'[]'); }catch(e){}
+  if(!riwayat.length){ box.innerHTML = '<div class="empty">Belum ada riwayat.</div>'; return; }
+  box.innerHTML = riwayat.slice(0,10).map(r=>`
+  <div class="item"><b>${r.asal?.nama||'-'} → ${r.tujuan?.nama||'-'}</b>
+  <p>${(r.jarak_km||0).toFixed(1)} km • ${fmt(r.total_harga||0)} • Selesai</p></div>`).join('');
+}
+
+// ===== CHAT =====
+function bukaChat(){
+  if(!orderAktif){ alert('Belum ada order yang jalan.'); return; }
+  $('chatNama').textContent = 'Penumpang • ' + (orderAktif.asal?.nama||'');
+  $('chatModal').classList.add('show');
+  if($('chatBody').children.length===0){
+    tambahPesanPenumpang('Halo Kak, saya drivernya, OTW ke titik jemput ya 🙏');
+  }
+}
+function tutupChat(){ $('chatModal').classList.remove('show'); }
+function tambahPesanPenumpang(teks){
+  let d=document.createElement('div'); d.className='msg me'; d.innerHTML=teks+'<small>Penumpang</small>';
+  $('chatBody').appendChild(d); $('chatBody').scrollTop=$('chatBody').scrollHeight;
+}
+function tambahPesanSaya(teks){
+  let d=document.createElement('div'); d.className='msg driver'; d.innerHTML=teks.replace(/</g,'&lt;')+'<small>Kamu • Driver</small>';
+  $('chatBody').appendChild(d); $('chatBody').scrollTop=$('chatBody').scrollHeight;
+}
+function kirimChat(){
+  let inp=$('chatInput'); let teks=inp.value.trim(); if(!teks) return;
+  tambahPesanSaya(teks); inp.value='';
+  setTimeout(()=>{ tambahPesanPenumpang('Oke pak, siap. Saya tunggu di titik maps ya.'); },800);
+}
+
+// ===== TELP =====
+function buatPeer(){
+  peerConn = new RTCPeerConnection(STUN_SERVERS);
+  peerConn.onicecandidate = e=>{ if(e.candidate && callChannel) callChannel.send({type:'broadcast', event:'ice', payload:{candidate:e.candidate, callId:currentCallId}}); };
+  peerConn.ontrack = e=>{ let a=$('remoteAudio'); if(a){ a.srcObject=e.streams[0]; a.play().catch(()=>{}); } };
+  peerConn.onconnectionstatechange = ()=>{ if(peerConn.connectionState==='connected') $('callStatus').textContent='Terhubung • Via AMMO TRAVEL • Gratis'; };
+  return peerConn;
+}
+async function gabungChannelTelpDriver(){
+  if(!driver) return;
+  let callId = 'room-1';
+  currentCallId = callId;
+  callChannel = sb.channel('ammo-call-'+callId, {config:{broadcast:{self:true}}});
+  callChannel.on('broadcast',{event:'offer'}, async ({payload})=>{
+    if(payload.callId!==callId) return;
+    if(payload.to==='driver'){ incomingOffer=payload.offer; tampilkanPanggilanMasuk(payload.fromName||'Penumpang'); }
+  });
+  callChannel.on('broadcast',{event:'answer'}, async ({payload})=>{
+    if(payload.callId!==callId) return;
+    if(peerConn && payload.answer){ await peerConn.setRemoteDescription(new RTCSessionDescription(payload.answer)); $('callStatus').textContent='Terhubung • Via AMMO TRAVEL • Gratis'; }
+  });
+  callChannel.on('broadcast',{event:'ice'}, async ({payload})=>{
+    if(payload.callId!==callId) return;
+    if(peerConn && payload.candidate){ try{ await peerConn.addIceCandidate(new RTCIceCandidate(payload.candidate)); }catch(e){} }
+  });
+  callChannel.on('broadcast',{event:'end'}, ()=>{ akhiriTelpDiam(); });
+  await callChannel.subscribe();
+}
+function tampilkanPanggilanMasuk(nama){
+  $('callNama').textContent = nama || 'Penumpang';
+  $('callInfo').textContent = 'Panggilan Masuk • AMMO TRAVEL';
+  $('callStatus').textContent = 'Panggilan masuk...';
+  $('callBtnsOut').style.display='none';
+  $('callBtnsIn').style.display='flex';
+  $('callModal').classList.add('show');
+}
+async function terimaTelp(){
+  try{
+    localStream = await navigator.mediaDevices.getUserMedia({audio:true, video:false});
+    buatPeer();
+    localStream.getTracks().forEach(t=>peerConn.addTrack(t, localStream));
+    await peerConn.setRemoteDescription(new RTCSessionDescription(incomingOffer));
+    let answer = await peerConn.createAnswer();
+    await peerConn.setLocalDescription(answer);
+    callChannel.send({type:'broadcast', event:'answer', payload:{answer, callId:currentCallId}});
+    $('callBtnsIn').style.display='none'; $('callBtnsOut').style.display='flex';
+    $('callStatus').textContent='Terhubung • Via AMMO TRAVEL • Gratis';
+    mulaiTimerTelp();
+  }catch(e){ alert('Mic tidak bisa dibuka, cek izin mikrofon.'); }
+}
+function tolakTelp(){ if(callChannel) callChannel.send({type:'broadcast', event:'reject', payload:{callId:currentCallId}}); akhiriTelpDiam(); }
+async function telpPenumpang(){
+  alert('Tunggu penumpang yang nelpon, atau penumpang nelpon dulu dari index.html.');
+}
+function mulaiTimerTelp(){ clearInterval(callTimerInt); callDetik=0; callTimerInt=setInterval(()=>{ callDetik++; let m=String(Math.floor(callDetik/60)).padStart(2,'0'); let s=String(callDetik%60).padStart(2,'0'); $('callTimer').textContent=m+':'+s; },1000); }
+function toggleMute(){
+  isMuted = !isMuted;
+  if(localStream) localStream.getAudioTracks().forEach(t=>t.enabled=!isMuted);
+  $('btnMute').classList.toggle('on', isMuted);
+  $('callStatus').textContent = isMuted ? 'Suara dimatikan (Mute)' : 'Terhubung • Via AMMO TRAVEL • Gratis';
+}
+function toggleSpeaker(){ $('callStatus').textContent = 'Speaker aktif • Via AMMO TRAVEL • Gratis'; }
+function akhiriTelp(){
+  if(callChannel) callChannel.send({type:'broadcast', event:'end', payload:{callId:currentCallId}});
+  akhiriTelpDiam();
+}
+function akhiriTelpDiam(){
+  clearInterval(callTimerInt);
+  if(localStream) localStream.getTracks().forEach(t=>t.stop());
+  if(peerConn) { try{ peerConn.close(); }catch(e){} peerConn=null; }
+  $('callModal').classList.remove('show');
+  let a=$('remoteAudio'); if(a) a.srcObject=null;
+}
+
+window.addEventListener('load', ()=>{
+  // Kalau datang dari index.html habis logout, jangan tampilkan PIN
+  if(location.search.includes('reset=1')){
+    // Ini kalau ada yang buka driver.html?reset=1, lempar ke index
+    window.location.href = 'index.html?reset=1';
+    return;
+  }
+  // Kalau ada order yang lagi jalan dari sebelumnya, tampilkan lagi
+  try{
+    let cur = localStorage.getItem('ammo_current_order');
+    if(cur) orderAktif = JSON.parse(cur);
+  }catch(e){}
+  cekAkses();
+  if(orderAktif) tampilOrderAktif();
+});
 </script>
 </body>
 </html>
