@@ -27,7 +27,7 @@ input:focus,select:focus{border-color:#D4AF37}
 .sug{position:absolute;left:0;right:0;top:100%;background:#1c1c1c;border:1px solid #C9A227;border-radius:12px;z-index:30;display:none;overflow:hidden;max-height:240px;overflow-y:auto}
 .sug div{padding:12px;border-bottom:1px solid #333;cursor:pointer;font-size:14px;line-height:1.3}
 .sug div small{color:#D4AF37;display:block;font-size:11px;margin-top:2px}
-#map{height:220px;border-radius:16px;border:1px solid #C9A227;margin-top:12px;z-index:1}
+.miniMap{height:180px;border-radius:14px;border:1px solid #C9A227;margin-top:8px;z-index:1}
 .mapHint{display:flex;justify-content:space-between;font-size:11px;color:#888;margin-top:6px}
 .mapHint button{background:none;border:none;color:#D4AF37;font-weight:700;cursor:pointer;font-size:11px}
 .priceBox{margin-top:14px;border:1px solid #C9A227;border-radius:18px;padding:16px;background:#111}
@@ -57,16 +57,22 @@ input:focus,select:focus{border-color:#D4AF37}
 <div class="logo">AMMO TRAVEL</div>
 <h1>Mau pergi kemana?</h1>
 <div class="card">
+  <!-- DARI + MAPS ATAS - OTOMATIS GPS -->
   <div class="field">
-    <label>📍 Dari <button onclick="ambilGPS()">📡 PAKAI GPS</button></label>
-    <input id="dari" value="Jalan Muara Raya, Pelindung" placeholder="Dari mana?" autocomplete="off">
+    <label>📍 Dari <button onclick="ambilGPS()">📡 REFRESH GPS</button></label>
+    <input id="dari" value="📍 Mendeteksi lokasi kamu..." placeholder="Dari mana?" autocomplete="off">
     <div class="sug" id="sugDari"></div>
+    <div id="mapDari" class="miniMap"></div>
+    <div class="mapHint"><span>🗺️ Maps DARI - Geser pin A / Klik peta</span><button onclick="pusatKeDari()">Ke Lokasi Saya</button></div>
   </div>
   <div class="swap"><button onclick="tukar()">↑↓</button></div>
+  <!-- TUJUAN + MAPS BAWAH - BIARIN KOSONG, PISAH -->
   <div class="field">
     <label>📍 Tujuan</label>
-    <input id="tujuan" placeholder="Mau ke mana? Ketik, pilih dari Maps" autocomplete="off">
+    <input id="tujuan" value="" placeholder="Mau ke mana? Ketik / geser peta bawah" autocomplete="off">
     <div class="sug" id="sugTujuan"></div>
+    <div id="mapTujuan" class="miniMap"></div>
+    <div class="mapHint"><span>🗺️ Maps TUJUAN - Geser pin B / Klik peta</span><button onclick="pusatKeTujuan()">Ke Tujuan</button></div>
   </div>
   <div class="divider"></div>
   <div class="row">
@@ -86,8 +92,6 @@ input:focus,select:focus{border-color:#D4AF37}
     </select>
   </div>
   <div class="field"><label>📏 Jarak (Real dari Maps)</label><input id="km" placeholder="-" readonly></div>
-  <div id="map"></div>
-  <div class="mapHint"><span>🗺️ Klik peta = pilih titik • Geser pin</span><button onclick="pusatKeSaya()">Ke Lokasi Saya</button></div>
 </div>
 <div class="priceBox" id="boxEmpty"><div class="priceTop"><b>Total Harga</b><span class="priceVal">-</span></div><p class="note">Pilih Dari & Tujuan dari Maps, harga real langsung muncul. Tol / Parkir / Penyeberangan dibebankan ke Penumpang.</p></div>
 <div class="priceBox" id="box" style="display:none">
@@ -128,7 +132,7 @@ input:focus,select:focus{border-color:#D4AF37}
 <script>
 const $=id=>document.getElementById(id);
 const fmt=n=>'Rp '+Math.round(n||0).toLocaleString('id-ID');
-let pickCoord=null, destCoord=null, totalHarga=0, voucherDapat=0, isPickDari=true;
+let pickCoord=null, destCoord=null, totalHarga=0, voucherDapat=0;
 function hitungOngkos(km,orang){
   let o=orang||5; let rate=o>=5?6500:5000;
   let kmTagih=Math.max(Math.round(km),10);
@@ -142,33 +146,63 @@ function fmtEstimasi(detik){
   if(h>0) return h+' jam '+(sisa>0?sisa+' menit':'');
   return m+' menit';
 }
-let map=L.map('map').setView([-6.9175,107.6191],13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
-let markerDari=null, markerTujuan=null, routeLine=null;
-function setMarker(isDari, lat, lon){
-  let icon=L.divIcon({html:`<div style="background:${isDari?'#D4AF37':'#ff4d4d'};color:#000;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;border:2px solid #fff">${isDari?'A':'B'}</div>`,iconSize:[28,28]});
-  if(isDari){ if(markerDari) map.removeLayer(markerDari); markerDari=L.marker([lat,lon],{icon,draggable:true}).addTo(map); markerDari.on('dragend',()=>{ let p=markerDari.getLatLng(); pickCoord=[p.lng,p.lat]; reverseGeocode(p.lat,p.lng,true); hitungJarakReal(); }); }
-  else{ if(markerTujuan) map.removeLayer(markerTujuan); markerTujuan=L.marker([lat,lon],{icon,draggable:true}).addTo(map); markerTujuan.on('dragend',()=>{ let p=markerTujuan.getLatLng(); destCoord=[p.lng,p.lat]; reverseGeocode(p.lat,p.lng,false); hitungJarakReal(); }); }
-  map.setView([lat,lon],14);
+
+// ===== 2 MAPS PISAH - GAK SALING GANGGU =====
+let mapDari=L.map('mapDari').setView([-6.9175,107.6191],13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(mapDari);
+let mapTujuan=L.map('mapTujuan').setView([-6.9175,107.6191],13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(mapTujuan);
+
+let markerDari=null, markerTujuan=null;
+
+function setMarkerDari(lat,lon){
+  let icon=L.divIcon({html:`<div style="background:#D4AF37;color:#000;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;border:2px solid #fff">A</div>`,iconSize:[28,28]});
+  if(markerDari) mapDari.removeLayer(markerDari);
+  markerDari=L.marker([lat,lon],{icon,draggable:true}).addTo(mapDari);
+  markerDari.on('dragend',()=>{ let p=markerDari.getLatLng(); pickCoord=[p.lng,p.lat]; reverseGeocode(p.lat,p.lng,true); hitungJarakReal(); });
+  mapDari.setView([lat,lon],14);
 }
-map.on('click',async e=>{
+function setMarkerTujuan(lat,lon){
+  let icon=L.divIcon({html:`<div style="background:#ff4d4d;color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;border:2px solid #fff">B</div>`,iconSize:[28,28]});
+  if(markerTujuan) mapTujuan.removeLayer(markerTujuan);
+  markerTujuan=L.marker([lat,lon],{icon,draggable:true}).addTo(mapTujuan);
+  markerTujuan.on('dragend',()=>{ let p=markerTujuan.getLatLng(); destCoord=[p.lng,p.lat]; reverseGeocode(p.lat,p.lng,false); hitungJarakReal(); });
+  mapTujuan.setView([lat,lon],14);
+}
+
+// KLIK MAPS ATAS = CUMA NGUBAH DARI
+mapDari.on('click',async e=>{
   let lat=e.latlng.lat, lon=e.latlng.lng;
-  if(isPickDari){ pickCoord=[lon,lat]; setMarker(true,lat,lon); await reverseGeocode(lat,lon,true); }
-  else{ destCoord=[lon,lat]; setMarker(false,lat,lon); await reverseGeocode(lat,lon,false); }
-  isPickDari=!isPickDari; hitungJarakReal();
+  pickCoord=[lon,lat]; setMarkerDari(lat,lon); await reverseGeocode(lat,lon,true); hitungJarakReal();
 });
+// KLIK MAPS BAWAH = CUMA NGUBAH TUJUAN, ATAS GAK KEGANGGU
+mapTujuan.on('click',async e=>{
+  let lat=e.latlng.lat, lon=e.latlng.lng;
+  destCoord=[lon,lat]; setMarkerTujuan(lat,lon); await reverseGeocode(lat,lon,false); hitungJarakReal();
+});
+
 async function reverseGeocode(lat,lon,isDari){
-  try{ let r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`).then(r=>r.json()); let nama=(r.display_name||'').split(',').slice(0,3).join(','); if(isDari) $('dari').value=nama; else $('tujuan').value=nama; }catch(e){}
+  try{
+    let r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18`).then(r=>r.json());
+    let nama=(r.display_name||'').split(',').slice(0,4).join(',');
+    if(isDari) $('dari').value=nama; else $('tujuan').value=nama;
+  }catch(e){}
 }
-function pusatKeSaya(){ if(pickCoord) map.setView([pickCoord[1],pickCoord[0]],15); }
-function ambilGPS(){
-  if(!navigator.geolocation){ alert('GPS gak aktif'); return; }
-  $('dari').value='Mendeteksi lokasi...';
+function pusatKeDari(){ if(pickCoord) mapDari.setView([pickCoord[1],pickCoord[0]],15); }
+function pusatKeTujuan(){ if(destCoord) mapTujuan.setView([destCoord[1],destCoord[0]],15); }
+
+// GPS OTOMATIS CUMA BUAT DARI - TUJUAN BIARIN KOSONG
+function ambilGPS(auto=false){
+  if(!navigator.geolocation){ if(auto) $('dari').value='Jalan Muara Raya, Pelindung'; else alert('GPS gak aktif'); return; }
+  if(!auto) $('dari').value='📍 Mendeteksi lokasi...';
   navigator.geolocation.getCurrentPosition(async pos=>{
     let lat=pos.coords.latitude, lon=pos.coords.longitude;
-    pickCoord=[lon,lat]; setMarker(true,lat,lon); await reverseGeocode(lat,lon,true); hitungJarakReal();
-  },()=>{ $('dari').value=''; alert('Izinkan GPS biar akurat'); },{enableHighAccuracy:true,timeout:10000});
+    pickCoord=[lon,lat]; setMarkerDari(lat,lon); await reverseGeocode(lat,lon,true);
+    if(destCoord) hitungJarakReal();
+  },()=>{ if(auto) $('dari').value='Jalan Muara Raya, Pelindung'; else { $('dari').value=''; alert('Izinkan GPS biar akurat'); } },{enableHighAccuracy:true,timeout:10000, maximumAge:60000});
 }
+window.addEventListener('load',()=>{ setTimeout(()=>ambilGPS(true), 500); });
+
 let timerCari=null;
 async function cariGabungan(query, box, isDari){
   if(query.length<3){box.style.display='none';return;}
@@ -187,20 +221,18 @@ async function cariGabungan(query, box, isDari){
 }
 function pilihTempat(i,isDari){
   let box=isDari?$('sugDari'):$('sugTujuan'); let h=box._data[i];
-  if(isDari){ $('dari').value=h.nama; pickCoord=[h.lon,h.lat]; setMarker(true,h.lat,h.lon); $('sugDari').style.display='none'; isPickDari=false; }
-  else{ $('tujuan').value=h.nama; destCoord=[h.lon,h.lat]; setMarker(false,h.lat,h.lon); $('sugTujuan').style.display='none'; }
+  if(isDari){ $('dari').value=h.nama; pickCoord=[h.lon,h.lat]; setMarkerDari(h.lat,h.lon); $('sugDari').style.display='none'; }
+  else{ $('tujuan').value=h.nama; destCoord=[h.lon,h.lat]; setMarkerTujuan(h.lat,h.lon); $('sugTujuan').style.display='none'; }
   hitungJarakReal();
 }
 $('dari').addEventListener('input',()=>{ clearTimeout(timerCari); timerCari=setTimeout(()=>cariGabungan($('dari').value,$('sugDari'),true),400); });
 $('tujuan').addEventListener('input',()=>{ clearTimeout(timerCari); timerCari=setTimeout(()=>cariGabungan($('tujuan').value,$('sugTujuan'),false),400); });
-$('dari').addEventListener('focus',()=>isPickDari=true);
-$('tujuan').addEventListener('focus',()=>isPickDari=false);
 document.addEventListener('click',e=>{ if(!e.target.closest('.field')) document.querySelectorAll('.sug').forEach(s=>s.style.display='none'); });
 async function hitungJarakReal(){
   if(!pickCoord||!destCoord) return;
   $('total').textContent='Menghitung...';
   let km=0, detik=0, sumber='-';
-  try{ let r=await fetch(`https://router.project-osrm.org/route/v1/driving/${pickCoord[0]},${pickCoord[1]};${destCoord[0]},${destCoord[1]}?overview=full&geometries=geojson`).then(r=>r.json()); if(r.routes?.length){ km=r.routes[0].distance/1000; detik=r.routes[0].duration; sumber='OSRM'; if(routeLine) map.removeLayer(routeLine); routeLine=L.geoJSON(r.routes[0].geometry,{style:{color:'#D4AF37',weight:4}}).addTo(map); map.fitBounds(routeLine.getBounds()); } }catch(e){}
+  try{ let r=await fetch(`https://router.project-osrm.org/route/v1/driving/${pickCoord[0]},${pickCoord[1]};${destCoord[0]},${destCoord[1]}?overview=false`).then(r=>r.json()); if(r.routes?.length){ km=r.routes[0].distance/1000; detik=r.routes[0].duration; sumber='OSRM'; } }catch(e){}
   if(!km){
     try{ let r=await fetch(`https://valhalla1.openstreetmap.de/route?json={"locations":[{"lat":${pickCoord[1]},"lon":${pickCoord[0]}},{"lat":${destCoord[1]},"lon":${destCoord[0]}}],"costing":"auto"}`).then(r=>r.json()); if(r.trip){ km=r.trip.summary.length; detik=r.trip.summary.time; sumber='Valhalla (cadangan)'; } }catch(e){}
   }
@@ -218,9 +250,15 @@ function tampilkanHarga(km,detik,sumber){
   $('d-admin').textContent='- '+fmt(r.feeAdmin); $('d-voucher').textContent='+ '+fmt(r.voucher);
   $('d-driver').textContent=fmt(r.driverTerima); $('d-sumber').textContent='Sumber jarak: '+sumber+' • Estimasi x1.6';
 }
-function tukar(){ let a=$('dari').value; $('dari').value=$('tujuan').value; $('tujuan').value=a; let c=pickCoord; pickCoord=destCoord; destCoord=c; if(markerDari&&markerTujuan){ let la=markerDari.getLatLng(), lb=markerTujuan.getLatLng(); setMarker(true,lb.lat,lb.lng); setMarker(false,la.lat,la.lng); } hitungJarakReal(); }
+function tukar(){
+  let a=$('dari').value; $('dari').value=$('tujuan').value; $('tujuan').value=a;
+  let c=pickCoord; pickCoord=destCoord; destCoord=c;
+  if(pickCoord) setMarkerDari(pickCoord[1],pickCoord[0]);
+  if(destCoord) setMarkerTujuan(destCoord[1],destCoord[0]);
+  hitungJarakReal();
+}
 $('orang').addEventListener('change',()=>{ let km=parseFloat($('km').value)||0; if(km) tampilkanHarga(km,0,'OSRM'); });
-function nav(p,btn){ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active')); $('p-'+p).classList.add('active'); document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); window.scrollTo(0,0); }
+function nav(p,btn){ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active')); $('p-'+p).classList.add('active'); document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); window.scrollTo(0,0); setTimeout(()=>{ mapDari.invalidateSize(); mapTujuan.invalidateSize(); },100); }
 function pesan(){
   if(!pickCoord||!destCoord){ alert('Pilih Dari & Tujuan dari Maps dulu!'); return; }
   $('modal').classList.add('show'); $('modalTitle').textContent='Mencari Driver...'; $('spin').style.display='block';
@@ -236,7 +274,7 @@ function pesan(){
   },3500);
 }
 function batalOrder(){ $('modal').classList.remove('show'); $('btnBatal').style.display='none'; alert('Pesanan dibatalkan. Gak kena biaya apa-apa.'); }
-let kl=0; document.querySelector('.logo').addEventListener('click',()=>{ kl++; if(kl>=2){ $('tujuan').value=''; $('km').value=''; $('orang').value=5; $('box').style.display='none'; $('boxEmpty').style.display='block'; destCoord=null; if(markerTujuan) map.removeLayer(markerTujuan); alert('Direset ke NOL lagi!'); kl=0; } setTimeout(()=>kl=0,800); });
+let kl=0; document.querySelector('.logo').addEventListener('click',()=>{ kl++; if(kl>=2){ $('tujuan').value=''; $('km').value=''; $('orang').value=5; $('box').style.display='none'; $('boxEmpty').style.display='block'; destCoord=null; if(markerTujuan) mapTujuan.removeLayer(markerTujuan); markerTujuan=null; alert('Direset ke NOL lagi!'); kl=0; } setTimeout(()=>kl=0,800); });
 </script>
 </body>
 </html>
