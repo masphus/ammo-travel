@@ -71,7 +71,7 @@ h1{text-align:center;font-size:30px;color:#FFE27A}
 <script>
 const SUPABASE_URL='https://xxtgmohxdztesiubfxap.supabase.co';
 const SUPABASE_KEY='sb_publishable_cSeSerPzGTtFmnVOwKq97w_slkG9Hiv';
-const H={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
+const H={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
 let saved={}; try{saved=JSON.parse(localStorage.getItem('ammo_penumpang')||localStorage.getItem('masphus_order')||'{}');}catch(e){}
 let orderId=saved.order_id||saved.id||localStorage.getItem('ammo_order_id');
 let sudahBatal=false;
@@ -84,36 +84,64 @@ isi(saved);
 async function cek(){
 if(!orderId||sudahBatal) return;
 try{
-let r=await fetch(SUPABASE_URL+'/rest/v1/bookings?id=eq.'+orderId+'&select=*',{headers:H});
-let j=await r.json(); let o=j&&j[0];
+// FIX UTAMA: Cek ORDERS dulu, karena driver Terima-nya update ke ORDERS. Yang lama cuma cek BOOKINGS, makanya gak pernah ketemu.
+let o=null;
+let r=await fetch(SUPABASE_URL+'/rest/v1/orders?id=eq.'+orderId+'&select=*',{headers:H});
+let j=await r.json(); o=j&&j[0];
 if(!o){
-let r2=await fetch(SUPABASE_URL+'/rest/v1/orders?id=eq.'+orderId+'&select=*',{headers:H});
-let j2=await r2.json(); o=j2&&j2[0];
+  let r2=await fetch(SUPABASE_URL+'/rest/v1/bookings?id=eq.'+orderId+'&select=*',{headers:H});
+  let j2=await r2.json(); o=j2&&j2[0];
+}
+// Kalau ID-nya beda antara orders & bookings, cari yang terakhir dibuat yang statusnya bukan mencari
+if(!o || (o.status==='mencari' && saved._cari_booking)){
+  try{
+    let r3=await fetch(SUPABASE_URL+'/rest/v1/orders?select=*&order=id.desc&limit=5',{headers:H});
+    let j3=await r3.json();
+    if(j3 && j3.length){
+      // Cari yang rutenya sama kayak yang dipesan
+      let cocok = j3.find(x=> (x.asal_nama||x.dari||'')===(saved.dari_lokasi||saved.dari||'') && (x.tujuan_nama||x.tujuan||'')===(saved.ke_lokasi||saved.tujuan||''));
+      if(cocok){ o=cocok; orderId=cocok.id; }
+    }
+  }catch(e){}
 }
 if(!o) return; isi(o);
-if(o.status==='diterima'||o.status==='dijemput'||o.status==='jalan'){
+if(o.status==='diterima'||o.status==='dijemput'||o.status==='jalan'||o.status==='dikonfirmasi'){
 clearInterval(window._poll);
 document.getElementById('judulUtama').textContent='Driver Ditemukan!';
 document.getElementById('subUtama').textContent='Driver sedang menuju lokasi kamu.';
 document.getElementById('labelRadar').textContent='● DRIVER DITEMUKAN';
 let nm=o.driver_nama||o.driver_code||'Driver AMMO';
 document.getElementById('dNama').textContent=nm;
-document.getElementById('dKet').textContent='Driver OTW ke lokasi kamu';
+document.getElementById('dKet').innerHTML=(o.driver_mobil||o.jenis_mobil||'Mobil AMMO')+' • '+(o.driver_plat||o.plat_mobil||'')+'<br>Driver OTW ke lokasi kamu';
 document.getElementById('dAvatar').textContent=nm.charAt(0).toUpperCase();
+document.getElementById('btnHome').style.display='block';
+}
+if(o.status==='dibatalkan'||o.status==='ditolak'||o.status==='batal'){
+clearInterval(window._poll);
+document.getElementById('judulUtama').textContent='Pesanan Dibatalkan';
+document.getElementById('subUtama').textContent='Pesanan sudah dibatalkan, tidak diteruskan ke driver.';
+document.getElementById('labelRadar').textContent='● DIBATALKAN';
+document.getElementById('btnHome').style.display='block';
+}
+if(o.status==='selesai'){
+clearInterval(window._poll);
+document.getElementById('judulUtama').textContent='Perjalanan Selesai!';
+document.getElementById('subUtama').textContent='Terima kasih sudah pakai AMMO TRAVEL.';
+document.getElementById('labelRadar').textContent='● SELESAI';
 document.getElementById('btnHome').style.display='block';
 }
 }catch(e){}
 }
-if(orderId){window._poll=setInterval(cek,3000);cek();}
+if(orderId){window._poll=setInterval(cek,2000);cek();}
 async function batalkan(){
 if(!confirm('Batalkan pencarian driver?')) return;
 sudahBatal=true; clearInterval(window._poll);
 if(orderId){
-try{await fetch(SUPABASE_URL+'/rest/v1/bookings?id=eq.'+orderId,{method:'DELETE',headers:H});}catch(e){}
-try{await fetch(SUPABASE_URL+'/rest/v1/orders?id=eq.'+orderId,{method:'DELETE',headers:H});}catch(e){}
+  try{ await fetch(SUPABASE_URL+'/rest/v1/orders?id=eq.'+orderId,{method:'PATCH',headers:H,body:JSON.stringify({status:'dibatalkan'})}); }catch(e){}
+  try{ await fetch(SUPABASE_URL+'/rest/v1/bookings?id=eq.'+orderId,{method:'PATCH',headers:H,body:JSON.stringify({status:'dibatalkan'})}); }catch(e){}
 }
 localStorage.removeItem('ammo_penumpang');localStorage.removeItem('masphus_order');localStorage.removeItem('ammo_order_id');
-alert('Pesanan dibatalkan. Antrian sudah dihapus.');
+alert('Pesanan dibatalkan. Driver tidak akan melihat order ini lagi.');
 window.location.href='index.html?cancelled=1';
 }
 </script>
