@@ -44,26 +44,22 @@ input:focus,select:focus{border-color:#D4AF37}
 .note{font-size:11px;color:#888;margin-top:10px;line-height:1.5}
 .btn{width:100%;margin-top:14px;padding:17px;border:none;border-radius:14px;background:linear-gradient(180deg,#FFE9A8,#D4AF37,#B8962E);font-size:18px;font-weight:900;cursor:pointer}
 .btn2{width:100%;margin-top:10px;padding:12px;border:1px solid #ff4d4d;background:transparent;color:#ff6b6b;border-radius:12px;font-weight:800;cursor:pointer;display:none}
-/* KARTU DRIVER - MUNCUL KALAU DRIVER KETEMU, TOMBOL PESAN ILANG */
-.driverCard{margin-top:14px;border:1px solid #4ade80;border-radius:18px;padding:14px;background:#111;display:none}
-.driverCard.show{display:block}
+.btnSearching{width:100%;margin-top:14px;padding:17px;border:1px solid #D4AF37;background:#1a1a1a;color:#E8C766;border-radius:14px;font-size:16px;font-weight:900;display:none;align-items:center;justify-content:center;gap:10px}
+.spinnerSmall{width:20px;height:20px;border:3px solid #333;border-top:3px solid #D4AF37;border-radius:50%;animation:spin 1s linear infinite}
+.driverCard{margin-top:14px;border:1px solid #C9A227;border-radius:18px;padding:16px;background:linear-gradient(180deg,#1a1a1a,#111);display:none}
 .driverTop{display:flex;gap:12px;align-items:center}
-.driverFoto{width:64px;height:64px;border-radius:50%;background:linear-gradient(180deg,#FFE9A8,#D4AF37);display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0;border:2px solid #fff}
+.driverFoto{width:64px;height:64px;border-radius:50%;background:linear-gradient(180deg,#FFE9A8,#D4AF37);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;border:2px solid #fff;overflow:hidden}
 .driverInfo{flex:1;min-width:0}
-.driverInfo b{font-size:16px;color:#fff}
-.driverInfo p{font-size:13px;color:#aaa;margin-top:2px}
-.driverInfo .rating{color:#D4AF37;font-weight:800}
-.carBox{margin-top:12px;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center}
-.carBox b{font-size:14px}
-.plat{background:#fff;color:#000;padding:5px 10px;border-radius:6px;font-weight:900;letter-spacing:1px;font-size:14px;border:2px solid #000}
-.driverBtns{display:flex;gap:8px;margin-top:12px}
-.driverBtns button{flex:1;padding:12px;border-radius:12px;font-weight:800;cursor:pointer;font-size:14px}
-.btnChat{background:linear-gradient(180deg,#FFE9A8,#D4AF37);border:none;color:#000}
-.btnCall{background:#1a1a1a;border:1px solid #D4AF37;color:#E8C766}
-/* BALON CHAT MELAYANG DI HALAMAN AWAL */
-.chatFab{position:fixed;bottom:92px;right:16px;width:58px;height:58px;border-radius:50%;background:linear-gradient(180deg,#FFE9A8,#D4AF37);border:2px solid #fff;color:#000;font-size:26px;cursor:pointer;z-index:60;box-shadow:0 6px 20px rgba(212,175,55,.5);display:flex;align-items:center;justify-content:center}
-.chatFab span{position:absolute;top:-4px;right:-4px;background:#ff4d4d;color:#fff;font-size:11px;font-weight:900;width:20px;height:20px;border-radius:50%;display:none;align-items:center;justify-content:center}
-.chatFab span.show{display:flex}
+.driverInfo b{font-size:17px;color:#fff;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.driverInfo span{font-size:12px;color:#E8C766}
+.statusDriver{font-size:11px;background:#1a3a1a;color:#4ade80;padding:4px 8px;border-radius:20px;font-weight:800;margin-top:4px;display:inline-block}
+.vehicleBox{margin-top:12px;background:#0a0a0a;border:1px solid #333;border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center}
+.vehicleBox b{font-size:15px}
+.plate{background:#fff;color:#000;font-weight:900;padding:6px 10px;border-radius:6px;font-size:14px;letter-spacing:1px;border:2px solid #000}
+.driverBtns{display:flex;gap:10px;margin-top:12px}
+.driverBtns button{flex:1;padding:13px;border:none;border-radius:12px;font-weight:900;cursor:pointer;font-size:14px}
+.btnChat{background:linear-gradient(180deg,#FFE9A8,#D4AF37);color:#000}
+.btnCall{background:#1a1a1a;border:1px solid #D4AF37!important;color:#E8C766}
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#0a0a0a;border-top:1px solid #222;display:flex;padding:10px 0 16px;z-index:50}
 .nav button{flex:1;background:none;border:none;color:#777;cursor:pointer;font-size:12px}
 .nav button.active{color:#D4AF37}.nav button span{font-size:22px;display:block}
@@ -74,17 +70,52 @@ input:focus,select:focus{border-color:#D4AF37}
 .modal.show{display:flex}.modalBox{background:#111;border:1px solid #C9A227;border-radius:20px;padding:24px;width:100%;max-width:380px;text-align:center}
 .spinner{width:48px;height:48px;border:4px solid #333;border-top:4px solid #D4AF37;border-radius:50%;margin:14px auto;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-/* CHAT BOX */
-.chatBox{background:#111;border:1px solid #C9A227;border-radius:20px;width:100%;max-width:380px;height:520px;display:flex;flex-direction:column;overflow:hidden}
-.chatHeader{padding:14px;background:#1a1a1a;display:flex;gap:10px;align-items:center;border-bottom:1px solid #333}
-.chatHeader .foto{width:42px;height:42px;border-radius:50%;background:linear-gradient(180deg,#FFE9A8,#D4AF37);display:flex;align-items:center;justify-content:center;font-size:20px}
-.chatMsgs{flex:1;padding:12px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
-.msg{max-width:80%;padding:10px 12px;border-radius:14px;font-size:14px;line-height:1.4}
-.msg.me{background:#D4AF37;color:#000;align-self:flex-end;border-bottom-right-radius:4px}
-.msg.driver{background:#222;color:#fff;align-self:flex-start;border-bottom-left-radius:4px}
-.chatInput{display:flex;gap:8px;padding:10px;border-top:1px solid #333}
-.chatInput input{flex:1}
-.chatInput button{padding:0 16px;border:none;border-radius:10px;background:#D4AF37;font-weight:900;cursor:pointer}
+.chatFab{position:fixed;right:16px;bottom:92px;width:58px;height:58px;border-radius:50%;background:linear-gradient(180deg,#FFE9A8,#D4AF37);border:2px solid #fff;color:#000;font-size:26px;cursor:pointer;z-index:60;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(212,175,55,.5)}
+.chatBadge{position:absolute;top:-4px;right:-4px;background:#ff4d4d;color:#fff;font-size:11px;font-weight:900;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #000}
+.chatModal{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;flex-direction:column;z-index:100}
+.chatModal.show{display:flex}
+.chatHeader{background:#111;border-bottom:1px solid #C9A227;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.chatHeader .driverFoto{width:44px;height:44px;font-size:20px}
+.chatBody{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:85%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.4}
+.msg.driver{background:#1a1a1a;border:1px solid #333;align-self:flex-start;border-bottom-left-radius:4px}
+.msg.me{background:linear-gradient(180deg,#FFE9A8,#D4AF37);color:#000;align-self:flex-end;border-bottom-right-radius:4px;font-weight:600}
+.msg small{display:block;font-size:10px;opacity:.6;margin-top:4px}
+.msg.bot{background:linear-gradient(135deg,#1a1a1a,#0a0a0a);border:1px solid #D4AF37;align-self:flex-start;border-bottom-left-radius:4px}
+.msg.bot b{color:#E8C766}
+.chatInput{display:flex;gap:8px;padding:12px;background:#111;border-top:1px solid #333}
+.chatInput input{flex:1;background:#1a1a1a;border:1px solid #333;border-radius:20px;padding:12px 16px;color:#fff;outline:none}
+.chatInput button{width:48px;height:48px;border-radius:50%;border:none;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-size:20px;cursor:pointer}
+.quickChat{display:flex;gap:8px;padding:0 12px 10px;background:#111;overflow-x:auto;white-space:nowrap}
+.quickChat button{background:#1a1a1a;border:1px solid #333;color:#E8C766;padding:8px 12px;border-radius:20px;font-size:12px;cursor:pointer;flex-shrink:0}
+.pinLock{position:fixed;inset:0;background:radial-gradient(circle at 50% 0%, #2a2100 0%, #000 60%);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;padding:24px;text-align:center;overflow-y:auto}
+.pinLock.show{display:flex}
+.pinCrown{font-size:48px;margin-bottom:8px}
+.pinTitle{font-size:22px;font-weight:900;background:linear-gradient(180deg,#FFE9A8,#D4AF37);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
+.pinSub{font-size:12px;color:#aaa;margin-top:6px;line-height:1.5}
+.pinUser{margin-top:16px;border:1px solid #C9A227;background:#111;border-radius:16px;padding:12px 16px;width:100%;max-width:320px;text-align:left}
+.pinUser b{color:#E8C766;font-size:15px}
+.pinUser p{font-size:12px;color:#aaa;margin-top:2px}
+.pinDots{display:flex;gap:12px;margin:22px 0 14px}
+.pinDot{width:16px;height:16px;border-radius:50%;border:2px solid #D4AF37;background:transparent}
+.pinDot.filled{background:linear-gradient(180deg,#FFE9A8,#D4AF37)}
+.pinCode{font-size:30px;font-weight:900;letter-spacing:6px;color:#fff;margin:6px 0;word-break:break-all}
+.pinCode span{color:#D4AF37}
+.pinKeypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:280px;margin-top:10px}
+.pinKey{height:58px;border-radius:50%;border:1px solid #C9A227;background:#111;color:#fff;font-size:22px;font-weight:800;cursor:pointer}
+.pinKey:active{background:linear-gradient(180deg,#FFE9A8,#D4AF37);color:#000}
+.pinBtnGold{margin-top:18px;width:100%;max-width:320px;padding:14px;border:none;border-radius:14px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-weight:900;font-size:15px;cursor:pointer}
+.pinBtnGhost{margin-top:10px;background:none;border:none;color:#888;font-size:12px;cursor:pointer}
+.karcisBox{margin-top:14px;border:1px dashed #D4AF37;background:#1a1a1a;border-radius:14px;padding:14px;width:100%;max-width:320px}
+.karcisBox input{margin-top:8px;text-align:center;letter-spacing:3px;font-weight:900;text-transform:uppercase}
+.adminPage{position:fixed;inset:0;background:#000;display:none;flex-direction:column;z-index:300;overflow-y:auto}
+.adminPage.show{display:flex}
+.adminHeader{background:linear-gradient(180deg,#1a1a1a,#000);border-bottom:1px solid #C9A227;padding:16px;display:flex;gap:12px;align-items:center}
+.adminCard{margin:12px 16px;border:1px solid #C9A227;border-radius:16px;padding:14px;background:#111}
+.adminStat{display:flex;gap:10px;margin:12px 16px}
+.adminStat div{flex:1;border:1px solid #333;border-radius:14px;padding:12px;text-align:center;background:#111}
+.adminStat b{color:#E8C766;font-size:18px;display:block}
+.adminStat span{font-size:11px;color:#aaa}
 </style>
 </head>
 <body>
@@ -142,30 +173,29 @@ input:focus,select:focus{border-color:#D4AF37}
   </div>
   <p class="note">Harga sudah termasuk semua biaya. Tol / Parkir / Penyeberangan dibebankan ke Penumpang.</p>
 </div>
-<!-- TOMBOL PESAN - ILANG KALAU DRIVER UDAH KETEMU -->
 <button class="btn" id="btnPesan" onclick="pesan()">PESAN SEKARANG →</button>
-<!-- KARTU DRIVER - MUNCUL KALAU DRIVER UDAH KETEMU -->
+<div class="btnSearching" id="btnSearching"><div class="spinnerSmall"></div> MENCARI DRIVER...</div>
 <div class="driverCard" id="driverCard">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><b style="color:#4ade80">✅ Driver Ditemukan - OTW ke kamu</b><span id="driverEta" style="font-size:12px;color:#D4AF37;font-weight:800">ETA 5 menit</span></div>
   <div class="driverTop">
     <div class="driverFoto" id="driverFoto">👨‍🦱</div>
     <div class="driverInfo">
       <b id="driverNama">Budi Santoso</b>
-      <p><span class="rating">⭐ 4.9</span> • 1.240 trip • AMMO Travel</p>
-      <p id="driverStatus" style="color:#4ade80">● Online - Lagi OTW jemput</p>
+      <span id="driverRating">⭐ 4.9 • 1.240 perjalanan</span><br>
+      <span class="statusDriver" id="driverStatus">● OTW KE LOKASI KAMU • 5 menit lagi</span>
     </div>
   </div>
-  <div class="carBox">
-    <div><b id="driverMobil">Toyota Innova Reborn</b><p style="font-size:12px;color:#aaa;margin-top:2px" id="driverWarna">Hitam • 7 Kursi • AC Dingin</p></div>
-    <div class="plat" id="driverPlat">B 1234 AMM</div>
+  <div class="vehicleBox">
+    <div><b id="driverMobil">Toyota Innova Reborn</b><div style="font-size:12px;color:#aaa" id="driverWarna">Hitam • 7 Kursi</div></div>
+    <div class="plate" id="driverPlat">D 1234 ABC</div>
   </div>
   <div class="driverBtns">
     <button class="btnChat" onclick="bukaChat()">💬 CHAT DRIVER</button>
-    <button class="btnCall" onclick="telponDriver()">📞 TELEPON</button>
+    <button class="btnCall" onclick="telpDriver()">📞 TELP</button>
   </div>
+  <p style="font-size:11px;color:#888;margin-top:10px;text-align:center" id="driverRute">Rute: -</p>
 </div>
 <button class="btn2" id="btnBatal" onclick="batalOrder()">BATALKAN PESANAN</button>
-<p style="text-align:center;font-size:11px;color:#666;margin-top:8px" id="bawahNote">Driver akan konfirmasi via WhatsApp</p>
+<p style="text-align:center;font-size:11px;color:#666;margin-top:8px" id="txtKonfirmasi">Driver akan konfirmasi via WhatsApp</p>
 </div>
 <div id="p-perjalanan" class="page">
 <div class="logo">AMMO TRAVEL</div><h1>Perjalanan Kamu</h1>
@@ -175,35 +205,103 @@ input:focus,select:focus{border-color:#D4AF37}
 <div style="text-align:center;padding:30px 0"><div style="width:90px;height:90px;border-radius:50%;background:linear-gradient(180deg,#FFE9A8,#D4AF37);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:40px;color:#000">👤</div><h2>Ko Cheng</h2><p style="color:#D4AF37;margin-top:6px">Member Gold • AMMO TRAVEL</p></div>
 <div class="item"><b>📍 Alamat</b><p>Jalan Muara Raya, Pelindung</p></div>
 <div class="item"><b>🎟️ Voucher Terkumpul</b><p id="voucherTotal">Rp 0</p></div>
+<!-- GAK ADA TOMBOL LOGIN / DAFTAR DI SINI - SENGAJA, BIAR GAK DIACAK-ACAK ORANG -->
 </div>
 </div>
-<!-- BALON CHAT MELAYANG - SELALU ADA DI HALAMAN AWAL -->
-<button class="chatFab" onclick="bukaChat()">💬<span id="chatBadge">1</span></button>
+<button class="chatFab" id="chatFab" onclick="bukaChat()">💬<span class="chatBadge" id="chatBadge">1</span></button>
 <div class="nav">
 <button class="active" onclick="nav('beranda',this)"><span>🏠</span>Beranda</button>
 <button onclick="nav('perjalanan',this)"><span>🧳</span>Perjalanan</button>
 <button onclick="nav('profil',this)"><span>👤</span>Profil</button>
 </div>
-<div class="modal" id="modal"><div class="modalBox"><h2 id="modalTitle">Mencari Driver...</h2><div class="spinner" id="spin"></div><p id="modalText" style="color:#aaa;font-size:14px;line-height:1.5"></p><button style="margin-top:16px;width:100%;padding:13px;border:1px solid #ff4d4d;background:transparent;color:#ff6b6b;border-radius:12px;font-weight:800;cursor:pointer" onclick="batalOrder()">BATALKAN PESANAN</button></div></div>
-<!-- MODAL CHAT -->
-<div class="modal" id="modalChat"><div class="chatBox">
+<div class="modal" id="modal"><div class="modalBox"><h2 id="modalTitle">Mencari Driver...</h2><div class="spinner" id="spin"></div><p id="modalText" style="color:#aaa;font-size:14px;line-height:1.5"></p></div></div>
+<div class="chatModal" id="chatModal">
   <div class="chatHeader">
-    <div class="foto" id="chatFoto">👨‍🦱</div>
-    <div style="flex:1"><b id="chatNama">Budi Santoso - Driver AMMO</b><p style="font-size:12px;color:#4ade80">● Online</p></div>
-    <button onclick="tutupChat()" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer">✕</button>
+    <button onclick="tutupChat()" style="background:none;border:none;color:#fff;font-size:22px;cursor:pointer">←</button>
+    <div class="driverFoto" id="chatFoto">🤖</div>
+    <div style="flex:1"><b id="chatNama">AMMO BOT • Online</b><div style="font-size:11px;color:#4ade80">● BOT Aktif • Semua chat dibalas BOT • <span id="chatMobil">Cari di 2 tabel</span></div></div>
+    <button onclick="telpDriver()" style="background:#1a1a1a;border:1px solid #D4AF37;color:#E8C766;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer">📞</button>
   </div>
-  <div class="chatMsgs" id="chatMsgs"></div>
-  <div class="chatInput"><input id="chatInput" placeholder="Ketik pesan ke driver..." onkeydown="if(event.key==='Enter') kirimChat()"><button onclick="kirimChat()">➤</button></div>
-</div></div>
+  <div class="chatBody" id="chatBody"></div>
+  <div class="quickChat">
+    <button onclick="kirimCepat('@kadal')">Coba @kadal (PIN + Karcis)</button>
+    <button onclick="kirimCepat('Titik jemput sesuai maps ya')">Titik jemput sesuai maps</button>
+  </div>
+  <div class="chatInput">
+    <input id="chatInput" placeholder="Ketik @ # $ & → cari di DRIVER + ADMIN" onkeypress="if(event.key==='Enter') kirimChat()">
+    <button onclick="kirimChat()">➤</button>
+  </div>
+</div>
+<!-- PIN LOCK + KARCIS - CUMA LEWAT BOT, GAK ADA HALAMAN LOGIN PUBLIK -->
+<div class="pinLock" id="pinLock">
+  <div class="pinCrown">👑</div>
+  <div class="pinTitle">AMMO TRAVEL</div>
+  <div class="pinSub" id="pinSub">KODE RAHASIA DITEMUKAN<br>Masukkan PIN untuk membuka</div>
+  <div class="pinUser" id="pinUser">
+    <b id="pinNama">-</b>
+    <p id="pinDetail">-</p>
+    <p id="pinAsal" style="color:#D4AF37;font-weight:700">-</p>
+  </div>
+  <div id="pinArea">
+    <div class="pinDots" id="pinDots"><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div></div>
+    <div class="pinCode" id="pinCode">• • • • • •</div>
+    <p style="font-size:11px;color:#888">PIN dari BOT: <span id="pinAsli" style="color:#E8C766;font-weight:900">-</span> • Ketik di keypad</p>
+    <div class="pinKeypad" id="pinKeypad"></div>
+  </div>
+  <div class="karcisBox" id="karcisBox" style="display:none">
+    <b style="color:#E8C766">✅ PIN BENAR!</b>
+    <p style="font-size:12px;color:#fff;margin-top:6px">Tinggal 1 langkah lagi buat masuk <b>Halaman Admin</b>:</p>
+    <p style="font-size:12px;color:#D4AF37;font-weight:700;margin-top:4px">🎟️ WAJIB BAWA KARCIS DARI BOT!</p>
+    <p style="font-size:11px;color:#aaa;margin-top:4px" id="karcisInfo">Karcis kamu: -</p>
+    <input id="inputKarcis" placeholder="MASUKKAN KARCIS: AMMO-XXXX">
+    <button class="pinBtnGold" onclick="tukarKarcisMasukAdmin()" style="margin-top:10px">🎟️ PAKAI KARCIS → MASUK HALAMAN ADMIN</button>
+    <p id="karcisError" style="font-size:12px;color:#ff6b6b;margin-top:6px;display:none">Karcis salah / sudah dipakai / bukan buat admin ini!</p>
+  </div>
+  <button class="pinBtnGold" id="btnKembaliChat" onclick="tutupPin()">🔓 KEMBALI KE CHAT</button>
+  <button class="pinBtnGhost" onclick="tutupPin()">Tutup tanpa buka</button>
+</div>
+<!-- HALAMAN ADMIN - CUMA BISA DIBUKA LEWAT BOT, GAK ADA JALAN LAIN -->
+<div class="adminPage" id="adminPage">
+  <div class="adminHeader">
+    <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(180deg,#FFE9A8,#D4AF37);display:flex;align-items:center;justify-content:center;font-size:26px" id="adminFoto">👑</div>
+    <div style="flex:1"><b id="adminNama" style="font-size:17px">Ko Cheng - Admin</b><div style="font-size:12px;color:#4ade80">● Login Admin • Karcis Terverifikasi ✅ • Jalur Rahasia BOT</div><div style="font-size:11px;color:#aaa" id="adminKarcisTampil">Karcis: -</div></div>
+    <button onclick="keluarAdmin()" style="background:#1a1a1a;border:1px solid #ff4d4d;color:#ff6b6b;padding:10px 14px;border-radius:10px;font-weight:800;cursor:pointer">KELUAR</button>
+  </div>
+  <div class="adminStat">
+    <div><b>12</b><span>Order Hari Ini</span></div>
+    <div><b>8</b><span>Driver Online</span></div>
+    <div><b>Rp 2,4jt</b><span>Omzet Hari Ini</span></div>
+  </div>
+  <div class="adminCard"><b>🧾 Order Masuk</b><p style="font-size:13px;color:#aaa;margin-top:6px">• Pelindung → Summarecon - Rp 52.000 - Driver Budi - OTW<br>• Bandung → Jakarta - Rp 1.876.875 - Driver Asep - OTW<br>• Cimahi → Lembang - Rp 85.000 - Menunggu Driver</p><button style="margin-top:10px;padding:10px 14px;border:none;border-radius:10px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-weight:900;cursor:pointer">Lihat Semua Order →</button></div>
+  <div class="adminCard"><b>👨‍🦱 Kelola Driver</b><p style="font-size:13px;color:#aaa;margin-top:6px">Total 24 Driver • 8 Online • 2 Off</p><button style="margin-top:10px;padding:10px 14px;border:1px solid #D4AF37;background:#1a1a1a;color:#E8C766;border-radius:10px;font-weight:800;cursor:pointer">Kelola Driver →</button></div>
+  <div class="adminCard"><b>🎟️ Karcis Terpakai</b><p style="font-size:13px;color:#aaa;margin-top:6px" id="adminKarcisList">Belum ada karcis dipakai di sesi ini.</p></div>
+  <div class="adminCard"><b>⚙️ Pengaturan</b><p style="font-size:13px;color:#aaa;margin-top:6px">Rate, Fee Admin, Voucher, Harga per KM - semua di sini (rahasia, gak ditampilin ke penumpang)</p></div>
+</div>
 <script>
 const $=id=>document.getElementById(id);
 const fmt=n=>'Rp '+Math.round(n||0).toLocaleString('id-ID');
-let pickCoord=null, destCoord=null, totalHarga=0, voucherDapat=0;
-let driverAktif=null, orderAktif=false;
-const DRIVERS=[
-  {nama:'Budi Santoso', foto:'👨‍🦱', rating:'4.9', trip:'1.240', mobil:'Toyota Innova Reborn', warna:'Hitam • 7 Kursi • AC Dingin', plat:'B 1234 AMM'},
-  {nama:'Andi Pratama', foto:'🧔', rating:'4.8', trip:'980', mobil:'Toyota Avanza Veloz', warna:'Putih • 7 Kursi • AC Dingin', plat:'D 5678 AMM'},
-  {nama:'Rizky Maulana', foto:'👨🏻', rating:'5.0', trip:'1.850', mobil:'Daihatsu Xenia', warna:'Silver • 7 Kursi • AC Dingin', plat:'B 9012 AMM'},
+let pickCoord=null, destCoord=null, totalHarga=0, voucherDapat=0, orderAktif=false, driverAktif=null, chatSudahDibuka=false, pinInput='', pinBenar='', pinTarget=null, pinSudahBenar=false;
+const API_URL = ''; const API_KEY = '';
+const DB_DRIVER=[
+  {kode:'kadal', nama:'Kadal Sakti - Driver', foto:'🦎', role:'DRIVER', mobil:'Toyota Innova Reborn', plat:'D 1111 KDL', pin:'112233', ket:'Driver Senior • Bandung'},
+  {nama:'Budi Santoso', kode:'budi', foto:'👨‍🦱', role:'DRIVER', mobil:'Toyota Innova Reborn', plat:'D 1234 ABC', pin:'123456', ket:'Driver • 1.240 trip'},
+  {nama:'Asep Hidayat', kode:'asep', foto:'👨🏻', role:'DRIVER', mobil:'Toyota Avanza Veloz', plat:'D 5678 XYZ', pin:'234567', ket:'Driver • 980 trip'},
+  {nama:'Rudi Hartono', kode:'rudi', foto:'🧔', role:'DRIVER', mobil:'Daihatsu Xenia', plat:'D 9012 QWE', pin:'345678', ket:'Driver • 2.100 trip'},
+  {nama:'Sapi Jantan', kode:'sapi', foto:'🐄', role:'DRIVER', mobil:'Mitsubishi Xpander', plat:'D 2222 SPI', pin:'445566', ket:'Driver • Pelindung'},
+  {nama:'Kambing Hitam', kode:'kambing', foto:'🐐', role:'DRIVER', mobil:'Toyota Avanza', plat:'D 3333 KMB', pin:'778899', ket:'Driver • Cimahi'},
+];
+const DB_ADMIN=[
+  {nama:'Ko Cheng - Admin', kode:'ko', foto:'👑', role:'ADMIN', mobil:'Admin Pusat', plat:'AMMO-001', pin:'999999', ket:'Admin Utama • AMMO Travel'},
+  {nama:'Kadal Admin', kode:'kadal', foto:'🦎', role:'ADMIN', mobil:'Admin Sistem', plat:'AMMO-002', pin:'121212', ket:'Admin Sistem • Akses Penuh'},
+  {nama:'Sapi Admin', kode:'sapi', foto:'🐄', role:'ADMIN', mobil:'Admin Keuangan', plat:'AMMO-003', pin:'343434', ket:'Admin Keuangan'},
+  {nama:'Kambing Admin', kode:'kambing', foto:'🐐', role:'ADMIN', mobil:'Admin Order', plat:'AMMO-004', pin:'565656', ket:'Admin Order'},
+];
+let karcisDB = {}; let karcisTerpakai = [];
+const drivers=[
+  {nama:'Budi Santoso', foto:'👨‍🦱', rating:'⭐ 4.9 • 1.240 perjalanan', mobil:'Toyota Innova Reborn', warna:'Hitam • 7 Kursi', plat:'D 1234 ABC', eta:'5 menit lagi'},
+  {nama:'Asep Hidayat', foto:'👨🏻', rating:'⭐ 4.8 • 980 perjalanan', mobil:'Toyota Avanza Veloz', warna:'Putih • 7 Kursi', plat:'D 5678 XYZ', eta:'7 menit lagi'},
+  {nama:'Rudi Hartono', foto:'🧔', rating:'⭐ 5.0 • 2.100 perjalanan', mobil:'Daihatsu Xenia', warna:'Silver • 7 Kursi', plat:'D 9012 QWE', eta:'4 menit lagi'},
+  {nama:'Dedi Kurniawan', foto:'👨‍🦰', rating:'⭐ 4.9 • 1.560 perjalanan', mobil:'Mitsubishi Xpander', warna:'Hitam • 7 Kursi', plat:'D 3456 RTY', eta:'6 menit lagi'},
 ];
 function hitungOngkos(km,orang){
   let o=orang||5; let rate=o>=5?6500:5000;
@@ -276,7 +374,7 @@ function ambilGPS(){
     if(destCoord) hitungJarakReal();
   },()=>{ $('dari').value='Jalan Muara Raya, Pelindung'; },{enableHighAccuracy:true,timeout:10000, maximumAge:60000});
 }
-window.addEventListener('load',()=>{ setTanggalJamDefault(); setTimeout(()=>ambilGPS(), 500); });
+window.addEventListener('load',()=>{ setTanggalJamDefault(); setTimeout(()=>ambilGPS(), 500); buatKeypad(); });
 let timerCari=null;
 async function cariGabungan(query, box, isDari){
   if(query.length<3){box.style.display='none';return;}
@@ -333,92 +431,231 @@ function tukar(){
 }
 $('orang').addEventListener('change',()=>{ let km=parseFloat($('km').value)||0; if(km) tampilkanHarga(km,0,'OSRM'); });
 function nav(p,btn){ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active')); $('p-'+p).classList.add('active'); document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); window.scrollTo(0,0); setTimeout(()=>{ mapDari.invalidateSize(); mapTujuan.invalidateSize(); },100); }
-
-// ===== ALUR BARU: PESAN -> CARI -> DRIVER KETEMU -> TOMBOL PESAN ILANG =====
 function pesan(){
+  if(orderAktif){ alert('Orderan kamu lagi jalan! Cek kartu driver di bawah.'); return; }
   if(!pickCoord||!destCoord){ alert('Pilih Dari & Tujuan dari Maps dulu!'); return; }
-  if(orderAktif){ alert('Kamu udah punya orderan aktif, chat driver aja di bawah!'); return; }
+  $('btnPesan').style.display='none';
+  $('btnSearching').style.display='flex';
+  $('btnBatal').style.display='block';
   $('modal').classList.add('show'); $('modalTitle').textContent='Mencari Driver...'; $('spin').style.display='block';
-  $('modalText').textContent=$('dari').value+' → '+$('tujuan').value+'\nTotal: '+fmt(totalHarga);
-  setTimeout(()=>{
-    if(!$('modal').classList.contains('show')) return;
-    $('modal').classList.remove('show');
-    // Pilih driver acak biar gak itu-itu mulu
-    driverAktif = DRIVERS[Math.floor(Math.random()*DRIVERS.length)];
-    orderAktif = true;
-    tampilkanDriver();
-    // Auto buka chat, driver nyapa duluan
-    setTimeout(()=>{ bukaChat(true); }, 600);
-  },2500);
+  $('modalText').textContent=$('dari').value+' → '+$('tujuan').value+'\nTotal: '+fmt(totalHarga)+'\n\nMencari driver terdekat...';
+  setTimeout(()=>{ if(!orderAktif && $('btnSearching').style.display==='flex'){ driverDitemukan(); } },3000);
 }
-function tampilkanDriver(){
-  if(!driverAktif) return;
-  // ISI KARTU DRIVER
+function driverDitemukan(){
+  orderAktif=true;
+  driverAktif = drivers[Math.floor(Math.random()*drivers.length)];
+  $('modal').classList.remove('show');
+  $('btnSearching').style.display='none';
   $('driverFoto').textContent=driverAktif.foto;
   $('driverNama').textContent=driverAktif.nama;
-  $('driverNama').insertAdjacentHTML('afterend','');
+  $('driverRating').textContent=driverAktif.rating;
+  $('driverStatus').textContent='● OTW KE LOKASI KAMU • '+driverAktif.eta;
   $('driverMobil').textContent=driverAktif.mobil;
   $('driverWarna').textContent=driverAktif.warna;
   $('driverPlat').textContent=driverAktif.plat;
-  $('driverEta').textContent='ETA 5 menit';
-  // GANTI TAMPILAN: PESAN ILANG, DRIVER MUNCUL, BATAL MUNCUL
-  $('btnPesan').style.display='none';
-  $('driverCard').classList.add('show');
-  $('btnBatal').style.display='block';
-  $('bawahNote').textContent='Driver OTW - Chat driver kalau ada titik jemput khusus';
-  $('chatNama').textContent=driverAktif.nama+' - Driver AMMO';
-  $('chatFoto').textContent=driverAktif.foto;
-  // Update info rating di kartu
-  document.querySelector('.driverInfo p').innerHTML=`<span class="rating">⭐ ${driverAktif.rating}</span> • ${driverAktif.trip} trip • AMMO Travel`;
-  // Simpan ke Perjalanan
+  $('driverRute').textContent='Rute: '+$('dari').value+' → '+$('tujuan').value+' • '+fmt(totalHarga);
+  $('driverCard').style.display='block';
+  $('chatNama').textContent='AMMO BOT • '+driverAktif.nama;
+  $('chatFoto').textContent='🤖';
+  $('chatMobil').textContent=driverAktif.mobil+' • '+driverAktif.plat;
+  $('txtKonfirmasi').textContent='Driver OTW • Chat dibalas BOT AMMO';
+  $('chatBadge').textContent='1'; $('chatBadge').style.display='flex';
+  $('chatBody').innerHTML='';
+  tambahPesanBot('Halo kak! Saya <b>AMMO BOT 🤖</b> yang jagain chat ini. Driver <b>'+driverAktif.nama+'</b> lagi OTW, '+driverAktif.eta+'.');
   let v=parseInt(localStorage.getItem('ammo_voucher')||'0')+voucherDapat; localStorage.setItem('ammo_voucher',v); $('voucherTotal').textContent=fmt(v);
-  $('listTrip').innerHTML=`<div class="item"><b>${$('dari').value} → ${$('tujuan').value}</b><p>${$('km').value} • ${$('orang').value} Orang • Driver: ${driverAktif.nama} - ${driverAktif.mobil} (${driverAktif.plat})</p><p style="color:#E8C766;font-weight:800">${fmt(totalHarga)} • Driver OTW</p></div>`+$('listTrip').innerHTML;
+  $('listTrip').innerHTML=`<div class="item"><b>${driverAktif.nama} • ${driverAktif.mobil} • ${driverAktif.plat}</b><p>${$('dari').value} → ${$('tujuan').value}</p><p>${$('km').value} • ${$('orang').value} Orang • Driver OTW</p><p style="color:#E8C766;font-weight:800">${fmt(totalHarga)}</p><button onclick="bukaChat()" style="margin-top:8px;padding:8px 14px;border:1px solid #D4AF37;background:#1a1a1a;color:#E8C766;border-radius:10px;font-weight:800;cursor:pointer">💬 CHAT BOT</button></div>`+$('listTrip').innerHTML;
 }
 function batalOrder(){
-  $('modal').classList.remove('show');
-  $('modalChat').classList.remove('show');
-  if(!orderAktif){ alert('Gak ada pesanan aktif.'); return; }
+  if(!orderAktif && $('btnSearching').style.display!=='flex'){ $('modal').classList.remove('show'); return; }
+  let yakin = confirm('Batalkan pesanan ini? Driver akan dibatalkan, gak kena biaya.');
+  if(!yakin) return;
   orderAktif=false; driverAktif=null;
-  // BALIKIN KE AWAL: DRIVER ILANG, TOMBOL PESAN MUNCUL LAGI
-  $('driverCard').classList.remove('show');
+  $('modal').classList.remove('show');
+  $('driverCard').style.display='none';
+  $('btnSearching').style.display='none';
   $('btnPesan').style.display='block';
   $('btnBatal').style.display='none';
-  $('bawahNote').textContent='Driver akan konfirmasi via WhatsApp';
-  $('chatMsgs').innerHTML='';
-  $('chatBadge').classList.remove('show');
+  $('txtKonfirmasi').textContent='Driver akan konfirmasi via WhatsApp';
+  $('chatBody').innerHTML='';
   alert('Pesanan dibatalkan. Gak kena biaya apa-apa.');
 }
-// ===== CHAT =====
-function bukaChat(isAuto=false){
-  $('modalChat').classList.add('show');
-  $('chatBadge').classList.remove('show');
-  if(driverAktif && $('chatMsgs').children.length===0){
-    // Driver nyapa duluan pas ketemu
-    tambahChat('driver', `Halo Kak, saya ${driverAktif.nama} 🙏 Saya bawa ${driverAktif.mobil} plat ${driverAktif.plat}. Saya OTW ke titik jemput ya, sekitar 5 menit lagi sampai. Mohon ditunggu di depan ya Kak.`);
-  } else if(!driverAktif && $('chatMsgs').children.length===0){
-    tambahChat('driver', `Halo Kak, ada yang bisa dibantu? Kalau mau pesan, isi Dari & Tujuan dulu ya, nanti saya carikan driver terdekat 🙏`);
-  }
-  if(!isAuto) setTimeout(()=>$('chatInput').focus(),100);
+function telpDriver(){
+  if(!driverAktif){ alert('Chat BOT dulu ya, driver belum ada'); return; }
+  alert('Menghubungi '+driverAktif.nama+'\n'+driverAktif.mobil+' • '+driverAktif.plat);
+  window.open('https://wa.me/6281234567890?text=Halo '+encodeURIComponent(driverAktif.nama)+', saya penumpang AMMO TRAVEL','_blank');
 }
-function tutupChat(){ $('modalChat').classList.remove('show'); }
-function tambahChat(siapa, teks){
-  let div=document.createElement('div'); div.className='msg '+(siapa==='me'?'me':'driver'); div.textContent=teks;
-  $('chatMsgs').appendChild(div); $('chatMsgs').scrollTop=$('chatMsgs').scrollHeight;
+// ===== CHAT BOT - SATU-SATUNYA JALUR RAHASIA, GAK ADA HALAMAN LOGIN PUBLIK =====
+function bukaChat(){
+  $('chatModal').classList.add('show');
+  $('chatBadge').style.display='none';
+  chatSudahDibuka=true;
+  if($('chatBody').children.length===0){
+    tambahPesanBot('Halo kak! 👋 Saya <b>AMMO BOT 🤖</b> - semua chat di sini dibalas saya.<br><br>📌 <b>KHUSUS ADMIN / DRIVER - JALUR RAHASIA:</b><br>Gak ada halaman Login / Daftar di depan, sengaja! Biar gak bisa diacak-acak orang.<br>Cuma yang tau kode rahasia yang bisa masuk.<br><br>Coba ketik:<br><b>@kadal</b> → BOT kasih PIN + Karcis<br>Terus ketik PIN → ketik Karcis → masuk Halaman Admin.');
+  }
+  setTimeout(()=>{ let b=$('chatBody'); b.scrollTop=b.scrollHeight; },100);
+}
+function tutupChat(){ $('chatModal').classList.remove('show'); }
+function tambahPesanBot(teks){
+  let d=document.createElement('div'); d.className='msg bot'; d.innerHTML=teks+'<small>'+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+' • AMMO BOT 🤖</small>';
+  $('chatBody').appendChild(d); $('chatBody').scrollTop=$('chatBody').scrollHeight;
+}
+function tambahPesanSaya(teks){
+  let d=document.createElement('div'); d.className='msg me'; d.innerHTML=teks.replace(/</g,'&lt;')+'<small>'+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+' • Kamu</small>';
+  $('chatBody').appendChild(d); $('chatBody').scrollTop=$('chatBody').scrollHeight;
 }
 function kirimChat(){
-  let txt=$('chatInput').value.trim(); if(!txt) return;
-  tambahChat('me', txt); $('chatInput').value='';
-  // Balasan otomatis driver (biar gak sepi, nanti tinggal ganti ke WA / server beneran)
-  setTimeout(()=>{
-    let balasan = driverAktif ? `Siap Kak, noted ya: "${txt}" 🙏 Saya OTW, kalau udah deket saya kabarin lagi.` : `Siap Kak, noted 🙏`;
-    tambahChat('driver', balasan);
-  },1000);
+  let inp=$('chatInput'); let teks=inp.value.trim(); if(!teks) return;
+  tambahPesanSaya(teks); inp.value='';
+  setTimeout(()=>{ botBalas(teks); },700);
 }
-function telponDriver(){
-  if(!driverAktif) return;
-  alert(`Menelpon ${driverAktif.nama} (${driverAktif.plat})...`);
+function kirimCepat(teks){ $('chatInput').value=teks; kirimChat(); }
+function buatKarcis(nama){
+  let kode = 'AMMO-' + Math.random().toString(36).substring(2,6).toUpperCase();
+  karcisDB[kode] = nama;
+  return kode;
 }
-let kl=0; document.querySelector('.logo').addEventListener('click',()=>{ kl++; if(kl>=2){ if(orderAktif){ alert('Lagi ada orderan aktif, batalin dulu kalau mau reset!'); kl=0; return; } $('tujuan').value=''; $('km').value=''; $('orang').value=5; $('box').style.display='none'; $('boxEmpty').style.display='block'; destCoord=null; if(markerTujuan) mapTujuan.removeLayer(markerTujuan); markerTujuan=null; alert('Direset ke NOL lagi!'); kl=0; } setTimeout(()=>kl=0,800); });
+function botBalas(teks){
+  if(/^AMMO-[A-Z0-9]+/i.test(teks.trim())){
+    let kode = teks.trim().toUpperCase();
+    tambahPesanBot(`Karcis <b>${kode}</b> dicatat. Kalau PIN udah bener, masukkin karcis ini di layar kunci buat masuk Halaman Admin ya.`);
+    return;
+  }
+  let pola = /([@#\$&])([A-Za-z0-9_]+)/g;
+  let match, ketemu=[];
+  while((match=pola.exec(teks))!==null){
+    let simbol=match[1], kataAsli=match[2], kata=kataAsli.toLowerCase();
+    let dariDriver = DB_DRIVER.filter(d=> d.kode.toLowerCase().includes(kata) || d.nama.toLowerCase().includes(kata));
+    let dariAdmin = DB_ADMIN.filter(d=> d.kode.toLowerCase().includes(kata) || d.nama.toLowerCase().includes(kata));
+    dariDriver.forEach(h=> ketemu.push({simbol, kata:kataAsli, data:h, [STRIPPED] DRIVER'}));
+    dariAdmin.forEach(h=> ketemu.push({simbol, kata:kataAsli, data:h, [STRIPPED] ADMIN'}));
+  }
+  if(ketemu.length===0){
+    if(/[@#\$&]/.test(teks)){
+      tambahPesanBot('Waduh kak, kode <b>'+teks+'</b> gak ketemu di 2 tabel (Driver + Admin) 😅<br><br>Coba yang pasti ada:<br><b>@kadal</b> → nemu 2 (Driver + Admin)');
+    } else {
+      let balas=[
+        'Siap kak, noted ya: "'+teks+'" 🙏 Saya BOT, saya terusin ke driver. Driver lagi OTW.',
+        'Oke kak, titik jemput sesuai maps ya. Saya udah catat.',
+        'Siap kak, saya udah infoin ke driver. 5 menit lagi sampai.',
+        'Baik kak, kalau mau buka PIN rahasia, ketik <b>@kadal</b> 👑',
+      ];
+      tambahPesanBot(balas[Math.floor(Math.random()*balas.length)]);
+    }
+    return;
+  }
+  let daftar = ketemu.map((k,i)=>{
+    if(k.sumber==='TABEL ADMIN'){
+      let karcis = buatKarcis(k.data.nama);
+      k.karcis = karcis;
+      return `${i+1}. ${k.simbol}${k.kata} → <b>${k.data.nama}</b> (${k.sumber})<br>🔑 <b>PIN: ${k.data.pin}</b> (Langsung dikasih!)<br>🎟️ <b>KARCIS: ${karcis}</b> (Wajib bawa buat masuk Halaman Admin!)`;
+    } else {
+      return `${i+1}. ${k.simbol}${k.kata} → <b>${k.data.nama}</b> (${k.sumber})<br>🔑 <b>PIN: ${k.data.pin}</b>`;
+    }
+  }).join('<br><br>');
+  tambahPesanBot(`🔍 <b>BOT NEMU ${ketemu.length} DATA DI 2 TABEL!</b><br><br>${daftar}<br><br>👑 Membuka yang pertama dulu...`);
+  let pertama = ketemu[0];
+  setTimeout(()=>{ bukaPin(pertama); },900);
+  ketemu.slice(1).forEach(k=>{
+    setTimeout(()=>{
+      if(k.sumber==='TABEL ADMIN'){
+        tambahPesanBot(`Mau buka <b>${k.data.nama} (ADMIN)</b> juga? PIN-nya <b>${k.data.pin}</b>, Karcisnya <b>${k.karcis}</b><br><button onclick="bukaPinDariChat('${k.data.pin}','${k.data.nama}','${k.data.role}','${k.data.mobil} • ${k.data.plat}','TABEL ADMIN','${k.karcis}')" style="margin-top:6px;padding:8px 12px;border:none;border-radius:10px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-weight:900;cursor:pointer">👑 BUKA PIN ${k.data.nama} + KARCIS</button>`);
+      } else {
+        tambahPesanBot(`Mau buka PIN <b>${k.data.nama} (DRIVER)</b> juga? Klik 👇<br><button onclick="bukaPinDariChat('${k.data.pin}','${k.data.nama}','${k.data.role}','${k.data.mobil} • ${k.data.plat}','TABEL DRIVER','')" style="margin-top:6px;padding:8px 12px;border:none;border-radius:10px;background:linear-gradient(180deg,#FFE9A8,#D4AF37);font-weight:900;cursor:pointer">👑 BUKA PIN ${k.data.nama}</button>`);
+      }
+    },1400);
+  });
+}
+function bukaPinDariChat(pin,nama,role,mobil,sumber,karcis){
+  let d = (role==='ADMIN' ? DB_ADMIN : DB_DRIVER).find(x=> x.pin===pin);
+  if(d) bukaPin({simbol:'@', kata:nama, data:d, sumber, karcis:karcis||null});
+}
+function bukaPin(item){
+  let d=item.data;
+  pinTarget=item; pinBenar=d.pin; pinInput=''; pinSudahBenar=false;
+  $('pinNama').textContent=d.nama;
+  $('pinDetail').textContent=d.ket+' • '+d.mobil+' • '+(d.plat||'');
+  if(d.role==='ADMIN'){
+    $('pinSub').innerHTML='ADMIN DITEMUKAN 👑<br>PIN langsung dikasih BOT + KARCIS wajib dibawa buat masuk Halaman Admin';
+    $('pinAsal').textContent='Ditemukan di '+item.sumber+' • Kode: '+item.simbol+item.kata+' • 🎟️ KARCIS: '+(item.karcis||'-');
+    $('karcisInfo').textContent='Karcis kamu buat '+d.nama+': '+(item.karcis||'-')+' (dari BOT, jangan sampai hilang!)';
+  } else {
+    $('pinSub').innerHTML='KODE RAHASIA DITEMUKAN<br>Masukkan PIN untuk membuka';
+    $('pinAsal').textContent='Ditemukan di '+item.sumber+' • Kode: '+item.simbol+item.kata;
+  }
+  $('pinArea').style.display='block';
+  $('karcisBox').style.display='none';
+  $('btnKembaliChat').textContent='🔓 KEMBALI KE CHAT';
+  $('pinAsli').textContent=d.pin;
+  updatePinTampil();
+  $('pinLock').classList.add('show');
+}
+function buatKeypad(){
+  let keys=['1','2','3','4','5','6','7','8','9','⌫','0','✓'];
+  $('pinKeypad').innerHTML=keys.map(k=>`<button class="pinKey" onclick="tekanPin('${k}')">${k}</button>`).join('');
+}
+function tekanPin(k){
+  if(k==='⌫'){ pinInput=pinInput.slice(0,-1); }
+  else if(k==='✓'){ cekPin(); return; }
+  else { if(pinInput.length>=6) return; pinInput+=k; }
+  updatePinTampil();
+  if(pinInput.length===6){ setTimeout(cekPin,300); }
+}
+function updatePinTampil(){
+  let dots=document.querySelectorAll('.pinDot');
+  dots.forEach((dot,i)=>{ dot.classList.toggle('filled', i<pinInput.length); });
+  $('pinCode').innerHTML = pinInput ? pinInput.split('').map(c=>`<span>${c}</span>`).join(' ') + ' ' + '• '.repeat(6-pinInput.length) : '• • • • • •';
+}
+function cekPin(){
+  if(pinInput===pinBenar){
+    pinSudahBenar=true;
+    $('pinCode').innerHTML='✅ <span style="color:#4ade80">PIN BENAR!</span>';
+    setTimeout(()=>{
+      if(pinTarget.data.role==='ADMIN'){
+        $('pinArea').style.display='none';
+        $('karcisBox').style.display='block';
+        $('pinSub').innerHTML='✅ PIN BENAR! TAPI BELUM BISA MASUK ADMIN<br>🎟️ WAJIB BAWA KARCIS DARI BOT!';
+        $('pinCode').innerHTML='';
+        $('inputKarcis').value='';
+        $('karcisError').style.display='none';
+        $('btnKembaliChat').textContent='BALIK KE CHAT BUAT LIAT KARCIS';
+        tambahPesanBot(`✅ <b>PIN BENER</b> buat <b>${pinTarget.data.nama}</b>!<br>Tapi buat masuk <b>Halaman Admin</b> wajib bawa <b>KARCIS: ${pinTarget.karcis}</b> 🎟️<br>Masukkin karcis itu di layar kunci sekarang.`);
+      } else {
+        tutupPin();
+        tambahPesanBot('✅ <b>PIN BENAR!</b> Kunci terbuka untuk <b>'+$('pinNama').textContent+'</b> 👑 Black & Gold unlocked!');
+      }
+    },600);
+  } else {
+    $('pinCode').innerHTML='❌ <span style="color:#ff4d4d">PIN SALAH</span>';
+    setTimeout(()=>{ pinInput=''; updatePinTampil(); },800);
+  }
+}
+function tukarKarcisMasukAdmin(){
+  if(!pinSudahBenar){ alert('PIN belum bener! Ketik PIN dulu.'); return; }
+  let inp = $('inputKarcis').value.trim().toUpperCase();
+  if(!inp){ $('karcisError').textContent='Isi karcisnya dulu! Karcis dari BOT.'; $('karcisError').style.display='block'; return; }
+  if(karcisDB[inp] && karcisDB[inp]===pinTarget.data.nama){
+    delete karcisDB[inp];
+    karcisTerpakai.push(inp+' - '+pinTarget.data.nama);
+    $('pinLock').classList.remove('show');
+    $('chatModal').classList.remove('show');
+    $('adminFoto').textContent=pinTarget.data.foto;
+    $('adminNama').textContent=pinTarget.data.nama;
+    $('adminKarcisTampil').textContent='Karcis: '+inp+' (Terverifikasi ✅)';
+    $('adminKarcisList').textContent=karcisTerpakai.join(', ');
+    $('adminPage').classList.add('show');
+    tambahPesanBot(`🎉 <b>BERHASIL MASUK HALAMAN ADMIN!</b> Selamat datang <b>${pinTarget.data.nama}</b> 👑 Karcis <b>${inp}</b> sudah dipakai & hangus.`);
+  } else {
+    $('karcisError').textContent='Karcis salah / sudah dipakai / bukan buat '+pinTarget.data.nama+'! Cek chat BOT lagi, karcisnya: '+(pinTarget.karcis||'-');
+    $('karcisError').style.display='block';
+  }
+}
+function keluarAdmin(){
+  $('adminPage').classList.remove('show');
+  pinSudahBenar=false; pinInput='';
+  alert('Keluar dari Halaman Admin. Karcis sudah hangus, mau masuk lagi minta karcis baru ke BOT.');
+}
+function tutupPin(){ $('pinLock').classList.remove('show'); pinInput=''; pinSudahBenar=false; }
+let kl=0; document.querySelector('.logo').addEventListener('click',()=>{ kl++; if(kl>=2){ $('tujuan').value=''; $('km').value=''; $('orang').value=5; $('box').style.display='none'; $('boxEmpty').style.display='block'; destCoord=null; if(markerTujuan) mapTujuan.removeLayer(markerTujuan); markerTujuan=null; alert('Direset ke NOL lagi!'); kl=0; } setTimeout(()=>kl=0,800); });
 </script>
 </body>
 </html>
