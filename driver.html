@@ -17,10 +17,28 @@ body{background:#000;color:#fff}
 .driverInfo{flex:1;min-width:0}
 .driverInfo b{font-size:18px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .driverInfo span{font-size:12px;color:#E8C766}
-.statusDriver{font-size:11px;background:#1a3a1a;color:#4ade80;padding:4px 8px;border-radius:20px;font-weight:800;margin-top:4px;display:inline-block}
-.badgeOnline{font-size:11px;background:#1a3a1a;color:#4ade80;padding:6px 12px;border-radius:20px;font-weight:800}
-.badgeOffline{font-size:11px;background:#3a1a1a;color:#ff6b6b;padding:6px 12px;border-radius:20px;font-weight:800}
+.switchRow{display:flex;align-items:center;justify-content:space-between;background:#0a0a0a;border:1px solid #333;border-radius:14px;padding:12px 14px;margin-top:14px}
+.switchRow b{font-size:14px}
+.switchRow small{display:block;font-size:11px;color:#888;margin-top:2px}
+.switch{position:relative;width:64px;height:34px;flex-shrink:0;cursor:pointer}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#3a1a1a;border:1px solid #ff4d4d;border-radius:34px;transition:.25s}
+.slider:before{position:absolute;content:"";height:26px;width:26px;left:3px;top:3px;background:#ff6b6b;border-radius:50%;transition:.25s}
+.switch input:checked + .slider{background:#1a3a1a;border-color:#4ade80}
+.switch input:checked + .slider:before{transform:translateX(30px);background:#4ade80}
+.statusText{font-size:12px;font-weight:800;margin-top:10px;text-align:center;padding:8px;border-radius:10px}
+.statusText.on{background:#1a3a1a;color:#4ade80}
+.statusText.off{background:#3a1a1a;color:#ff6b6b}
 h2{font-size:18px;margin:14px 4px 10px}
+.field{margin-bottom:12px}
+.field label{color:#D4AF37;font-size:13px;font-weight:700;display:block;margin-bottom:6px}
+.field input{width:100%;background:#1a1a1a;border:1px solid #333;border-radius:12px;color:#fff;padding:13px;font-size:15px;outline:none}
+.field input:focus{border-color:#D4AF37}
+.field input[readonly]{background:#0a0a0a;color:#aaa;border-color:#222;cursor:not-allowed}
+.field small{font-size:11px;color:#888;display:block;margin-top:4px}
+.vehicleBox{background:#0a0a0a;border:1px solid #333;border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center}
+.vehicleBox b{font-size:15px}
+.plate{background:#fff;color:#000;font-weight:900;padding:6px 10px;border-radius:6px;font-size:14px;letter-spacing:1px;border:2px solid #000}
 .orderCard{border:1px solid #C9A227;border-radius:18px;padding:16px;background:#111;margin-bottom:12px}
 .orderCard b{color:#E8C766;font-size:16px}
 .orderCard p{font-size:13px;color:#aaa;margin-top:6px;line-height:1.5}
@@ -85,20 +103,65 @@ h2{font-size:18px;margin:14px 4px 10px}
   <div class="driverTop">
     <div class="driverFoto" id="driverFoto">🚗</div>
     <div class="driverInfo">
-      <b id="driverNama">-</b>
-      <span id="driverCode">-</span><br>
-      <span class="statusDriver" id="driverStatus">● ONLINE</span>
+      <b id="driverNamaTop">-</b>
+      <span id="driverCodeTop">-</span>
     </div>
-    <span class="badgeOnline" id="badgeOnline">ONLINE</span>
   </div>
-  <div style="display:flex;justify-content:space-between;margin-top:14px;font-size:13px;color:#aaa">
-    <span>Mobil: <b style="color:#fff" id="driverMobil">-</b></span>
-    <span style="background:#fff;color:#000;font-weight:900;padding:4px 8px;border-radius:6px;font-size:12px" id="driverPlat">-</span>
+
+  <div class="switchRow">
+    <div>
+      <b id="labelOnline">ONLINE</b>
+      <small id="labelOnlineSub">Siap terima order</small>
+    </div>
+    <label class="switch">
+      <input type="checkbox" id="switchOnline" checked onchange="toggleOnlineSwitch(this.checked)">
+      <span class="slider"></span>
+    </label>
   </div>
-  <div class="btnRow">
-    <button class="btn2" id="btnToggleOnline" onclick="toggleOnline()">🔴 OFFLINE</button>
-    <button class="btnRed" onclick="logoutDriver()">KELUAR</button>
+  <div class="statusText on" id="statusText">● ONLINE - Siap terima order</div>
+
+  <!-- TOMBOL KELUAR CUMA 1 DI SINI DOANG -->
+  <button class="btnRed" onclick="logoutDriver()" style="margin-top:12px">KELUAR</button>
+</div>
+
+<div class="card">
+  <b style="font-size:16px">👤 Data Diri Sopir</b>
+  <p style="font-size:12px;color:#888;margin:6px 0 14px">Bisa diedit, kecuali Kendaraan. Jangan lupa pencet SIMPAN.</p>
+
+  <div class="field">
+    <label>Nama</label>
+    <input id="editNama" placeholder="Nama driver, misal: Ahmad">
+    <small>Bisa diedit</small>
   </div>
+
+  <div class="field">
+    <label>Nomor Telp</label>
+    <input id="editTelp" type="tel" placeholder="08xxxxxxxxxx" inputmode="tel">
+    <small>Bisa diedit</small>
+  </div>
+
+  <div class="field">
+    <label>Code</label>
+    <input id="editCode" placeholder="sopir">
+    <small>Bisa diedit - ini yang diketik penumpang pake @, misal @sopir. Kalau diganti, login berikutnya pake code baru.</small>
+  </div>
+
+  <div class="field">
+    <label>Kendaraan</label>
+    <div class="vehicleBox">
+      <div><b id="editMobil">-</b><div style="font-size:12px;color:#aaa">Hanya tampil, tidak bisa diedit</div></div>
+      <div class="plate" id="editPlat">-</div>
+    </div>
+    <small>Hanya tampil - kalau mau ganti mobil, hubungi Admin</small>
+  </div>
+
+  <div class="field">
+    <label>Email</label>
+    <input id="editEmail" type="email" placeholder="nama@email.com">
+    <small>Bisa diedit</small>
+  </div>
+
+  <button class="btn" onclick="simpanDataDiri()">💾 SIMPAN DATA DIRI</button>
 </div>
 
 <h2>📦 Order Baru Masuk</h2>
@@ -110,8 +173,8 @@ h2{font-size:18px;margin:14px 4px 10px}
 <h2>📜 Riwayat</h2>
 <div id="listRiwayat"><div class="empty">Belum ada riwayat.</div></div>
 
-<button class="btnRed" onclick="logoutDriver()">KELUAR DARI DRIVER</button>
-<p style="text-align:center;font-size:11px;color:#666;margin-top:10px">Keluar akan balik ke halaman penumpang (index.html)</p>
+<!-- UDAH GAK ADA TOMBOL KELUAR DI SINI LAGI, BIAR GAK DOUBLE -->
+
 </div>
 
 <div class="pinLock" id="pinLock">
@@ -119,7 +182,7 @@ h2{font-size:18px;margin:14px 4px 10px}
     <button class="pinClose" onclick="tutupPinKeIndex()">×</button>
     <div class="pinLion">🦁</div>
     <p style="text-align:center;font-weight:800">Masuk Driver</p>
-    <p style="text-align:center;font-size:12px;color:#aaa;margin-top:4px" id="pinSub">Masukkan kode driver lalu PIN</p>
+    <p style="text-align:center;font-size:12px;color:#aaa;margin-top:4px">Masukkan kode driver lalu PIN</p>
     <input id="inputCode" placeholder="Kode driver, misal: sopir" style="width:100%;background:#1a1a1a;border:1px solid #333;border-radius:12px;color:#fff;padding:13px;font-size:15px;outline:none;margin-top:14px;text-align:center">
     <div class="pinDots" id="pinDots"><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div><div class="pinDot"></div></div>
     <div class="pinKeypad" id="pinKeypad"></div>
@@ -170,18 +233,12 @@ let isOnline=true, orderAktif=null, chatOrderId=null;
 let callChannel=null, peerConn=null, localStream=null, currentCallId=null, incomingOffer=null, callTimerInt=null, callDetik=0, isMuted=false;
 const STUN_SERVERS={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
 
-// ===== CEK AKSES : INI YANG DIBENERIN =====
-// Jalur masuk driver ada 2:
-// 1. Dari index.html -> udah PIN di sana, token ada di ammo_driver_code -> langsung masuk, GAK minta PIN lagi
-// 2. Langsung buka driver.html -> cek ammo_driver di localStorage, kalau gak ada baru minta PIN di sini
 async function cekAkses(){
   buatKeypad();
   try{
     let saved = localStorage.getItem('ammo_driver');
     if(saved){ driver = JSON.parse(saved); }
   }catch(e){}
-
-  // Kalau driver belum ketemu, coba ambil dari token kiriman index.html
   if(!driver){
     let codeDariIndex = localStorage.getItem('ammo_driver_code') || sessionStorage.getItem('ammo_driver_code');
     if(codeDariIndex){
@@ -194,7 +251,6 @@ async function cekAkses(){
       }catch(e){}
     }
   }
-
   if(driver){
     $('loading').style.display='none';
     $('app').style.display='block';
@@ -209,31 +265,98 @@ async function cekAkses(){
   setInterval(()=>{ if(driver){ loadOrderBaru(); loadRiwayat(); } }, 10000);
 }
 
+function ambilTelp(d){
+  return d.no_telp || d.nomor_telp || d.telp || d.phone || d.no_hp || d.hp || '';
+}
+function ambilEmail(d){
+  return d.email || d.mail || '';
+}
+
 function tampilDriver(){
   if(!driver) return;
-  $('driverNama').textContent = driver.nama || driver.name || driver.code || 'Driver';
-  $('driverCode').textContent = '@' + (driver.code || '-');
-  $('driverMobil').textContent = driver.jenis_mobil || driver.mobil || '-';
-  $('driverPlat').textContent = driver.plat_mobil || driver.plat || '-';
+  let nama = driver.nama || driver.name || driver.code || 'Driver';
+  let code = driver.code || '-';
+  $('driverNamaTop').textContent = nama;
+  $('driverCodeTop').textContent = '@' + code;
+  $('editNama').value = nama;
+  $('editTelp').value = ambilTelp(driver);
+  $('editCode').value = code;
+  $('editEmail').value = ambilEmail(driver);
+  $('editMobil').textContent = driver.jenis_mobil || driver.mobil || '-';
+  $('editPlat').textContent = driver.plat_mobil || driver.plat || '-';
+  let savedOnline = localStorage.getItem('ammo_driver_online');
+  if(savedOnline !== null) isOnline = savedOnline === '1';
+  else isOnline = true;
   updateOnlineUI();
 }
 
+function toggleOnlineSwitch(checked){
+  isOnline = !!checked;
+  localStorage.setItem('ammo_driver_online', isOnline ? '1' : '0');
+  updateOnlineUI();
+  loadOrderBaru();
+}
 function updateOnlineUI(){
-  $('badgeOnline').textContent = isOnline ? 'ONLINE' : 'OFFLINE';
-  $('badgeOnline').className = isOnline ? 'badgeOnline' : 'badgeOffline';
-  $('driverStatus').textContent = isOnline ? '● ONLINE - Siap terima order' : '● OFFLINE';
-  $('btnToggleOnline').textContent = isOnline ? '🔴 OFFLINE' : '🟢 ONLINE';
+  $('switchOnline').checked = isOnline;
+  $('labelOnline').textContent = isOnline ? 'ONLINE' : 'OFFLINE';
+  $('labelOnline').style.color = isOnline ? '#4ade80' : '#ff6b6b';
+  $('labelOnlineSub').textContent = isOnline ? 'Siap terima order' : 'Tidak terima order baru';
+  let st = $('statusText');
+  st.textContent = isOnline ? '● ONLINE - Siap terima order' : '● OFFLINE - Order baru tidak masuk';
+  st.className = 'statusText ' + (isOnline ? 'on' : 'off');
 }
-
 function toggleOnline(){
-  isOnline = !isOnline;
-  updateOnlineUI();
-  alert(isOnline ? 'Kamu ONLINE, siap terima order.' : 'Kamu OFFLINE, order baru tidak masuk.');
+  toggleOnlineSwitch(!isOnline);
 }
 
-// ===== LOGOUT : INI YANG DIBENERIN =====
-// Dulu: cuma hapus ammo_driver + location.reload() -> muter ke PIN lagi
-// Sekarang: hapus SEMUA token -> langsung ke index.html, gak muter
+async function simpanDataDiri(){
+  if(!driver) return;
+  let namaBaru = $('editNama').value.trim();
+  let telpBaru = $('editTelp').value.trim();
+  let codeBaru = $('editCode').value.trim().toLowerCase().replace(/\s+/g,'');
+  let emailBaru = $('editEmail').value.trim();
+  if(!namaBaru){ alert('Nama jangan kosong ya.'); return; }
+  if(!codeBaru){ alert('Code jangan kosong ya, misal: sopir'); return; }
+
+  let oldCode = driver.code;
+  driver.nama = namaBaru;
+  driver.name = namaBaru;
+  driver.code = codeBaru;
+  driver.no_telp = telpBaru;
+  driver.nomor_telp = telpBaru;
+  driver.telp = telpBaru;
+  driver.phone = telpBaru;
+  driver.email = emailBaru;
+
+  localStorage.setItem('ammo_driver', JSON.stringify(driver));
+  localStorage.setItem('ammo_driver_code', codeBaru);
+  sessionStorage.setItem('ammo_driver_code', codeBaru);
+  let tokenLama = localStorage.getItem('ammo_driver_token') || '';
+  if(tokenLama){
+    let parts = tokenLama.split('|');
+    let karcisBaru = codeBaru + '|' + (parts[1] || driver.pin || '') + '|' + (parts[2] || (Date.now()+2*60*60*1000));
+    localStorage.setItem('ammo_driver_token', karcisBaru);
+    sessionStorage.setItem('ammo_driver_token', karcisBaru);
+  }
+
+  tampilDriver();
+
+  try{
+    let payload = { nama: namaBaru, name: namaBaru, code: codeBaru, email: emailBaru, no_telp: telpBaru, nomor_telp: telpBaru, telp: telpBaru, phone: telpBaru };
+    let res;
+    if(driver.id){
+      res = await sb.from('drivers').update(payload).eq('id', driver.id);
+    } else {
+      res = await sb.from('drivers').update(payload).eq('code', oldCode);
+    }
+    if(res.error) throw res.error;
+    alert('Data diri tersimpan ✅\nNama: ' + namaBaru + '\nTelp: ' + (telpBaru||'-') + '\nCode: @' + codeBaru + '\nEmail: ' + (emailBaru||'-'));
+  }catch(e){
+    console.log('Gagal simpan ke Supabase, tapi kesimpen di HP:', e);
+    alert('Tersimpan di HP ✅\nTapi gagal simpan ke Supabase (cek nama kolom telp/email di tabel drivers).\n\nNama/Code udah keubah di HP ini.');
+  }
+}
+
 function logoutDriver(){
   if(!confirm('Keluar dari akun driver?')) return;
   driver = null;
@@ -245,11 +368,9 @@ function logoutDriver(){
   sessionStorage.removeItem('ammo_driver_token');
   sessionStorage.removeItem('ammo_driver_code');
   sessionStorage.removeItem('ammo_admin_token');
-  // JANGAN reload, langsung ke index
   window.location.href = 'index.html?reset=1';
 }
 
-// ===== PIN DI driver.html (HANYA kalau buka langsung, tanpa lewat index.html) =====
 function bukaPin(){
   $('app').style.display='none';
   $('pinLock').classList.add('show');
@@ -258,7 +379,6 @@ function bukaPin(){
   if(codeLama) $('inputCode').value = codeLama;
 }
 function tutupPinKeIndex(){
-  // Tombol X di PIN -> langsung ke index, JANGAN muter di PIN
   window.location.href = 'index.html?reset=1';
 }
 function buatKeypad(){
@@ -289,7 +409,6 @@ async function cekPinDriver(){
       setTimeout(()=>{ pinInput=''; updatePinTampil(); },400);
       return;
     }
-    // PIN BENER
     driver = row;
     localStorage.setItem('ammo_driver', JSON.stringify(driver));
     localStorage.setItem('ammo_driver_code', row.code);
@@ -303,7 +422,6 @@ async function cekPinDriver(){
   }catch(e){ alert('Gagal cek PIN, cek internet.'); pinInput=''; updatePinTampil(); }
 }
 
-// ===== ORDER =====
 function ambilOrderDariStorage(){
   try{
     let o = localStorage.getItem('masphus_order');
@@ -382,7 +500,6 @@ function loadRiwayat(){
   <p>${(r.jarak_km||0).toFixed(1)} km • ${fmt(r.total_harga||0)} • Selesai</p></div>`).join('');
 }
 
-// ===== CHAT =====
 function bukaChat(){
   if(!orderAktif){ alert('Belum ada order yang jalan.'); return; }
   $('chatNama').textContent = 'Penumpang • ' + (orderAktif.asal?.nama||'');
@@ -406,7 +523,6 @@ function kirimChat(){
   setTimeout(()=>{ tambahPesanPenumpang('Oke pak, siap. Saya tunggu di titik maps ya.'); },800);
 }
 
-// ===== TELP =====
 function buatPeer(){
   peerConn = new RTCPeerConnection(STUN_SERVERS);
   peerConn.onicecandidate = e=>{ if(e.candidate && callChannel) callChannel.send({type:'broadcast', event:'ice', payload:{candidate:e.candidate, callId:currentCallId}}); };
@@ -481,13 +597,10 @@ function akhiriTelpDiam(){
 }
 
 window.addEventListener('load', ()=>{
-  // Kalau datang dari index.html habis logout, jangan tampilkan PIN
   if(location.search.includes('reset=1')){
-    // Ini kalau ada yang buka driver.html?reset=1, lempar ke index
     window.location.href = 'index.html?reset=1';
     return;
   }
-  // Kalau ada order yang lagi jalan dari sebelumnya, tampilkan lagi
   try{
     let cur = localStorage.getItem('ammo_current_order');
     if(cur) orderAktif = JSON.parse(cur);
